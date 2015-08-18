@@ -1,0 +1,121 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] Some question for deverloper technical ...
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-February/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20Some%20question%20for%20deverloper%20technical%20...&In-Reply-To=%3Ccc416a620702140112o3bf87f0aiadeda0464acd45d2%40mail.gmail.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000028.html">
+   <LINK REL="Next"  HREF="000022.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] Some question for deverloper technical ...</H1>
+    <B>Dizzy</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20Some%20question%20for%20deverloper%20technical%20...&In-Reply-To=%3Ccc416a620702140112o3bf87f0aiadeda0464acd45d2%40mail.gmail.com%3E"
+       TITLE="[pvpgn-dev] Some question for deverloper technical ...">dizone at gmail.com
+       </A><BR>
+    <I>Wed Feb 14 10:12:23 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000028.html">[pvpgn-dev] Some question for deverloper technical ...
+</A></li>
+        <LI>Next message: <A HREF="000022.html">[pvpgn-dev] [Patch #1643] support for Emperor and Red Alert 1 v3.03
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#29">[ date ]</a>
+              <a href="thread.html#29">[ thread ]</a>
+              <a href="subject.html#29">[ subject ]</a>
+              <a href="author.html#29">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>On 2/13/07, All4you &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">zhaowei_hn at yahoo.com</A>&gt; wrote:
+&gt;<i> After some hours , i have some result ...
+</I>&gt;<i>
+</I>&gt;<i> With BroodWar user, they have TAG SEXP, the default icon and default ladder
+</I>&gt;<i> icons like
+</I>&gt;<i> <A HREF="http://www.battle.net/images/battle/images/chat/icons/sun.jpg">http://www.battle.net/images/battle/images/chat/icons/sun.jpg</A>
+</I>&gt;<i> is builtin with Stardat.MPQ , if the client can't find icons in
+</I>&gt;<i> icons_STAR.bni, they will get default icons from MPQ files. I have some fun
+</I>&gt;<i> stuff ...I backup two file icons.bni and icons_STAR.bni , and i deleted
+</I>&gt;<i> icons_STAR.bni and replace icons_STAR.bni with the content of icons.bni ,
+</I>&gt;<i> when i login PVPGN with SEXP user, it's display only SEXP icons, this icons
+</I>&gt;<i> is get from icons_STAR.bni ( that's content from icons.bni )
+</I>&gt;<i> ...
+</I>&gt;<i>
+</I>&gt;<i> That 'all ...i'm sure that :
+</I>&gt;<i>
+</I>&gt;<i>  The main icons file is from icons_STAR.bni , IF the client can't get icon
+</I>&gt;<i> from this file, they will get default icons from StarDat.MPQ file ...The
+</I>&gt;<i> solutions to change icon like PGTour rank system is ...
+</I>&gt;<i>
+</I>&gt;<i> First : creat some image TGA will be rank icon like A+,A- , B+,B- and built
+</I>&gt;<i> it in to icons_STAR.bni ( using bnibuilt ) , define each icon with each TAG
+</I>&gt;<i> Name like RANK1 to RANKXXX ...
+</I>
+That's what I have said already.
+
+&gt;<i> Second : Edit PVPGN source code ( when display username list and icons ) ,
+</I>&gt;<i> with each rank, define clienttag with the SAME TAG Name ...
+</I>&gt;<i>
+</I>&gt;<i> Third : recompiled PVPGN ...
+</I>
+I was hoping this shouldn't be needed. As I said you can assign
+specific users a specific tag and pvpgn will send that tag for the
+user when in the channel thus the other clients can extract from the
+modified icons.bni file the icon corresponding to the assigned tag. To
+assign a user a tag use the &quot;/tag&quot; command. Although currently that is
+checked to only be able to assign valid clienttags.
+
+The function that builds the info based on which clients display the
+icons is message_bnet_format in message.cpp. This function in turn
+calls conn_get_playerinfo() in connection.cpp which if you look into
+it you will see how it builds the other info.
+
+&gt;<i> But my problem is i still can't find where PVPGN display icon and username
+</I>&gt;<i> list in BroodWar ...Who know that information ?? Please help me ...i am
+</I>&gt;<i> newbie with PVPGN system code ^.^
+</I>
+PvPGN doesn't display icon and username list, it's the client that
+does so. PvPGN only sends channel contents information (users in
+channel information) based on which clients display the list and
+icons. The information sent it's done in the functions above. You will
+have to packet dump on battle.net and see exactly what battle.net
+sends to a client that has such a new icon.
+
+I don't think it's as simple as you said, you see when you got 2 wins
+starcraft shows another icon then the one you said with 1 star in it.
+Find out how does it do that.
+
+-- 
+Dizzy
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000028.html">[pvpgn-dev] Some question for deverloper technical ...
+</A></li>
+	<LI>Next message: <A HREF="000022.html">[pvpgn-dev] [Patch #1643] support for Emperor and Red Alert 1 v3.03
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#29">[ date ]</a>
+              <a href="thread.html#29">[ thread ]</a>
+              <a href="subject.html#29">[ subject ]</a>
+              <a href="author.html#29">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

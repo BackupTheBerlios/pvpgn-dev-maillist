@@ -1,0 +1,109 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] [Bug #5976] d2cs doenst link up after killall -1 bnetd
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-July/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BBug%20%235976%5D%20d2cs%20doenst%20link%20up%20after%20killall%20-1%20bnetd&In-Reply-To=%3C200707160856.l6G8uvUE006987%40unicorn.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000115.html">
+   <LINK REL="Next"  HREF="000117.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] [Bug #5976] d2cs doenst link up after killall -1 bnetd</H1>
+    <B>admin at berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BBug%20%235976%5D%20d2cs%20doenst%20link%20up%20after%20killall%20-1%20bnetd&In-Reply-To=%3C200707160856.l6G8uvUE006987%40unicorn.berlios.de%3E"
+       TITLE="[pvpgn-dev] [Bug #5976] d2cs doenst link up after killall -1 bnetd">admin at berlios.de
+       </A><BR>
+    <I>Mon Jul 16 10:56:57 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000115.html">[pvpgn-dev] [Bug #5976] d2cs doenst link up after killall -1 bnetd
+</A></li>
+        <LI>Next message: <A HREF="000117.html">[pvpgn-dev] [Bug #10900] could not load saved game
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#116">[ date ]</a>
+              <a href="thread.html#116">[ thread ]</a>
+              <a href="subject.html#116">[ subject ]</a>
+              <a href="author.html#116">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Bug #5976, was updated on 2005-Dec-28 08:13
+Here is a current snapshot of the bug.
+
+Project: Player vs Player Gaming Network
+Category: General
+Status: Closed
+Resolution: Invalid
+Bug Group: d2cs/d2dbs
+Priority: 5
+Submitted by: enderbsd
+Assigned to : none
+Summary: d2cs doenst link up after killall -1 bnetd
+
+Details: With newest versions of cvs, and svn, 1.99. When you killall -1 bnetd, the d2cs deamon does not link back up to bnetd.
+Users inside d2 games will be fine, but no one will be able to make NEW d2 games untill you KILL -9 d2cs and restart it.
+
+A simple killall -1 d2cs and d2dbs will not fix the problem. 
+(a killall -1 bnetd will not fix the problem of cource becasue it started the problem)
+
+I do not remember this being a problem before. (at least 1-2 months ago, so its not a long time bug. )
+
+Follow-Ups:
+
+Date: 2007-Jul-16 14:56
+By: rotsor
+
+Comment:
+The version I use is PvPGN 1.8.0 final. 
+-------------------------------------------------------
+
+Date: 2007-Jul-16 14:51
+By: rotsor
+
+Comment:
+I've got the same bug.
+When I /rehash - then the connection to the d2cs stays open, but realm is never activated.
+Only complete restart of d2cs or bnetd helps.
+-------------------------------------------------------
+
+Date: 2006-Jun-25 23:18
+By: d1zzy
+
+Comment:
+I cant reproduce this. If I sighup bnetd the connection to d2cs is still active so d2cs has no reason to reconnect...
+-------------------------------------------------------
+
+For detailed info, follow this link:
+<A HREF="http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=5976&amp;group_id=2291">http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=5976&amp;group_id=2291</A>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000115.html">[pvpgn-dev] [Bug #5976] d2cs doenst link up after killall -1 bnetd
+</A></li>
+	<LI>Next message: <A HREF="000117.html">[pvpgn-dev] [Bug #10900] could not load saved game
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#116">[ date ]</a>
+              <a href="thread.html#116">[ thread ]</a>
+              <a href="subject.html#116">[ subject ]</a>
+              <a href="author.html#116">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

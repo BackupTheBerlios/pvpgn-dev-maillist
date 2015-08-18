@@ -1,0 +1,180 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] pvpgn/conf versioncheck.conf,1.29,1.30
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-August/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20pvpgn/conf%20versioncheck.conf%2C1.29%2C1.30&In-Reply-To=%3C20070828135159.EB191FF1D8%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000427.html">
+   <LINK REL="Next"  HREF="000429.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] pvpgn/conf versioncheck.conf,1.29,1.30</H1>
+    <B>pelish</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20pvpgn/conf%20versioncheck.conf%2C1.29%2C1.30&In-Reply-To=%3C20070828135159.EB191FF1D8%40mail.berlios.de%3E"
+       TITLE="[pvpgn-dev] pvpgn/conf versioncheck.conf,1.29,1.30">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Tue Aug 28 15:51:59 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000427.html">[pvpgn-dev] r374 - trunk/pvpgn/conf
+</A></li>
+        <LI>Next message: <A HREF="000429.html">[pvpgn-dev] pvpgn UPDATE, 1.58, 1.59 version-history.txt, 1.271,	1.272
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#428">[ date ]</a>
+              <a href="thread.html#428">[ thread ]</a>
+              <a href="subject.html#428">[ subject ]</a>
+              <a href="author.html#428">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/pvpgn/pvpgn/conf
+In directory sheep:/tmp/cvs-serv32129/conf
+
+Modified Files:
+	versioncheck.conf 
+Log Message:
+added SC/BW IX86 1.15.1 version check entries
+
+Index: versioncheck.conf
+===================================================================
+RCS file: /cvsroot/pvpgn/pvpgn/conf/versioncheck.conf,v
+retrieving revision 1.29
+retrieving revision 1.30
+diff -u -d -r1.29 -r1.30
+--- versioncheck.conf	2 Aug 2007 19:37:41 -0000	1.29
++++ versioncheck.conf	28 Aug 2007 13:51:32 -0000	1.30
+@@ -173,39 +173,38 @@
+  0x41e223a3 \
+  D2DV_109D
+ 
+-# Starcraft - Broodwar (Expansion) 1.15 - (Broodwar mode)
++# Starcraft - Broodwar (Expansion) 1.15.1 - (Broodwar mode)
+ &quot;A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B&quot; \
+  &quot;IX86ver1.mpq&quot; \
+  IX86 \
+  SEXP \
+- &quot;starcraft.exe 05/08/07 19:13:26 1220608&quot; \
++ &quot;starcraft.exe 07/19/07 02:30:05 1220608&quot; \
+  0x000000d1 \
+- 1.15.0.1 \
+- 0xc9ca8bc3 \
+- SEXP_115
++ 1.15.1.0 \
++ 0x61f028c1 \
++ SEXP_1151
+ 
+-# Starcraft - Broodwar (Expansion) 1.15 - (Starcraft mode)
++# Starcraft - Broodwar (Expansion) 1.15.1 - (Starcraft mode)
+ &quot;A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B&quot; \
+  &quot;IX86ver1.mpq&quot; \
+  IX86 \
+  STAR \
+- &quot;starcraft.exe 05/08/07 19:13:26 1220608&quot; \
++ &quot;starcraft.exe 07/19/07 02:30:05 1220608&quot; \
+  0x000000d1 \
+- 1.15.0.1 \
+- 0xc9ca8bc3 \
+- STAR_115
++ 1.15.1.0 \
++ 0x61f028c1 \
++ STAR_1151
+ 
+-# Starcraft (Standalone) 1.15
++# Starcraft (Standalone) 1.15.1
+ &quot;A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B&quot; \
+  &quot;IX86ver1.mpq&quot; \
+  IX86 \
+  STAR \
+- &quot;starcraft.exe 05/08/07 19:14:08 1220608&quot; \
++ &quot;starcraft.exe 07/19/07 02:30:53 1220608&quot; \
+  0x000000d1 \
+- 1.15.0.0 \
+- 0x79b1b06e \
+- STAR_115
+-
++ 1.15.1.0 \
++ 0xc3199b84 \
++ STAR_1151
+ 
+ ##### Mac OS X (XMAC) ########################################################
+ 
+@@ -1036,6 +1035,28 @@
+ 
+ # ==================== StarCraft Broodwar entries ============================
+ 
++# Starcraft - Broodwar (Expansion) 1.15 - (Broodwar mode)
++&quot;A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B&quot; \
++ &quot;IX86ver1.mpq&quot; \
++ IX86 \
++ SEXP \
++ &quot;starcraft.exe 05/08/07 19:13:26 1220608&quot; \
++ 0x000000d1 \
++ 1.15.0.1 \
++ 0xc9ca8bc3 \
++ SEXP_115
++
++# Starcraft - Broodwar (Expansion) 1.15 - (Starcraft mode)
++&quot;A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B&quot; \
++ &quot;IX86ver1.mpq&quot; \
++ IX86 \
++ STAR \
++ &quot;starcraft.exe 05/08/07 19:13:26 1220608&quot; \
++ 0x000000d1 \
++ 1.15.0.1 \
++ 0xc9ca8bc3 \
++ STAR_115
++
+ # Starcraft Broodwar (Expansion) 1.14 - (Broodwar mode)
+ &quot;A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B&quot; \
+  &quot;IX86ver1.mpq&quot; \
+@@ -1481,6 +1502,17 @@
+ # SEXP_104_STAR
+ 
+ # ==================== StarCraft (original) entries ==========================
++
++# Starcraft (Standalone) 1.15
++&quot;A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B&quot; \
++ &quot;IX86ver1.mpq&quot; \
++ IX86 \
++ STAR \
++ &quot;starcraft.exe 05/08/07 19:14:08 1220608&quot; \
++ 0x000000d1 \
++ 1.15.0.0 \
++ 0x79b1b06e \
++ STAR_115
+ 
+ # Starcraft (Standalone) 1.14
+ &quot;A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B&quot; \
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000427.html">[pvpgn-dev] r374 - trunk/pvpgn/conf
+</A></li>
+	<LI>Next message: <A HREF="000429.html">[pvpgn-dev] pvpgn UPDATE, 1.58, 1.59 version-history.txt, 1.271,	1.272
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#428">[ date ]</a>
+              <a href="thread.html#428">[ thread ]</a>
+              <a href="subject.html#428">[ subject ]</a>
+              <a href="author.html#428">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

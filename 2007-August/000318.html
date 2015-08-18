@@ -1,0 +1,311 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r318 - in trunk/pvpgn: . src/bnetd
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-August/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r318%20-%20in%20trunk/pvpgn%3A%20.%20src/bnetd&In-Reply-To=%3C200708152227.l7FMRono014738%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000317.html">
+   <LINK REL="Next"  HREF="000319.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r318 - in trunk/pvpgn: . src/bnetd</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r318%20-%20in%20trunk/pvpgn%3A%20.%20src/bnetd&In-Reply-To=%3C200708152227.l7FMRono014738%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r318 - in trunk/pvpgn: . src/bnetd">svn at svn.berlios.de
+       </A><BR>
+    <I>Thu Aug 16 00:27:50 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000317.html">[pvpgn-dev] [Bug #11671] bnetd on 64bit sends currupt packets to	tracker
+</A></li>
+        <LI>Next message: <A HREF="000319.html">[pvpgn-dev] r319 - in trunk/pvpgn/src: bnetd bntrackd common
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#318">[ date ]</a>
+              <a href="thread.html#318">[ thread ]</a>
+              <a href="subject.html#318">[ subject ]</a>
+              <a href="author.html#318">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pelish
+Date: 2007-08-16 00:27:48 +0200 (Thu, 16 Aug 2007)
+New Revision: 318
+
+Modified:
+   trunk/pvpgn/src/bnetd/handle_apireg.cpp
+   trunk/pvpgn/version-history.txt
+Log:
+fixed many bugs in handle_apireg.cpp
+
+Modified: trunk/pvpgn/src/bnetd/handle_apireg.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/handle_apireg.cpp	2007-08-15 11:43:11 UTC (rev 317)
++++ trunk/pvpgn/src/bnetd/handle_apireg.cpp	2007-08-15 22:27:48 UTC (rev 318)
+@@ -377,27 +377,24 @@
+ 	    WARN0(&quot;line to long, truncation...&quot;);
+ 	    tmp[254]='\0';
+     }
+-    
++
+     if (!apiregmember) {
+         apiregmember = apiregmember_create(conn);
+     }
+-
+     line = xstrdup(apiregline);
+ 
+-    /* split the message */
+-    
++    /* split the line */
+     tag = line;
+     param = std::strchr(tag,'=');
+     if (param)
+         *param++ = '\0';
+ 
+-	eventlog(eventlog_level_error,__FUNCTION__,&quot;(%s)NICK:%s/BMONTH:%s/BDAY:%s&quot;,tag,apiregmember_get_newnick(apiregmember),apiregmember_get_bmonth(apiregmember),apiregmember_get_bday(apiregmember));
+-    
++
++    eventlog(eventlog_level_debug,__FUNCTION__,&quot;[%d] got \&quot;%s\&quot; [%s]&quot;,conn_get_socket(conn),tag,((param)?(param):(&quot;&quot;)));
++
+     if (handle_apireg_tag(apiregmember, tag, param)!=-1) {}
+-    
+-    
+     xfree(line);
+-    
++
+     return 0;
+ }
+ 
+@@ -478,7 +475,7 @@
+     
+     packet_set_size(p,0);
+     packet_append_data(p,data,len);
+-    ERROR2(&quot;[%d] sent \&quot;%s\&quot;&quot;,conn_get_socket(conn),data);
++    DEBUG2(&quot;[%d] sent \&quot;%s\&quot;&quot;,conn_get_socket(conn),data);
+     conn_push_outqueue(conn,p);
+     packet_del_ref(p);
+ 
+@@ -583,7 +580,7 @@
+ 	   return -1;
+ 	}
+ 
+-/* We have SKUs */
++	/* We have SKUs */
+ 
+ 	return 0;
+ }
+@@ -595,7 +592,7 @@
+ 	   return -1;
+ 	}
+ 
+-/* We have VERs */
++	/* We have VERs */
+ 
+ 	return 0;
+ }
+@@ -782,6 +779,11 @@
+ 	return 0;
+ }
+ 
++/*static char _handle_apireg_message_format(char const * hresult, char const * message, char const * newnick, char const * newpass, char const * age, char const * consent)
++{
++    
++}*/
++
+ static int _handle_end_apiregtag(t_apiregmember * apiregmember, char * param)
+ {
+ 	char data[MAX_IRC_MESSAGE_LEN];
+@@ -793,10 +795,10 @@
+ 	char const * newpass = apiregmember_get_newpass(apiregmember);
+ 	char const * email = apiregmember_get_email(apiregmember);
+ //    char const * newpass2 = apiregmember_get_newpass2(apiregmember);
+-	char hresult[11];
++	char hresult[12];
+ 	char message[MAX_IRC_MESSAGE_LEN];
+-	char age[7];
+-	char consent[11];
++	char age[8];
++	char consent[12];
+ 
+    	std::memset(data,0,sizeof(data));
+    	std::memset(temp,0,sizeof(temp));
+@@ -806,74 +808,72 @@
+    	std::memset(age,0,sizeof(age));
+    	std::memset(consent,0,sizeof(consent));
+ 
+-   	std::snprintf(hresult,sizeof(hresult),&quot;0&quot;);
+-   	std::snprintf(message,sizeof(message),&quot;((Message))&quot;);
+-   	std::snprintf(age,sizeof(age),&quot;((Age))&quot;);
+-    std::snprintf(consent,sizeof(consent),&quot;((Consent))&quot;);
++   	snprintf(hresult,sizeof(hresult),&quot;0&quot;);
++   	snprintf(message,sizeof(message),&quot;((Message))&quot;);
++   	snprintf(age,sizeof(age),&quot;((Age))&quot;);
++    snprintf(consent,sizeof(consent),&quot;((Consent))&quot;);
+ 
+ //   	if (!newnick)
+-//   	   std::snprintf(newnick,sizeof(newnick),&quot;((NewNick))&quot;);
++//   	   snprintf(newnick,sizeof(newnick),&quot;((NewNick))&quot;);
+ 
+ //   	if (!newpass)
+-//   	   std::snprintf(newpass,sizeof(newpass),&quot;((NewPass))&quot;);
++//   	   snprintf(newpass,sizeof(newpass),&quot;((NewPass))&quot;);
+ 
+ //   	if (!email)
+-//   	   std::snprintf(email,sizeof(email),&quot;((Email))&quot;);
++//   	   snprintf(email,sizeof(email),&quot;((Email))&quot;);
+ 
+ 	DEBUG3(&quot;APIREG:/%s/%s/%s/&quot;,apiregmember_get_request(apiregmember),apiregmember_get_newnick(apiregmember),apiregmember_get_newpass(apiregmember));
+ 	
+-    //if(!prefs_get_allow_new_accounts()){
+-    //message_send_text(conn,message_type_error,conn,&quot;Account creation is not allowed&quot;);
+-    //break;
+-    //std::snprintf(message,sizeof(message),&quot;Account creation is not allowed&quot;);
+-    //std::snprintf(hresult,sizeof(hresult),&quot;-2147221248&quot;);
+-
+     if (std::strcmp(apiregmember_get_request(apiregmember), REQUEST_AGEVERIFY) == 0) {
+-        std::snprintf(data,sizeof(data),&quot;HRESULT=%s\nMessage=%s\nNewNick=((NewNick))\nNewPass=((NewPass))\n&quot;,hresult,message);
++        snprintf(data,sizeof(data),&quot;HRESULT=%s\nMessage=%s\nNewNick=((NewNick))\nNewPass=((NewPass))\n&quot;,hresult,message);
+         /* FIXME: Count real age here! */
+-   	    std::snprintf(age,sizeof(age),&quot;28&quot;); /* FIXME: Here must be counted age */
+-        std::snprintf(temp,sizeof(temp),&quot;Age=%s\nConsent=((Consent))\nEND\r&quot;,age);
++   	    snprintf(age,sizeof(age),&quot;28&quot;); /* FIXME: Here must be counted age */
++        snprintf(temp,sizeof(temp),&quot;Age=%s\nConsent=((Consent))\nEND\r&quot;,age);
+         std::strcat(data,temp);
+        	apireg_send(apiregmember_get_conn(apiregmember),data);
+        	return 0;
+     }
+     else if (std::strcmp(apiregmember_get_request(apiregmember), REQUEST_GETNICK) == 0) {
+-         /*std::snprintf(message,sizeof(message),&quot;Account creation is not allowed&quot;);
+-  	     /*std::snprintf(hresult,sizeof(hresult),&quot;-2147221248&quot;);
+-        /* Chceck */
+-           account = accountlist_find_account(newnick);
+-           if (!account) {  // done, we can create new account
+-              t_account * tempacct;
+-              t_hash bnet_pass_hash;
+-              t_wolhash wol_pass_hash;
++        if(!prefs_get_allow_new_accounts()){
++            snprintf(message,sizeof(message),&quot;Account creation is not allowed&quot;);
++            snprintf(hresult,sizeof(hresult),&quot;-2147221248&quot;);
++        }
++        else {
++            /* Chceck */
++            account = accountlist_find_account(newnick);
++            if (!account) {  /* done, we can create new account */
++                t_account * tempacct;
++                t_hash bnet_pass_hash;
++                t_wolhash wol_pass_hash;
+ 
+-              // Here we will also check serials and/or emails...
++                /* Here we can also check serials and/or emails... */
+ 
+-        	  bnet_hash(&amp;bnet_pass_hash,std::strlen(newpass),newpass);
+-              wol_hash(&amp;wol_pass_hash,std::strlen(newpass),newpass);
++                bnet_hash(&amp;bnet_pass_hash,std::strlen(newpass),newpass);
++                wol_hash(&amp;wol_pass_hash,std::strlen(newpass),newpass);
+ 
+-              tempacct = accountlist_create_account(newnick,hash_get_str(bnet_pass_hash));
++                tempacct = accountlist_create_account(newnick,hash_get_str(bnet_pass_hash));
+ 
+-              if (!tempacct) {
+-                  // ERROR: Account is not created! - Why? :)
+-                  return 0;
+-              }
+-              else {
+-                  // HASH WOL PASSWORD and save it!
+-                  eventlog(eventlog_level_error,__FUNCTION__,&quot;WOLHASH: %s&quot;,wol_pass_hash);
+-                  account_set_wol_apgar(tempacct,wol_pass_hash);
+-                  account_set_email(tempacct,apiregmember_get_email(apiregmember));
+-                  std::snprintf(message,sizeof(message),&quot;Welcome in the amazing world of PvPGN! Your login can be used for all PvPGN Supported games!&quot;);
+-              }
+-           }
+-           else {
+-              // Account with this NICK is alredy created!
+-              std::snprintf(hresult,sizeof(hresult),&quot;-2147221248&quot;);
+-              std::snprintf(message,sizeof(message),&quot;That login is already in use! Please try another NICK name.&quot;);
+-           }
+-        std::snprintf(data,sizeof(data),&quot;HRESULT=%s\nMessage=%s\nNewNick=%s\nNewPass=%s\nAge=%s\nConsent=0\nEND\r&quot;,hresult,message,newnick,newpass,age,consent);
+-       	apireg_send(apiregmember_get_conn(apiregmember),data);
+-       	return 0;
++                if (!tempacct) {
++                    // ERROR: Account is not created! - Why? :)
++                    return 0;
++                }
++                else {
++                    eventlog(eventlog_level_debug,__FUNCTION__,&quot;WOLHASH: %s&quot;,wol_pass_hash);
++                    account_set_wol_apgar(tempacct,wol_pass_hash);
++                    account_set_email(tempacct,apiregmember_get_email(apiregmember));
++                    snprintf(message,sizeof(message),&quot;Welcome in the amazing world of PvPGN! Your login can be used for all PvPGN Supported games!&quot;);
++                    snprintf(hresult,sizeof(hresult),&quot;0&quot;);
++                }
++            }
++            else {
++                /* Account with that login is already in use! */
++                snprintf(message,sizeof(message),&quot;That login is already in use! Please try another NICK name.&quot;);
++                snprintf(hresult,sizeof(hresult),&quot;-2147221248&quot;);
++            }
++        }
++        snprintf(data,sizeof(data),&quot;HRESULT=%s\nMessage=%s\nNewNick=%s\nNewPass=%s\nAge=%s\nConsent=0\nEND\r&quot;,hresult,message,newnick,newpass,age,consent);
++        apireg_send(apiregmember_get_conn(apiregmember),data);
++        return 0;
+     }
+     else {
+         /* Error: Unknown request - closing connection */
+
+Modified: trunk/pvpgn/version-history.txt
+===================================================================
+--- trunk/pvpgn/version-history.txt	2007-08-15 11:43:11 UTC (rev 317)
++++ trunk/pvpgn/version-history.txt	2007-08-15 22:27:48 UTC (rev 318)
+@@ -6,10 +6,13 @@
+  For more details also take a peek view into conversion-changelog.
+ 
+ [WOL]
++  -- completed support for all WOL clients (read IGNOREME.TXT)
+   -- disable account creation via irc/wol when new_accounts=false
+   -- added support to allow/deny WOL clients in bnconf.conf
+   -- added support for battle clans
+   -- added various protocol related fixes
++  -- added apireg support
++  -- added support for BattleClans
+ 
+ [MISC]
+   -- added /clan whisper subcommand
+@@ -23,7 +26,6 @@
+   -- fixed bug of not showing Yuri's revenge channels
+   -- added address translation support to servserv sent addresses
+   -- added support for usage of /commands
+-  -- added apireg support
+ 
+ [WAR3]
+   -- fixed possible server crash on ill-formated clan invitation reply packet
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000317.html">[pvpgn-dev] [Bug #11671] bnetd on 64bit sends currupt packets to	tracker
+</A></li>
+	<LI>Next message: <A HREF="000319.html">[pvpgn-dev] r319 - in trunk/pvpgn/src: bnetd bntrackd common
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#318">[ date ]</a>
+              <a href="thread.html#318">[ thread ]</a>
+              <a href="subject.html#318">[ subject ]</a>
+              <a href="author.html#318">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

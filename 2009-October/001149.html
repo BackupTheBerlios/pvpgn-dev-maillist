@@ -1,0 +1,209 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] activating country, color, preferably quicktmach WOL
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2009-October/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20activating%20country%2C%20color%2C%20preferably%20quicktmach%20WOL&In-Reply-To=%3Ceb9d4d380910100125l4ac993f7neb3b12476ead6947%40mail.gmail.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001148.html">
+   <LINK REL="Next"  HREF="001150.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] activating country, color, preferably quicktmach WOL</H1>
+    <B>Pelish</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20activating%20country%2C%20color%2C%20preferably%20quicktmach%20WOL&In-Reply-To=%3Ceb9d4d380910100125l4ac993f7neb3b12476ead6947%40mail.gmail.com%3E"
+       TITLE="[pvpgn-dev] activating country, color, preferably quicktmach WOL">pelish at gmail.com
+       </A><BR>
+    <I>Sat Oct 10 10:25:06 CEST 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001148.html">[pvpgn-dev] activating country, color, preferably quicktmach WOL
+</A></li>
+        <LI>Next message: <A HREF="001150.html">[pvpgn-dev] r561 - trunk/pvpgn/src/bnetd
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1149">[ date ]</a>
+              <a href="thread.html#1149">[ thread ]</a>
+              <a href="subject.html#1149">[ subject ]</a>
+              <a href="author.html#1149">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hello,
+it is nice that you are interested in WOL protocols since I am interested in
+that too. Can you please provide standard patch/diff which includes your
+changes? It is an feature of SVN client so you just make changes of last SVN
+code and than you will make patch. It will be much more useful for me to
+read patches. These patches please provide on patch tracker (is on
+<A HREF="http://developer.berlios.de/patch/?group_id=2291">http://developer.berlios.de/patch/?group_id=2291</A>). I will commit them when I
+will see how are coded. If you want to meet us online, join
+irc.pvpgn.org#pvpgn or #pvpndev which is for developers.
+
+Thank you for your research and development.
+
+The best regards
+Pelish
+
+2009/10/9 ^A|An M0r3n0^ &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">alanstr at gmail.com</A>&gt;
+
+&gt;<i> Sorry I pelish intrude both the WOL, but I am very interested in the
+</I>&gt;<i> WOL.....
+</I>&gt;<i>
+</I>&gt;<i> :Start [rand_num],0,0,[credits],0,1,[SUPER
+</I>&gt;<i> WEAPON],1,1,0,1,x,2,1,[mapsize_kilobytes],[mapname],1:
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> mapsize_kilobytes =  seems it's always : 165368 ------&gt; I've seen in xwis
+</I>&gt;<i> for YURI
+</I>&gt;<i>
+</I>&gt;<i> &quot;%s,[COU],[COL],%x,1,%x,&quot;,  -&gt; for red alert2
+</I>&gt;<i>
+</I>&gt;<i> ,&quot;%s,[COU],[COL],-2,-2,&quot;, --&gt; for YUri
+</I>&gt;<i> I have added the following:
+</I>&gt;<i>
+</I>&gt;<i> anongame_wol.h
+</I>&gt;<i> ============
+</I>&gt;<i>
+</I>&gt;<i> typedef struct anongame_wol_player
+</I>&gt;<i> #ifdef
+</I>&gt;<i>
+</I>&gt;<i> ANONGAME_WOL_INTERNAL_ACCESS
+</I>&gt;<i> {
+</I>&gt;<i> t_connection * conn;
+</I>&gt;<i> /* Red Alert 2 and Yuri's Revnenge */
+</I>&gt;<i>
+</I>&gt;<i> int address;
+</I>&gt;<i> int port;
+</I>&gt;<i> int cou;  // NEW
+</I>&gt;<i> int col; //NEW
+</I>&gt;<i>
+</I>&gt;<i> }
+</I>&gt;<i>
+</I>&gt;<i> #endif
+</I>&gt;<i>
+</I>&gt;<i> t_anongame_wol_player;
+</I>&gt;<i>
+</I>&gt;<i> anongame_wol.cpp
+</I>&gt;<i> ============
+</I>&gt;<i> static int _handle_cou_tag(t_anongame_wol_player * player, char * param);
+</I>&gt;<i> //new
+</I>&gt;<i> static int _handle_col_tag(t_anongame_wol_player * player, char *
+</I>&gt;<i> param); //new
+</I>&gt;<i> static const t_wol_anongame_tag_table_row t_wol_anongame_tag_table[] =
+</I>&gt;<i> {
+</I>&gt;<i>     { MATCHTAG_ADDRESS   , _handle_address_tag },
+</I>&gt;<i>     { MATCHTAG_PORT      , _handle_port_tag },
+</I>&gt;<i>    { MATCHTAG_COUNTRY   , _handle_cou_tag },  // NEW
+</I>&gt;<i>      { MATCHTAG_COLOR     , _handle_col_tag },  //NEW
+</I>&gt;<i>     { NULL                        , NULL }
+</I>&gt;<i> };  ..
+</I>&gt;<i>
+</I>&gt;<i>  static int anongame_wol_player_get_cou(t_anongame_wol_player const *
+</I>&gt;<i> player)  //new
+</I>&gt;<i> {
+</I>&gt;<i>     if (!player) {
+</I>&gt;<i>         ERROR0(&quot;got NULL player&quot;);
+</I>&gt;<i>         return -1;
+</I>&gt;<i>     }
+</I>&gt;<i>     return player-&gt;cou;
+</I>&gt;<i> }
+</I>&gt;<i> static int anongame_wol_player_get_col(t_anongame_wol_player const *
+</I>&gt;<i> player)  //new
+</I>&gt;<i> {
+</I>&gt;<i>     if (!player) {
+</I>&gt;<i>         ERROR0(&quot;got NULL player&quot;);
+</I>&gt;<i>         return -1;
+</I>&gt;<i>     }
+</I>&gt;<i>     return player-&gt;col;
+</I>&gt;<i> }
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> static int _handle_cou_tag(t_anongame_wol_player * player, char * param)
+</I>&gt;<i> //new
+</I>&gt;<i> {
+</I>&gt;<i>     if (!player) {
+</I>&gt;<i>         ERROR0(&quot;got NULL player&quot;);
+</I>&gt;<i>         return -1;
+</I>&gt;<i>     }
+</I>&gt;<i>  if (param)
+</I>&gt;<i>         player-&gt;cou = std::atoi(param);
+</I>&gt;<i>     return 0;
+</I>&gt;<i> }
+</I>&gt;<i> static int _handle_col_tag(t_anongame_wol_player * player, char * param)
+</I>&gt;<i> //new
+</I>&gt;<i> {
+</I>&gt;<i>     if (!player) {
+</I>&gt;<i>         ERROR0(&quot;got NULL player&quot;);
+</I>&gt;<i>         return -1;
+</I>&gt;<i>     }
+</I>&gt;<i>  if (param)
+</I>&gt;<i>         player-&gt;col = std::atoi(param);
+</I>&gt;<i>     return 0;
+</I>&gt;<i> }
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> ====================================
+</I>&gt;<i>
+</I>&gt;<i> lin 422 add:
+</I>&gt;<i>  snprintf(_temp,
+</I>&gt;<i> sizeof(_temp),&quot;%s,%u,%u,%x,1,%x,&quot;,conn_get_chatname(conn_pl1),anongame_wol_player_get_cou(player1),anongame_wol_player_get_col(player1),anongame_wol_player_get_address(player1),anongame_wol_player_get_port(player1));
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> lin 428 add:
+</I>&gt;<i> snprintf(_temp,
+</I>&gt;<i> sizeof(_temp),&quot;%s,%u,%u,%x,1,%x&quot;,conn_get_chatname(conn_pl2),anongame_wol_player_get_cou(player2),anongame_wol_player_get_col(player2),anongame_wol_player_get_address(player2),anongame_wol_player_get_port(player2));
+</I>&gt;<i>
+</I>&gt;<i> lin 476 add:
+</I>&gt;<i>
+</I>&gt;<i> snprintf(_temp,
+</I>&gt;<i> sizeof(_temp),&quot;%s,%u,%u,-2,-2,&quot;,conn_get_chatname(conn_pl1),anongame_wol_player_get_cou(player1),anongame_wol_player_get_col(player2));
+</I>&gt;<i>
+</I>&gt;<i> lin 482 add:
+</I>&gt;<i>
+</I>&gt;<i> snprintf(_temp,
+</I>&gt;<i> sizeof(_temp),&quot;%s,%u,%u,-2,-2,&quot;,conn_get_chatname(anongame_wol_player_get_conn(player2)),anongame_wol_player_get_cou(player2)anongame_wol_player_get_col(player2));
+</I>&gt;<i>
+</I>&gt;<i>  I try to help :)
+</I>&gt;<i>
+</I>&gt;<i> atte
+</I>&gt;<i> Alan MOreno
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> pvpgn-dev mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">pvpgn-dev at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">https://lists.berlios.de/mailman/listinfo/pvpgn-dev</A>
+</I>&gt;<i>
+</I>&gt;<i>
+</I>-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: &lt;<A HREF="https://lists.berlios.de/pipermail/pvpgn-dev/attachments/20091010/b2bb0a06/attachment.html">https://lists.berlios.de/pipermail/pvpgn-dev/attachments/20091010/b2bb0a06/attachment.html</A>&gt;
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001148.html">[pvpgn-dev] activating country, color, preferably quicktmach WOL
+</A></li>
+	<LI>Next message: <A HREF="001150.html">[pvpgn-dev] r561 - trunk/pvpgn/src/bnetd
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1149">[ date ]</a>
+              <a href="thread.html#1149">[ thread ]</a>
+              <a href="subject.html#1149">[ subject ]</a>
+              <a href="author.html#1149">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

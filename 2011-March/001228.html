@@ -1,0 +1,146 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r578 - in trunk/pvpgn: scripts src/bnetd
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2011-March/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r578%20-%20in%20trunk/pvpgn%3A%20scripts%20src/bnetd&In-Reply-To=%3C20110303205802.B28BE481261%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r578 - in trunk/pvpgn: scripts src/bnetd</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r578%20-%20in%20trunk/pvpgn%3A%20scripts%20src/bnetd&In-Reply-To=%3C20110303205802.B28BE481261%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r578 - in trunk/pvpgn: scripts src/bnetd">svn at svn.berlios.de
+       </A><BR>
+    <I>Thu Mar  3 21:58:02 CET 2011</I>
+    <P><UL>
+        
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1228">[ date ]</a>
+              <a href="thread.html#1228">[ thread ]</a>
+              <a href="subject.html#1228">[ subject ]</a>
+              <a href="author.html#1228">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pelish
+Date: 2011-03-03 21:58:02 +0100 (Thu, 03 Mar 2011)
+New Revision: 578
+
+Added:
+   trunk/pvpgn/scripts/pvpgn_wol_hash.inc.php
+Modified:
+   trunk/pvpgn/src/bnetd/command.cpp
+Log:
+Fix for /clan commands bug when clan was always created after two invitations was accepted add PHP WOLHASH implementation script
+
+Added: trunk/pvpgn/scripts/pvpgn_wol_hash.inc.php
+===================================================================
+--- trunk/pvpgn/scripts/pvpgn_wol_hash.inc.php	                        (rev 0)
++++ trunk/pvpgn/scripts/pvpgn_wol_hash.inc.php	2011-03-03 20:58:02 UTC (rev 578)
+@@ -0,0 +1,58 @@
++&lt;?php
++/*
++* PHP implementation of the PvPGN WOL Password Hash Algorithm.
++
++* This code is available under the GNU Lesser General Public License:
++* <A HREF="http://www.gnu.org/licenses/lgpl.txt">http://www.gnu.org/licenses/lgpl.txt</A>
++
++* Original hash funcion Copyright (C)  Luigi Auriemma (<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">aluigi at autistici.org</A>)
++*
++* Comment:
++* Original algorithm starts at offset 0x0041d440 of wchat.dat of 4.221 US version
++* The algorithm is one-way, so the encoded password can NOT be completely decoded!
++
++*/
++function wol_hash($pass)
++{
++	if(strlen($pass)&lt;&gt;8)
++	{
++		return false;
++	}
++	$pwd1=$pass;
++	$esi=8;
++	$pwd2=array(null,null,null,null,null,null,null,null);
++	$p1=0;
++	$p2=0;
++	$edx=&quot;&quot;;
++	for($i=0;$i&lt;8;$i++)
++	{
++		if(ord($pwd1[$p1]) &amp; 1)
++		{
++			$edx = ord($pwd1[$p1]) &lt;&lt; 1;
++			$edx &amp;= ord($pwd1[$esi]);
++		}
++		else
++		{
++			$edx = ord($pwd1[$p1]) ^ ord($pwd1[$esi]);
++		}
++		$pwd2[$p2] = $edx;
++		$p2++;
++		$esi--;
++		$p1++;
++	}
++	
++	
++	$WOL_HASH_CHAR = &quot;abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789./&quot;;
++	$p1 = 0;
++	$p2 = 0;
++	for($i=0;$i&lt;8;$i++)
++	{
++		$edx = $pwd2[$p2] &amp; 0x3f;
++		$p2++;
++		$pwd1[$p1] = $WOL_HASH_CHAR[$edx];
++		$p1++;
++	}
++	return $pwd1;
++}
++
++?&gt;
+\ No newline at end of file
+
+Modified: trunk/pvpgn/src/bnetd/command.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/command.cpp	2010-04-11 09:58:05 UTC (rev 577)
++++ trunk/pvpgn/src/bnetd/command.cpp	2011-03-03 20:58:02 UTC (rev 578)
+@@ -764,6 +764,7 @@
+                   clan_save(clan);
+               }
+               else {
++                  clan_set_created(clan, -prefs_get_clan_min_invites()+1); //Pelish: +1 means that creator of clan is allready invited
+                   snprintf(msgtemp, sizeof(msgtemp), &quot;Clan %s is pre-created, please invite&quot;, clan_get_name(clan));
+                   message_send_text(c,message_type_info,c,msgtemp);
+                   snprintf(msgtemp, sizeof(msgtemp), &quot;at last %u players to your clan by using&quot;,prefs_get_clan_min_invites());
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1228">[ date ]</a>
+              <a href="thread.html#1228">[ thread ]</a>
+              <a href="subject.html#1228">[ subject ]</a>
+              <a href="author.html#1228">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

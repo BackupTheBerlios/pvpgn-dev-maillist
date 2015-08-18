@@ -1,0 +1,88 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] [Bug #19052] bug GetLadderList PvPGN make crash / bnetd	stop running
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2013-July/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BBug%20%2319052%5D%20bug%20GetLadderList%20PvPGN%20make%20crash%20/%20bnetd%0A%09stop%20running&In-Reply-To=%3C201307100703.r6A73EXC007044%40www.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] [Bug #19052] bug GetLadderList PvPGN make crash / bnetd	stop running</H1>
+    <B>admin at berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BBug%20%2319052%5D%20bug%20GetLadderList%20PvPGN%20make%20crash%20/%20bnetd%0A%09stop%20running&In-Reply-To=%3C201307100703.r6A73EXC007044%40www.berlios.de%3E"
+       TITLE="[pvpgn-dev] [Bug #19052] bug GetLadderList PvPGN make crash / bnetd	stop running">admin at berlios.de
+       </A><BR>
+    <I>Wed Jul 10 09:03:14 CEST 2013</I>
+    <P><UL>
+        
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1290">[ date ]</a>
+              <a href="thread.html#1290">[ thread ]</a>
+              <a href="subject.html#1290">[ subject ]</a>
+              <a href="author.html#1290">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Bug #19052, was updated on 2013-Jul-09 23:03
+Here is a current snapshot of the bug.
+
+Project: Player vs Player Gaming Network
+Category: None
+Status: Open
+Resolution: None
+Bug Group: bnetd
+Priority: 5
+Submitted by: gemblenk
+Assigned to : none
+Summary: bug GetLadderList PvPGN make crash / bnetd stop running
+
+Details: I was compiled bnetd pvpgn-199.r577.tar.gz from pvpgn.berlios.de download page. its run well until about 30 minute bnetd stop suddently with error :
+
+Jul  6 01:36:25 dota kernel: [ 1765.973218] bnetd[2997]: segfault at 18 ip 00000000004d2d60 sp 00007fff403bd580 error 4 in bnetd[400000+1c1000]
+
+My debian version is :  lenny 
+Linux dota 3.2.0-4-amd64 #1 SMP Debian 3.2.46-1 x86_64 GNU/Linux
+with processor model name      : Intel(R) Xeon(R) CPU           X5450  @ 3.00GHz
+and 8GB ram.
+
+when i see bnetd.log i get last error message :
+[error] getLadderList: found no matching ladderlist
+
+i has been tried to turn off ladderlist, but the problem still affected.
+
+Thank you for your help.
+
+
+For detailed info, follow this link:
+<A HREF="http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=19052&amp;group_id=2291">http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=19052&amp;group_id=2291</A>
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1290">[ date ]</a>
+              <a href="thread.html#1290">[ thread ]</a>
+              <a href="subject.html#1290">[ subject ]</a>
+              <a href="author.html#1290">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

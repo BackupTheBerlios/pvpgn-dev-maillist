@@ -1,0 +1,428 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r308 - in trunk/pvpgn/src: bnetd bnpass common
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-August/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r308%20-%20in%20trunk/pvpgn/src%3A%20bnetd%20bnpass%20common&In-Reply-To=%3C200708131000.l7DA0Dqn019504%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000283.html">
+   <LINK REL="Next"  HREF="000285.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r308 - in trunk/pvpgn/src: bnetd bnpass common</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r308%20-%20in%20trunk/pvpgn/src%3A%20bnetd%20bnpass%20common&In-Reply-To=%3C200708131000.l7DA0Dqn019504%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r308 - in trunk/pvpgn/src: bnetd bnpass common">svn at svn.berlios.de
+       </A><BR>
+    <I>Mon Aug 13 12:00:13 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000283.html">[pvpgn-dev] [Patch #2127] one SUPER handle file for all IRC based	protocols
+</A></li>
+        <LI>Next message: <A HREF="000285.html">[pvpgn-dev] [Bug #10900] could not load saved game
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#284">[ date ]</a>
+              <a href="thread.html#284">[ thread ]</a>
+              <a href="subject.html#284">[ subject ]</a>
+              <a href="author.html#284">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pandaemonium
+Date: 2007-08-13 12:00:12 +0200 (Mon, 13 Aug 2007)
+New Revision: 308
+
+Modified:
+   trunk/pvpgn/src/bnetd/Makefile.am
+   trunk/pvpgn/src/bnetd/connection.cpp
+   trunk/pvpgn/src/bnetd/connection.h
+   trunk/pvpgn/src/bnetd/main.cpp
+   trunk/pvpgn/src/bnetd/prefs.cpp
+   trunk/pvpgn/src/bnetd/prefs.h
+   trunk/pvpgn/src/bnetd/server.cpp
+   trunk/pvpgn/src/bnetd/server.h
+   trunk/pvpgn/src/bnpass/Makefile.am
+   trunk/pvpgn/src/common/Makefile.am
+   trunk/pvpgn/src/common/irc_protocol.h
+   trunk/pvpgn/src/common/setup_before.h
+Log:
+update prefix header to also declare tempOps(halpOps)
+
+Modified: trunk/pvpgn/src/bnetd/Makefile.am
+===================================================================
+--- trunk/pvpgn/src/bnetd/Makefile.am	2007-08-12 20:18:14 UTC (rev 307)
++++ trunk/pvpgn/src/bnetd/Makefile.am	2007-08-13 10:00:12 UTC (rev 308)
+@@ -14,7 +14,7 @@
+ 	sql_mysql.cpp sql_odbc.cpp sql_pgsql.cpp sql_sqlite3.cpp storage.cpp \
+ 	storage_file.cpp storage_sql.cpp support.cpp team.cpp tick.cpp timer.cpp topic.cpp \
+ 	tournament.cpp tracker.cpp udptest_send.cpp versioncheck.cpp watch.cpp \
+-	storage_sql2.cpp sql_common.cpp handle_wol.cpp handle_irc_common.cpp
++	storage_sql2.cpp sql_common.cpp handle_wol.cpp handle_irc_common.cpp handle_apireg.cpp
+ 
+ bnetd_LDADD = $(top_builddir)/src/common/libcommon.a \
+ 	$(top_builddir)/src/compat/libcompat.a \
+@@ -33,4 +33,4 @@
+ 	sql_dbcreator.h sql_mysql.h sql_odbc.h sql_pgsql.h sql_sqlite3.h \
+ 	storage_file.h storage.h storage_sql.h support.h team.h tick.h \
+ 	timer.h topic.h tournament.h udptest_send.h versioncheck.h watch.h \
+-	tracker.h storage_sql2.h sql_common.h handle_wol.h handle_irc_common.h
++	tracker.h storage_sql2.h sql_common.h handle_wol.h handle_irc_common.h handle_apireg.h
+
+Modified: trunk/pvpgn/src/bnetd/connection.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/connection.cpp	2007-08-12 20:18:14 UTC (rev 307)
++++ trunk/pvpgn/src/bnetd/connection.cpp	2007-08-13 10:00:12 UTC (rev 308)
+@@ -278,16 +278,18 @@
+ 	return &quot;telnet&quot;;
+     case conn_class_irc:
+ 	return &quot;irc&quot;;
+-	case conn_class_wol:
+-    return &quot;wol&quot;;
+-	case conn_class_wserv:
+-    return &quot;wserv&quot;;
+-	case conn_class_wgameres:
+-    return &quot;wgameres&quot;;
++    case conn_class_wol:
++        return &quot;wol&quot;;
++    case conn_class_wserv:
++        return &quot;wserv&quot;;
++    case conn_class_apireg:
++        return &quot;apireg&quot;;
++    case conn_class_wgameres:
++        return &quot;wgameres&quot;;
+     case conn_class_none:
+-	return &quot;none&quot;;
+-	case conn_class_w3route:
+-	return &quot;w3route&quot;;
++        return &quot;none&quot;;
++    case conn_class_w3route:
++        return &quot;w3route&quot;;
+     default:
+ 	return &quot;UNKNOWN&quot;;
+     }
+
+Modified: trunk/pvpgn/src/bnetd/connection.h
+===================================================================
+--- trunk/pvpgn/src/bnetd/connection.h	2007-08-12 20:18:14 UTC (rev 307)
++++ trunk/pvpgn/src/bnetd/connection.h	2007-08-13 10:00:12 UTC (rev 308)
+@@ -75,6 +75,7 @@
+     conn_class_wol,        /* Westwood IRC */
+     conn_class_wserv,      /* Westwood servserv */
+     conn_class_wgameres,   /* Westwood gameres */
++    conn_class_apireg,     /* Westwood API Register */
+     conn_class_d2cs_bnetd,
+     conn_class_w3route,
+     conn_class_none
+
+Modified: trunk/pvpgn/src/bnetd/main.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/main.cpp	2007-08-12 20:18:14 UTC (rev 307)
++++ trunk/pvpgn/src/bnetd/main.cpp	2007-08-13 10:00:12 UTC (rev 308)
+@@ -85,6 +85,7 @@
+ #include &quot;team.h&quot;
+ #include &quot;realm.h&quot;
+ #include &quot;topic.h&quot;
++#include &quot;handle_apireg.h&quot;
+ #include &quot;common/setup_after.h&quot;
+ 
+ /* out of memory safety */
+@@ -319,6 +320,7 @@
+     timerlist_create();
+     server_set_hostname();
+     channellist_create();
++    apireglist_create();
+     if (helpfile_init(prefs_get_helpfile())&lt;0)
+ 	eventlog(eventlog_level_error,__FUNCTION__,&quot;could not load helpfile&quot;);
+     ipbanlist_create();
+@@ -392,6 +394,7 @@
+     	    ipbanlist_save(prefs_get_ipbanfile());
+     	    ipbanlist_destroy();
+     	    helpfile_unload();
++	    apireglist_destroy();
+     	    channellist_destroy();
+ 	    server_clear_hostname();
+     	    timerlist_destroy();
+
+Modified: trunk/pvpgn/src/bnetd/prefs.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/prefs.cpp	2007-08-12 20:18:14 UTC (rev 307)
++++ trunk/pvpgn/src/bnetd/prefs.cpp	2007-08-13 10:00:12 UTC (rev 308)
+@@ -159,6 +159,7 @@
+     unsigned int sync_on_logoff;
+     char const * irc_network_name;
+ 
++    char const * apiregaddrs;
+     char const * woladdrs;
+     char const * wservaddrs;
+     char const * wgameresaddrs;
+@@ -635,6 +636,10 @@
+ static int conf_set_irc_network_name(const char *valstr);
+ static const char *conf_get_irc_network_name(void);
+ 
++static int conf_setdef_apireg_addrs(void);
++static int conf_set_apireg_addrs(const char *valstr);
++static const char *conf_get_apireg_addrs(void);
++
+ static int conf_setdef_wgameres_addrs(void);
+ static int conf_set_wgameres_addrs(const char *valstr);
+ static const char *conf_get_wgameres_addrs(void);
+@@ -780,6 +785,7 @@
+     { &quot;ladder_prefix&quot;,		conf_set_ladder_prefix,	       conf_get_ladder_prefix,conf_setdef_ladder_prefix},
+     { &quot;irc_network_name&quot;,		conf_set_irc_network_name,	       conf_get_irc_network_name, conf_setdef_irc_network_name},
+ 
++    { &quot;apiregaddrs&quot;,		conf_set_apireg_addrs,	       conf_get_apireg_addrs, conf_setdef_apireg_addrs},
+     { &quot;wgameresaddrs&quot;,		conf_set_wgameres_addrs,	       conf_get_wgameres_addrs, conf_setdef_wgameres_addrs},
+     { &quot;wservaddrs&quot;,		conf_set_wserv_addrs,	       conf_get_wserv_addrs, conf_setdef_wserv_addrs},
+     { &quot;woladdrs&quot;,		conf_set_wol_addrs,	       conf_get_wol_addrs, conf_setdef_wol_addrs},
+@@ -3326,6 +3332,26 @@
+ /**
+ *  Westwood Online Extensions
+ */
++extern char const * prefs_get_apireg_addrs(void)
++{
++    return prefs_runtime_config.apiregaddrs;
++}
++
++static int conf_set_apireg_addrs(const char *valstr)
++{
++    return conf_set_str(&amp;prefs_runtime_config.apiregaddrs,valstr,NULL);
++}
++
++static int conf_setdef_apireg_addrs(void)
++{
++    return conf_set_str(&amp;prefs_runtime_config.apiregaddrs,NULL,BNETD_APIREG_ADDRS);
++}
++
++static const char* conf_get_apireg_addrs(void)
++{
++    return prefs_runtime_config.apiregaddrs;
++}
++
+ extern char const * prefs_get_wgameres_addrs(void)
+ {
+     return prefs_runtime_config.wgameresaddrs;
+
+Modified: trunk/pvpgn/src/bnetd/prefs.h
+===================================================================
+--- trunk/pvpgn/src/bnetd/prefs.h	2007-08-12 20:18:14 UTC (rev 307)
++++ trunk/pvpgn/src/bnetd/prefs.h	2007-08-13 10:00:12 UTC (rev 308)
+@@ -181,6 +181,7 @@
+ /**
+ *  Westwood Online Extensions
+ */
++extern char const * prefs_get_apireg_addrs(void);
+ extern char const * prefs_get_wgameres_addrs(void);
+ extern char const * prefs_get_wserv_addrs(void);
+ extern char const * prefs_get_wol_addrs(void);
+
+Modified: trunk/pvpgn/src/bnetd/server.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/server.cpp	2007-08-12 20:18:14 UTC (rev 307)
++++ trunk/pvpgn/src/bnetd/server.cpp	2007-08-13 10:00:12 UTC (rev 308)
+@@ -61,6 +61,7 @@
+ #include &quot;handle_d2cs.h&quot;
+ #include &quot;handle_irc_common.h&quot;
+ #include &quot;handle_udp.h&quot;
++#include &quot;handle_apireg.h&quot;
+ #include &quot;anongame.h&quot;
+ #include &quot;clan.h&quot;
+ #include &quot;attrlayer.h&quot;
+@@ -203,6 +204,8 @@
+ 	return &quot;wol&quot;;
+     case laddr_type_wserv:
+ 	return &quot;wserv&quot;;
++    case laddr_type_apireg:
++	return &quot;apireg&quot;;
+     case laddr_type_wgameres:
+ 	return &quot;wgameres&quot;;
+     case laddr_type_telnet:
+@@ -345,6 +348,10 @@
+ 	    conn_set_class(c,conn_class_ircinit);
+ 	    conn_set_state(c,conn_state_connected);
+ 	    break;
++	case laddr_type_apireg:
++	    conn_set_class(c,conn_class_apireg);
++	    conn_set_state(c,conn_state_connected);
++	    break;
+ 	case laddr_type_wgameres:
+ 	    conn_set_class(c,conn_class_wgameres);
+ 	    conn_set_state(c,conn_state_connected);
+@@ -522,6 +529,7 @@
+ 	case conn_class_irc:
+ 	case conn_class_wol:
+ 	case conn_class_wserv:
++ 	case conn_class_apireg:
+ 	case conn_class_wgameres:
+ 	case conn_class_telnet:
+ 	    if (!(packet = packet_create(packet_class_raw)))
+@@ -641,6 +649,9 @@
+ 		case conn_class_wgameres: /* NOTICE: Will be handled in other file */
+ 		    ret = handle_irc_common_packet(c,packet);
+ 		    break;
++		case conn_class_apireg:
++		    ret = handle_apireg_packet(c,packet);
++		    break;
+ 		case conn_class_w3route:
+ 		    ret = handle_w3route_packet(c,packet);
+ 		    break;
+@@ -1454,7 +1465,7 @@
+ 	_shutdown_addrs(laddrs);
+ 	return -1;
+     }
+-    
++
+     /* Append list of addresses to listen for WSERV IRC connections */
+     if (_setup_add_addrs(&amp;laddrs, prefs_get_wserv_addrs(),INADDR_ANY,BNETD_WSERV_PORT, laddr_type_wserv))
+     {
+@@ -1462,7 +1473,15 @@
+ 	_shutdown_addrs(laddrs);
+ 	return -1;
+     }
+-    
++
++    /* Append list of addresses to listen for APIREGISER connections */
++    if (_setup_add_addrs(&amp;laddrs, prefs_get_apireg_addrs(),INADDR_ANY,BNETD_APIREG_PORT, laddr_type_apireg))
++    {
++	eventlog(eventlog_level_error,__FUNCTION__,&quot;could not create %s server address list from \&quot;%s\&quot;&quot;,laddr_type_get_str(laddr_type_apireg),prefs_get_apireg_addrs());
++	_shutdown_addrs(laddrs);
++	return -1;
++    }
++
+     /* Append list of addresses to listen for WGAMERES connections */
+     if (_setup_add_addrs(&amp;laddrs, prefs_get_wgameres_addrs(),INADDR_ANY,BNETD_WGAMERES_PORT, laddr_type_wgameres))
+     {
+
+Modified: trunk/pvpgn/src/bnetd/server.h
+===================================================================
+--- trunk/pvpgn/src/bnetd/server.h	2007-08-12 20:18:14 UTC (rev 307)
++++ trunk/pvpgn/src/bnetd/server.h	2007-08-13 10:00:12 UTC (rev 308)
+@@ -36,6 +36,7 @@
+     laddr_type_irc,   	/* Internet Relay Chat service (port is varying; mostly on port 6667 or 7000) */
+     laddr_type_wol,	    /* Westwood Online (IRC) Chat Services (port is 4000) */
+     laddr_type_wserv,   /* Westwood servserv (IRC) Services (port is 4005) */
++    laddr_type_apireg,  /* Westwood API Register Services (port is 5700) */
+     laddr_type_wgameres,/* Westwood gameres Services (port is 4807) */
+     laddr_type_telnet 	/* telnet service (usually on port 23) */
+ } t_laddr_type;
+
+Modified: trunk/pvpgn/src/bnpass/Makefile.am
+===================================================================
+--- trunk/pvpgn/src/bnpass/Makefile.am	2007-08-12 20:18:14 UTC (rev 307)
++++ trunk/pvpgn/src/bnpass/Makefile.am	2007-08-13 10:00:12 UTC (rev 308)
+@@ -1,8 +1,13 @@
+ AM_CPPFLAGS=-I$(top_srcdir)/src
+ 
+-bin_PROGRAMS = bnpass
++bin_PROGRAMS = bnpass sha1pass
+ 
+ bnpass_SOURCES = bnpass.cpp
+ 
+ bnpass_LDADD = $(top_builddir)/src/common/libcommon.a \
+ 	$(top_builddir)/src/compat/libcompat.a
++
++sha1pass_SOURCES = sha1pass.cpp
++
++sha1pass_LDADD = $(top_builddir)/src/common/libcommon.a \
++	$(top_builddir)/src/compat/libcompat.a
+
+Modified: trunk/pvpgn/src/common/Makefile.am
+===================================================================
+--- trunk/pvpgn/src/common/Makefile.am	2007-08-12 20:18:14 UTC (rev 307)
++++ trunk/pvpgn/src/common/Makefile.am	2007-08-13 10:00:12 UTC (rev 308)
+@@ -8,7 +8,7 @@
+ 	fdwatch.cpp fdwatch_epoll.cpp fdwatch_kqueue.cpp fdwatch_poll.cpp \
+ 	fdwatch_select.cpp give_up_root_privileges.cpp hashtable.cpp \
+ 	proginfo.cpp queue.cpp rcm.cpp rlimit.cpp tag.cpp token.cpp trans.cpp \
+-	fdwbackend.cpp xstr.cpp systemerror.cpp
++	fdwbackend.cpp xstr.cpp systemerror.cpp wolhash.cpp
+ 
+ noinst_HEADERS = addr.h anongame_protocol.h asnprintf.h bnethashconv.h \
+ 	bnethash.h bnet_protocol.h bnettime.h bn_type.h bot_protocol.h \
+@@ -21,4 +21,4 @@
+ 	trans.h udp_protocol.h util.h version.h xalloc.h xstring.h \
+ 	d2cs_bnetd_protocol.h d2cs_d2dbs_ladder.h d2cs_d2gs_character.h \
+ 	d2cs_d2gs_protocol.h d2cs_protocol.h scoped_array.h scoped_ptr.h \
+-	fdwbackend.h xstr.h systemerror.h
++	fdwbackend.h xstr.h systemerror.h wolhash.h
+
+Modified: trunk/pvpgn/src/common/irc_protocol.h
+===================================================================
+--- trunk/pvpgn/src/common/irc_protocol.h	2007-08-12 20:18:14 UTC (rev 307)
++++ trunk/pvpgn/src/common/irc_protocol.h	2007-08-13 10:00:12 UTC (rev 308)
+@@ -33,7 +33,7 @@
+ /* IRC Defines */
+ #define WOL_NICKNAME_LEN 9
+ 
+-#define CHANNEL_PREFIX &quot;(ov)@+&quot;
++#define CHANNEL_PREFIX &quot;(ohv)@%+&quot;
+ #define CHANNEL_TYPE   &quot;#&quot;
+ 
+ /* Reply Defines */
+
+Modified: trunk/pvpgn/src/common/setup_before.h
+===================================================================
+--- trunk/pvpgn/src/common/setup_before.h	2007-08-12 20:18:14 UTC (rev 307)
++++ trunk/pvpgn/src/common/setup_before.h	2007-08-13 10:00:12 UTC (rev 308)
+@@ -170,6 +170,17 @@
+ const char * const BNETD_STAR_ICON_FILE = &quot;icons_STAR.bni&quot;;
+ const char * const BNETD_MPQ_FILE = &quot;autoupdate&quot;;
+ 
++/* Westwood Online default configuration values */
++const char * const BNETD_APIREG_ADDRS = &quot;&quot;;
++const int BNETD_APIREG_PORT = 5400;
++const char * const BNETD_WOL_ADDRS = &quot;&quot;;
++const int BNETD_WOL_PORT = 4000;
++const char * const BNETD_WSERV_ADDRS = &quot;&quot;;
++const int BNETD_WSERV_PORT = 4005;
++const char * const BNETD_WGAMERES_ADDRS = &quot;&quot;;
++const int BNETD_WGAMERES_PORT = 4807;
++
++
+ /* other default configuration values */
+ const char * const BNETD_LOG_LEVELS = &quot;warn,error&quot;;
+ const char * const BNETD_SERV_ADDRS = &quot;&quot;; /* this means none */
+@@ -180,12 +191,6 @@
+ const char * const BNETD_IRC_ADDRS = &quot;&quot;; /* this means none */
+ const int BNETD_IRC_PORT = 6667; /* used if port not specified */
+ const char * const BNETD_IRC_NETWORK_NAME  = &quot;PvPGN&quot;;
+-const char * const BNETD_WOL_ADDRS = &quot;&quot;;
+-const int BNETD_WOL_PORT = 4000;
+-const char * const BNETD_WSERV_ADDRS = &quot;&quot;;
+-const int BNETD_WSERV_PORT = 4005;
+-const char * const BNETD_WGAMERES_ADDRS = &quot;&quot;;
+-const int BNETD_WGAMERES_PORT = 4807;
+ const char * const BNETD_TRACK_ADDRS = &quot;track.pvpgn.org&quot;;
+ const int BNETD_TRACK_PORT = 6114; /* use this port if not specified */
+ const int BNETD_DEF_TEST_PORT = 6112; /* default guess for UDP test port */
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000283.html">[pvpgn-dev] [Patch #2127] one SUPER handle file for all IRC based	protocols
+</A></li>
+	<LI>Next message: <A HREF="000285.html">[pvpgn-dev] [Bug #10900] could not load saved game
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#284">[ date ]</a>
+              <a href="thread.html#284">[ thread ]</a>
+              <a href="subject.html#284">[ subject ]</a>
+              <a href="author.html#284">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

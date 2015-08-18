@@ -1,0 +1,128 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] [Patch #2117] Feature reqest 2436 add (clan whisper)
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-August/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BPatch%20%232117%5D%20Feature%20reqest%202436%20add%20%28clan%20whisper%29&In-Reply-To=%3C373261.42973.qm%40web51111.mail.re2.yahoo.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000223.html">
+   <LINK REL="Next"  HREF="000228.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] [Patch #2117] Feature reqest 2436 add (clan whisper)</H1>
+    <B>All4you</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BPatch%20%232117%5D%20Feature%20reqest%202436%20add%20%28clan%20whisper%29&In-Reply-To=%3C373261.42973.qm%40web51111.mail.re2.yahoo.com%3E"
+       TITLE="[pvpgn-dev] [Patch #2117] Feature reqest 2436 add (clan whisper)">zhaowei_hn at yahoo.com
+       </A><BR>
+    <I>Sat Aug  4 11:17:55 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000223.html">[pvpgn-dev] [Patch #2117] Feature reqest 2436 add (clan whisper)
+</A></li>
+        <LI>Next message: <A HREF="000228.html">[pvpgn-dev] Help me ...PVPGN does not reconnect mysql when	disconnect
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#227">[ date ]</a>
+              <a href="thread.html#227">[ thread ]</a>
+              <a href="subject.html#227">[ subject ]</a>
+              <a href="author.html#227">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Thanks all , i want to ask one question ...Can i using PVPGN 1.99.x with  PVPGN 1.8.0 database ?  I have installed PVPGN 1.99.0 revision 287 but i can't login into PVPGN server with my password ( i'm sure my password is correct ) , i am using old PVPGN 1.8.0 database , and the log file is : 
+   
+   Aug 04 09:10:50 [info ] _client_loginreqw3: [7] (W3) &quot;zhaowei&quot; passed account check
+Aug 04 09:10:50 [info ] _client_logonproofreq: [7] logon proof requested
+Aug 04 09:10:50 [info ] _client_logonproofreq: [7] (W3) got wrong password for &quot;zhaowei&quot;
+
+   
+   What problem ??? PVPGN is connected to mysql server with no error .
+
+Theo Nicolau &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">theo_ni at yahoo.com</A>&gt; wrote:
+          Hi all,
+
+First, thx all for your hard work.
+
+All4you, try like this:
+1. cd /usr/local/src
+2. svn checkout <A HREF="http://svn.berlios.de/svnroot/repos/pvpgn/trunk">http://svn.berlios.de/svnroot/repos/pvpgn/trunk</A> trunk
+3. cd trunk/pvpgn/
+4. ./autogen.sh
+5../configure
+6. make
+7. make install
+
+Because revision 284 is broken I would suggest to checkout revision 282 like this:
+2. svn checkout --revision 282 <A HREF="http://svn.berlios.de/svnroot/repos/pvpgn/trunk">http://svn.berlios.de/svnroot/repos/pvpgn/trunk</A> trunk
+
+I'm sure pelish will fix this soon.
+After that you do an update like this:
+1. svn update <A HREF="http://svn.berlios.de/svnroot/repos/pvpgn/trunk">http://svn.berlios.de/svnroot/repos/pvpgn/trunk</A> trunk
+2. make
+3. make install
+
+I hope it helps,
+
+Theo
+
+  ----- Original Message ----
+From: All4you &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">zhaowei_hn at yahoo.com</A>&gt;
+To: Pelish &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">pelish at gmail.com</A>&gt;; <A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">pvpgn-dev at lists.berlios.de</A>
+Sent: Friday, 3 August, 2007 2:41:24 PM
+Subject: Re: [pvpgn-dev] [Patch #2117] Feature reqest 2436 add (clan whisper)
+
+But this is the win32 version , i can't compile it with Linux , where to download PVPGN 1.99.x for Linux ? 
+
+Pelish &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">pelish at gmail.com</A>&gt; wrote:   PvPGN 1.99.x is on SVN so here: <A HREF="https://developer.berlios.de/svn/?group_id=2291">https://developer.berlios.de/svn/?group_id=2291</A>
+
+Pelish
+
+
+  
+  
+---------------------------------
+  Sick sense of humor? Visit Yahoo! TV's Comedy with an Edge to see what's on, when. 
+
+
+
+
+  
+---------------------------------
+  For email that puts you in control, choose Yahoo! Mail.
+
+       
+---------------------------------
+Boardwalk for $500? In 2007? Ha! 
+Play Monopoly Here and Now (it's updated for today's economy) at Yahoo! Games.
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: &lt;<A HREF="https://lists.berlios.de/pipermail/pvpgn-dev/attachments/20070804/67030e2b/attachment.html">https://lists.berlios.de/pipermail/pvpgn-dev/attachments/20070804/67030e2b/attachment.html</A>&gt;
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000223.html">[pvpgn-dev] [Patch #2117] Feature reqest 2436 add (clan whisper)
+</A></li>
+	<LI>Next message: <A HREF="000228.html">[pvpgn-dev] Help me ...PVPGN does not reconnect mysql when	disconnect
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#227">[ date ]</a>
+              <a href="thread.html#227">[ thread ]</a>
+              <a href="subject.html#227">[ subject ]</a>
+              <a href="author.html#227">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,394 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] [Bug #10900] could not load saved game
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2008-April/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BBug%20%2310900%5D%20could%20not%20load%20saved%20game&In-Reply-To=%3C200804182340.m3INeVGG025072%40unicorn.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000673.html">
+   <LINK REL="Next"  HREF="000675.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] [Bug #10900] could not load saved game</H1>
+    <B>admin at berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BBug%20%2310900%5D%20could%20not%20load%20saved%20game&In-Reply-To=%3C200804182340.m3INeVGG025072%40unicorn.berlios.de%3E"
+       TITLE="[pvpgn-dev] [Bug #10900] could not load saved game">admin at berlios.de
+       </A><BR>
+    <I>Sat Apr 19 01:40:31 CEST 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000673.html">[pvpgn-dev] [Patch #2441] New /wolpass command
+</A></li>
+        <LI>Next message: <A HREF="000675.html">[pvpgn-dev] [Patch #2441] New /wolpass command
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#674">[ date ]</a>
+              <a href="thread.html#674">[ thread ]</a>
+              <a href="subject.html#674">[ subject ]</a>
+              <a href="author.html#674">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Bug #10900, was updated on 2007-Apr-17 05:52
+Here is a current snapshot of the bug.
+
+Project: Player vs Player Gaming Network
+Category: Warcraft Series
+Status: Open
+Resolution: None
+Bug Group: bnetd
+Priority: 5
+Submitted by: babalala
+Assigned to : none
+Summary: could not load saved game
+
+Details: When finished saving game so that to load it later, but other players could not join in the saved game.
+
+But the saved game could be loaded at other platform that we can conclude that the problem is caused by the PVPGN platform.
+
+Follow-Ups:
+
+Date: 2008-Apr-18 20:40
+By: tp_moonstar
+
+Comment:
+You can find me at my msn id : <A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">amidamaru13 at gmail.com</A>
+
+I know its not wise and safe to post my personal ID here but i'm in a hurry so.. :-) 
+
+
+-------------------------------------------------------
+
+Date: 2008-Apr-18 16:28
+By: caspernn
+
+Comment:
+tp_moonstar, yes, i can try to get a capture of packets, when interacting with save/load working on bnet. Will try to do that in a following couple of days.
+do you have any contacts so i could reach you more easily (like some messenger ID, or e-mail) ?
+
+-------------------------------------------------------
+
+Date: 2008-Apr-16 04:44
+By: tp_moonstar
+
+Comment:
+Didnt work as i expected =\ however if you could get some logs from org battle.net it could be usefull. 
+
+mb changing drasticaly how the packet transfer  user-user works.. its worth a shot.
+
+Can you get me some info from org?
+-------------------------------------------------------
+
+Date: 2008-Feb-29 16:17
+By: caspernn
+
+Comment:
+Wondering if some works regarding this issue are going at the moment.
+It's a very actual one, especially now, when DotA getting more and more popular.
+
+I can provide you with some logs or other different information or testing..
+-------------------------------------------------------
+
+Date: 2007-Sep-14 13:05
+By: tp_moonstar
+
+Comment:
+He could load the game on local since the other players on local really doesnt matter only the host.. however on battle.net the story is totaly diferent.
+
+seems when you save/load a game on battle.net (pvpgn) the game only save the game name and HOST info  the game doesnt save any other player information therefore you cant really enter on a game reserved to host can you? 
+
+Maybe if pvpgn save the user ID with unique game ID assigned to the accounts who were playing on that game it could be used as a plataform to save/load ~ 
+
+i'll make some tests and see if i'm capable to do somenthing like this :
+Host name:Moon
+User name:Moon
+GN:Moon
+
+Save the game and enter with two accounts with the exact name, see if the problem is with the user or the game itself.
+
+sorry for low quality post i may be wrong but i guess i'm on the right direction :)
+-------------------------------------------------------
+
+Date: 2007-Aug-13 07:11
+By: babalala
+
+Comment:
+Hi tazz,
+
+I find nothing about this on log.
+
+And then?
+
+Could this issue be fixed?
+
+BR
+-------------------------------------------------------
+
+Date: 2007-Aug-03 06:22
+By: babalala
+
+Comment:
+Hi tazz,
+
+I've checked the log and found nothing about this, under lower log level. 
+
+I will change the log level to all and take a test again this weekend.
+
+BR
+-------------------------------------------------------
+
+Date: 2007-Aug-01 00:58
+By: tazz
+
+Comment:
+Hey babalala,
+
+What about the logs during all of this - anything juicy in there ?
+
+I will see if I can get some guys together to do a 10 man load - otherwise I will do a 3 client load :)
+
+Laterz !
+-------------------------------------------------------
+
+Date: 2007-Jul-31 23:58
+By: babalala
+
+Comment:
+Hi tazz,
+
+I just tried do not name the rehost game, but as you seeing in the screeshot below, it failed. And also I failed to name the rehost game 'pvpgn test ~~~~~' which is same with the original game. What's more, I could not join the host which was rehosted by other players...:(
+
+<A HREF="http://www.imageuploads.net/ims/pic.php?u=19839aIYwT&amp;i=130613">http://www.imageuploads.net/ims/pic.php?u=19839aIYwT&amp;i=130613</A>
+
+I really wonder how could you ten guys could join rehost game..... orz
+
+BR
+-------------------------------------------------------
+
+Date: 2007-Jul-29 15:19
+By: tazz
+
+Comment:
+Hey Babalala,
+
+I also just noted that the game name changed...it was pvpgn test ~~~~ or something like that, yet the rehost is 254.
+
+When I &quot;re-hosted&quot; the game, I didn't name it so war3 took the one from the file - try it like that perhaps ?
+-------------------------------------------------------
+
+Date: 2007-Jul-29 15:16
+By: tazz
+
+Comment:
+Hey Babalala,
+
+Was 254 the original game name that you entered ? Also - can the other guy host the game ? See what game name he has for it.
+
+Thanks !
+-------------------------------------------------------
+
+Date: 2007-Jul-27 16:06
+By: babalala
+
+Comment:
+Hi tazz,
+
+Sorry for long time no reply.
+
+Here is the screenshots about this issue.
+
+Game_Start: <A HREF="http://www.imageuploads.net/ims/pic.php?u=19839aIYwT&amp;i=130064">http://www.imageuploads.net/ims/pic.php?u=19839aIYwT&amp;i=130064</A>
+Saving: <A HREF="http://www.imageuploads.net/ims/pic.php?u=19839aIYwT&amp;i=130065">http://www.imageuploads.net/ims/pic.php?u=19839aIYwT&amp;i=130065</A>
+Load_Game: <A HREF="http://www.imageuploads.net/ims/pic.php?u=19839aIYwT&amp;i=130066">http://www.imageuploads.net/ims/pic.php?u=19839aIYwT&amp;i=130066</A>
+Fail_To_Join: <A HREF="http://www.imageuploads.net/ims/pic.php?u=19839aIYwT&amp;i=130067">http://www.imageuploads.net/ims/pic.php?u=19839aIYwT&amp;i=130067</A> 
+
+And plz notice the screeshot of &quot;Fail_To_Join&quot;, the other player could not see the host.
+
+Thanks.
+ 
+-------------------------------------------------------
+
+Date: 2007-Jul-20 00:39
+By: tazz
+
+Comment:
+Hey Babalala,
+
+I would suggest that you make screenshots like I did showing the fault. I think I understand what you are saying but that doesn't make sence to me, since the kicking code there is handled by war3.
+
+Like I said before as well, I think that war3 thinks you are another player, instead of the real on and hence kicks you out.
+
+Think about it, PVPGN doesn't save any info about the game when you save it, so how can it kick someone 2-3 days down the line.
+
+Anyways, make some screenshots and let's see what happens.
+
+
+-------------------------------------------------------
+
+Date: 2007-Jul-19 08:25
+By: babalala
+
+Comment:
+Hi tazz,
+
+Thanks for your quick response.
+
+I have used PVPGN for a long time:), and I understand the things what your have said, PVPGN is just a platform for client to connect and do nothing when the connections establish successfully.
+
+But as I have said in submission &quot;the saved game(the game was saved on PVPGN) could be loaded at other platform(such as LAN and any other lobby like GG)&quot;. So the problem must be caused by PVPGN. I'm worring about that the code on 'join saved game' was ignored just because the save/load is not used so frequently and results in two clients connect failed when load game via PVPGN.
+
+What's more, plz pay attention on what tp_moonstar said, he must notice this bug not only me.
+
+Hope you could verify this issue ASAP.
+
+Thanks.
+-------------------------------------------------------
+
+Date: 2007-Jul-18 00:48
+By: tazz
+
+Comment:
+Hey babalala,
+
+Like I said before, as long as all the machines where in the same game with the same nicks it will work - we have loaded some dota maps before and all 10 players re-joined without a problem.
+
+What you are saying sounds like the users are getting kicked out because they either don't have the saved game or war3 thinks they are someone else.
+
+PVPGN doesn't really par-take in the loading and saving of the games. Please keep in mind that PVPGN/BNETD is more like a lobby (with regards to war3) when it comes to the games.
+
+Once the connection has been made to the hoster, PVPGN is no longer in the picture, as a matter of fact, PVPGN can't kick you from a game. Well - it can on it's side (so it will show that you are not in *a* game), but your client will still be connected and in the game.
+
+All the kicking/joining/etc. happens between the clients (with the exception of ladder games I think, but we are dealing only with custom games here :) )
+
+Having just re-read your request, you are saying that &quot;other players can't join in&quot;, well, as I said above, that is a war3 &quot;feature/bug&quot; not a PVPGN problem.
+
+PVPGN's work ends once the game is created and shown to the rest of the players.
+-------------------------------------------------------
+
+Date: 2007-Jul-17 02:45
+By: babalala
+
+Comment:
+Hi tp_moonstar,
+
+Are you sure about that pvpgn does not &quot;support save/load&quot;? And could this should be a new work?
+
+Thanks.
+
+Hi tazz,
+
+It's indeed working all right when there is just one single player.
+
+The bug is:
+&quot;other players could not join in&quot; the saved game.
+
+You could try to follow the steps below:
+1. Start a custom game on pvpgn with several other players.(two players will be enough)
+2. Save the game.
+3. Load the game which saved just now.
+4. Other players played with you can't join the loaded game. In host's chat window display this: &quot;xxx has joined. xxx has left.&quot;, actual the player xxx never joined the game successfully.
+
+And I will show the screenshots later.
+
+Thanks and BR. 
+-------------------------------------------------------
+
+Date: 2007-Jul-16 12:48
+By: tazz
+
+Comment:
+Hey,
+
+Forgot to add - you need to use the same computers that where in the game when you saved it - I have tried copying over the saved game to the other computers but this doesn't work - I didn't spend to much time on getting it to work since this has never been an issue in my life.
+
+Laterz !
+-------------------------------------------------------
+
+Date: 2007-Jul-16 12:43
+By: tazz
+
+Comment:
+Hey,
+
+Sorry for the delay but here are some screenshot made with war3 1.21 and pvpgn 1.8.0 (windows based server - not that it matters since they share the same code :) )
+
+Maybe you can make some screenshots and show us where it fails ?
+
+<A HREF="http://www.insync.za.net/war3/about_to_save.jpg">http://www.insync.za.net/war3/about_to_save.jpg</A>
+<A HREF="http://www.insync.za.net/war3/saving.jpg">http://www.insync.za.net/war3/saving.jpg</A>
+<A HREF="http://www.insync.za.net/war3/loading.jpg">http://www.insync.za.net/war3/loading.jpg</A>
+<A HREF="http://www.insync.za.net/war3/about_to_start_loaded_game.jpg">http://www.insync.za.net/war3/about_to_start_loaded_game.jpg</A>
+<A HREF="http://www.insync.za.net/war3/loaded_game.jpg">http://www.insync.za.net/war3/loaded_game.jpg</A>
+-------------------------------------------------------
+
+Date: 2007-Jul-08 16:46
+By: tp_moonstar
+
+Comment:
+Pvpgn does not support save/load yet.
+-------------------------------------------------------
+
+Date: 2007-Jul-04 02:52
+By: babalala
+
+Comment:
+Hi tazz,
+
+You could not reproduced this issue?
+
+I tested on both windows server and linux server, under pvpgn v1.8.0, DotA maps, war3 TFT1.21 just now and failed each time.
+
+And, what's more, I had found the bug since the period when using war3 TFT 1.18. So, plz check this issue.
+
+Unfortunatly, I am living in China PRC with terrible net that I'm afraid that you could not access with my server. However, here is the address: war3.byr.edu.cn(211.68.71.72).
+
+If necessary, I could provide the image of this issue. And I will try to catch the logs these days.
+
+BR and Thanks.
+-------------------------------------------------------
+
+Date: 2007-Jul-02 14:15
+By: tazz
+
+Comment:
+Hi,
+
+I just tried this on pvpgn ver 1.8.0 final release (Windows server,two clients,custom map) and I could save and load fine.
+
+Please can you provide more details (version of war3,version of server,server address) so that I can test and re-create the problem.
+
+Thanks.
+-------------------------------------------------------
+
+For detailed info, follow this link:
+<A HREF="http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=10900&amp;group_id=2291">http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=10900&amp;group_id=2291</A>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000673.html">[pvpgn-dev] [Patch #2441] New /wolpass command
+</A></li>
+	<LI>Next message: <A HREF="000675.html">[pvpgn-dev] [Patch #2441] New /wolpass command
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#674">[ date ]</a>
+              <a href="thread.html#674">[ thread ]</a>
+              <a href="subject.html#674">[ subject ]</a>
+              <a href="author.html#674">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,95 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] pvpgn/src/bnetd handle_bnet.c,1.247,1.248
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-July/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20pvpgn/src/bnetd%20handle_bnet.c%2C1.247%2C1.248&In-Reply-To=%3C20070730153848.58B47FE174%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000144.html">
+   <LINK REL="Next"  HREF="000146.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] pvpgn/src/bnetd handle_bnet.c,1.247,1.248</H1>
+    <B>pandaemonium</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20pvpgn/src/bnetd%20handle_bnet.c%2C1.247%2C1.248&In-Reply-To=%3C20070730153848.58B47FE174%40mail.berlios.de%3E"
+       TITLE="[pvpgn-dev] pvpgn/src/bnetd handle_bnet.c,1.247,1.248">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Mon Jul 30 17:38:48 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000144.html">[pvpgn-dev] r260 - trunk/pvpgn/src/bnetd
+</A></li>
+        <LI>Next message: <A HREF="000146.html">[pvpgn-dev] [Patch #2115] Bug 9873 Fix (bot can crash PvPGN)
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#145">[ date ]</a>
+              <a href="thread.html#145">[ thread ]</a>
+              <a href="subject.html#145">[ subject ]</a>
+              <a href="author.html#145">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/pvpgn/pvpgn/src/bnetd
+In directory sheep:/tmp/cvs-serv10977/src/bnetd
+
+Modified Files:
+	handle_bnet.c 
+Log Message:
+[ Patch #2115 ] Bug 9873 Fix (bot can crash PvPGN) - thx go to Pelish
+
+Index: handle_bnet.c
+===================================================================
+RCS file: /cvsroot/pvpgn/pvpgn/src/bnetd/handle_bnet.c,v
+retrieving revision 1.247
+retrieving revision 1.248
+diff -u -d -r1.247 -r1.248
+--- handle_bnet.c	24 Jun 2006 21:08:35 -0000	1.247
++++ handle_bnet.c	30 Jul 2007 15:38:31 -0000	1.248
+@@ -4619,10 +4619,14 @@
+ 	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad W3XP_CLAN_INVITEREPLY packet (expected %u bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_w3xp_clan_createreq), packet_get_size(packet));
+ 	return -1;
+     }
+-
+     offset = sizeof(t_client_w3xp_clan_invitereply);
+-    username = packet_get_str_const(packet, offset, USER_NAME_MAX);
++
++    if (!(username = packet_get_str_const(packet, offset, USER_NAME_MAX))) {
++	    eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad W3XP_CLAN_INVITEREPLY packet (missing username)&quot;, conn_get_socket(c));
++	    return -1;
++    }
+     offset += (strlen(username) + 1);
++
+     status = *((char *) packet_get_data_const(packet, offset, 1));
+     if ((conn = connlist_find_connection_by_accountname(username)) != NULL) {
+ 	if ((status == W3XP_CLAN_INVITEREPLY_ACCEPT) &amp;&amp; (clan = account_get_clan(conn_get_account(conn)))) {
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000144.html">[pvpgn-dev] r260 - trunk/pvpgn/src/bnetd
+</A></li>
+	<LI>Next message: <A HREF="000146.html">[pvpgn-dev] [Patch #2115] Bug 9873 Fix (bot can crash PvPGN)
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#145">[ date ]</a>
+              <a href="thread.html#145">[ thread ]</a>
+              <a href="subject.html#145">[ subject ]</a>
+              <a href="author.html#145">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

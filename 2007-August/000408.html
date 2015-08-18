@@ -1,0 +1,165 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] [Bug #11841] CNC Renegade crashs when creating a game
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-August/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BBug%20%2311841%5D%20CNC%20Renegade%20crashs%20when%20creating%20a%20game&In-Reply-To=%3C200708240916.l7O9GAgC001962%40unicorn.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000407.html">
+   <LINK REL="Next"  HREF="000409.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] [Bug #11841] CNC Renegade crashs when creating a game</H1>
+    <B>admin at berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BBug%20%2311841%5D%20CNC%20Renegade%20crashs%20when%20creating%20a%20game&In-Reply-To=%3C200708240916.l7O9GAgC001962%40unicorn.berlios.de%3E"
+       TITLE="[pvpgn-dev] [Bug #11841] CNC Renegade crashs when creating a game">admin at berlios.de
+       </A><BR>
+    <I>Fri Aug 24 11:16:10 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000407.html">[pvpgn-dev] r356 - trunk/pvpgn/src/bnetd
+</A></li>
+        <LI>Next message: <A HREF="000409.html">[pvpgn-dev] r357 - trunk/pvpgn/files
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#408">[ date ]</a>
+              <a href="thread.html#408">[ thread ]</a>
+              <a href="subject.html#408">[ subject ]</a>
+              <a href="author.html#408">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Bug #11841, was updated on 2007-Aug-24 01:53
+Here is a current snapshot of the bug.
+
+Project: Player vs Player Gaming Network
+Category: Westwood Online
+Status: Closed
+Resolution: Fixed
+Bug Group: bnetd
+Priority: 5
+Submitted by: ben5015se
+Assigned to : pelish
+Summary: CNC Renegade crashs when creating a game
+
+Details: when ever i try to create a game, it crashs. sometimes i get a message before it crashs saying &quot;you are not a temp op on this channel&quot;
+
+Aug 23 18:52:22 [debug] attrlayer_flush: flushed 1 user accounts
+Aug 23 18:53:07 [debug] ipbanlist_check: lastcheck: 0, now: 1187913187, now-lc: 1187913187.
+Aug 23 18:53:07 [debug] ipbanlist_check: checking 127.0.0.1
+Aug 23 18:53:07 [info ] sd_accept: [352] accepted connection from 127.0.0.1:2360 on 0.0.0.0:4005
+Aug 23 18:53:07 [info ] conn_create: [352][-1] sessionkey=0x46ce2da1 sessionnum=0x00000000
+Aug 23 18:53:07 [debug] sd_accept: [352] client connected to a wserv listening address
+Aug 23 18:53:07 [debug] handle_irc_common_line: [352] got &quot;&quot; &quot;verchk&quot; [&quot;32512&quot; &quot;65556&quot;] &quot;&quot;
+Aug 23 18:53:07 [debug] handle_irc_common_set_class: Got WSERV packet
+Aug 23 18:53:07 [debug] _handle_verchk_command: [** WOL **] VERCHK :Update record non-existant
+Aug 23 18:53:07 [debug] handle_irc_common_line: [352] got &quot;&quot; &quot;verchk&quot; [&quot;3072&quot; &quot;65573&quot;] &quot;&quot;
+Aug 23 18:53:07 [info ] conn_set_clienttag: [352] setting client type to &quot;RNGD&quot;
+Aug 23 18:53:07 [debug] _handle_verchk_command: [** WOL **] VERCHK :Update record non-existant
+Aug 23 18:53:07 [debug] handle_irc_common_line: [352] got &quot;&quot; &quot;lobcount&quot; [&quot;3072&quot;] &quot;&quot;
+Aug 23 18:53:07 [debug] handle_irc_common_line: [352] got &quot;&quot; &quot;whereto&quot; [&quot;NoUser&quot; &quot;NoPass&quot; &quot;3072&quot; &quot;65573&quot; &quot;0566967861775117011880&quot;] &quot;&quot;
+Aug 23 18:53:07 [debug] trans_net: checking 127.0.0.1:4005 for client 127.0.0.1 ...
+Aug 23 18:53:07 [debug] trans_net: against entry -&gt; 192.168.1.102:4005 output 192.168.1.102:4005 network 0.0.0.0/0x00000000
+Aug 23 18:53:07 [debug] trans_net: entry does match input address
+Aug 23 18:53:07 [debug] trans_net: no match found for 127.0.0.1:4005 (not translated)
+Aug 23 18:53:07 [debug] handle_irc_common_line: [352] got &quot;&quot; &quot;QUIT&quot; [] &quot;&quot;
+Aug 23 18:53:07 [error] conn_set_channel: got NULL account
+Aug 23 18:53:07 [info ] conn_destroy: [352] closed wserv connection
+Aug 23 18:53:13 [debug] ipbanlist_check: lastcheck: 1187913187, now: 1187913193, now-lc: 6.
+Aug 23 18:53:13 [debug] ipbanlist_check: checking 127.0.0.1
+Aug 23 18:53:13 [info ] sd_accept: [344] accepted connection from 127.0.0.1:2361 on 0.0.0.0:4000
+Aug 23 18:53:13 [info ] conn_create: [344][-1] sessionkey=0x46ce3537 sessionnum=0x00000001
+Aug 23 18:53:13 [debug] sd_accept: [344] client connected to a wol listening address
+Aug 23 18:53:13 [debug] handle_irc_common_line: [344] got &quot;&quot; &quot;CVERS&quot; [&quot;11020&quot; &quot;3072&quot;] &quot;&quot;
+Aug 23 18:53:13 [debug] handle_irc_common_set_class: Got WOL packet
+Aug 23 18:53:13 [info ] conn_set_clienttag: [344] setting client type to &quot;RNGD&quot;
+Aug 23 18:53:13 [debug] handle_irc_common_line: [344] got &quot;&quot; &quot;PASS&quot; [&quot;supersecret&quot;] &quot;&quot;
+Aug 23 18:53:13 [debug] handle_irc_common_line: [344] got &quot;&quot; &quot;NICK&quot; [&quot;ben5015se&quot;] &quot;&quot;
+Aug 23 18:53:13 [debug] handle_irc_common_line: [344] got &quot;&quot; &quot;apgar&quot; [&quot;IcBGaGQK&quot; &quot;0&quot;] &quot;&quot;
+Aug 23 18:53:13 [debug] handle_irc_common_line: [344] got &quot;&quot; &quot;SERIAL&quot; [&quot;0566967861775117011880&quot;] &quot;&quot;
+Aug 23 18:53:13 [debug] handle_irc_common_line: [344] got &quot;&quot; &quot;USER&quot; [&quot;UserName&quot; &quot;HostName&quot; &quot;irc.westwood.com&quot;] &quot;RealName&quot;
+Aug 23 18:53:13 [debug] _handle_user_command: [344][** WOL **] got USER: user=&quot;ben5015se&quot;
+Aug 23 18:53:13 [error] account_get_uid_real: got NULL account (from ../src/bnetd/mail.cpp:483)
+Aug 23 18:53:13 [debug] handle_irc_common_line: [344] got &quot;&quot; &quot;verchk&quot; [&quot;32512&quot; &quot;720916&quot;] &quot;&quot;
+Aug 23 18:53:13 [debug] _handle_verchk_command: [** WOL **] VERCHK :none none none 1 32512 NONREQ
+Aug 23 18:53:13 [debug] handle_irc_common_line: [344] got &quot;&quot; &quot;SETOPT&quot; [&quot;17,33&quot;] &quot;&quot;
+Aug 23 18:53:13 [debug] handle_irc_common_line: [344] got &quot;&quot; &quot;SETOPT&quot; [&quot;17,33&quot;] &quot;&quot;
+Aug 23 18:53:13 [debug] handle_irc_common_line: [344] got &quot;&quot; &quot;GETINSIDER&quot; [&quot;ben5015se&quot;] &quot;&quot;
+Aug 23 18:53:13 [debug] _handle_getinsider_command: [** WOL **] GETINSIDER ben5015se
+Aug 23 18:53:13 [debug] handle_irc_common_line: [344] got &quot;&quot; &quot;TIME&quot; [] &quot;&quot;
+Aug 23 18:53:13 [debug] handle_irc_common_line: [344] got &quot;&quot; &quot;SETCODEPAGE&quot; [&quot;1252&quot;] &quot;&quot;
+Aug 23 18:53:13 [debug] handle_irc_common_line: [344] got &quot;&quot; &quot;LIST&quot; [&quot;12&quot; &quot;12&quot;] &quot;&quot;
+Aug 23 18:53:13 [debug] _handle_list_command: [** WOL **] LIST [Game]
+Aug 23 18:53:14 [debug] ipbanlist_check: lastcheck: 1187913187, now: 1187913194, now-lc: 7.
+Aug 23 18:53:14 [debug] ipbanlist_check: checking 127.0.0.1
+Aug 23 18:53:14 [info ] sd_accept: [368] accepted connection from 127.0.0.1:2362 on 0.0.0.0:4000
+Aug 23 18:53:14 [info ] conn_create: [368][-1] sessionkey=0x46ce676b sessionnum=0x00000002
+Aug 23 18:53:14 [debug] sd_accept: [368] client connected to a wol listening address
+Aug 23 18:53:14 [debug] handle_irc_common_line: [344] got &quot;&quot; &quot;CLANBYNAME&quot; [&quot;ben5015se&quot;] &quot;&quot;
+Aug 23 18:53:14 [debug] _handle_clanbyname_command: [** WOL **] CLANBYNAME (ID does not exist)
+Aug 23 18:53:14 [debug] handle_irc_common_line: [344] got &quot;&quot; &quot;GETLOCALE&quot; [&quot;ben5015se&quot;] &quot;&quot;
+Aug 23 18:53:14 [debug] _handle_getlocale_command: [** WOL **] GETLOCALE ben5015se`1
+Aug 23 18:53:14 [debug] handle_irc_common_line: [368] got &quot;&quot; &quot;LISTSEARCH&quot; [&quot;16780288&quot; &quot;-1&quot; &quot;0&quot; &quot;0&quot; &quot;0&quot;] &quot;ben5015se:&quot;
+Aug 23 18:53:14 [debug] handle_irc_common_set_class: Got WOL Ladder packet
+Aug 23 18:53:14 [info ] conn_destroy: [368] closed wol connection
+Aug 23 18:53:22 [debug] handle_irc_common_line: [344] got &quot;&quot; &quot;JOINGAME&quot; [&quot;#ben5015se&quot; &quot;2&quot; &quot;1&quot; &quot;12&quot; &quot;3&quot; &quot;1&quot; &quot;0&quot; &quot;0&quot;] &quot;&quot;
+Aug 23 18:53:22 [debug] _handle_joingame_command: [** WOL **] JOINGAME: * Create * (#ben5015se, 2)
+Aug 23 18:53:22 [debug] _handle_joingame_command: [** WOL **] JOINGAME [Game Options] (2 1 12 3 0 2130706433 0 :#ben5015se)
+Aug 23 18:53:22 [debug] channellist_find_channel_by_name: could not find channel &quot;ben5015se&quot;
+Aug 23 18:53:22 [debug] channel_create: creating new channel &quot;ben5015se&quot; shortname=&quot;ben5015se&quot; clienttag=(none) country=(none) realm=(none)
+Aug 23 18:53:22 [debug] channel_create: channel created successfully
+Aug 23 18:53:22 [info ] conn_set_channel: [344] joined channel &quot;ben5015se&quot;
+Aug 23 18:53:22 [warn ] irc_message_format: 7 not yet implemented
+Aug 23 18:53:22 [warn ] irc_message_format: 7 not yet implemented
+Aug 23 18:53:22 [debug] irc_message_postformat: sent &quot;:ben5015se!<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">RNGD at 127.0.0.1</A> JOINGAME 2 1 12 3 0 2130706433 0 :#ben5015se
+&quot;
+Aug 23 18:53:27 [debug] sd_tcpinput: [344] read returned -1 (closing connection)
+Aug 23 18:53:27 [debug] irc_message_postformat: sent &quot;:ben5015se!<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">RNGD at 127.0.0.1</A> PART #ben5015se
+&quot;
+Aug 23 18:53:27 [info ] channel_destroy: destroying channel &quot;ben5015se&quot;
+Aug 23 18:53:27 [info ] conn_destroy: [344] &quot;ben5015se&quot; logged out
+Aug 23 18:53:27 [info ] conn_destroy: [344] closed wol connection
+
+
+
+Follow-Ups:
+
+Date: 2007-Aug-24 11:16
+By: pelish
+
+Comment:
+Thank you for your bug report. It is fixed on SVN now.
+-------------------------------------------------------
+
+For detailed info, follow this link:
+<A HREF="http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=11841&amp;group_id=2291">http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=11841&amp;group_id=2291</A>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000407.html">[pvpgn-dev] r356 - trunk/pvpgn/src/bnetd
+</A></li>
+	<LI>Next message: <A HREF="000409.html">[pvpgn-dev] r357 - trunk/pvpgn/files
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#408">[ date ]</a>
+              <a href="thread.html#408">[ thread ]</a>
+              <a href="subject.html#408">[ subject ]</a>
+              <a href="author.html#408">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

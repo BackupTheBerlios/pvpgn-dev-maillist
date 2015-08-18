@@ -1,0 +1,114 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] [Bug #11794] login in passworded games without pass
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-October/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BBug%20%2311794%5D%20login%20in%20passworded%20games%20without%20pass&In-Reply-To=%3C200710111937.l9BJbabE027291%40unicorn.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000519.html">
+   <LINK REL="Next"  HREF="000522.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] [Bug #11794] login in passworded games without pass</H1>
+    <B>admin at berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BBug%20%2311794%5D%20login%20in%20passworded%20games%20without%20pass&In-Reply-To=%3C200710111937.l9BJbabE027291%40unicorn.berlios.de%3E"
+       TITLE="[pvpgn-dev] [Bug #11794] login in passworded games without pass">admin at berlios.de
+       </A><BR>
+    <I>Thu Oct 11 21:37:36 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000519.html">[pvpgn-dev] [Bug #12149] Can't connect to server
+</A></li>
+        <LI>Next message: <A HREF="000522.html">[pvpgn-dev] [Bug #7993] Clans losing chieftains
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#520">[ date ]</a>
+              <a href="thread.html#520">[ thread ]</a>
+              <a href="subject.html#520">[ subject ]</a>
+              <a href="author.html#520">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Bug #11794, was updated on 2007-Aug-17 22:29
+Here is a current snapshot of the bug.
+
+Project: Player vs Player Gaming Network
+Category: Diablo Series
+Status: Open
+Resolution: None
+Bug Group: bnetd
+Priority: 5
+Submitted by: scurfee
+Assigned to : pandaemonium
+Summary: login in passworded games without pass
+
+Details: all users  can join to passworded game without password (just click &quot;join&quot;)
+
+[info ] game_create: game &quot;123&quot; (pass &quot;321&quot;) type 19(Diablo II (closed)) startver 4 created
+
+[debug] _client_joingame: [316] trying to join game &quot;123&quot; pass=&quot;&quot;
+[debug] game_add_player: game &quot;123&quot; password mismatch &quot;321&quot;!=&quot;&quot;
+[info ] _client_joingame: [316] &quot;second_account&quot; joined game &quot;123&quot;, but could not be recorded on server
+
+
+server version 1.8.1
+bnetd,d2cs,d2dbs PvPGN-1.8.1-2-Win32-SQLite-3.4.1-BIN.zip
+d2gs 1.10beta6
+
+in bnetd.conf 
+# Should games with passwords be hidden on the game list?                          //--  maybe trouble here but see!=ignore_password(); ^_^
+hide_pass_games = false
+
+
+
+
+Follow-Ups:
+
+Date: 2007-Oct-11 21:37
+By: pandaemonium
+
+Comment:
+It has been a bit tricky, but I've been able to reproduce this issue. It seems to be caused by the following option in d2cs.conf:
+
+# Allow Limitation created game with password, player number or level limit?
+allow_gamelimit		=	0
+
+Have you changed this option from the default value of 1 to 0? If you did you shouldn't feel surprised that password, player or level limits won't work as intended anymore... Still I'd consider this a bug as
+either
+a) creation of such games should be completly rejected
+or
+b) if those limitations are just discarded they shouldn't trigger such frightening messages in the logs
+-------------------------------------------------------
+
+For detailed info, follow this link:
+<A HREF="http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=11794&amp;group_id=2291">http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=11794&amp;group_id=2291</A>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000519.html">[pvpgn-dev] [Bug #12149] Can't connect to server
+</A></li>
+	<LI>Next message: <A HREF="000522.html">[pvpgn-dev] [Bug #7993] Clans losing chieftains
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#520">[ date ]</a>
+              <a href="thread.html#520">[ thread ]</a>
+              <a href="subject.html#520">[ subject ]</a>
+              <a href="author.html#520">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

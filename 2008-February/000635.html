@@ -1,0 +1,112 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r430 - trunk/pvpgn/src/bnetd
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2008-February/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r430%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200802022049.m12KnwXc024735%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="000636.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r430 - trunk/pvpgn/src/bnetd</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r430%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200802022049.m12KnwXc024735%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r430 - trunk/pvpgn/src/bnetd">svn at svn.berlios.de
+       </A><BR>
+    <I>Sat Feb  2 21:49:58 CET 2008</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="000636.html">[pvpgn-dev] [Patch #2370] Staggered gamelist reply
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#635">[ date ]</a>
+              <a href="thread.html#635">[ thread ]</a>
+              <a href="subject.html#635">[ subject ]</a>
+              <a href="author.html#635">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pelish
+Date: 2008-02-02 21:49:58 +0100 (Sat, 02 Feb 2008)
+New Revision: 430
+
+Modified:
+   trunk/pvpgn/src/bnetd/irc.cpp
+Log:
+fix for some small bugs in wol emote and broadcast message
+
+Modified: trunk/pvpgn/src/bnetd/irc.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/irc.cpp	2008-01-07 00:17:35 UTC (rev 429)
++++ trunk/pvpgn/src/bnetd/irc.cpp	2008-02-02 20:49:58 UTC (rev 430)
+@@ -707,9 +707,10 @@
+ 
+ 	    /* &quot;\001ACTION &quot; + text + &quot;\001&quot; + \0 */
+ 
+-        /* PELISH: WOLv1 (wchat atm) and DUNE2000 shows emotes automaticaly to self */
++        /* PELISH: WOLv1 (wchat atm), DUNE2000 and RENEGADE shows emotes automaticaly to self */
+ 	    if ((me==dst) &amp;&amp; ((conn_get_clienttag(dst) == CLIENTTAG_WCHAT_UINT) || 
+-                          (conn_get_clienttag(dst) == CLIENTTAG_DUNE2000_UINT)))
++                          (conn_get_clienttag(dst) == CLIENTTAG_DUNE2000_UINT) ||
++                          (conn_get_clienttag(dst) == CLIENTTAG_RENEGADE_UINT)))
+ 	        break;
+ 
+ 	    if ((8+std::strlen(text)+1+1)&lt;=MAX_IRC_MESSAGE_LEN) {
+@@ -733,7 +734,8 @@
+     {
+         char temp[MAX_IRC_MESSAGE_LEN];
+         char temp_[MAX_IRC_MESSAGE_LEN];
+-        if (conn_get_wol(dst) == 1)
++        std::sprintf(temp,&quot;:%s&quot;,text);
++        if (conn_get_wol(dst) == 1) {
+            if ((conn_get_clienttag(dst) != CLIENTTAG_WCHAT_UINT) &amp;&amp; (type == message_type_broadcast)) {
+                /* Pelish: WOLv2 have special announce message code */
+                std::sprintf(temp,&quot;:- %s&quot;,text);
+@@ -741,12 +743,14 @@
+                msg = irc_message_preformat(NULL,temp_,NULL,temp);
+            }
+            else {
+-               std::sprintf(temp,&quot;:%s&quot;,text);
+                if ((type == message_type_info) || (type == message_type_error))
+                    msg = irc_message_preformat(NULL,&quot;PAGE&quot;,NULL,temp);
+                else
+                    msg = irc_message_preformat(NULL,&quot;NOTICE&quot;,NULL,temp);
+            }
++        }
++        else
++            msg = irc_message_preformat(NULL,&quot;NOTICE&quot;,NULL,temp);
+     }
+     break;
+     case message_type_channel:
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="000636.html">[pvpgn-dev] [Patch #2370] Staggered gamelist reply
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#635">[ date ]</a>
+              <a href="thread.html#635">[ thread ]</a>
+              <a href="subject.html#635">[ subject ]</a>
+              <a href="author.html#635">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

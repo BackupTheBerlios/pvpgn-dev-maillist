@@ -1,0 +1,1309 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r565 - in trunk: . admin images includes
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2010-January/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r565%20-%20in%20trunk%3A%20.%20admin%20images%20includes&In-Reply-To=%3C201001232217.o0NMHrai006773%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001184.html">
+   <LINK REL="Next"  HREF="001186.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r565 - in trunk: . admin images includes</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r565%20-%20in%20trunk%3A%20.%20admin%20images%20includes&In-Reply-To=%3C201001232217.o0NMHrai006773%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r565 - in trunk: . admin images includes">svn at svn.berlios.de
+       </A><BR>
+    <I>Sat Jan 23 23:17:53 CET 2010</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001184.html">[pvpgn-dev] [Bug #16350] got UNKNOWN gamelang for game client ptBR
+</A></li>
+        <LI>Next message: <A HREF="001186.html">[pvpgn-dev] r566 - trunk
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1185">[ date ]</a>
+              <a href="thread.html#1185">[ thread ]</a>
+              <a href="subject.html#1185">[ subject ]</a>
+              <a href="author.html#1185">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: d1zzy
+Date: 2010-01-23 23:17:50 +0100 (Sat, 23 Jan 2010)
+New Revision: 565
+
+Added:
+   trunk/admin/
+   trunk/admin/downloads.php
+   trunk/admin/index.php
+   trunk/admin/links.php
+   trunk/files.php
+   trunk/images/
+   trunk/images/botbar-bg.gif
+   trunk/images/left01.jpg
+   trunk/images/left02.jpg
+   trunk/images/left03.jpg
+   trunk/images/left04.jpg
+   trunk/images/topbar-bg.gif
+   trunk/includes/
+   trunk/includes/about.htm
+   trunk/includes/help.htm
+   trunk/includes/sqlerror.htm
+   trunk/includes/viewnews.php
+   trunk/index.php
+   trunk/pvpgn.css
+Log:
+Imported the CVS web module as of Jan 23.
+
+
+Added: trunk/admin/downloads.php
+===================================================================
+--- trunk/admin/downloads.php	2010-01-15 23:50:52 UTC (rev 564)
++++ trunk/admin/downloads.php	2010-01-23 22:17:50 UTC (rev 565)
+@@ -0,0 +1,127 @@
++&lt;?php
++require_once('../config.php');
++$dateformat = 'l F j, Y G:i:s';
++session_start();
++if (!session_is_registered('user') || !($_GET['type'] == 'development' || $_GET['type'] == 'stable' || $_GET['type'] == 'd2pack109')) {
++	header(&quot;Location: index.php&quot;);
++	die();
++}
++$dbh = mysql_connect($dbhost,$dbuser,$dbpass);
++mysql_select_db($dbname,$dbh);
++?&gt;
++&lt;HTML&gt;
++&lt;HEAD&gt;
++&lt;title&gt;Site admin&lt;/title&gt;
++&lt;/HEAD&gt;
++&lt;body bgcolor=&quot;#FFFFFF&quot;&gt;
++&lt;p align=&quot;center&quot;&gt;&lt;a href=&quot;index.php?action=submit&quot;&gt;Submit news&lt;/a&gt; | &lt;a href=&quot;index.php?action=edit&quot;&gt;Edit news&lt;/a&gt; | &lt;a href=&quot;index.php?action=newuser&quot;&gt;Create new user&lt;/a&gt; | &lt;a href=&quot;links.php&quot;&gt;Edit links&lt;/a&gt; | &lt;a href=&quot;index.php?action=downloads&quot;&gt;Edit downloads&lt;/a&gt; | &lt;a href=&quot;index.php?action=chpass&quot;&gt;Edit user profile&lt;/a&gt; | &lt;a href=&quot;index.php?action=config&quot;&gt;Misc config&lt;/a&gt; | &lt;a href=&quot;index.php?action=logout&quot;&gt;Logout&lt;/a&gt;&lt;/p&gt;
++&lt;p&gt;
++&lt;?php
++if (isset($_GET['edit'])) {
++	$row = mysql_fetch_row(mysql_query(&quot;SELECT * FROM downloads_&quot;.$_GET['type'].&quot; WHERE `order` = &quot;.$_GET['edit'].&quot;;&quot;,$dbh));
++	echo &quot;&lt;form action=\&quot;&quot;.$_SERVER['PHP_SELF'].&quot;?type=&quot;.$_GET['type'].&quot;&amp;doedit=&quot;.$row[3].&quot;\&quot; method=\&quot;post\&quot;&gt;\n&quot;;
++	echo &quot;filename: &lt;input type=\&quot;text\&quot; name=\&quot;filename\&quot; value=\&quot;&quot;.$row[0].&quot;\&quot;&gt;&lt;br /&gt;\n&quot;;
++	echo &quot;size: &lt;input type=\&quot;text\&quot; name=\&quot;size\&quot; value=\&quot;&quot;.$row[1].&quot;\&quot;&gt; bytes&lt;br /&gt;\n&quot;;
++	echo &quot;description: &lt;input type=\&quot;text\&quot; name=\&quot;description\&quot; value=\&quot;&quot;.$row[2].&quot;\&quot;&gt;&lt;br /&gt;\n&quot;;
++	echo &quot;&lt;input type=\&quot;submit\&quot; value=\&quot;Update link\&quot;&gt;&quot;;
++	echo &quot;&lt;/form&gt;&quot;;
++} else {
++?&gt;
++&lt;table width=&quot;90%&quot;&gt;
++&lt;tr bgcolor=&quot;#CCCCCC&quot;&gt;&lt;td&gt;#&lt;/td&gt;&lt;td&gt;filename&lt;/td&gt;&lt;td&gt;size&lt;/td&gt;&lt;td&gt;description&lt;/td&gt;&lt;td&gt;edit&lt;/td&gt;&lt;td&gt;delete&lt;/td&gt;&lt;td&gt;move up&lt;/td&gt;&lt;td&gt;move down&lt;/td&gt;&lt;/tr&gt;
++&lt;?php
++if ($_GET['new'] == 1) {
++	$row = mysql_fetch_row(mysql_query(&quot;SELECT MAX(`order`)+1 FROM downloads_&quot;.$_GET['type'].&quot;;&quot;,$dbh));
++	mysql_query(&quot;INSERT INTO `downloads_&quot;.$_GET['type'].&quot;`(`order`,`filename`,`size`,`description`) VALUES(&quot;.$row[0].&quot;,'&quot;.$_POST['filename'].&quot;',&quot;.$_POST['size'].&quot;,'&quot;.$_POST['description'].&quot;');&quot;,$dbh);
++} else if ($_GET['doedit']) {
++	mysql_query(&quot;UPDATE downloads_&quot;.$_GET['type'].&quot; SET `filename` = '&quot;.$_POST['filename'].&quot;', `size` = &quot;.$_POST['size'].&quot;, `description` = '&quot;.$_POST['description'].&quot;' WHERE `order` = &quot;.$_GET['doedit'].&quot;;&quot;,$dbh);
++} else if ($_GET['moveup'] || $_GET['movedown']) {
++	$query = mysql_query(&quot;SELECT filename FROM downloads_&quot;.$_GET['type'].&quot; ORDER BY `order` ASC;&quot;,$dbh);
++
++	$i = 0;
++	if ($row = mysql_fetch_row($query)) {
++		do {
++			$row2[] = $row;
++			$i++;
++		}
++		while ($row = mysql_fetch_row($query));
++		mysql_free_result($query);
++	}
++
++	for ($x=0;$x&lt;$i;$x++) {
++		$name = $row2[$x][0];
++		$order = $x+1;
++		if ($_GET['moveup']) {
++			if ($order == $_GET['moveup'] - 1) {
++				$order2 = $order + 1;
++			} else if ($order == $_GET['moveup']) {
++				$order2 = $order - 1;
++			} else {
++				$order2 = $order;
++			}
++		} else {
++			if ($order == $_GET['movedown']) {
++				$order2 = $order + 1;
++			} else if ($order == $_GET['movedown'] + 1) {
++				$order2 = $order - 1;
++			} else {
++				$order2 = $order;
++			}
++		}
++		mysql_query(&quot;UPDATE downloads_&quot;.$_GET['type'].&quot; SET `order` = &quot;.$order2.&quot; WHERE `filename` = '&quot;.$name.&quot;';&quot;,$dbh);
++
++	}
++} else if ($_GET['delete']) {
++	mysql_query(&quot;DELETE FROM downloads_&quot;.$_GET['type'].&quot; WHERE `order` = &quot;.$_GET['delete'].&quot;;&quot;,$dbh);
++	$query = mysql_query(&quot;SELECT filename FROM downloads_&quot;.$_GET['type'].&quot; ORDER BY `order` ASC;&quot;,$dbh);
++	
++	$i = 0;
++	if ($row = mysql_fetch_row($query)) {
++		do {
++			$row2[] = $row;
++			$i++;
++		}
++		while ($row = mysql_fetch_row($query));
++		mysql_free_result($query);
++	}
++
++	for ($x=0;$x&lt;$i;$x++) {
++		$name = $row2[$x][0];
++		$order = $x+1;
++		mysql_query(&quot;UPDATE downloads_&quot;.$_GET['type'].&quot; SET `order` = &quot;.$order.&quot; WHERE `filename` = '&quot;.$name.&quot;';&quot;,$dbh);
++	}
++}
++$max = mysql_fetch_row(mysql_query(&quot;SELECT MAX(`order`) FROM downloads_&quot;.$_GET['type'].&quot;;&quot;,$dbh));
++$query = mysql_query(&quot;SELECT * FROM downloads_&quot;.$_GET['type'].&quot; ORDER BY `order` ASC&quot;,$dbh);
++if ($row = mysql_fetch_row($query)) {
++	do {
++		echo &quot;&lt;tr&gt;&lt;td&gt;&quot;.$row[3].&quot;&lt;/td&gt;&lt;td&gt;&quot;.$row[0].&quot;&lt;/td&gt;&lt;td&gt;&quot;.$row[1].&quot;&lt;/td&gt;&lt;td&gt;&quot;.$row[2].&quot;&lt;/td&gt;&lt;td&gt;&lt;a href=\&quot;downloads.php?type=&quot;.$_GET['type'].&quot;&amp;edit=&quot;.$row[3].&quot;\&quot;&gt;edit&lt;/a&gt;&lt;/td&gt;&lt;td&gt;&lt;a href=\&quot;downloads.php?type=&quot;.$_GET['type'].&quot;&amp;delete=&quot;.$row[3].&quot;\&quot;&gt;delete&lt;/a&gt;&lt;/td&gt;&quot;;
++		if ($row[3] &lt;&gt; 1) {
++			echo &quot;&lt;td&gt;&lt;a href=\&quot;downloads.php?type=&quot;.$_GET['type'].&quot;&amp;moveup=&quot;.$row[3].&quot;\&quot;&gt;move up&lt;/a&gt;&lt;/td&gt;&quot;;
++		} else {
++			echo &quot;&lt;td&gt;---&lt;/td&gt;&quot;;
++		}
++		if ($row[3] &lt;&gt; $max[0]) {
++			echo &quot;&lt;td&gt;&lt;a href=\&quot;downloads.php?type=&quot;.$_GET['type'].&quot;&amp;movedown=&quot;.$row[3].&quot;\&quot;&gt;move down&lt;/a&gt;&lt;/td&gt;&quot;;
++		} else {
++			echo &quot;&lt;td&gt;---&lt;/td&gt;&quot;;
++		}
++	} while ($row = mysql_fetch_row($query));
++} else {
++	echo &quot;&lt;tr&gt;&lt;td colspan=\&quot;4\&quot;&gt;No &quot;.$_GET['type'].&quot; downloads!&lt;/td&gt;&lt;/tr&gt;&quot;;
++}
++?&gt;
++&lt;/table&gt;
++&lt;/p&gt;
++&lt;p&gt;&lt;form action=&quot;&lt;?php echo $_SERVER['PHP_SELF']; ?&gt;?type=&lt;?php echo $_GET['type']; ?&gt;&amp;new=1&quot; method=&quot;post&quot;&gt;
++filename &lt;input type=&quot;text&quot; name=&quot;filename&quot;&gt;&lt;br /&gt;
++size &lt;input type=&quot;text&quot; name=&quot;size&quot;&gt; bytes&lt;br /&gt;
++description &lt;input type=&quot;text&quot; name=&quot;description&quot;&gt;&lt;br /&gt;
++&lt;input type=&quot;submit&quot; value=&quot;Add new file&quot;&gt;
++&lt;/form&gt;
++&lt;?php
++}
++?&gt;
++&lt;/p&gt;
++&lt;/body&gt;
++&lt;/HTML&gt;
+
+Added: trunk/admin/index.php
+===================================================================
+--- trunk/admin/index.php	2010-01-15 23:50:52 UTC (rev 564)
++++ trunk/admin/index.php	2010-01-23 22:17:50 UTC (rev 565)
+@@ -0,0 +1,212 @@
++&lt;?php
++require_once('../config.php');
++$dateformat = 'l F j, Y G:i:s';
++session_start();
++if ($_GET['action'] == 'logout' || $_GET['action'] == 'dochpass') {
++	$uid = $_SESSION['uid'];
++	$_SESSION = array();
++	if (isset($_COOKIE[session_name()])) {
++		setcookie(session_name(),'',time()-42000,'/');
++	}
++	session_destroy();
++}
++?&gt;
++&lt;html&gt;
++&lt;head&gt;
++&lt;title&gt;Site admin&lt;/title&gt;
++&lt;/head&gt;
++&lt;body bgcolor=&quot;#FFFFFF&quot;&gt;
++&lt;?php
++if (!session_is_registered('user') &amp;&amp; $_GET['action'] != 'login' &amp;&amp; $_GET['action'] != 'dochpass') {
++?&gt;
++&lt;p align=&quot;center&quot;&gt;&lt;form action=&quot;&lt;?php echo $_SERVER['PHP_SELF']; ?&gt;?action=login&quot; method=&quot;post&quot;&gt;
++Username: &lt;input type=&quot;text&quot; name=&quot;username&quot; maxlength=&quot;32&quot;&gt;&lt;br /&gt;
++Password: &lt;input type=&quot;password&quot; name=&quot;password&quot;&gt;&lt;br /&gt;
++&lt;input type=&quot;submit&quot; value=&quot;Log in&quot;&gt;
++&lt;/form&gt;&lt;/p&gt;
++&lt;?php
++} else {
++	if ($_GET['action'] == 'login' || $_GET['action'] == 'donewuser' || $_GET['action'] == 'dosubmit' || $_GET['action'] == 'downloads' || $_GET['action'] == 'dodownloads' || $_GET['action'] == 'edit' || $_GET['action'] == 'dodelete' || $_GET['action'] == 'doedit' || $_GET['action'] == 'edititem' || $_GET['action'] == 'chpass' || $_GET['action'] == 'dochpass' || $_GET['action'] == 'config' || $_GET['action'] == 'doconfig') {
++		$dbh = mysql_connect($dbhost,$dbuser,$dbpass);
++		mysql_select_db($dbname,$dbh);
++	}
++	if ($_GET['action'] == 'login') {
++		$row = mysql_fetch_row(mysql_query(&quot;SELECT * FROM users WHERE username = '&quot;.$_POST['username'].&quot;';&quot;,$dbh));
++		if (!$row) {
++			echo &quot;&lt;p align=\&quot;center\&quot;&gt;User \&quot;&quot;.$_POST['username'].&quot;\&quot; does not exist&lt;/p&gt;\n&quot;;
++		} else if ($row[2] != md5($_POST['password'])) {
++			echo &quot;&lt;p align=\&quot;center\&quot;&gt;Password incorrect&lt;/p&gt;\n&quot;;
++		} else {
++			$_SESSION['uid'] = $row[0];
++			$_SESSION['user'] = $row[1];
++			$_SESSION['email'] = $row[3];
++			echo &quot;&lt;p align=\&quot;center\&quot;&gt;Login successful&lt;/p&gt;\n&quot;;
++			echo &quot;&lt;p align=\&quot;center\&quot;&gt;&lt;a href=\&quot;&quot;.$_SERVER['PHP_SELF'].&quot;\&quot;&gt;Click here to continue&lt;/a&gt;&lt;/p&gt;\n&quot;;
++		}
++	} else {
++		if ($_GET['action'] != 'logout' &amp;&amp; $_GET['action'] != 'dochpass') {
++			?&gt;
++			&lt;p align=&quot;center&quot;&gt;&lt;a href=&quot;&lt;?php echo $_SERVER['PHP_SELF']; ?&gt;?action=submit&quot;&gt;Submit news&lt;/a&gt; | &lt;a href=&quot;&lt;?php echo $_SERVER['PHP_SELF']; ?&gt;?action=edit&quot;&gt;Edit news&lt;/a&gt; | &lt;a href=&quot;&lt;?php echo $_SERVER['PHP_SELF']; ?&gt;?action=newuser&quot;&gt;Create new user&lt;/a&gt; | &lt;a href=&quot;links.php&quot;&gt;Edit links&lt;/a&gt; | &lt;a href=&quot;&lt;?php echo $_SERVER['PHP_SELF']; ?&gt;?action=downloads&quot;&gt;Edit downloads&lt;/a&gt; | &lt;a href=&quot;&lt;?php echo $_SERVER['PHP_SELF']; ?&gt;?action=chpass&quot;&gt;Edit user profile&lt;/a&gt; | &lt;a href=&quot;&lt;?php echo $_SERVER['PHP_SELF']; ?&gt;?action=config&quot;&gt;Misc config&lt;/a&gt; | &lt;a href=&quot;&lt;?php echo $_SERVER['PHP_SELF']; ?&gt;?action=logout&quot;&gt;Logout&lt;/a&gt;&lt;/p&gt;
++			&lt;?php
++		}
++		if ($_GET['action'] == 'newuser') {
++		?&gt;
++		&lt;p&gt;&lt;form action=&quot;&lt;?php echo $_SERVER['PHP_SELF']; ?&gt;?action=donewuser&quot; method=&quot;post&quot;&gt;
++		Username: &lt;input type=&quot;text&quot; name=&quot;username&quot; maxlength=&quot;32&quot;&gt;&lt;br /&gt;
++		Password: &lt;input type=&quot;password&quot; name=&quot;pass1&quot;&gt;&lt;br /&gt;
++		Confirm password: &lt;input type=&quot;password&quot; name=&quot;pass2&quot;&gt;&lt;br /&gt;
++		Email address: &lt;input type=&quot;text&quot; name=&quot;email&quot; maxlength=&quot;128&quot;&gt;&lt;br /&gt;
++		&lt;input type=&quot;submit&quot; value=&quot;Create new user&quot;&gt;
++		&lt;/form&gt;&lt;/p&gt;
++		&lt;?php
++		} else if ($_GET['action'] == 'donewuser') {
++			if ($_POST['pass1'] &lt;&gt; $_POST['pass2']) {
++				echo &quot;&lt;p align=\&quot;center\&quot;&gt;Password and repeated password do not match&lt;/p&gt;\n&quot;;
++			} else {
++				if (@mysql_query(&quot;INSERT INTO `users`(`username`,`passhash`,`email`) VALUES('&quot;.$_POST['username'].&quot;','&quot;.md5($_POST['pass1']).&quot;','&quot;.$_POST['email'].&quot;');&quot;,$dbh)) {
++					echo &quot;&lt;p align=\&quot;center\&quot;&gt;User \&quot;&quot;.$_POST['username'].&quot;\&quot; created successfully&lt;/p&gt;\n&quot;;
++				} else {
++					echo &quot;&lt;p align=\&quot;center\&quot;&gt;Error: Could not create new user&lt;/p&gt;\n&quot;;
++					echo &quot;&lt;p align=\&quot;center\&quot;&gt;MySQL said: &quot;.mysql_error().&quot;&lt;/p&gt;\n&quot;;
++				}
++			}
++		} else if ($_GET['action'] == 'submit') {
++			echo &quot;&lt;p&gt;&lt;form action=\&quot;&quot;.$_SERVER['PHP_SELF'].&quot;?action=dosubmit\&quot; method=\&quot;post\&quot;&gt;\n&quot;;
++			echo &quot;&lt;b&gt;Username:&lt;/b&gt; &quot;.$_SESSION['user'].&quot;&lt;br /&gt;\n&quot;;
++			echo &quot;&lt;b&gt;Email:&lt;/b&gt; &quot;.$_SESSION['email'].&quot;&lt;br /&gt;\n&quot;;
++			echo &quot;&lt;b&gt;Date:&lt;/b&gt; &quot;.date($dateformat).&quot;&lt;br /&gt;\n&quot;;
++		?&gt;
++		&lt;b&gt;Subject:&lt;/b&gt; &lt;input type=&quot;text&quot; size=&quot;50&quot; name=&quot;subject&quot; maxlength=&quot;128&quot;&gt;&lt;br /&gt;
++		&lt;b&gt;News text:&lt;/b&gt;&lt;br /&gt;
++		&lt;textarea name=&quot;text&quot; cols=&quot;50&quot; rows=&quot;10&quot;&gt;&lt;/textarea&gt;&lt;br /&gt;
++		&lt;input type=&quot;submit&quot; value=&quot;Submit news&quot;&gt;
++		&lt;/form&gt;&lt;/p&gt;
++		&lt;?php
++		} else if ($_GET['action'] == 'dosubmit') {
++			if (@mysql_query(&quot;INSERT INTO `news` VALUES(&quot;.time().&quot;,&quot;.$_SESSION['uid'].&quot;,'&quot;.$_POST['subject'].&quot;','&quot;.$_POST['text'].&quot;');&quot;,$dbh)) {
++				echo &quot;&lt;p align=\&quot;center\&quot;&gt;News added successfully&lt;/p&gt;\n&quot;;
++			} else {
++				echo &quot;&lt;p align=\&quot;center\&quot;&gt;Error: Could not insert news&lt;/p&gt;\n&quot;;
++				echo &quot;&lt;p align=\&quot;center\&quot;&gt;MySQL said: &quot;.mysql_error().&quot;&lt;/p&gt;\n&quot;;		
++			}
++		} else if ($_GET['action'] == 'edit') {
++			echo &quot;&lt;div align=\&quot;center\&quot;&gt;&lt;table width=\&quot;90%\&quot;&gt;&quot;;
++			echo &quot;&lt;tr bgcolor=\&quot;#CCCCCC\&quot;&gt;&lt;td&gt;Timestamp&lt;/td&gt;&lt;td&gt;Subject&lt;/td&gt;&lt;td&gt;Edit&lt;/td&gt;&lt;td&gt;Delete&lt;/td&gt;&lt;/tr&gt;\n&quot;;
++			$query = mysql_query(&quot;SELECT timestamp,subject FROM news ORDER BY `timestamp` DESC&quot;,$dbh);
++			if ($row = mysql_fetch_row($query)) {
++				do {
++					echo &quot;&lt;tr&gt;&lt;td&gt;&quot;.$row[0].&quot;&lt;/td&gt;&lt;td&gt;&quot;.$row[1].&quot;&lt;/td&gt;&lt;td&gt;&lt;a href=\&quot;&quot;.$_SERVER['PHP_SELF'].&quot;?action=edititem&amp;x=&quot;.$row[0].&quot;\&quot;&gt;edit&lt;/a&gt;&lt;/td&gt;&lt;td&gt;&lt;a href=\&quot;&quot;.$_SERVER['PHP_SELF'].&quot;?action=dodelete&amp;x=&quot;.$row[0].&quot;\&quot;&gt;delete&lt;/a&gt;&lt;/td&gt;\n&quot;;
++				} while ($row = mysql_fetch_row($query));
++			} else {
++				echo &quot;&lt;tr&gt;&lt;td colspan=\&quot;4\&quot;&gt;No news is good news!&lt;/td&gt;&lt;/tr&gt;\n&quot;;
++			}
++			echo &quot;&lt;/table&gt;&lt;/div&gt;\n&quot;;
++		} else if ($_GET['action'] == 'dodelete') {
++			mysql_query(&quot;DELETE FROM news WHERE `timestamp` = &quot;.$_GET['x'].&quot;;&quot;,$dbh);
++			echo &quot;&lt;p align=\&quot;center\&quot;&gt;Newsitem deleted&lt;/p&gt;\n&quot;;
++		} else if ($_GET['action'] == 'edititem') {
++			$row = mysql_fetch_row($temp = mysql_query(&quot;SELECT subject,text FROM news WHERE `timestamp` = &quot;.$_GET['x'].&quot;;&quot;,$dbh));
++			echo &quot;&lt;p&gt;&lt;form action=\&quot;&quot;.$_SERVER['PHP_SELF'].&quot;?action=doedit&amp;x=&quot;.$_GET['x'].&quot;\&quot; method=\&quot;post\&quot;&gt;\n&quot;;
++			echo &quot;Date: &quot;.date($dateformat,$_GET['x']).&quot;&lt;br /&gt;\n&quot;;
++			echo &quot;Subject: &lt;input type=\&quot;text\&quot; name=\&quot;subject\&quot; value=\&quot;&quot;.$row[0].&quot;\&quot;&gt;&lt;br /&gt;\n&quot;;
++			echo &quot;&lt;textarea name=\&quot;text\&quot; cols=\&quot;50\&quot; rows=\&quot;10\&quot;&gt;&quot;.$row[1].&quot;&lt;/textarea&gt;&lt;br /&gt;\n&quot;;
++			echo &quot;&lt;input type=\&quot;submit\&quot; value=\&quot;Update news\&quot;&gt;\n&quot;;
++			echo &quot;&lt;/form&gt;&lt;/p&gt;\n&quot;;
++			mysql_free_result($temp);
++			unset($temp);
++			unset($row);
++		} else if ($_GET['action'] == 'doedit') {
++			if (@mysql_query(&quot;UPDATE news SET `subject` = '&quot;.$_POST['subject'].&quot;', `text` = '&quot;.$_POST['text'].&quot;' WHERE `timestamp` = &quot;.$_GET['x'].&quot;;&quot;,$dbh)) {
++				echo &quot;&lt;p align=\&quot;center\&quot;&gt;News updated successfully&lt;/p&gt;\n&quot;;
++			} else {
++				echo &quot;&lt;p align=\&quot;center\&quot;&gt;Error: Could not update news&lt;/p&gt;\n&quot;;
++				echo &quot;&lt;p align=\&quot;center\&quot;&gt;MySQL said: &quot;.mysql_error().&quot;&lt;/p&gt;\n&quot;;		
++			}
++		} else if ($_GET['action'] == 'chpass') {
++			$row = mysql_fetch_row(mysql_query(&quot;SELECT username,email FROM users WHERE uid = &quot;.$_SESSION['uid'].&quot;;&quot;,$dbh));
++			?&gt;
++			&lt;p&gt;&lt;form action=&quot;&lt;?php echo $_SERVER['PHP_SELF']; ?&gt;?action=dochpass&quot; method=&quot;post&quot;&gt;
++			Username: &lt;input type=&quot;text&quot; name=&quot;username&quot; value=&quot;&lt;?php echo $row[0]; ?&gt;&quot; maxlength=&quot;32&quot;&gt;&lt;br /&gt;
++			Password: &lt;input type=&quot;password&quot; name=&quot;pass1&quot;&gt;&lt;br /&gt;
++			Confirm password: &lt;input type=&quot;password&quot; name=&quot;pass2&quot;&gt;&lt;br /&gt;
++			Email address: &lt;input type=&quot;text&quot; name=&quot;email&quot; value=&quot;&lt;?php echo $row[1]; ?&gt;&quot; maxlength=&quot;128&quot;&gt;&lt;br /&gt;
++			&lt;input type=&quot;submit&quot; value=&quot;Apply changes&quot;&gt;
++			&lt;/form&gt;&lt;/p&gt;
++			&lt;?php
++		} else if ($_GET['action'] == 'dochpass') {
++			if ($_POST['pass1'] == $_POST['pass2']) {
++				if (@mysql_query(&quot;UPDATE users SET `username` = '&quot;.$_POST['username'].&quot;', `passhash` = '&quot;.md5($_POST['pass1']).&quot;', `email` = '&quot;.$_POST['email'].&quot;' WHERE `uid` = &quot;.$uid.&quot;;&quot;,$dbh)) {
++					echo &quot;&lt;p align=\&quot;center\&quot;&gt;Profile updated successfully&lt;/p&gt;\n&quot;;
++					echo &quot;&lt;p align=\&quot;center\&quot;&gt;You must &lt;a href=\&quot;&quot;.$_SERVER['PHP_SELF'].&quot;\&quot;&gt;log in&lt;/a&gt; again before you can perform further actions.&lt;/p&gt;\n&quot;;
++				} else {
++					echo &quot;&lt;p align=\&quot;center\&quot;&gt;Error: Could not update profile&lt;/p&gt;\n&quot;;
++					echo &quot;&lt;p align=\&quot;center\&quot;&gt;MySQL said: &quot;.mysql_error().&quot;&lt;/p&gt;\n&quot;;
++				}
++			} else {
++				echo &quot;&lt;p align=\&quot;center\&quot;&gt;Error: Password and repeated password do not match&lt;/p&gt;\n&quot;;
++			}
++		} else if ($_GET['action'] == 'downloads') {
++			$row = mysql_fetch_row($temp = mysql_query(&quot;SELECT value FROM config WHERE `key` = 'latest_stable'&quot;,$dbh));
++			$latest_stable = $row[0];
++			mysql_free_result($temp);
++			$row = mysql_fetch_row($temp = mysql_query(&quot;SELECT value FROM config WHERE `key` = 'latest_development'&quot;,$dbh));
++			$latest_development = $row[0];
++			mysql_free_result($temp);
++			$row = mysql_fetch_row($temp = mysql_query(&quot;SELECT value FROM config WHERE `key` = 'latest_d2pack109'&quot;,$dbh));
++			$latest_d2pack109 = $row[0];
++			mysql_free_result($temp);
++			unset($temp);
++			unset($row);
++			echo &quot;&lt;form action=\&quot;&quot;.$_SERVER['PHP_SELF'].&quot;?action=dodownloads\&quot; method=\&quot;post\&quot;&gt;\n&quot;;
++			echo &quot;Latest development release: &lt;input type=\&quot;text\&quot; name=\&quot;development\&quot; value=\&quot;&quot;.$latest_development.&quot;\&quot;&gt; (enter 0 to disable)&lt;br /&gt;\n&quot;;
++			echo &quot;&lt;a href=\&quot;downloads.php?type=development\&quot;&gt;Edit files for development&lt;/a&gt;&lt;br /&gt;\n&lt;br /&gt;\n&quot;;
++			echo &quot;Latest stable release: &lt;input type=\&quot;text\&quot; name=\&quot;stable\&quot; value=\&quot;&quot;.$latest_stable.&quot;\&quot;&gt;&lt;br /&gt;\n&quot;;
++			echo &quot;&lt;a href=\&quot;downloads.php?type=stable\&quot;&gt;Edit files for stable&lt;/a&gt;&lt;br /&gt;\n&lt;br /&gt;\n&quot;;
++			echo &quot;Latest d2pack109 release: &lt;input type=\&quot;text\&quot; name=\&quot;d2pack109\&quot; value=\&quot;&quot;.$latest_d2pack109.&quot;\&quot;&gt;&lt;br /&gt;\n&quot;;
++			echo &quot;&lt;a href=\&quot;downloads.php?type=d2pack109\&quot;&gt;Edit files for d2pack109&lt;/a&gt;&lt;br /&gt;\n&lt;br /&gt;\n&quot;;
++			echo &quot;&lt;input type=\&quot;submit\&quot; value=\&quot;Apply changes\&quot;&gt;\n&quot;;
++			echo &quot;&lt;/form&gt;\n&quot;;
++		} else if ($_GET['action'] == 'dodownloads') {
++			if (mysql_query(&quot;UPDATE config SET `value` = '&quot;.$_POST['development'].&quot;' WHERE `key` = 'latest_development';&quot;,$dbh) &amp;&amp; mysql_query(&quot;UPDATE config SET `value` = '&quot;.$_POST['stable'].&quot;' WHERE `key` = 'latest_stable';&quot;,$dbh) &amp;&amp; mysql_query(&quot;UPDATE config SET `value` = '&quot;.$_POST['d2pack109'].&quot;' WHERE `key` = 'latest_d2pack109';&quot;,$dbh)) {
++				echo &quot;&lt;p align=\&quot;center\&quot;&gt;Updated successfully&lt;/p&gt;\n&quot;;
++			} else {
++				echo &quot;&lt;p align=\&quot;center\&quot;&gt;Error: Could not apply changes&lt;/p&gt;\n&quot;;
++				echo &quot;&lt;p align=\&quot;center\&quot;&gt;MySQL said: &quot;.mysql_error().&quot;&lt;/p&gt;\n&quot;;
++			}
++		} else if ($_GET['action'] == 'config') {
++			$row = mysql_fetch_row($temp = mysql_query(&quot;SELECT COUNT(*) FROM news&quot;,$dbh));
++			$total_newsitems = $row[0];
++			mysql_free_result($temp);
++			$row = mysql_fetch_row($temp = mysql_query(&quot;SELECT value+0 FROM config WHERE `key` = 'items_front_page'&quot;,$dbh));
++			$items_front_page = $row[0];
++			mysql_free_result($temp);
++			$row = mysql_fetch_row($temp = mysql_query(&quot;SELECT value+0 FROM config WHERE `key` = 'items_archive_page'&quot;,$dbh));
++			$items_archive_page = $row[0];
++			mysql_free_result($temp);
++			$row = mysql_fetch_row($temp = mysql_query(&quot;SELECT value FROM config WHERE `key` = 'footer'&quot;,$dbh));
++			$footer = $row[0];
++			mysql_free_result($temp);
++			unset($temp);
++			unset($row);
++			echo &quot;&lt;p&gt;&lt;form action=\&quot;&quot;.$_SERVER['PHP_SELF'].&quot;?action=doconfig\&quot; method=\&quot;post\&quot;&gt;\n&quot;;
++			echo &quot;&lt;b&gt;News items on front page:&lt;/b&gt; &lt;input type=\&quot;text\&quot; size=\&quot;2\&quot; name=\&quot;items_front_page\&quot; value=\&quot;&quot;.$items_front_page.&quot;\&quot;&gt;&lt;br /&gt;\n&quot;;
++			echo &quot;&lt;b&gt;News items per archive page:&lt;/b&gt; &lt;input type=\&quot;text\&quot; size=\&quot;2\&quot; name=\&quot;items_archive_page\&quot; value=\&quot;&quot;.$items_archive_page.&quot;\&quot;&gt;&lt;br /&gt;&lt;br /&gt;\n&quot;;
++			echo &quot;&lt;b&gt;Page footer:&lt;/b&gt;&lt;br /&gt;\n&quot;;
++			echo &quot;&lt;textarea name=\&quot;footer\&quot; cols=\&quot;50\&quot; rows=\&quot;5\&quot;&gt;&quot;.$footer.&quot;&lt;/textarea&gt;&lt;br /&gt;\n&quot;;
++			echo &quot;&lt;input type=\&quot;submit\&quot; value=\&quot;Apply changes\&quot;&gt;\n&quot;;
++			echo &quot;&lt;/form&gt;&lt;/p&gt;\n&quot;;
++		} else if ($_GET['action'] == 'doconfig') {
++			if (mysql_query(&quot;UPDATE config SET `value` = '&quot;.$_POST['items_front_page'].&quot;' WHERE `key` = 'items_front_page';&quot;,$dbh) &amp;&amp; mysql_query(&quot;UPDATE config SET `value` = '&quot;.$_POST['items_archive_page'].&quot;' WHERE `key` = 'items_archive_page';&quot;,$dbh) &amp;&amp; mysql_query(&quot;UPDATE config SET `value` = '&quot;.$_POST['footer'].&quot;' WHERE `key` = 'footer';&quot;,$dbh)) {
++				echo &quot;&lt;p align=\&quot;center\&quot;&gt;Updated successfully&lt;/p&gt;\n&quot;;
++			} else {
++				echo &quot;&lt;p align=\&quot;center\&quot;&gt;Error: Could not apply changes&lt;/p&gt;\n&quot;;
++				echo &quot;&lt;p align=\&quot;center\&quot;&gt;MySQL said: &quot;.mysql_error().&quot;&lt;/p&gt;\n&quot;;
++			}
++		} else if ($_GET['action'] == 'logout') {
++			echo &quot;&lt;p align=\&quot;center\&quot;&gt;Logout successful&lt;/p&gt;\n&quot;;
++		}
++	}
++}
++?&gt;
++&lt;/body&gt;
++&lt;/html&gt;
+
+Added: trunk/admin/links.php
+===================================================================
+--- trunk/admin/links.php	2010-01-15 23:50:52 UTC (rev 564)
++++ trunk/admin/links.php	2010-01-23 22:17:50 UTC (rev 565)
+@@ -0,0 +1,128 @@
++&lt;?php
++require_once('../config.php');
++$dateformat = 'l F j, Y G:i:s';
++session_start();
++if (!session_is_registered('user')) {
++	header(&quot;Location: index.php&quot;);
++	die();
++}
++$dbh = mysql_connect($dbhost,$dbuser,$dbpass);
++mysql_select_db($dbname,$dbh);
++?&gt;
++&lt;HTML&gt;
++&lt;HEAD&gt;
++&lt;title&gt;Site admin&lt;/title&gt;
++&lt;/HEAD&gt;
++&lt;body bgcolor=&quot;#FFFFFF&quot;&gt;
++&lt;p align=&quot;center&quot;&gt;&lt;a href=&quot;index.php?action=submit&quot;&gt;Submit news&lt;/a&gt; | &lt;a href=&quot;index.php?action=edit&quot;&gt;Edit news&lt;/a&gt; | &lt;a href=&quot;index.php?action=newuser&quot;&gt;Create new user&lt;/a&gt; | &lt;a href=&quot;links.php&quot;&gt;Edit links&lt;/a&gt; | &lt;a href=&quot;index.php?action=downloads&quot;&gt;Edit downloads&lt;/a&gt; | &lt;a href=&quot;index.php?action=chpass&quot;&gt;Edit user profile&lt;/a&gt; | &lt;a href=&quot;index.php?action=config&quot;&gt;Misc config&lt;/a&gt; | &lt;a href=&quot;index.php?action=logout&quot;&gt;Logout&lt;/a&gt;&lt;/p&gt;
++&lt;p&gt;
++&lt;?php
++if (isset($_GET['edit'])) {
++	$row = mysql_fetch_row(mysql_query(&quot;SELECT * FROM linklist WHERE `order` = &quot;.$_GET['edit'].&quot;;&quot;,$dbh));
++	echo &quot;&lt;form action=\&quot;&quot;.$_SERVER['PHP_SELF'].&quot;?doedit=&quot;.$row[3].&quot;\&quot; method=\&quot;post\&quot;&gt;\n&quot;;
++	echo &quot;URL: &lt;input type=\&quot;text\&quot; name=\&quot;url\&quot; value=\&quot;&quot;.$row[0].&quot;\&quot;&gt;&lt;br /&gt;\n&quot;;
++	echo &quot;target: &lt;input type=\&quot;text\&quot; name=\&quot;target\&quot; value=\&quot;&quot;.$row[1].&quot;\&quot;&gt;&lt;br /&gt;\n&quot;;
++	echo &quot;name: &lt;input type=\&quot;text\&quot; name=\&quot;name\&quot; value=\&quot;&quot;.$row[2].&quot;\&quot;&gt;&lt;br /&gt;\n&quot;;
++	echo &quot;&lt;input type=\&quot;submit\&quot; value=\&quot;Update link\&quot;&gt;&quot;;
++	echo &quot;&lt;/form&gt;&quot;;
++} else {
++?&gt;
++
++&lt;table width=&quot;90%&quot;&gt;
++&lt;tr bgcolor=&quot;#CCCCCC&quot;&gt;&lt;td&gt;#&lt;/td&gt;&lt;td&gt;URL&lt;/td&gt;&lt;td&gt;target&lt;/td&gt;&lt;td&gt;name&lt;/td&gt;&lt;td&gt;edit&lt;/td&gt;&lt;td&gt;delete&lt;/td&gt;&lt;td&gt;move up&lt;/td&gt;&lt;td&gt;move down&lt;/td&gt;&lt;/tr&gt;
++&lt;?php
++if ($_GET['new'] == 1) {
++	$row = mysql_fetch_row(mysql_query(&quot;SELECT MAX(`order`)+1 FROM linklist;&quot;,$dbh));
++	mysql_query(&quot;INSERT INTO `linklist`(`order`,`url`,`name`,`target`) VALUES(&quot;.$row[0].&quot;,'&quot;.$_POST['URL'].&quot;','&quot;.$_POST['name'].&quot;','&quot;.$_POST['target'].&quot;');&quot;,$dbh);
++} else if ($_GET['doedit']) {
++	mysql_query(&quot;UPDATE linklist SET `url` = '&quot;.$_POST['url'].&quot;', `name` = '&quot;.$_POST['name'].&quot;', `target` = '&quot;.$_POST['target'].&quot;' WHERE `order` = &quot;.$_GET['doedit'].&quot;;&quot;,$dbh);
++} else if ($_GET['moveup'] || $_GET['movedown']) {
++	$query = mysql_query(&quot;SELECT name FROM linklist ORDER BY `order` ASC;&quot;,$dbh);
++
++	$i = 0;
++	if ($row = mysql_fetch_row($query)) {
++		do {
++			$row2[] = $row;
++			$i++;
++		}
++		while ($row = mysql_fetch_row($query));
++		mysql_free_result($query);
++	}
++
++	for ($x=0;$x&lt;$i;$x++) {
++		$name = $row2[$x][0];
++		$order = $x+1;
++		if ($_GET['moveup']) {
++			if ($order == $_GET['moveup'] - 1) {
++				$order2 = $order + 1;
++			} else if ($order == $_GET['moveup']) {
++				$order2 = $order - 1;
++			} else {
++				$order2 = $order;
++			}
++		} else {
++			if ($order == $_GET['movedown']) {
++				$order2 = $order + 1;
++			} else if ($order == $_GET['movedown'] + 1) {
++				$order2 = $order - 1;
++			} else {
++				$order2 = $order;
++			}
++		}
++		mysql_query(&quot;UPDATE linklist SET `order` = &quot;.$order2.&quot; WHERE `name` = '&quot;.$name.&quot;';&quot;,$dbh);
++
++	}
++} else if ($_GET['delete']) {
++	mysql_query(&quot;DELETE FROM linklist WHERE `order` = &quot;.$_GET['delete'].&quot;;&quot;,$dbh);
++	$query = mysql_query(&quot;SELECT name FROM linklist ORDER BY `order` ASC;&quot;,$dbh);
++	
++	$i = 0;
++	if ($row = mysql_fetch_row($query)) {
++		do {
++			$row2[] = $row;
++			$i++;
++		}
++		while ($row = mysql_fetch_row($query));
++		mysql_free_result($query);
++	}
++
++	for ($x=0;$x&lt;$i;$x++) {
++		$name = $row2[$x][0];
++		$order = $x+1;
++		mysql_query(&quot;UPDATE linklist SET `order` = &quot;.$order.&quot; WHERE `name` = '&quot;.$name.&quot;';&quot;,$dbh);
++	}
++}
++$max = mysql_fetch_row(mysql_query(&quot;SELECT MAX(`order`) FROM linklist;&quot;,$dbh));
++$query = mysql_query(&quot;SELECT * FROM linklist ORDER BY `order` ASC&quot;,$dbh);
++if ($row = mysql_fetch_row($query)) {
++	do {
++		echo &quot;&lt;tr&gt;&lt;td&gt;&quot;.$row[3].&quot;&lt;/td&gt;&lt;td&gt;&quot;.$row[0].&quot;&lt;/td&gt;&lt;td&gt;&quot;.$row[1].&quot;&lt;/td&gt;&lt;td&gt;&quot;.$row[2].&quot;&lt;/td&gt;&lt;td&gt;&lt;a href=\&quot;links.php?edit=&quot;.$row[3].&quot;\&quot;&gt;edit&lt;/a&gt;&lt;/td&gt;&lt;td&gt;&lt;a href=\&quot;links.php?delete=&quot;.$row[3].&quot;\&quot;&gt;delete&lt;/a&gt;&lt;/td&gt;&quot;;
++		if ($row[3] &lt;&gt; 1) {
++			echo &quot;&lt;td&gt;&lt;a href=\&quot;links.php?moveup=&quot;.$row[3].&quot;\&quot;&gt;move up&lt;/a&gt;&lt;/td&gt;&quot;;
++		} else {
++			echo &quot;&lt;td&gt;---&lt;/td&gt;&quot;;
++		}
++		if ($row[3] &lt;&gt; $max[0]) {
++			echo &quot;&lt;td&gt;&lt;a href=\&quot;links.php?movedown=&quot;.$row[3].&quot;\&quot;&gt;move down&lt;/a&gt;&lt;/td&gt;&quot;;
++		} else {
++			echo &quot;&lt;td&gt;---&lt;/td&gt;&quot;;
++		}
++	} while ($row = mysql_fetch_row($query));
++} else {
++	echo &quot;&lt;tr&gt;&lt;td colspan=\&quot;4\&quot;&gt;No links&lt;/td&gt;&lt;/tr&gt;&quot;;
++}
++?&gt;
++&lt;/table&gt;
++&lt;/p&gt;
++&lt;p&gt;&lt;form action=&quot;&lt;?php echo $_SERVER['PHP_SELF']; ?&gt;?new=1&quot; method=&quot;post&quot;&gt;
++URL &lt;input type=&quot;text&quot; name=&quot;URL&quot;&gt;&lt;br /&gt;
++target &lt;input type=&quot;text&quot; name=&quot;target&quot; value=&quot;_self&quot;&gt;&lt;br /&gt;
++name &lt;input type=&quot;text&quot; name=&quot;name&quot;&gt;&lt;br /&gt;
++&lt;input type=&quot;submit&quot; value=&quot;Add new link&quot;&gt;
++&lt;/form&gt;
++&lt;?php
++}
++?&gt;
++&lt;/p&gt;
++&lt;/body&gt;
++&lt;/HTML&gt;
+
+Added: trunk/files.php
+===================================================================
+--- trunk/files.php	2010-01-15 23:50:52 UTC (rev 564)
++++ trunk/files.php	2010-01-23 22:17:50 UTC (rev 565)
+@@ -0,0 +1,44 @@
++&lt;?php
++if (!isset($filesphp)) {
++	die('Hacking attempt!');
++}
++?&gt;
++&lt;table width=&quot;95%&quot;&gt;
++&lt;tr&gt;
++&lt;td colspan=&quot;4&quot; class=&quot;text13&quot;&gt;
++&lt;?php
++if ($filesphp['type'] == 'd2pack109') {
++    echo &quot;&lt;p&gt;&lt;strong&gt;Diablo II 1.09d support&lt;/strong&gt;&lt;/p&gt;&quot;;
++} elseif ($filesphp['type'] == 'development') {
++    echo &quot;&lt;p&gt;&lt;strong&gt;Latest development release: PvPGN &quot;.$filesphp['version'].&quot;&lt;/strong&gt;&lt;/p&gt;&quot;;
++} else {
++    echo &quot;&lt;p&gt;&lt;strong&gt;Latest stable release: PvPGN &quot;.$filesphp['version'].&quot;&lt;/strong&gt;&nbsp; [&lt;a href=\&quot;index.php?page=changelog\&quot;&gt;Changelog&lt;/a&gt;]&lt;/p&gt;&quot;;
++}
++?&gt;
++&lt;/td&gt;
++&lt;/tr&gt;
++&lt;?php
++$query = mysql_query(&quot;SELECT filename,description,size FROM downloads_&quot;.$filesphp['type'].&quot; ORDER BY `order` ASC;&quot;,$dbh);
++if ($row = mysql_fetch_row($query)) {
++	do {
++		echo &quot;&lt;tr&gt;\n&quot;;
++		echo &quot;&lt;td style=\&quot;width:4%\&quot;&gt;\n&quot;;
++		echo &quot;&nbsp;\n&quot;;
++		echo &quot;&lt;/td&gt;&lt;td style=\&quot;width:40%\&quot;&gt;\n&quot;;
++		echo &quot;&lt;table border=\&quot;0\&quot; cellspacing=\&quot;0\&quot; cellpadding=\&quot;0\&quot;&gt;\n&quot;;
++		echo &quot;&lt;tr&gt;&lt;td class=\&quot;text12\&quot;&gt;\n&quot;;
++		echo &quot;&lt;a href=\&quot;<A HREF="http://download.berlios.de/pvpgn/">http://download.berlios.de/pvpgn/</A>&quot;.$row[0].&quot;\&quot; class=\&quot;link\&quot;&gt;&quot;.$row[0].&quot;&lt;/a&gt;\n&quot;;
++		echo &quot;&lt;/td&gt;&lt;/tr&gt;\n&quot;;
++		echo &quot;&lt;/table&gt;\n&quot;;
++		echo &quot;&lt;/td&gt;&lt;td class=\&quot;text12\&quot; style=\&quot;width:40%\&quot;&gt;\n&quot;;
++		echo $row[1].&quot;\n&quot;;
++		echo &quot;&lt;/td&gt;&lt;td class=\&quot;text12\&quot; style=\&quot;width:16%\&quot;&gt;\n&quot;;
++		echo formatsize($row[2]).&quot;\n&quot;;
++		echo &quot;&lt;/td&gt;\n&quot;;
++		echo &quot;&lt;/tr&gt;\n&quot;;
++	} while ($row = mysql_fetch_row($query));
++} else {
++	echo &quot;&lt;td style=\&quot;width:4%\&quot;&gt;&amp;nbsp&lt;/td&gt;&lt;td colspan=\&quot;3\&quot; class=\&quot;text13\&quot;&gt;We recommend using the latest development release at this time.&lt;/td&gt;&lt;/tr&gt;\n&quot;;
++}
++?&gt;
++&lt;/table&gt;
+
+Added: trunk/images/botbar-bg.gif
+===================================================================
+(Binary files differ)
+
+
+Property changes on: trunk/images/botbar-bg.gif
+___________________________________________________________________
+Name: svn:mime-type
+   + application/octet-stream
+
+Added: trunk/images/left01.jpg
+===================================================================
+(Binary files differ)
+
+
+Property changes on: trunk/images/left01.jpg
+___________________________________________________________________
+Name: svn:mime-type
+   + application/octet-stream
+
+Added: trunk/images/left02.jpg
+===================================================================
+(Binary files differ)
+
+
+Property changes on: trunk/images/left02.jpg
+___________________________________________________________________
+Name: svn:mime-type
+   + application/octet-stream
+
+Added: trunk/images/left03.jpg
+===================================================================
+(Binary files differ)
+
+
+Property changes on: trunk/images/left03.jpg
+___________________________________________________________________
+Name: svn:mime-type
+   + application/octet-stream
+
+Added: trunk/images/left04.jpg
+===================================================================
+(Binary files differ)
+
+
+Property changes on: trunk/images/left04.jpg
+___________________________________________________________________
+Name: svn:mime-type
+   + application/octet-stream
+
+Added: trunk/images/topbar-bg.gif
+===================================================================
+(Binary files differ)
+
+
+Property changes on: trunk/images/topbar-bg.gif
+___________________________________________________________________
+Name: svn:mime-type
+   + application/octet-stream
+
+Added: trunk/includes/about.htm
+===================================================================
+--- trunk/includes/about.htm	2010-01-15 23:50:52 UTC (rev 564)
++++ trunk/includes/about.htm	2010-01-23 22:17:50 UTC (rev 565)
+@@ -0,0 +1,23 @@
++					&lt;div&gt;&nbsp;&lt;/div&gt;
++					&lt;p class=&quot;text13&quot;&gt;
++					  &lt;strong&gt;What is PvPGN?&lt;/strong&gt;
++					&lt;/p&gt;
++					&lt;blockquote&gt;
++					  &lt;p class=&quot;text13&quot;&gt;PvPGN (Player vs Player Gaming Network) is a bnetd based gaming network server emulation project. It currently supports all Battle.net games (such as StarCraft, Diablo II, and Warcraft III), and most Westwood Online clients (Tiberian Sun, Red Alert 2, Yuri's Revenge). It gives you the power to run your own server, manage your own users, run your own tournaments, etc.&lt;/p&gt;
++					  &lt;p class=&quot;text13&quot;&gt;Some common uses of a PvPGN server:&lt;/p&gt;
++						&lt;ul&gt;
++						  &lt;li class=&quot;text13&quot;&gt;When wanting to have a small community with local users and small ladders (lots of internet cafes do that)&lt;/li&gt;
++						  &lt;li class=&quot;text13&quot;&gt;For people who want to play on a LAN but with Battle.net-like statistics&lt;/li&gt;
++						  &lt;li class=&quot;text13&quot;&gt;For people who find Battle.net too slow or laggy and want to play on a local server with no lag&lt;/li&gt;
++						&lt;/ul&gt;
++					  &lt;p class=&quot;text13&quot;&gt;It puts you as a &quot;System Administrator&quot; in control. Use a PvPGN server to host your own LAN parties or put the server online and on the internet for everyone. You can run tournaments, have your own local competition ladders. The power is in your hands.&lt;/p&gt;
++					&lt;/blockquote&gt;
++					&lt;p class=&quot;text13&quot;&gt;
++					  &lt;strong&gt;Where do I start?&lt;/strong&gt;
++					&lt;/p&gt;
++					&lt;blockquote&gt;
++					  &lt;p class=&quot;text13&quot;&gt;
++						If you are interested in setting up your own PvPGN server, start &lt;a href=&quot;<A HREF="http://developer.berlios.de/docman/display_doc.php?docid=534&amp;amp;group_id=2291">http://developer.berlios.de/docman/display_doc.php?docid=534&amp;group_id=2291</A>&quot;&gt;here&lt;/a&gt;.&lt;br /&gt;
++						If you are a gamer who wants to play on a PvPGN server, start &lt;a href=&quot;<A HREF="http://developer.berlios.de/docman/display_doc.php?docid=548&amp;amp;group_id=2291">http://developer.berlios.de/docman/display_doc.php?docid=548&amp;group_id=2291</A>&quot;&gt;here&lt;/a&gt;.
++					  &lt;/p&gt;
++					&lt;/blockquote&gt;
+
+Added: trunk/includes/help.htm
+===================================================================
+--- trunk/includes/help.htm	2010-01-15 23:50:52 UTC (rev 564)
++++ trunk/includes/help.htm	2010-01-23 22:17:50 UTC (rev 565)
+@@ -0,0 +1,22 @@
++&lt;table width=&quot;98%&quot;&gt;
++&lt;tr style=&quot;vertical-align:top&quot;&gt;
++&lt;td style=&quot;vertical-align:top&quot;&gt;
++&lt;p class=&quot;helptitle&quot;&gt;Getting help&lt;/p&gt;
++&lt;p class=&quot;text13&quot;&gt;Need help using PvPGN?  Here are your options:&lt;/p&gt;
++&lt;p class=&quot;text13&quot;&gt;&lt;strong style=&quot;color:#FFB019;&quot;&gt;Documentation.&lt;/strong&gt;  This is where you should start.  The documentation is currently under construction although constantly growing, and it is definately helpful.&lt;/p&gt;
++&lt;p class=&quot;text13&quot;&gt;&lt;strong style=&quot;color:#FFB019;&quot;&gt;PvPGN Wiki.&lt;/strong&gt;  Further documentation and help can be found in the &lt;a href=&quot;<A HREF="http://wiki.pvpgn.org/">http://wiki.pvpgn.org/</A>&quot;&gt;wiki&lt;/a&gt;.&lt;/p&gt;
++&lt;p class=&quot;text13&quot;&gt;&lt;strong style=&quot;color:#FFB019;&quot;&gt;pvpgn-users mailing list.&lt;/strong&gt;  Get help from other users.  Sign up &lt;a href=&quot;<A HREF="http://lists.berlios.de/mailman/listinfo/pvpgn-users">http://lists.berlios.de/mailman/listinfo/pvpgn-users</A>&quot;&gt;here&lt;/a&gt;.&lt;/p&gt;
++&lt;p class=&quot;text13&quot;&gt;&lt;strong style=&quot;color:#FFB019;&quot;&gt;PvPGN Forums.&lt;/strong&gt;  If you can't figure out your problem yourself (after reading through the documentation), then you should try the forums at &lt;a href=&quot;<A HREF="http://forums.pvpgn.org">http://forums.pvpgn.org</A>&quot;&gt;<A HREF="http://forums.pvpgn.org&lt;/a">http://forums.pvpgn.org&lt;/a</A>&gt;.  Before posting for help, please search the forums to see if your question has already been answered as it is annoying for us to answer the same question over and over again.&lt;/p&gt;
++&lt;p class=&quot;text13&quot;&gt;&lt;strong style=&quot;color:#FFB019;&quot;&gt;PvPGN IRC.&lt;/strong&gt;  Channel &lt;strong&gt;#pvpgn&lt;/strong&gt; on &lt;strong&gt;irc.pvpgn.org&lt;/strong&gt;.  You can chat with other PvPGN users and the developers there.&lt;/p&gt;
++
++&lt;/td&gt;
++&lt;td style=&quot;vertical-align:top&quot;&gt;
++&lt;p class=&quot;helptitle&quot;&gt;Giving help&lt;/p&gt;
++&lt;p class=&quot;text13&quot;&gt;PvPGN is a volunteer effort.  Here's how &lt;strong&gt;you&lt;/strong&gt; can help:&lt;/p&gt;
++&lt;p class=&quot;text13&quot;&gt;&lt;strong style=&quot;color:#FFB019;&quot;&gt;The pvpgn-dev mailing list.&lt;/strong&gt;  Whether you're a potential developer, tester, or just want to know what's going on with PvPGN, anyone interested in PvPGN development should &lt;a href=&quot;<A HREF="http://lists.berlios.de/mailman/listinfo/pvpgn-dev">http://lists.berlios.de/mailman/listinfo/pvpgn-dev</A>&quot;&gt;join the pvpgn-dev mailing list&lt;/a&gt;.  We will occasionally ask for new code to be tested and get your feedback, as well as discussing new features, bugs, new releases, etc.&lt;/p&gt;
++&lt;p class=&quot;text13&quot;&gt;&lt;strong style=&quot;color:#FFB019;&quot;&gt;Developers.&lt;/strong&gt;  PvPGN has very few active developers and needs a lot more!  If you can code C, then the best way to give something back to the PvPGN community is to become a developer.  Start by reading the &lt;a href=&quot;<A HREF="http://cvs.berlios.de/cgi-bin/viewcvs.cgi/pvpgn/pvpgn/README.DEV?rev=HEAD&amp;amp;content-type=text/vnd.viewcvs-markup">http://cvs.berlios.de/cgi-bin/viewcvs.cgi/pvpgn/pvpgn/README.DEV?rev=HEAD&amp;content-type=text/vnd.viewcvs-markup</A>&quot;&gt;README.DEV&lt;/a&gt; document.&lt;/p&gt;
++&lt;p class=&quot;text13&quot;&gt;&lt;strong style=&quot;color:#FFB019;&quot;&gt;Testing.&lt;/strong&gt;  PvPGN is always looking for good testers (see above)&lt;/p&gt;
++&lt;p class=&quot;text13&quot;&gt;&lt;strong style=&quot;color:#FFB019;&quot;&gt;Documentation.&lt;/strong&gt;  The project is always short on people willing to write documentation.&lt;/p&gt;
++&lt;/td&gt;
++&lt;/tr&gt;
++&lt;/table&gt;
+
+Added: trunk/includes/sqlerror.htm
+===================================================================
+--- trunk/includes/sqlerror.htm	2010-01-15 23:50:52 UTC (rev 564)
++++ trunk/includes/sqlerror.htm	2010-01-23 22:17:50 UTC (rev 565)
+@@ -0,0 +1,85 @@
++&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.01//EN&quot; &quot;<A HREF="http://www.w3.org/TR/html4/strict.dtd">http://www.w3.org/TR/html4/strict.dtd</A>&quot;&gt;
++&lt;html&gt;
++&lt;head&gt;
++  &lt;title&gt;PvPGN&lt;/title&gt;
++&lt;meta http-equiv=&quot;Content-Type&quot; content=&quot;text/html; charset=iso-8859-1&quot;&gt;
++&lt;link href=&quot;pvpgn.css&quot; rel=&quot;stylesheet&quot; type=&quot;text/css&quot;&gt;
++&lt;/head&gt;
++&lt;body&gt;
++&lt;table width=&quot;100%&quot; border=&quot;0&quot; cellspacing=&quot;0&quot; cellpadding=&quot;0&quot;&gt;
++  &lt;tr&gt; 
++    &lt;td&gt;&lt;table width=&quot;100%&quot; border=&quot;0&quot; cellspacing=&quot;0&quot; cellpadding=&quot;0&quot;&gt;
++        &lt;tr&gt; 
++          &lt;td&gt;&lt;table width=&quot;100%&quot; border=&quot;0&quot; cellspacing=&quot;0&quot; cellpadding=&quot;0&quot;&gt;
++              &lt;tr&gt;
++                &lt;td class=&quot;topbar&quot;&gt;
++					&lt;div&gt; 
++                    &lt;table width=&quot;100%&quot; border=&quot;0&quot; cellspacing=&quot;0&quot; cellpadding=&quot;0&quot;&gt;
++                      &lt;tr&gt;
++							&lt;td style=&quot;height:50px&quot;&gt; &lt;div&gt;
++                                &nbsp;
++                          &lt;/div&gt;&lt;/td&gt;
++                      &lt;/tr&gt;
++                    &lt;/table&gt;
++                  &lt;/div&gt;&lt;/td&gt;
++              &lt;/tr&gt;
++            &lt;/table&gt;&lt;/td&gt;
++        &lt;/tr&gt;
++        &lt;tr&gt; 
++          &lt;td style=&quot;vertical-align:top&quot;&gt; &lt;div style=&quot;text-align:center&quot;&gt; &lt;/div&gt;
++            &lt;div style=&quot;text-align:center&quot;&gt; 
++              &lt;table width=&quot;100%&quot; border=&quot;0&quot; cellspacing=&quot;0&quot; cellpadding=&quot;0&quot;&gt;
++                &lt;tr&gt; 
++                  &lt;td style=&quot;vertical-align:top; width:1%&quot;&gt;
++                    &lt;div style=&quot;text-align:left&quot;&gt;
++                      &lt;img src=&quot;images/left01.jpg&quot; alt=&quot;&quot;&gt;
++                    &lt;/div&gt;
++				  &lt;/td&gt;
++				  &lt;td valign=&quot;top&quot; align=&quot;left&quot;&gt;
++                    &lt;p class=&quot;helptitle&quot;&gt;
++                      Error
++                    &lt;/p&gt;
++                    &lt;p class=&quot;text13&quot;&gt;
++                      There seems to be a problem with the MySQL server.  Please try again later
++                    &lt;/p&gt;
++				  &lt;/td&gt;
++                &lt;/tr&gt;
++              &lt;/table&gt;
++            &lt;/div&gt;&lt;/td&gt;
++        &lt;/tr&gt;
++        &lt;tr&gt; 
++          &lt;td class=&quot;botbar&quot;&gt;
++			  &lt;table style=&quot;width:100%&quot; cellspacing=&quot;0&quot; cellpadding=&quot;0&quot;&gt;
++			  	&lt;tr&gt;
++			  	&lt;td style=&quot;width:99%&quot;&gt;
++			  	&nbsp;
++			  	&lt;/td&gt;
++				  &lt;td&gt;
++					  &lt;table cellspacing=&quot;0&quot; cellpadding=&quot;0&quot;&gt;
++						&lt;tr&gt;
++						  &lt;td class=&quot;hostedby&quot;&gt;
++							Hosted
++						  &lt;/td&gt;
++						&lt;/tr&gt;
++						&lt;tr&gt;
++						  &lt;td class=&quot;hostedby&quot;&gt;
++							by
++						  &lt;/td&gt;
++						&lt;/tr&gt;
++					  &lt;/table&gt;
++				  &lt;/td&gt;
++				  &lt;td style=&quot;width:1%&quot;&gt;
++					&lt;a href=&quot;<A HREF="http://developer.berlios.de/">http://developer.berlios.de/</A>&quot; class=&quot;popup&quot;&gt;
++					  &lt;img src=&quot;<A HREF="http://developer.berlios.de/bslogo.php?group_id=2291&amp;amp;type=1">http://developer.berlios.de/bslogo.php?group_id=2291&amp;type=1</A>&quot; style=&quot;width:124px;height:32px;border:0&quot;alt=&quot;BerliOS&quot;&gt;
++					&lt;/a&gt;
++				  &lt;/td&gt;
++				&lt;/tr&gt;
++			  &lt;/table&gt;
++		  &lt;/td&gt;
++        &lt;/tr&gt;
++      &lt;/table&gt;&lt;/td&gt;
++  &lt;/tr&gt;
++&lt;/table&gt;
++&lt;div class=&quot;footer&quot;&gt;
++ Copyright 2002-2004 Player vs Player Gaming Network
++&lt;/div&gt;
+
+Added: trunk/includes/viewnews.php
+===================================================================
+--- trunk/includes/viewnews.php	2010-01-15 23:50:52 UTC (rev 564)
++++ trunk/includes/viewnews.php	2010-01-23 22:17:50 UTC (rev 565)
+@@ -0,0 +1,80 @@
++&lt;?php
++$row = mysql_fetch_row($temp = mysql_query(&quot;SELECT COUNT(*) FROM news&quot;,$dbh));
++$total_newsitems = $row[0];
++mysql_free_result($temp);
++$row = mysql_fetch_row($temp = mysql_query(&quot;SELECT value+0 FROM config WHERE `key` = 'items_front_page'&quot;,$dbh));
++$items_front_page = $row[0];
++mysql_free_result($temp);
++$row = mysql_fetch_row($temp = mysql_query(&quot;SELECT value+0 FROM config WHERE `key` = 'items_archive_page'&quot;,$dbh));
++$items_archive_page = $row[0];
++mysql_free_result($temp);
++unset($temp);
++unset($row);
++
++$pages = round(($total_newsitems - $items_front_page) / $items_archive_page);
++
++if ($pages == 0) {
++	$pages = 1;
++}
++
++if ($_GET['page'] != 'newsarchive') {
++	$limit = '0,'.$items_front_page;
++} else if (!isset($_GET['start']) || $_GET['start'] &gt; $total_newsitems) {
++	$limit = $items_front_page .','. $items_archive_page;
++	$curpage = 1;
++} else {
++	$limit = $_GET['start'] .','. $items_archive_page;
++	if (!is_int($curpage = ((($_GET['start'] - $items_front_page) / $items_archive_page) + 1))) {
++		$curpage = 0;
++	}
++}
++
++$query = mysql_query(&quot;SELECT t1.username,t1.email,t2.timestamp,t2.subject,t2.text FROM users AS t1, news AS t2 WHERE t1.uid = t2.poster ORDER BY t2.timestamp DESC LIMIT &quot;.$limit.&quot;;&quot;,$dbh);
++
++if ($row = mysql_fetch_row($query)) {
++	do {
++		echo &quot;				  &lt;table width=\&quot;100%\&quot; border=\&quot;0\&quot; cellspacing=\&quot;0\&quot; cellpadding=\&quot;0\&quot;&gt;&quot;;
++		echo &quot;				    &lt;tr&gt;&quot;;
++		echo &quot;				      &lt;td align=\&quot;left\&quot; class=\&quot;newstitle\&quot;&gt;&quot;;
++		echo &quot;				        &lt;strong&gt;&quot; . $row[3]. &quot;&lt;/strong&gt;&quot;;
++		echo &quot;				        &lt;br /&gt;&lt;span class=\&quot;text9\&quot;&gt;Posted by &lt;a href=\&quot;mailto:&quot;. $row[1] .&quot;\&quot;&gt;&quot;. $row[0] .&quot;&lt;/a&gt; on &quot;.date($dateformat,$row[2]).&quot;&lt;/span&gt;&lt;br /&gt;&lt;br /&gt;&quot;;
++		echo &quot;				        &lt;span class=\&quot;text13\&quot;&gt;&quot; . str_replace(&quot;\n&quot;,&quot;&lt;br /&gt;\n&quot;,str_replace(&quot;changelog&quot;,&quot;&lt;a href=\&quot;index.php?page=changelog\&quot;&gt;changelog&lt;/a&gt;&quot;,$row[4])) . &quot;&lt;/span&gt;&quot;;
++		echo &quot;				      &lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&quot;;
++		echo &quot;				  &lt;div&gt;&nbsp;&lt;/div&gt;&quot;;
++		echo &quot;				  &lt;hr /&gt;&lt;div&gt;&nbsp;&lt;/div&gt;&quot;;
++	} while ($row = mysql_fetch_row($query));
++	mysql_free_result($query);
++} else {
++	echo &quot;				  &lt;div style=\&quot;text-align:center\&quot;&gt;No news found&lt;/div&gt;\n&quot;;
++}
++if ($_GET['page'] == 'newsarchive') {
++?&gt;
++					  &lt;table width=&quot;100%&quot;&gt;
++						&lt;tr&gt;
++						  &lt;td class=&quot;newsarchive&quot;&gt;
++						  	Page: 
++&lt;?php
++	for ($x=0;$x&lt;$pages;$x++) {
++		if ($x+1 == $curpage) {
++			echo &quot; &quot;.round($x+1);
++		} else {
++			echo &quot; &lt;a href=\&quot;index.php?page=newsarchive&amp;start=&quot;.round($x*$items_archive_page + $items_front_page).&quot;\&quot; class=\&quot;link2\&quot;&gt;&quot;.round($x+1).&quot;&lt;/a&gt;&quot;;
++		}
++	}
++?&gt;
++						  &lt;/td&gt;
++						&lt;/tr&gt;
++					  &lt;/table&gt;&lt;br /&gt;
++&lt;?php
++} else {
++?&gt;
++					  &lt;table width=&quot;100%&quot;&gt;
++						&lt;tr&gt;
++						  &lt;td style=&quot;text-align:center&quot;&gt;
++							&lt;a href=&quot;index.php?page=newsarchive&quot; class=&quot;link2&quot;&gt;News archive&lt;/a&gt;
++						  &lt;/td&gt;
++						&lt;/tr&gt;
++					  &lt;/table&gt;&lt;br /&gt;
++&lt;?php
++}	
++?&gt;
+
+Added: trunk/index.php
+===================================================================
+--- trunk/index.php	2010-01-15 23:50:52 UTC (rev 564)
++++ trunk/index.php	2010-01-23 22:17:50 UTC (rev 565)
+@@ -0,0 +1,293 @@
++&lt;?php
++require_once('config.php');
++$dateformat = 'l F j, Y G:i:s';
++
++function microtime_float()
++{
++	list($usec, $sec) = explode(&quot; &quot;, microtime());
++	return ((float)$usec + (float)$sec);
++	srand($usec);
++}
++$time_start = microtime_float();
++
++$dbh = @mysql_connect($dbhost,$dbuser,$dbpass);
++if (!$dbh) {
++    readfile('includes/sqlerror.htm');
++    echo &quot;&lt;div class=\&quot;footer\&quot;&gt;\n&quot;;
++    $time = microtime_float() - $time_start;
++    echo &quot;  Page generation time: &quot;.sprintf(&quot;%2.2f&quot;,$time).&quot; seconds\n&quot;;
++    echo &quot;&lt;/div&gt;\n&quot;;
++    echo &quot;&lt;/body&gt;&quot;;
++    echo &quot;&lt;/html&gt;&quot;;
++    die();
++}
++mysql_select_db($dbname,$dbh);
++
++if (!isset($_GET['page'])) {
++	$_GET['page'] = 'index';
++}
++
++$query = mysql_query(&quot;SELECT title FROM titles WHERE `page` = '&quot;.$_GET['page'].&quot;';&quot;,$dbh);
++if ($row = mysql_fetch_row($query)) {
++	$title = $row[0];
++	mysql_free_result($query);
++	unset($query);
++	unset($row);
++} else {
++	die('Hacking attempt!');
++}
++?&gt;
++&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.01//EN&quot; &quot;<A HREF="http://www.w3.org/TR/html4/strict.dtd">http://www.w3.org/TR/html4/strict.dtd</A>&quot;&gt;
++&lt;html&gt;
++&lt;head&gt;
++  &lt;title&gt;&lt;?php echo $title; ?&gt;&lt;/title&gt;
++&lt;meta http-equiv=&quot;Content-Type&quot; content=&quot;text/html; charset=iso-8859-1&quot;&gt;
++&lt;link href=&quot;pvpgn.css&quot; rel=&quot;stylesheet&quot; type=&quot;text/css&quot;&gt;
++&lt;/head&gt;
++&lt;body&gt;
++&lt;table width=&quot;100%&quot; border=&quot;0&quot; cellspacing=&quot;0&quot; cellpadding=&quot;0&quot;&gt;
++  &lt;tr&gt; 
++    &lt;td&gt;&lt;table width=&quot;100%&quot; border=&quot;0&quot; cellspacing=&quot;0&quot; cellpadding=&quot;0&quot;&gt;
++        &lt;tr&gt; 
++          &lt;td&gt;&lt;table width=&quot;100%&quot; border=&quot;0&quot; cellspacing=&quot;0&quot; cellpadding=&quot;0&quot;&gt;
++              &lt;tr&gt;
++                &lt;td class=&quot;topbar&quot;&gt;
++					&lt;div&gt; 
++                    &lt;table width=&quot;100%&quot; border=&quot;0&quot; cellspacing=&quot;0&quot; cellpadding=&quot;0&quot;&gt;
++                      &lt;tr&gt;
++							&lt;td style=&quot;height:50px&quot;&gt; &lt;div&gt;
++                            &lt;table width=&quot;100%&quot; border=&quot;0&quot; cellspacing=&quot;1&quot;&gt;
++                              &lt;tr&gt;
++								&lt;?php
++								$linkwidth = mysql_fetch_row($temp = mysql_query(&quot;SELECT (100 / COUNT(*))+0 AS linkwidth FROM linklist&quot;));
++								mysql_free_result($temp);
++								unset($temp);
++								$query = mysql_query(&quot;SELECT url,target,name FROM linklist ORDER BY `order` ASC&quot;);
++								while ($row = mysql_fetch_row($query)) {
++								// target=\&quot;&quot;.$row[1].&quot;\&quot;
++	                                echo &quot;								&lt;td style=\&quot;width:&quot;. round($linkwidth[0]) .&quot;%\&quot;&gt;&lt;div style=\&quot;text-align:center\&quot;&gt;&lt;a href=\&quot;&quot;.$row[0].&quot;\&quot; class=\&quot;link\&quot;&gt;&quot;.$row[2].&quot;&lt;/a&gt;&lt;/div&gt;&lt;/td&gt;\n&quot;;
++								}
++								mysql_free_result($query);
++								unset($query);
++								unset($row);
++								unset($linkwidth);
++								?&gt;
++                              &lt;/tr&gt;
++                            &lt;/table&gt;
++                          &lt;/div&gt;&lt;/td&gt;
++                      &lt;/tr&gt;
++                    &lt;/table&gt;
++                  &lt;/div&gt;&lt;/td&gt;
++              &lt;/tr&gt;
++            &lt;/table&gt;&lt;/td&gt;
++        &lt;/tr&gt;
++        &lt;tr&gt; 
++          &lt;td style=&quot;vertical-align:top&quot;&gt; &lt;div style=&quot;text-align:center&quot;&gt; &lt;/div&gt;
++            &lt;div style=&quot;text-align:center&quot;&gt; 
++              &lt;table width=&quot;100%&quot; border=&quot;0&quot; cellspacing=&quot;0&quot; cellpadding=&quot;0&quot;&gt;
++                &lt;tr&gt; 
++                  &lt;td style=&quot;vertical-align:top; width:1%&quot;&gt;
++                  &lt;div style=&quot;text-align:left&quot;&gt;
++                  &lt;?php
++				  // Display the random image on the left
++                  echo &quot;                    &lt;img src=\&quot;images/left&quot; . sprintf(&quot;%02d&quot;,rand(1,4)) . &quot;.jpg\&quot; alt=\&quot;\&quot; /&gt;\n&quot;;
++                  ?&gt;
++                  &lt;/div&gt;
++				  &lt;/td&gt;
++				  &lt;td valign=&quot;top&quot; align=&quot;left&quot;&gt;
++				  &lt;?php
++				  if ($_GET['page'] == 'files') {
++				// This is how we process the files page
++				// We start by getting the latest version numbers from the &quot;config&quot; table
++				// Then we'll save these version numbers into variables and free the result
++				  $row = mysql_fetch_row($temp = mysql_query(&quot;SELECT value FROM config WHERE `key` = 'latest_stable'&quot;,$dbh));
++				  $latest_stable = $row[0];
++				  mysql_free_result($temp);
++				  $row = mysql_fetch_row($temp = mysql_query(&quot;SELECT value FROM config WHERE `key` = 'latest_development'&quot;,$dbh));
++				  $latest_development = $row[0];
++				  mysql_free_result($temp);
++				  $row = mysql_fetch_row($temp = mysql_query(&quot;SELECT value FROM config WHERE `key` = 'latest_d2pack109'&quot;,$dbh));
++				  $latest_d2pack109 = $row[0];
++				  mysql_free_result($temp);
++				  unset($temp);
++				  unset($row);
++
++				// A function to format the size field.  Taken from PHP-Nuke
++				  function formatsize($size) {
++    				$mb = 1024*1024;
++    				if ( $size &gt; $mb ) {
++    				    $mysize = sprintf (&quot;%01.2f&quot;,$size/$mb) . &quot; MB&quot;;
++    				} elseif ( $size &gt;= 1024 ) {
++    				    $mysize = sprintf (&quot;%01.2f&quot;,$size/1024) . &quot; KB&quot;;
++    				} else {
++    				    $mysize = $size . &quot; bytes&quot;;
++    				}
++						return $mysize;
++				  }
++
++				// Check to see if there is a development release currently
++				  if ($latest_development &lt;&gt; 0) {
++					// Pass some instructions to files.php and run it
++				  	$filesphp = array(
++									'type' =&gt; 'development',
++									'version' =&gt; $latest_development);
++					include('files.php');
++				  }
++				// We will assume that there will always be a stable release
++				  $filesphp = array(
++								'type' =&gt; 'stable',
++								'version' =&gt; $latest_stable);
++				  include('files.php');
++				// And finally, d2pack109
++				  $filesphp = array(
++								'type' =&gt; 'd2pack109',
++								'version' =&gt; $latest_d2pack109);
++				  include('files.php');
++
++				// Show downloads for support files.  There is no reason to keep these in a database
++				// cos they rarely change.
++				  ?&gt;
++					&lt;table width=&quot;95%&quot;&gt;
++					  &lt;tr&gt;
++						&lt;td colspan=&quot;4&quot; class=&quot;text13&quot;&gt;
++						  &lt;p&gt;&lt;strong&gt;Support files&lt;/strong&gt;&lt;/p&gt;
++						&lt;/td&gt;
++					  &lt;/tr&gt;
++					  &lt;tr&gt;
++						&lt;td style=&quot;width:4%&quot;&gt;&nbsp;						  
++						&lt;/td&gt;
++						&lt;td style=&quot;width:40%&quot;&gt;
++						  &lt;table border=&quot;0&quot; cellspacing=&quot;0&quot; cellpadding=&quot;0&quot;&gt;
++							&lt;tr&gt;
++							  &lt;td&gt;
++								&lt;a href=&quot;<A HREF="http://download.berlios.de/pvpgn/pvpgn-support-1.2.tar.gz">http://download.berlios.de/pvpgn/pvpgn-support-1.2.tar.gz</A>&quot; class=&quot;link&quot;&gt;pvpgn-support-1.2.tar.gz&lt;/a&gt;
++							  &lt;/td&gt;
++							&lt;/tr&gt;
++						  &lt;/table&gt;
++						&lt;/td&gt;
++						&lt;td class=&quot;text12&quot; style=&quot;width:40%&quot;&gt;
++						  Support files
++						&lt;/td&gt;
++						&lt;td class=&quot;text12&quot; style=&quot;width:16%&quot;&gt;
++						  123.09 KB
++						&lt;/td&gt;
++					  &lt;/tr&gt;
++					  &lt;tr&gt;
++						&lt;td style=&quot;width:4%&quot;&gt;&nbsp;
++						  
++						&lt;/td&gt;
++						&lt;td style=&quot;width:40%&quot;&gt;
++						  &lt;table border=&quot;0&quot; cellspacing=&quot;0&quot; cellpadding=&quot;0&quot;&gt;
++							&lt;tr&gt;
++							  &lt;td&gt;
++								&lt;a href=&quot;<A HREF="http://download.berlios.de/pvpgn/pvpgn-support-1.2.zip">http://download.berlios.de/pvpgn/pvpgn-support-1.2.zip</A>&quot; class=&quot;link&quot;&gt;pvpgn-support-1.2.zip&lt;/a&gt;
++							  &lt;/td&gt;
++							&lt;/tr&gt;
++						  &lt;/table&gt;
++						&lt;/td&gt;
++						&lt;td class=&quot;text12&quot; style=&quot;width:40%&quot;&gt;
++						  Support files
++						&lt;/td&gt;
++						&lt;td class=&quot;text12&quot; style=&quot;width:16%&quot;&gt;
++						   125.11 KB
++						&lt;/td&gt;
++					  &lt;/tr&gt;
++					&lt;/table&gt;&lt;br /&gt;
++					  &lt;table width=&quot;100%&quot;&gt;
++						&lt;tr&gt;
++						  &lt;td style=&quot;text-align:center&quot;&gt;
++							&lt;a href=&quot;<A HREF="http://developer.berlios.de/project/showfiles.php?group_id=2291">http://developer.berlios.de/project/showfiles.php?group_id=2291</A>&quot; class=&quot;link2&quot;&gt;More files...&lt;/a&gt;
++						  &lt;/td&gt;
++						&lt;/tr&gt;
++					  &lt;/table&gt;
++					  &lt;br /&gt;
++				  &lt;?php
++				  // End files page
++				  } else if ($_GET['page'] == 'changelog') {
++				    echo &quot;&lt;p class=\&quot;text13\&quot;&gt;\n&quot;;
++                    $changelog = file('includes/version-history.txt');
++                    $changelog[0] = 'skipme';
++                    $changelog[1] = 'skipme';
++                    foreach ($changelog as $line) {
++                        $line = trim($line);
++                        if ($line == 'skipme') {
++                            continue;
++                        } elseif (substr($line,0,1) == '[') {
++                            $pos = strpos($line,']');
++                            echo &quot;&lt;span style=\&quot;color:#FF0000\&quot;&gt;&quot;.substr($line,0,$pos+1).&quot;&lt;/span&gt;&quot;;
++                            echo substr($line,$pos+2).&quot;&lt;br&gt;\n&quot;;
++                        } elseif (substr($line,0,13) == 'Changelog for' || substr($line,0,13) == 'ChangeLog for') {
++                            echo &quot;&lt;strong style=\&quot;color:#FFB019\&quot;&gt;$line&lt;/strong&gt;\n&quot;;
++                        } elseif (ereg('^========================+', $line)) {
++                            echo &quot;&lt;span style=\&quot;color:#FFB019\&quot;&gt;$line&lt;/span&gt;&lt;br&gt;\n&quot;;
++                        } else {
++                            echo $line . &quot;&lt;br&gt;\n&quot;;
++                        }
++                    }
++				    echo &quot;&lt;/p&gt;\n&quot;;
++				  } else if ($_GET['page'] == 'about') {
++					// &quot;What is PvPGN?&quot; page
++				  	readfile('includes/about.htm');
++				  } else if ($_GET['page'] == 'help') {
++					// &quot;Help&quot; page
++					echo &quot;&lt;div&gt;&nbsp;&lt;/div&gt;\n&quot;;
++					readfile('includes/help.htm');
++				  } else {
++				 // To show the news page, we just include viewnews.php
++				 	echo &quot;&lt;div&gt;&nbsp;&lt;/div&gt;&quot;;
++					include('includes/viewnews.php');
++				  }
++				  ?&gt;
++				  &lt;/td&gt;
++                &lt;/tr&gt;
++              &lt;/table&gt;
++            &lt;/div&gt;&lt;/td&gt;
++        &lt;/tr&gt;
++        &lt;tr&gt; 
++          &lt;td class=&quot;botbar&quot;&gt;
++			  &lt;table style=&quot;width:100%&quot; cellspacing=&quot;0&quot; cellpadding=&quot;0&quot;&gt;
++			  	&lt;tr&gt;
++			  	&lt;td style=&quot;width:99%&quot;&gt;
++			  	&nbsp;
++			  	&lt;/td&gt;
++				  &lt;td&gt;
++					  &lt;table cellspacing=&quot;0&quot; cellpadding=&quot;0&quot;&gt;
++						&lt;tr&gt;
++						  &lt;td class=&quot;hostedby&quot;&gt;
++							Hosted
++						  &lt;/td&gt;
++						&lt;/tr&gt;
++						&lt;tr&gt;
++						  &lt;td class=&quot;hostedby&quot;&gt;
++							by
++						  &lt;/td&gt;
++						&lt;/tr&gt;
++					  &lt;/table&gt;
++				  &lt;/td&gt;
++				  &lt;td style=&quot;width:1%&quot;&gt;
++					&lt;a href=&quot;<A HREF="http://developer.berlios.de/">http://developer.berlios.de/</A>&quot; class=&quot;popup&quot;&gt;
++					  &lt;img src=&quot;<A HREF="http://developer.berlios.de/bslogo.php?group_id=2291&amp;amp;type=1">http://developer.berlios.de/bslogo.php?group_id=2291&amp;type=1</A>&quot; style=&quot;width:124px;height:32px;border:0&quot;alt=&quot;BerliOS&quot;&gt;
++					&lt;/a&gt;
++				  &lt;/td&gt;
++				&lt;/tr&gt;
++			  &lt;/table&gt;
++		  &lt;/td&gt;
++        &lt;/tr&gt;
++      &lt;/table&gt;&lt;/td&gt;
++  &lt;/tr&gt;
++&lt;/table&gt;
++&lt;div class=&quot;footer&quot;&gt;
++&lt;?php
++$footer = mysql_fetch_row($temp = mysql_query(&quot;SELECT value FROM config WHERE `key` = 'footer'&quot;));
++echo &quot; &quot;.$footer[0].&quot;\n&quot;;
++mysql_free_result($temp);
++?&gt;
++&lt;/div&gt;
++&lt;div class=&quot;footer&quot;&gt;
++&lt;?php
++$time = microtime_float() - $time_start;
++echo &quot;  Page generation time: &quot;.sprintf(&quot;%2.2f&quot;,$time).&quot; seconds\n&quot;;
++?&gt;
++&lt;/div&gt;
++&lt;/body&gt;
++&lt;/html&gt;
+
+Added: trunk/pvpgn.css
+===================================================================
+--- trunk/pvpgn.css	2010-01-15 23:50:52 UTC (rev 564)
++++ trunk/pvpgn.css	2010-01-23 22:17:50 UTC (rev 565)
+@@ -0,0 +1,86 @@
++body {
++	margin-left: 0px;
++	margin-top: 0px;
++	margin-right: 0px;
++	margin-bottom: 0px;
++	background-color: #000000;
++	color: #FFFFFF;
++}
++a {
++	color: #FFB019;
++	text-decoration: underline;
++}
++a.link {
++	display: block;
++	text-decoration: none;
++	font-family: Arial, Helvetica, sans-serif;
++	font-weight: bold;
++	font-size: 12px;
++	color: #FFB019;
++	BORDER: none;
++}
++a.link:hover {
++	background-color: #333333;
++}
++a.link2 {
++	font-weight: bold;
++	font-family: Arial, Helvetica, sans-serif;
++	font-size: 13px;
++	color: #FFB019;
++	text-decoration: none;
++}
++.text13 {
++	font-family: Arial, Helvetica, sans-serif;
++	font-size: 13px;
++	color: #FFFFFF;
++}
++.text12 {
++	font-family: Arial, Helvetica, sans-serif;
++	font-size: 12px;
++	color: #FFFFFF;
++}
++.text9 {
++	font-family: Arial, Helvetica, sans-serif;
++	font-size: 9px;
++	color: #FFFFFF;
++}
++.helptitle {
++	font-family: Arial, Helvetica, sans-serif;
++	font-size: 18px;
++	color: #FFB019;
++}
++.newstitle {
++	font-family: Arial, Helvetica, sans-serif;
++	font-size: 13px;
++	color: #FFB019;
++}
++.newsarchive {
++	text-align: center;
++	font-family: Arial, Helvetica, sans-serif;
++	font-size: 13px;
++	color: #FFFFFF;
++}
++.hostedby {
++	font-family: Arial, Helvetica, sans-serif;
++	font-size: 9px;
++	color: #FFFFFF;
++	text-align: right;
++}
++.footer {
++	font-size: 9px;
++	color: #666666;
++	font-family: Verdana, Arial, Helvetica, sans-serif;
++	text-align: center;
++	border: 0px;
++}
++td.topbar {
++	height: 68px;
++	vertical-align: bottom;
++	background-image: url(images/topbar-bg.gif);
++}
++td.botbar {
++	height: 63px;
++	vertical-align: top;
++	background-image: url(images/botbar-bg.gif);
++	text-align: right;
++}
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001184.html">[pvpgn-dev] [Bug #16350] got UNKNOWN gamelang for game client ptBR
+</A></li>
+	<LI>Next message: <A HREF="001186.html">[pvpgn-dev] r566 - trunk
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1185">[ date ]</a>
+              <a href="thread.html#1185">[ thread ]</a>
+              <a href="subject.html#1185">[ subject ]</a>
+              <a href="author.html#1185">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

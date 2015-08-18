@@ -1,0 +1,88 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] web index.php,1.11,1.12
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-September/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20web%20index.php%2C1.11%2C1.12&In-Reply-To=%3C20070905085944.E70F1F6549%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000444.html">
+   <LINK REL="Next"  HREF="000446.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] web index.php,1.11,1.12</H1>
+    <B>d1zzy</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20web%20index.php%2C1.11%2C1.12&In-Reply-To=%3C20070905085944.E70F1F6549%40mail.berlios.de%3E"
+       TITLE="[pvpgn-dev] web index.php,1.11,1.12">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Wed Sep  5 10:59:44 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000444.html">[pvpgn-dev] web index.php,1.10,1.11
+</A></li>
+        <LI>Next message: <A HREF="000446.html">[pvpgn-dev] r386 - trunk/pvpgn/src/bnetd
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#445">[ date ]</a>
+              <a href="thread.html#445">[ thread ]</a>
+              <a href="subject.html#445">[ subject ]</a>
+              <a href="author.html#445">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/pvpgn/web
+In directory sheep:/tmp/cvs-serv6104
+
+Modified Files:
+	index.php 
+Log Message:
+Be more generic parsing sections of the ChangeLog file.
+
+
+Index: index.php
+===================================================================
+RCS file: /cvsroot/pvpgn/web/index.php,v
+retrieving revision 1.11
+retrieving revision 1.12
+diff -u -d -r1.11 -r1.12
+--- index.php	5 Sep 2007 07:46:56 -0000	1.11
++++ index.php	5 Sep 2007 08:59:14 -0000	1.12
+@@ -218,7 +218,7 @@
+                             echo substr($line,$pos+2).&quot;&lt;br&gt;\n&quot;;
+                         } elseif (substr($line,0,13) == 'Changelog for' || substr($line,0,13) == 'ChangeLog for') {
+                             echo &quot;&lt;strong style=\&quot;color:#FFB019\&quot;&gt;$line&lt;/strong&gt;\n&quot;;
+-                        } elseif ($line == '===================================' || $line == '=======================================') {
++                        } elseif (ereg('^========================+', $line)) {
+                             echo &quot;&lt;span style=\&quot;color:#FFB019\&quot;&gt;$line&lt;/span&gt;&lt;br&gt;\n&quot;;
+                         } else {
+                             echo $line . &quot;&lt;br&gt;\n&quot;;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000444.html">[pvpgn-dev] web index.php,1.10,1.11
+</A></li>
+	<LI>Next message: <A HREF="000446.html">[pvpgn-dev] r386 - trunk/pvpgn/src/bnetd
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#445">[ date ]</a>
+              <a href="thread.html#445">[ thread ]</a>
+              <a href="subject.html#445">[ subject ]</a>
+              <a href="author.html#445">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

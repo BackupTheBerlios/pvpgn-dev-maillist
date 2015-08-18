@@ -1,0 +1,446 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r473 - trunk/pvpgn/conf
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2008-July/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r473%20-%20trunk/pvpgn/conf&In-Reply-To=%3C200807172154.m6HLs0jN022684%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000746.html">
+   <LINK REL="Next"  HREF="000748.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r473 - trunk/pvpgn/conf</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r473%20-%20trunk/pvpgn/conf&In-Reply-To=%3C200807172154.m6HLs0jN022684%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r473 - trunk/pvpgn/conf">svn at svn.berlios.de
+       </A><BR>
+    <I>Thu Jul 17 23:54:00 CEST 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000746.html">[pvpgn-dev] r472 - trunk/pvpgn
+</A></li>
+        <LI>Next message: <A HREF="000748.html">[pvpgn-dev] pvpgn UPDATE, 1.63, 1.64 version-history.txt, 1.284,	1.285
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#747">[ date ]</a>
+              <a href="thread.html#747">[ thread ]</a>
+              <a href="subject.html#747">[ subject ]</a>
+              <a href="author.html#747">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pandaemonium
+Date: 2008-07-17 23:53:59 +0200 (Thu, 17 Jul 2008)
+New Revision: 473
+
+Modified:
+   trunk/pvpgn/conf/bnmaps.conf.in
+Log:
+adjust ladder map linup to match current battle.net lineup
+
+Modified: trunk/pvpgn/conf/bnmaps.conf.in
+===================================================================
+--- trunk/pvpgn/conf/bnmaps.conf.in	2008-07-17 14:28:05 UTC (rev 472)
++++ trunk/pvpgn/conf/bnmaps.conf.in	2008-07-17 21:53:59 UTC (rev 473)
+@@ -31,10 +31,10 @@
+ WAR3		4v4		Maps\(8)BlastedLands.w3m
+ WAR3		4v4		Maps\(8)BloodvenomFalls.w3m
+ WAR3		4v4		Maps\(8)GardenOfWar.w3m
+-WAR3            4v4             Maps\(8)GolemsInTheMist.w3m
++WAR3    4v4   Maps\(8)GolemsInTheMist.w3m
+ WAR3		4v4		Maps\(8)PetrifiedForest.w3m
+-WAR3            4v4             Maps\(8)PlainsOfSnow.w3m
+-WAR3            4v4             Maps\(8)TheCrucible.w3m
++WAR3		4v4		Maps\(8)PlainsOfSnow.w3m
++WAR3		4v4		Maps\(8)TheCrucible.w3m
+ 
+ WAR3		sffa		Maps\(4)HarvestMoon.w3m
+ WAR3		sffa		Maps\(4)LostTemple.w3m
+@@ -58,8 +58,8 @@
+ 
+ WAR3		at3v3		Maps\(6)DarkForest.w3m
+ WAR3		at3v3		Maps\(6)DragonFire.w3m
+-WAR3            at3v3           Maps\(6)Stromguarde.w3m
+-WAR3            at3v3           Maps\(6)SwampOfSorrows.w3m
++WAR3		at3v3		Maps\(6)Stromguarde.w3m
++WAR3		at3v3		Maps\(6)SwampOfSorrows.w3m
+ WAR3		at3v3		Maps\(6)TimbermawHold.w3m
+ WAR3		at3v3		Maps\(8)Battleground.w3m
+ WAR3		at3v3		Maps\(8)PlainsOfSnow.w3m
+@@ -68,10 +68,10 @@
+ WAR3		at4v4		Maps\(8)BlastedLands.w3m
+ WAR3		at4v4		Maps\(8)BloodvenomFalls.w3m
+ WAR3		at4v4		Maps\(8)GardenOfWar.w3m
+-WAR3            at4v4           Maps\(8)GolemsInTheMist.w3m
++WAR3		at4v4		Maps\(8)GolemsInTheMist.w3m
+ WAR3		at4v4		Maps\(8)PetrifiedForest.w3m
+ WAR3		at4v4		Maps\(8)PlainsOfSnow.w3m
+-WAR3            at4v4           Maps\(8)TheCrucible.w3m
++WAR3		at4v4		Maps\(8)TheCrucible.w3m
+ 
+ WAR3		tffa		Maps\(4)HarvestMoon.w3m
+ WAR3		tffa		Maps\(4)LostTemple.w3m
+@@ -110,18 +110,18 @@
+ WAR3		2v2v2v2		Maps\(8)BlastedLands.w3m
+ WAR3		2v2v2v2		Maps\(8)BloodvenomFalls.w3m
+ WAR3		2v2v2v2		Maps\(8)GardenOfWar.w3m
+-WAR3            2v2v2v2		Maps\(8)GolemsInTheMist.w3m
++WAR3		2v2v2v2		Maps\(8)GolemsInTheMist.w3m
+ WAR3		2v2v2v2		Maps\(8)PetrifiedForest.w3m
+-WAR3            2v2v2v2		Maps\(8)PlainsOfSnow.w3m
+-WAR3            2v2v2v2		Maps\(8)TheCrucible.w3m
++WAR3		2v2v2v2		Maps\(8)PlainsOfSnow.w3m
++WAR3		2v2v2v2		Maps\(8)TheCrucible.w3m
+ 
+ WAR3		3v3v3v3		Maps\(12)DivideAndConquer.w3m
+ WAR3		3v3v3v3		Maps\(12)IceCrown.w3m
+ 
+ WAR3		at2v2v2		Maps\(6)DarkForest.w3m
+ WAR3		at2v2v2		Maps\(6)DragonFire.w3m
+-WAR3            at2v2v2		Maps\(6)Stromguarde.w3m
+-WAR3            at2v2v2		Maps\(6)SwampOfSorrows.w3m
++WAR3		at2v2v2		Maps\(6)Stromguarde.w3m
++WAR3		at2v2v2		Maps\(6)SwampOfSorrows.w3m
+ WAR3		at2v2v2		Maps\(6)TimbermawHold.w3m
+ WAR3		at2v2v2		Maps\(8)Battleground.w3m
+ WAR3		at2v2v2		Maps\(8)PlainsOfSnow.w3m
+@@ -129,140 +129,133 @@
+ 
+ ######### WARCRAFT 3 THE FROZEN THRONE #################
+ 
+-W3XP            1v1             Maps\FrozenThrone\(2)EchoIsles.w3x
+-W3XP            1v1             Maps\FrozenThrone\(2)TerenasStand.w3x
+-W3XP            1v1             Maps\FrozenThrone\(2)TirisfalGlades.w3x
+-W3XP            1v1             Maps\FrozenThrone\(4)BrokenShard.w3x
+-W3XP            1v1             Maps\(4)LostTemple.w3m
+-W3XP            1v1             Maps\FrozenThrone\(4)LostTemple.w3x
+-W3XP            1v1             Maps\FrozenThrone\(4)PhantomGrove.w3x
+-W3XP            1v1             Maps\FrozenThrone\(4)TurtleRock.w3x
+-W3XP            1v1             Maps\FrozenThrone\(4)TwistedMeadows.w3x
+-W3XP            1v1             Maps\FrozenThrone\(4)Wetlands.w3x
+-W3XP            1v1             Maps\FrozenThrone\(6)Moonglade.w3x
+-W3XP            1v1             Maps\FrozenThrone\(6)ScorchedBasin.w3x
++W3XP		1v1		Maps\FrozenThrone\(2)SecretValley.w3x
++W3XP		1v1		Maps\FrozenThrone\(2)MeltingValley.w3x
++W3XP		1v1		Maps\FrozenThrone\(2)RoadToStratholme.w3x
++W3XP		1v1		Maps\FrozenThrone\(2)EchoIsles.w3x
++W3XP		1v1		Maps\FrozenThrone\(2)TerenasStand.w3x
++W3XP		1v1		Maps\FrozenThrone\(2)TirisfalGlades.w3x
++W3XP		1v1		Maps\FrozenThrone\(4)BrokenShard.w3x
++W3XP		1v1		Maps\FrozenThrone\(4)CentaurGrove.w3x
++W3XP		1v1		Maps\(4)LostTemple.w3m
++W3XP		1v1		Maps\FrozenThrone\(4)TidewaterGlades.w3x
++W3XP		1v1		Maps\FrozenThrone\(4)TurtleRock.w3x
++W3XP		1v1		Maps\FrozenThrone\(4)TwistedMeadows.w3x
++W3XP		1v1		Maps\FrozenThrone\(6)GnollWood.w3x
+ 
+-W3XP            2v2             Maps\FrozenThrone\(4)ExcavationSite.w3x
+-W3XP            2v2             Maps\FrozenThrone\(4)GoldShire.w3x
+-W3XP            2v2             Maps\FrozenThrone\(4)LostTemple.w3x
+-W3XP            2v2             Maps\FrozenThrone\(4)PhantomGrove.w3x
+-W3XP            2v2             Maps\(4)TranquilPaths.w3m
+-W3XP            2v2             Maps\FrozenThrone\(4)TurtleRock.w3x
+-W3XP            2v2             Maps\FrozenThrone\(4)TwistedMeadows.w3x
+-W3XP            2v2             Maps\FrozenThrone\(4)Wetlands.w3x
+-W3XP            2v2             Maps\FrozenThrone\(6)EmeraldShores.w3x
+-W3XP            2v2             Maps\FrozenThrone\(6)GnollWood.w3x
+-W3XP            2v2             Maps\FrozenThrone\(6)Moonglade.w3x
+-W3XP            2v2             Maps\FrozenThrone\(6)ScorchedBasin.w3x
++W3XP		2v2		Maps\FrozenThrone\(4)CentaurGrove.w3x
++W3XP		2v2		Maps\FrozenThrone\(4)ExcavationSite.w3x
++W3XP		2v2		Maps\FrozenThrone\(4)Goldshire.w3x
++W3XP		2v2		Maps\(4)LostTemple.w3m
++W3XP		2v2		Maps\FrozenThrone\(4)PhantomGrove.w3x
++W3XP		2v2		Maps\(4)TranquilPaths.w3m
++W3XP		2v2		Maps\FrozenThrone\(4)TidewaterGlades.w3x
++W3XP		2v2		Maps\FrozenThrone\(4)TurtleRock.w3x
++W3XP		2v2		Maps\FrozenThrone\(4)TwistedMeadows.w3x
++W3XP		2v2		Maps\FrozenThrone\(4)Wetlands.w3x
++W3XP		2v2		Maps\FrozenThrone\(6)GnollWood.w3x
+ 
+-W3XP            3v3             Maps\FrozenThrone\(6)BloodstoneMesa.w3x
+-W3XP            3v3             Maps\FrozenThrone\(6)CopperCanyon.w3x
+-W3XP            3v3             Maps\FrozenThrone\(6)Dragonblight.w3x
+-W3XP            3v3             Maps\FrozenThrone\(6)Everfrost.w3x
+-W3XP            3v3             Maps\FrozenThrone\(6)GnollWood.w3x
+-W3XP            3v3             Maps\FrozenThrone\(6)Highperch.w3x
+-W3XP            3v3             Maps\FrozenThrone\(6)Monsoon.w3x
+-W3XP            3v3             Maps\FrozenThrone\(6)RiceFields.w3x
+-W3XP            3v3             Maps\FrozenThrone\(6)SilverpineForest.w3x
+-W3XP            3v3             Maps\FrozenThrone\(6)SunrockCove.w3x
+-W3XP            3v3             Maps\FrozenThrone\(6)Typhoon.w3x
+-W3XP            3v3             Maps\FrozenThrone\(6)UpperKingdom.w3x
++W3XP		3v3		Maps\FrozenThrone\(6)BloodstoneMesa.w3x
++W3XP		3v3		Maps\FrozenThrone\(6)CopperCanyon.w3x
++W3XP		3v3		Maps\FrozenThrone\(6)Dragonblight.w3x
++W3XP		3v3		Maps\FrozenThrone\(6)Everfrost.w3x
++W3XP		3v3		Maps\FrozenThrone\(6)GnollWood.w3x
++W3XP		3v3		Maps\FrozenThrone\(6)Highperch.w3x
++W3XP		3v3		Maps\FrozenThrone\(6)Monsoon.w3x
++W3XP		3v3		Maps\FrozenThrone\(6)RiceFields.w3x
++W3XP		3v3		Maps\FrozenThrone\(6)SilverpineForest.w3x
++W3XP		3v3		Maps\FrozenThrone\(6)SunrockCove.w3x
++W3XP		3v3		Maps\FrozenThrone\(6)Typhoon.w3x
++W3XP		3v3		Maps\FrozenThrone\(6)UpperKingdom.w3x
+ 
+-W3XP            4v4             Maps\FrozenThrone\(8)Battleground.w3x
+-W3XP            4v4             Maps\FrozenThrone\(8)Cherryville.w3x
+-W3XP            4v4             Maps\FrozenThrone\(8)Deadlock.w3x
+-W3XP            4v4             Maps\FrozenThrone\(8)DragonFalls.w3x
+-W3XP            4v4             Maps\FrozenThrone\(8)Friends.w3x
+-W3XP            4v4             Maps\FrozenThrone\(8)FullScaleAssault.w3x
+-W3XP            4v4             Maps\FrozenThrone\(8)GoldRush.w3x
+-W3XP            4v4             Maps\(8)GolemsInTheMist.w3m
+-W3XP            4v4             Maps\FrozenThrone\(8)HurricaneIsle.w3x
+-W3XP            4v4             Maps\FrozenThrone\(8)MarketSquare.w3x
+-W3XP            4v4             Maps\FrozenThrone\(8)Mur'gulOasis.w3x
+-W3XP            4v4             Maps\FrozenThrone\(8)Slalom.w3x
++W3XP		4v4		Maps\FrozenThrone\(8)Battleground.w3x
++W3XP		4v4		Maps\FrozenThrone\(8)Cherryville.w3x
++W3XP		4v4		Maps\FrozenThrone\(8)Deadlock.w3x
++W3XP		4v4		Maps\FrozenThrone\(8)DragonFalls.w3x
++W3XP		4v4		Maps\FrozenThrone\(8)Friends.w3x
++W3XP		4v4		Maps\FrozenThrone\(8)FullScaleAssault.w3x
++W3XP		4v4		Maps\FrozenThrone\(8)GoldRush.w3x
++W3XP		4v4		Maps\(8)GolemsInTheMist.w3m
++W3XP		4v4		Maps\FrozenThrone\(8)HurricaneIsle.w3x
++W3XP		4v4		Maps\FrozenThrone\(8)MarketSquare.w3x
++W3XP		4v4		Maps\FrozenThrone\(8)Mur'gulOasis.w3x
++W3XP		4v4		Maps\FrozenThrone\(8)Slalom.w3x
+ 
+-W3XP            sffa            Maps\FrozenThrone\(4)Deathrose.w3x
+-W3XP            sffa            Maps\FrozenThrone\(4)TwistedMeadows.w3x
+-W3XP            sffa            Maps\FrozenThrone\(6)Duststorm.w3x
+-W3XP            sffa            Maps\FrozenThrone\(6)EmeraldShores.w3x
+-W3XP            sffa            Maps\FrozenThrone\(6)Monsoon.w3x
+-W3XP            sffa            Maps\FrozenThrone\(6)SilverpineForest.w3x
+-W3XP            sffa            Maps\FrozenThrone\(8)Deadlock.w3x
+-W3XP            sffa            Maps\FrozenThrone\(8)GoldRush.w3x
+-W3XP            sffa            Maps\FrozenThrone\(8)HurricaneIsle.w3x
+-W3XP            sffa            Maps\FrozenThrone\(8)MarketSquare.w3x
+-W3XP            sffa            Maps\FrozenThrone\(8)Mur'gulOasis.w3x
+-W3XP            sffa            Maps\FrozenThrone\(8)TwilightRuins.w3x
++W3XP		sffa		Maps\FrozenThrone\(4)Deathrose.w3x
++W3XP		sffa		Maps\FrozenThrone\(4)TwistedMeadows.w3x
++W3XP		sffa		Maps\FrozenThrone\(6)Duststorm.w3x
++W3XP		sffa		Maps\FrozenThrone\(6)EmeraldShores.w3x
++W3XP		sffa		Maps\FrozenThrone\(6)Monsoon.w3x
++W3XP		sffa		Maps\FrozenThrone\(6)SilverpineForest.w3x
++W3XP		sffa		Maps\FrozenThrone\(8)Deadlock.w3x
++W3XP		sffa		Maps\FrozenThrone\(8)GoldRush.w3x
++W3XP		sffa		Maps\FrozenThrone\(8)HurricaneIsle.w3x
++W3XP		sffa		Maps\FrozenThrone\(8)MarketSquare.w3x
++W3XP		sffa		Maps\FrozenThrone\(8)Mur'gulOasis.w3x
++W3XP		sffa		Maps\FrozenThrone\(8)TwilightRuins.w3x
+ 
+-W3XP            at2v2           Maps\FrozenThrone\(4)Avalanche.w3x
+-W3XP            at2v2           Maps\FrozenThrone\(4)ExcavationSite.w3x
+-W3XP            at2v2           Maps\FrozenThrone\(4)GoldShire.w3x
+-W3XP            at2v2           Maps\FrozenThrone\(4)LostTemple.w3x
+-W3XP            at2v2           Maps\FrozenThrone\(4)PhantomGrove.w3x
+-W3XP            at2v2           Maps\(4)TranquilPaths.w3m
+-W3XP            at2v2           Maps\FrozenThrone\(4)TurtleRock.w3x
+-W3XP            at2v2           Maps\FrozenThrone\(4)TwistedMeadows.w3x
+-W3XP            at2v2           Maps\FrozenThrone\(6)EmeraldShores.w3x
+-W3XP            at2v2           Maps\FrozenThrone\(6)GnollWood.w3x
+-W3XP            at2v2           Maps\FrozenThrone\(6)Moonglade.w3x
+-W3XP            at2v2           Maps\FrozenThrone\(6)ScorchedBasin.w3x
++W3XP		at2v2		Maps\FrozenThrone\(4)Avalanche.w3x
++W3XP		at2v2		Maps\FrozenThrone\(4)LostTemple.w3x
++W3XP		at2v2		Maps\FrozenThrone\(4)Predators.w3x
++W3XP		at2v2		Maps\FrozenThrone\(4)StoneColdMountain.w3x
++W3XP		at2v2		Maps\FrozenThrone\(4)TwistedMeadows.w3x
++W3XP		at2v2		Maps\FrozenThrone\(6)CopperCanyon.w3x
++W3XP		at2v2		Maps\FrozenThrone\(6)GnollWood.w3x
++W3XP		at2v2		Maps\FrozenThrone\(6)RiverOfSouls.w3x
++W3XP		at2v2		Maps\FrozenThrone\(6)RollingHills.w3x
++W3XP		at2v2		Maps\FrozenThrone\(6)Typhoon.w3x
+ 
+-W3XP            at3v3           Maps\FrozenThrone\(6)BloodstoneMesa.w3x
+-W3XP            at3v3           Maps\FrozenThrone\(6)CopperCanyon.w3x
+-W3XP            at3v3           Maps\FrozenThrone\(6)Dragonblight.w3x
+-W3XP            at3v3           Maps\FrozenThrone\(6)Everfrost.w3x
+-W3XP            at3v3           Maps\FrozenThrone\(6)GnollWood.w3x
+-W3XP            at3v3           Maps\FrozenThrone\(6)Highperch.w3x
+-W3XP            at3v3           Maps\FrozenThrone\(6)Monsoon.w3x
+-W3XP            at3v3           Maps\FrozenThrone\(6)RiceFields.w3x
+-W3XP            at3v3           Maps\FrozenThrone\(6)RiverOfSouls.w3x
+-W3XP            at3v3           Maps\FrozenThrone\(6)SilverpineForest.w3x
+-W3XP            at3v3           Maps\FrozenThrone\(6)SunrockCove.w3x
+-W3XP            at3v3           Maps\FrozenThrone\(6)Typhoon.w3x
+-W3XP            at3v3           Maps\FrozenThrone\(6)UpperKingdom.w3x
++W3XP		at3v3		Maps\FrozenThrone\(6)BloodstoneMesa.w3x
++W3XP		at3v3		Maps\FrozenThrone\(6)CopperCanyon.w3x
++W3XP		at3v3		Maps\FrozenThrone\(6)GnollWood.w3x
++W3XP		at3v3		Maps\FrozenThrone(6)HinterlandRaid.w3x
++W3XP		at3v3		Maps\FrozenThrone\(6)Monsoon.w3x
++W3XP		at3v3		Maps\FrozenThrone\(6)RiverOfSouls.w3x
++W3XP		at3v3		Maps\FrozenThrone\(6)RuinsOfStratholme.w3x
++W3XP		at3v3		Maps\FrozenThrone\(6)Typhoon.w3x
++W3XP		at3v3		Maps\FrozenThrone\(6)UpperKingdom.w3x
++W3XP		at3v3		Maps\FrozenThrone\(8)Mur'gulOasis.w3x
+ 
+-W3XP            at4v4           Maps\FrozenThrone\(8)Battleground.w3x
+-W3XP            at4v4           Maps\FrozenThrone\(8)Cherryville.w3x
+-W3XP            at4v4           Maps\FrozenThrone\(8)Deadlock.w3x
+-W3XP            at4v4           Maps\FrozenThrone\(8)DragonFalls.w3x
+-W3XP            at4v4           Maps\FrozenThrone\(8)Friends.w3x
+-W3XP            at4v4           Maps\FrozenThrone\(8)FullScaleAssault.w3x
+-W3XP            at4v4           Maps\FrozenThrone\(8)GoldRush.w3x
+-W3XP            at4v4           Maps\(8)GolemsInTheMist.w3m
+-W3XP            at4v4           Maps\FrozenThrone\(8)HurricaneIsle.w3x
+-W3XP            at4v4           Maps\FrozenThrone\(8)Mur'gulOasis.w3x
+-W3XP            at4v4           Maps\FrozenThrone\(8)Slalom.w3x
++W3XP		at4v4		Maps\FrozenThrone\(8)Battleground.w3x
++W3XP		at4v4		Maps\FrozenThrone\(8)Deadlands.w3x
++W3XP		at4v4		Maps\FrozenThrone\(8)Deadlock.w3x
++W3XP		at4v4		Maps\FrozenThrone\(8)DragonFalls.w3x
++W3XP		at4v4		Maps\FrozenThrone\(8)Feralas.w3x
++W3XP		at4v4		Maps\FrozenThrone\(8)GoldRush.w3x
++W3XP		at4v4		Maps\FrozenThrone\(8)MarketSquare.w3x
++W3XP		at4v4		Maps\FrozenThrone\(8)Mur'gulOasis.w3x
++W3XP		at4v4		Maps\FrozenThrone\(8)TwilightRuins.w3x
+ 
+-W3XP            tffa            Maps\FrozenThrone\(4)Deathrose.w3x
+-W3XP            tffa            Maps\FrozenThrone\(4)TwistedMeadows.w3x
+-W3XP            tffa            Maps\FrozenThrone\(6)Duststorm.w3x
+-W3XP            tffa            Maps\FrozenThrone\(6)EmeraldShores.w3x
+-W3XP            tffa            Maps\FrozenThrone\(6)Monsoon.w3x
+-W3XP            tffa            Maps\FrozenThrone\(6)SilverpineForest.w3x
+-W3XP            tffa            Maps\FrozenThrone\(8)Deadlock.w3x
+-W3XP            tffa            Maps\FrozenThrone\(8)GoldRush.w3x
+-W3XP            tffa            Maps\FrozenThrone\(8)HurricaneIsle.w3x
+-W3XP            tffa            Maps\FrozenThrone\(8)MarketSquare.w3x
+-W3XP            tffa            Maps\FrozenThrone\(8)Mur'gulOasis.w3x
+-W3XP            tffa            Maps\FrozenThrone\(8)TwilightRuins.w3x
++W3XP		tffa		Maps\FrozenThrone\(4)Deathrose.w3x
++W3XP		tffa		Maps\FrozenThrone\(4)TwistedMeadows.w3x
++W3XP		tffa		Maps\FrozenThrone\(6)Duststorm.w3x
++W3XP		tffa		Maps\FrozenThrone\(6)EmeraldShores.w3x
++W3XP		tffa		Maps\FrozenThrone\(6)Monsoon.w3x
++W3XP		tffa		Maps\FrozenThrone\(6)SilverpineForest.w3x
++W3XP		tffa		Maps\FrozenThrone\(8)Deadlock.w3x
++W3XP		tffa		Maps\FrozenThrone\(8)GoldRush.w3x
++W3XP		tffa		Maps\FrozenThrone\(8)HurricaneIsle.w3x
++W3XP		tffa		Maps\FrozenThrone\(8)MarketSquare.w3x
++W3XP		tffa		Maps\FrozenThrone\(8)Mur'gulOasis.w3x
++W3XP		tffa		Maps\FrozenThrone\(8)TwilightRuins.w3x
+ 
+ W3XP		5v5		Maps\FrozenThrone\(10)RagingStream.w3x
+ W3XP		5v5		Maps\FrozenThrone\(12)EmeraldGardens.w3x
+ 
+ W3XP		6v6		Maps\FrozenThrone\(12)EmeraldGardens.w3x
+ 
+-W3XP            2v2v2		Maps\FrozenThrone\(6)BloodstoneMesa.w3x
+-W3XP            2v2v2		Maps\FrozenThrone\(6)CopperCanyon.w3x
+-W3XP            2v2v2		Maps\FrozenThrone\(6)Dragonblight.w3x
+-W3XP            2v2v2		Maps\FrozenThrone\(6)Everfrost.w3x
+-W3XP            2v2v2		Maps\FrozenThrone\(6)GnollWood.w3x
+-W3XP            2v2v2		Maps\FrozenThrone\(6)Highperch.w3x
+-W3XP            2v2v2		Maps\FrozenThrone\(6)Monsoon.w3x
+-W3XP            2v2v2		Maps\FrozenThrone\(6)RiceFields.w3x
+-W3XP            2v2v2		Maps\FrozenThrone\(6)SilverpineForest.w3x
+-W3XP            2v2v2		Maps\FrozenThrone\(6)SunrockCove.w3x
+-W3XP            2v2v2		Maps\FrozenThrone\(6)Typhoon.w3x
+-W3XP            2v2v2		Maps\FrozenThrone\(6)UpperKingdom.w3x
++W3XP		2v2v2		Maps\FrozenThrone\(6)BloodstoneMesa.w3x
++W3XP		2v2v2		Maps\FrozenThrone\(6)CopperCanyon.w3x
++W3XP		2v2v2		Maps\FrozenThrone\(6)Dragonblight.w3x
++W3XP		2v2v2		Maps\FrozenThrone\(6)Everfrost.w3x
++W3XP		2v2v2		Maps\FrozenThrone\(6)GnollWood.w3x
++W3XP		2v2v2		Maps\FrozenThrone\(6)Highperch.w3x
++W3XP		2v2v2		Maps\FrozenThrone\(6)Monsoon.w3x
++W3XP		2v2v2		Maps\FrozenThrone\(6)RiceFields.w3x
++W3XP		2v2v2		Maps\FrozenThrone\(6)SilverpineForest.w3x
++W3XP		2v2v2		Maps\FrozenThrone\(6)SunrockCove.w3x
++W3XP		2v2v2		Maps\FrozenThrone\(6)Typhoon.w3x
++W3XP		2v2v2		Maps\FrozenThrone\(6)UpperKingdom.w3x
+ 
+ W3XP		3v3v3		Maps\FrozenThrone\(9)RoundVillage.w3x
+ W3XP		3v3v3		Maps\FrozenThrone\(10)RagingStream.w3x
+@@ -270,32 +263,28 @@
+ 
+ W3XP		4v4v4		Maps\FrozenThrone\(12)EmeraldGardens.w3x
+ 
+-W3XP            2v2v2v2		Maps\FrozenThrone\(8)Battleground.w3x
+-W3XP            2v2v2v2		Maps\FrozenThrone\(8)Cherryville.w3x
+-W3XP            2v2v2v2		Maps\FrozenThrone\(8)Deadlock.w3x
+-W3XP            2v2v2v2		Maps\FrozenThrone\(8)DragonFalls.w3x
+-W3XP            2v2v2v2		Maps\FrozenThrone\(8)Friends.w3x
+-W3XP            2v2v2v2		Maps\FrozenThrone\(8)FullScaleAssault.w3x
+-W3XP            2v2v2v2		Maps\FrozenThrone\(8)GoldRush.w3x
+-W3XP            2v2v2v2		Maps\(8)GolemsInTheMist.w3m
+-W3XP            2v2v2v2		Maps\FrozenThrone\(8)HurricaneIsle.w3x
+-W3XP            2v2v2v2		Maps\FrozenThrone\(8)MarketSquare.w3x
+-W3XP            2v2v2v2		Maps\FrozenThrone\(8)Mur'gulOasis.w3x
+-W3XP            2v2v2v2		Maps\FrozenThrone\(8)Slalom.w3x
++W3XP		2v2v2v2		Maps\FrozenThrone\(8)Battleground.w3x
++W3XP		2v2v2v2		Maps\FrozenThrone\(8)Cherryville.w3x
++W3XP		2v2v2v2		Maps\FrozenThrone\(8)Deadlock.w3x
++W3XP		2v2v2v2		Maps\FrozenThrone\(8)DragonFalls.w3x
++W3XP		2v2v2v2		Maps\FrozenThrone\(8)Friends.w3x
++W3XP		2v2v2v2		Maps\FrozenThrone\(8)FullScaleAssault.w3x
++W3XP		2v2v2v2		Maps\FrozenThrone\(8)GoldRush.w3x
++W3XP		2v2v2v2		Maps\(8)GolemsInTheMist.w3m
++W3XP		2v2v2v2		Maps\FrozenThrone\(8)HurricaneIsle.w3x
++W3XP		2v2v2v2		Maps\FrozenThrone\(8)MarketSquare.w3x
++W3XP		2v2v2v2		Maps\FrozenThrone\(8)Mur'gulOasis.w3x
++W3XP		2v2v2v2		Maps\FrozenThrone\(8)Slalom.w3x
+ 
+ W3XP		3v3v3v3		Maps\FrozenThrone\(12)EmeraldGardens.w3x
+ 
+-W3XP            at2v2v2		Maps\FrozenThrone\(6)BloodstoneMesa.w3x
+-W3XP            at2v2v2		Maps\FrozenThrone\(6)CopperCanyon.w3x
+-W3XP            at2v2v2		Maps\FrozenThrone\(6)Dragonblight.w3x
+-W3XP            at2v2v2		Maps\FrozenThrone\(6)Everfrost.w3x
+-W3XP            at2v2v2		Maps\FrozenThrone\(6)GnollWood.w3x
+-W3XP            at2v2v2		Maps\FrozenThrone\(6)Highperch.w3x
+-W3XP            at2v2v2		Maps\FrozenThrone\(6)Monsoon.w3x
+-W3XP            at2v2v2		Maps\FrozenThrone\(6)RiceFields.w3x
+-W3XP            at2v2v2		Maps\FrozenThrone\(6)RiverOfSouls.w3x
+-W3XP            at2v2v2		Maps\FrozenThrone\(6)SilverpineForest.w3x
+-W3XP            at2v2v2		Maps\FrozenThrone\(6)SunrockCove.w3x
+-W3XP            at2v2v2		Maps\FrozenThrone\(6)Typhoon.w3x
+-W3XP            at2v2v2		Maps\FrozenThrone\(6)UpperKingdom.w3x
+-
++W3XP		at2v2v2		Maps\FrozenThrone\(6)BloodstoneMesa.w3x
++W3XP		at2v2v2		Maps\FrozenThrone\(6)CopperCanyon.w3x
++W3XP		at2v2v2		Maps\FrozenThrone\(6)GnollWood.w3x
++W3XP		at2v2v2		Maps\FrozenThrone(6)HinterlandRaid.w3x
++W3XP		at2v2v2		Maps\FrozenThrone\(6)Monsoon.w3x
++W3XP		at2v2v2		Maps\FrozenThrone\(6)RiverOfSouls.w3x
++W3XP		at2v2v2		Maps\FrozenThrone\(6)RuinsOfStratholme.w3x
++W3XP		at2v2v2		Maps\FrozenThrone\(6)Typhoon.w3x
++W3XP		at2v2v2		Maps\FrozenThrone\(6)UpperKingdom.w3x
++W3XP		at2v2v2		Maps\FrozenThrone\(8)Mur'gulOasis.w3x
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000746.html">[pvpgn-dev] r472 - trunk/pvpgn
+</A></li>
+	<LI>Next message: <A HREF="000748.html">[pvpgn-dev] pvpgn UPDATE, 1.63, 1.64 version-history.txt, 1.284,	1.285
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#747">[ date ]</a>
+              <a href="thread.html#747">[ thread ]</a>
+              <a href="subject.html#747">[ subject ]</a>
+              <a href="author.html#747">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

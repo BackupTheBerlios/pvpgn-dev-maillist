@@ -1,0 +1,191 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r481 - trunk/pvpgn/src/bnetd
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2008-July/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r481%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200807272149.m6RLnaqd021485%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000772.html">
+   <LINK REL="Next"  HREF="000774.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r481 - trunk/pvpgn/src/bnetd</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r481%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200807272149.m6RLnaqd021485%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r481 - trunk/pvpgn/src/bnetd">svn at svn.berlios.de
+       </A><BR>
+    <I>Sun Jul 27 23:49:36 CEST 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000772.html">[pvpgn-dev] r480 - trunk/pvpgn/src/bnetd
+</A></li>
+        <LI>Next message: <A HREF="000774.html">[pvpgn-dev] pvpgn/src/bnetd handle_bnet.c,1.251,1.252
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#773">[ date ]</a>
+              <a href="thread.html#773">[ thread ]</a>
+              <a href="subject.html#773">[ subject ]</a>
+              <a href="author.html#773">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pelish
+Date: 2008-07-27 23:49:32 +0200 (Sun, 27 Jul 2008)
+New Revision: 481
+
+Modified:
+   trunk/pvpgn/src/bnetd/handle_bnet.cpp
+Log:
+fix for many possible server crashes through malformed packet
+
+Modified: trunk/pvpgn/src/bnetd/handle_bnet.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/handle_bnet.cpp	2008-07-27 19:01:17 UTC (rev 480)
++++ trunk/pvpgn/src/bnetd/handle_bnet.cpp	2008-07-27 21:49:32 UTC (rev 481)
+@@ -669,10 +669,12 @@
+ 
+     username = packet_get_str_const(packet, sizeof(t_client_createaccount_w3), UNCHECKED_NAME_STR);
+     if (!username) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad CREATEACCOUNT_W3 (missing or too long username)&quot;, conn_get_socket(c));
+-	return -1;
++        eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad CREATEACCOUNT_W3 (missing or too long username)&quot;, conn_get_socket(c));
++        return -1;
+     }
+ 
++    /* PELISH: We are testing if username missing and if packetsize is good
++               so we does not need to test if salt and verifier are present */
+     account_salt = (const char *)packet_get_data_const(packet,offsetof(t_client_createaccount_w3,salt),32);
+     account_verifier = (const char *)packet_get_data_const(packet,offsetof(t_client_createaccount_w3,password_verifier),32);
+ 
+@@ -1728,7 +1730,8 @@
+ 	const char *server_public_key;
+ 	int i;
+ 
+-        conn_client_public_key = (char *)packet_get_data_const(packet,offsetof(t_client_loginreq_w3, client_public_key),32);
++    /* PELISH: Does not need to check conn_client_public_key != NULL because we testing packet size */
++    conn_client_public_key = (char *)packet_get_data_const(packet,offsetof(t_client_loginreq_w3, client_public_key),32);
+ 
+ 
+ 	if (!(username = packet_get_str_const(packet, sizeof(t_client_loginreq_w3), MAX_USERNAME_LEN))) {
+@@ -1876,6 +1879,9 @@
+ 		    int i;
+ 		    const char * client_password_proof;
+ 
++            /* PELISH: This can not occur - We allready tested packet size which must be wrong firstly.
++               Also pvpgn will crash when will dereferencing NULL pointer (so we cant got this errorlog message)
++               I vote for deleting this &quot;if&quot; */
+ 		    if (!(client_password_proof = (const char*)packet_get_data_const(packet, offsetof(t_client_logonproofreq,client_password_proof), 20))) {
+ 			eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] (W3) got bad LOGONPROOFREQ packet (missing hash)&quot;, conn_get_socket(c));
+ 			return -1;
+@@ -3845,6 +3851,7 @@
+ 	    results[i] = game_result_none;
+ 
+ 	for (i = 0, result_off = sizeof(t_client_game_report), player_off = sizeof(t_client_game_report) + player_count * sizeof(t_client_game_report_result); i &lt; player_count; i++, result_off += sizeof(t_client_game_report_result), player_off += std::strlen(player) + 1) {
++        /* PELISH: Fixme - Can this crash server (NULL pointer dereferencing)?? */
+ 	    if (!(result_data = (const t_client_game_report_result*)packet_get_data_const(packet, result_off, sizeof(t_client_game_report_result)))) {
+ 		eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got corrupt GAME_REPORT packet (missing results %u-%u)&quot;, conn_get_socket(c), i + 1, player_count);
+ 		break;
+@@ -4424,7 +4431,7 @@
+     }
+ 	offset += (std::strlen(clanname) + 1);
+ 
+-	if (!(packet_get_data_const(packet, offset, 4))) {
++	if (packet_get_size(packet) &lt; offset+4) { 
+         eventlog(eventlog_level_error,__FUNCTION__, &quot;[%d] got bad CLAN_CREATEINVITEREQ packet (missing clantag)&quot;, conn_get_socket(c));
+         return -1;
+     }
+@@ -4434,19 +4441,19 @@
+     if ((rpacket = packet_create(packet_class_bnet))) {
+ 	if ((clan = clan_create(conn_get_account(c), clantag, clanname, NULL)) &amp;&amp; clanlist_add_clan(clan)) {
+ 	    char membercount;
+-        if (!(packet_get_data_const(packet, offset, 1))) {
++        if (packet_get_size(packet) &lt; offset+1) {
+             eventlog(eventlog_level_error,__FUNCTION__, &quot;[%d] got bad CLAN_CREATEINVITEREQ packet (missing membercount)&quot;, conn_get_socket(c));
+             return -1;
+         }
+         membercount = *((char *) packet_get_data_const(packet, offset, 1));
+-	    clan_set_created(clan, -membercount);
++	    clan_set_created(clan, -membercount);                               /* FIXME: We should also check if membercount == count of names on end of this packet */
+ 	    packet_set_size(rpacket, sizeof(t_server_clan_createinvitereq));
+ 	    packet_set_type(rpacket, SERVER_CLAN_CREATEINVITEREQ);
+ 	    bn_int_set(&amp;rpacket-&gt;u.server_clan_createinvitereq.count, bn_int_get(packet-&gt;u.client_clan_createinvitereq.count));
+ 	    bn_int_set(&amp;rpacket-&gt;u.server_clan_createinvitereq.clantag, clantag);
+ 	    packet_append_string(rpacket, clanname);
+ 	    packet_append_string(rpacket, conn_get_username(c));
+-	    packet_append_data(rpacket, packet_get_data_const(packet, offset, size - offset), size - offset); //Pelish: we will send bad packet if we got bad packet...
++	    packet_append_data(rpacket, packet_get_data_const(packet, offset, size - offset), size - offset); /* Pelish: we will send bad packet if we got bad packet... */
+ 	    offset++;
+ 	    do {
+ 		username = packet_get_str_const(packet, offset, MAX_USERNAME_LEN);
+@@ -4495,6 +4502,10 @@
+     offset = sizeof(t_client_clan_createinvitereply);
+     username = packet_get_str_const(packet, offset, MAX_USERNAME_LEN);
+     offset += (std::strlen(username) + 1);
++    if (packet_get_size(packet) &lt; offset+1) {
++        eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad CLAN_CREATEINVITEREPLY packet (mising status)&quot;, conn_get_socket(c));
++        return -1;
++    }
+     status = *((char *) packet_get_data_const(packet, offset, 1));
+     if ((conn = connlist_find_connection_by_accountname(username)) == NULL)
+ 	return -1;
+@@ -4559,6 +4570,10 @@
+ 	           bn_int_get(packet-&gt;u.client_clanmember_rankupdate_req.count));
+ 	username = packet_get_str_const(packet, offset, MAX_USERNAME_LEN);
+ 	offset += (std::strlen(username) + 1);
++    if (packet_get_size(packet) &lt; offset+1) {
++        eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad CLAN_CREATEINVITEREPLY packet (mising status)&quot;, conn_get_socket(c));
++        return -1;
++    }
+ 	status = *((char *) packet_get_data_const(packet, offset, 1));
+ 
+ 	clan = account_get_clan(conn_get_account(c));
+@@ -4760,13 +4775,16 @@
+ 		eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad CLAN_INVITEREPLY packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_clan_createreq), packet_get_size(packet));
+ 		return -1;
+     }
+-
+     offset = sizeof(t_client_clan_invitereply);
+     if (!(username = packet_get_str_const(packet, offset, MAX_USERNAME_LEN))) {
+         eventlog(eventlog_level_error,__FUNCTION__, &quot;[%d] got bad CLAN_INVITEREPLY packet (missing username)&quot;, conn_get_socket(c));
+-	return -1;
++        return -1;
+     }
+     offset += (std::strlen(username) + 1);
++    if (packet_get_size(packet) &lt; offset+1) {
++        eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad CLAN_INVITEREPLY packet (mising status)&quot;, conn_get_socket(c));
++        return -1;
++    }
+     status = *((char *) packet_get_data_const(packet, offset, 1));
+ 
+ 	// reply without prior request
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000772.html">[pvpgn-dev] r480 - trunk/pvpgn/src/bnetd
+</A></li>
+	<LI>Next message: <A HREF="000774.html">[pvpgn-dev] pvpgn/src/bnetd handle_bnet.c,1.251,1.252
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#773">[ date ]</a>
+              <a href="thread.html#773">[ thread ]</a>
+              <a href="subject.html#773">[ subject ]</a>
+              <a href="author.html#773">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

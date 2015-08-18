@@ -1,0 +1,143 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r398 - trunk/pvpgn/src/win32
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-October/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r398%20-%20trunk/pvpgn/src/win32&In-Reply-To=%3C200710020902.l9292g33004559%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="000481.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r398 - trunk/pvpgn/src/win32</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r398%20-%20trunk/pvpgn/src/win32&In-Reply-To=%3C200710020902.l9292g33004559%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r398 - trunk/pvpgn/src/win32">svn at svn.berlios.de
+       </A><BR>
+    <I>Tue Oct  2 11:02:42 CEST 2007</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="000481.html">[pvpgn-dev] r399 - trunk/pvpgn/src/bnetd
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#480">[ date ]</a>
+              <a href="thread.html#480">[ thread ]</a>
+              <a href="subject.html#480">[ subject ]</a>
+              <a href="author.html#480">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: d1zzy
+Date: 2007-10-02 11:02:42 +0200 (Tue, 02 Oct 2007)
+New Revision: 398
+
+Modified:
+   trunk/pvpgn/src/win32/console_output.cpp
+   trunk/pvpgn/src/win32/console_output.h
+Log:
+Added include guards and ifdefed everything on WIN32 (like any other 
+WIN32 specific file) fixing compilation on Unix (because no FreeConsole 
+exists on Unix).
+
+
+Modified: trunk/pvpgn/src/win32/console_output.cpp
+===================================================================
+--- trunk/pvpgn/src/win32/console_output.cpp	2007-09-30 15:57:02 UTC (rev 397)
++++ trunk/pvpgn/src/win32/console_output.cpp	2007-10-02 09:02:42 UTC (rev 398)
+@@ -19,14 +19,15 @@
+  ***************************************************************************/
+ 
+ #include &quot;common/setup_before.h&quot;
++
++#ifdef WIN32
++
+ #include &quot;console_output.h&quot;
+-#ifdef WIN32
+-# include &lt;windows.h&gt;
+-# include &lt;fcntl.h&gt;
+-# include &lt;io.h&gt;
+-# include &lt;iostream&gt;
+-# include &lt;fstream&gt;
+-#endif
++#include &lt;windows.h&gt;
++#include &lt;fcntl.h&gt;
++#include &lt;io.h&gt;
++#include &lt;iostream&gt;
++#include &lt;fstream&gt;
+ #include &quot;common/setup_after.h&quot;
+ 
+ namespace pvpgn
+@@ -42,7 +43,6 @@
+ }
+ 
+ void Console::RedirectIOToConsole() {
+-#ifdef WIN32
+    const WORD MAX_CONSOLE_LINES = 500;
+    const WORD CONSOLE_COLUMNS= 140;
+    int hConHandle;
+@@ -79,7 +79,8 @@
+ 
+    std::ios::sync_with_stdio();
+    initialised = true;
+-#endif
+ }
+ 
+ }
++
++#endif
+
+Modified: trunk/pvpgn/src/win32/console_output.h
+===================================================================
+--- trunk/pvpgn/src/win32/console_output.h	2007-09-30 15:57:02 UTC (rev 397)
++++ trunk/pvpgn/src/win32/console_output.h	2007-10-02 09:02:42 UTC (rev 398)
+@@ -17,6 +17,11 @@
+  *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.         *
+  ***************************************************************************/
+ 
++#ifdef WIN32
++
++#ifndef CONSOLE_OUTPUT_INCLUDED
++#define CONSOLE_OUTPUT_INCLUDED
++
+ namespace pvpgn
+ {
+ 
+@@ -30,3 +35,7 @@
+ };
+ 
+ }
++
++#endif
++
++#endif
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="000481.html">[pvpgn-dev] r399 - trunk/pvpgn/src/bnetd
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#480">[ date ]</a>
+              <a href="thread.html#480">[ thread ]</a>
+              <a href="subject.html#480">[ subject ]</a>
+              <a href="author.html#480">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

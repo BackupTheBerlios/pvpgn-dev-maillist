@@ -1,0 +1,366 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] WarCraft III for Mac OS X - Was Re: Apple Mac Client Support?
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-August/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20WarCraft%20III%20for%20Mac%20OS%20X%20-%20Was%20Re%3A%20Apple%20Mac%20Client%0A%20Support%3F&In-Reply-To=%3CC2EB2F0C.422FD%25HendrikM%40ssws.co.za%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000348.html">
+   <LINK REL="Next"  HREF="000354.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] WarCraft III for Mac OS X - Was Re: Apple Mac Client Support?</H1>
+    <B>Hendrik JA Meyer</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20WarCraft%20III%20for%20Mac%20OS%20X%20-%20Was%20Re%3A%20Apple%20Mac%20Client%0A%20Support%3F&In-Reply-To=%3CC2EB2F0C.422FD%25HendrikM%40ssws.co.za%3E"
+       TITLE="[pvpgn-dev] WarCraft III for Mac OS X - Was Re: Apple Mac Client Support?">HendrikM at ssws.co.za
+       </A><BR>
+    <I>Fri Aug 17 10:55:08 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000348.html">[pvpgn-dev] Apple Mac Client Support?
+</A></li>
+        <LI>Next message: <A HREF="000354.html">[pvpgn-dev] WarCraft III for Mac OS X - Was Re: Apple Mac	Client Support?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#352">[ date ]</a>
+              <a href="thread.html#352">[ thread ]</a>
+              <a href="subject.html#352">[ subject ]</a>
+              <a href="author.html#352">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi,
+
+Sorry, my bad, used the wrong wording...
+
+What I wanted to ask is why doesn't the apple mac warcraft iii clients want
+to connect to a pgpvn server?  What exactly are the issues?
+
+On another note it would be appreciated if somebody could explain the
+function of the so-called &quot;loaders&quot; e.g. the acid loader on PC's? Any reason
+why this was not developed on the apple mac platform?
+
+Additional info to the developer community and maybe to help them getting
+this all to work:
+
+I run the current stable release of PvPGN 1.8.0 on a MS Windows 2003 Server
+(IP: 70.84.188.130).
+I run WarCrat III with Frozen Throne Expansion Pack natively on my Apple MAC
+OS X 10.4.10 (IP: 192.168.0.35 - NAT to 41.244.34.50)
+The latest 1.21 patches from Blizzard was applied to the above client.
+
+On the 1st startup of the server the following error was raised:
+Aug 17 00:04:06 [fatal] support_check_files: necessary file
+&quot;files/matchmaking-war3-default.dat&quot; missing
+
+These files are for some reason not included in the 1.1 support files, but
+luckily the link to the 1.0 support files still worked and I used these
+files.
+
+I added the following to my conf\versioncheck.conf:
+
+# Warcraft III - TFT (Expansion) 1.21 MacOS X
+# Note: this version check is sent in both FT and ROC mode
+&quot;A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B&quot; \
+ XMACver1.mpq \
+ XMAC \
+ W3XP \
+ &quot;Warcraft III (Carbon) 12/28/06 20:35:21 1572307&quot; \
+ 0x00000015 \
+ 1.21.0.119 \
+ 0xab35b5f1 \
+ W3XP_121
+
+When I connect with the warcraft iii client to the server the client throws
+an error: 
+
+unable to connect to battle.net
+you may be trying to connect to an invalid battle.net server
+
+Using a network sniffer on my apple mac client I see the following packets
+between the client and the server from initial connection time until the
+client throws the error:
+
+1187335815.573647 IP (tos 0x0, ttl  64, id 17303, offset 0, flags [DF],
+length: 64) 192.168.0.35.49157 &gt; 70.84.188.130.6112: S [tcp sum ok]
+3485970625:3485970625(0) win 65535 &lt;mss 1460,nop,wscale 0,nop,nop,timestamp
+1489982565 0,sackOK,eol&gt;
+    0x0000:  4500 0040 4397 4000 4006 337f c0a8 0023  <A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">E.. at C.</A>@<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">. at .3....</A>#
+    0x0010:  4654 bc82 c005 17e0 cfc7 b0c1 0000 0000  FT..............
+    0x0020:  b002 ffff 6dbc 0000 0204 05b4 0103 0300  ....m...........
+    0x0030:  0101 080a 58cf 5465 0000 0000 0402 0000  ....X.Te........
+
+1187335815.921664 IP (tos 0x40, ttl 114, id 29324, offset 0, flags [none],
+length: 64) 70.84.188.130.6112 &gt; 192.168.0.35.49157: S [tcp sum ok]
+1150122552:1150122552(0) ack 3485970626 win 16384 &lt;mss 1452,nop,wscale
+0,nop,nop,timestamp 0 0,nop,nop,sackOK&gt;
+    0x0000:  4540 0040 728c 0000 7206 124a 4654 bc82  <A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">E at .</A>@r...r..JFT..
+    0x0010:  c0a8 0023 17e0 c005 448d 7a38 cfc7 b0c2  ...#....D.z8....
+    0x0020:  b012 4000 1b21 0000 0204 05ac 0103 0300  <A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">.. at ..</A>!..........
+    0x0030:  0101 080a 0000 0000 0000 0000 0101 0402  ................
+
+1187335815.921792 IP (tos 0x0, ttl  64, id 17304, offset 0, flags [DF],
+length: 52) 192.168.0.35.49157 &gt; 70.84.188.130.6112: . [tcp sum ok] ack 1
+win 65535 &lt;nop,nop,timestamp 1489982566 0&gt;
+    0x0000:  4500 0034 4398 4000 4006 338a c0a8 0023  <A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">E..4C. at .</A>@.3....#
+    0x0010:  4654 bc82 c005 17e0 cfc7 b0c2 448d 7a39  FT..........D.z9
+    0x0020:  8010 ffff eeae 0000 0101 080a 58cf 5466  ............X.Tf
+    0x0030:  0000 0000                                ....
+
+1187335815.924599 IP (tos 0x0, ttl  64, id 17305, offset 0, flags [DF],
+length: 53) 192.168.0.35.49157 &gt; 70.84.188.130.6112: P [tcp sum ok] 1:2(1)
+ack 1 win 65535 &lt;nop,nop,timestamp 1489982566 0&gt;
+    0x0000:  4500 0035 4399 4000 4006 3388 c0a8 0023  <A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">E..5C. at .</A>@.3....#
+    0x0010:  4654 bc82 c005 17e0 cfc7 b0c2 448d 7a39  FT..........D.z9
+    0x0020:  8018 ffff eda5 0000 0101 080a 58cf 5466  ............X.Tf
+    0x0030:  0000 0000 01                             .....
+
+1187335816.432572 IP (tos 0x40, ttl 114, id 29488, offset 0, flags [DF],
+length: 52) 70.84.188.130.6112 &gt; 192.168.0.35.49157: . [tcp sum ok] ack 2
+win 65534 &lt;nop,nop,timestamp 1024343 1489982566&gt;
+    0x0000:  4540 0034 7330 4000 7206 d1b1 4654 bc82  <A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">E at .4s0</A>@.r...FT..
+    0x0010:  c0a8 0023 17e0 c005 448d 7a39 cfc7 b0c3  ...#....D.z9....
+    0x0020:  8010 fffe 4d48 0000 0101 080a 000f a157  ....MH.........W
+    0x0030:  58cf 5466                                X.Tf
+
+1187335816.432694 IP (tos 0x0, ttl  64, id 17306, offset 0, flags [DF],
+length: 110) 192.168.0.35.49157 &gt; 70.84.188.130.6112: P [tcp sum ok]
+2:60(58) ack 1 win 65535 &lt;nop,nop,timestamp 1489982567 1024343&gt;
+    0x0000:  4500 006e 439a 4000 4006 334e c0a8 0023  <A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">E..nC. at .</A>@.3N...#
+    0x0010:  4654 bc82 c005 17e0 cfc7 b0c3 448d 7a39  FT..........D.z9
+    0x0020:  8018 ffff d8e3 0000 0101 080a 58cf 5467  ............X.Tg
+    0x0030:  000f a157 ff50 3a00 0000 0000 4341 4d58  ...W.P:.....CAMX
+    0x0040:  5058 3357 1500 0000 5355 6e65 c0a8 0023  PX3W....SUne...#
+    0x0050:  88ff ffff 0904 0000 0904 0000 0041 5355  .............ASU
+    0x0060:  556e 6974 6564 2053 7461 7465 7300       United.States.
+
+1187335816.858067 IP (tos 0x40, ttl 114, id 29615, offset 0, flags [DF],
+length: 60) 70.84.188.130.6112 &gt; 192.168.0.35.49157: P [tcp sum ok] 1:9(8)
+ack 60 win 65476 &lt;nop,nop,timestamp 1024346 1489982567&gt;
+    0x0000:  4540 003c 73af 4000 7206 d12a 4654 bc82  <A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">E at .</A>&lt;<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">s. at .r..</A>*FT..
+    0x0010:  c0a8 0023 17e0 c005 448d 7a39 cfc7 b0fd  ...#....D.z9....
+    0x0020:  8018 ffc4 9ed9 0000 0101 080a 000f a15a  ...............Z
+    0x0030:  58cf 5467 ff25 0800 9534 1200            X.Tg.%...4..
+
+1187335816.858196 IP (tos 0x0, ttl  64, id 17307, offset 0, flags [DF],
+length: 52) 192.168.0.35.49157 &gt; 70.84.188.130.6112: . [tcp sum ok] ack 9
+win 65535 &lt;nop,nop,timestamp 1489982568 1024346&gt;
+    0x0000:  4500 0034 439b 4000 4006 3387 c0a8 0023  <A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">E..4C. at .</A>@.3....#
+    0x0010:  4654 bc82 c005 17e0 cfc7 b0fd 448d 7a41  FT..........D.zA
+    0x0020:  8010 ffff 4d00 0000 0101 080a 58cf 5468  ....M.......X.Th
+    0x0030:  000f a15a                                ...Z
+
+1187335816.868162 IP (tos 0x0, ttl  64, id 17308, offset 0, flags [DF],
+length: 60) 192.168.0.35.49157 &gt; 70.84.188.130.6112: P [tcp sum ok] 60:68(8)
+ack 9 win 65535 &lt;nop,nop,timestamp 1489982568 1024346&gt;
+    0x0000:  4500 003c 439c 4000 4006 337e c0a8 0023  E..&lt;<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">C. at .</A>@.3~...#
+    0x0010:  4654 bc82 c005 17e0 cfc7 b0fd 448d 7a41  FT..........D.zA
+    0x0020:  8018 ffff 9e95 0000 0101 080a 58cf 5468  ............X.Th
+    0x0030:  000f a15a ff25 0800 9534 1200            ...Z.%...4..
+
+1187335817.204546 IP (tos 0x40, ttl 114, id 29742, offset 0, flags [DF],
+length: 281) 70.84.188.130.6112 &gt; 192.168.0.35.49157: P [tcp sum ok]
+9:238(229) ack 60 win 65476 &lt;nop,nop,timestamp 1024351 1489982568&gt;
+    0x0000:  4540 0119 742e 4000 7206 cfce 4654 bc82  <A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">E at ..t.</A>@.r...FT..
+    0x0010:  c0a8 0023 17e0 c005 448d 7a41 cfc7 b0fd  ...#....D.zA....
+    0x0020:  8018 ffc4 ff80 0000 0101 080a 000f a15f  ..............._
+    0x0030:  58cf 5468 ff50 e500 0200 0000 2f70 c546  X.Th.P....../p.F
+    0x0040:  0500 0000 000c 2796 3ae1 c301 584d 4143  ......'.:...XMAC
+    0x0050:  7665 7231 2e6d 7071 0041 3d33 3834 3535  ver1.mpq.A=38455
+    0x0060:  3831 3633 3420 423d 3838 3038 3233 3538  81634.B=88082358
+    0x0070:  3020 433d 3133 3633 3933 3731 3033 2034  0.C=1363937103.4
+    0x0080:  2041 3d41 2d53 2042 3d42 2d43 2043 3d43  .A=A-S.B=B-C.C=C
+    0x0090:  2d41 2041 3d41 2d42 0000 0000 0000 0000  -A.A=A-B........
+    0x00a0:  0000 0000 0000 0000 0000 0000 0000 0000  ................
+    0x00b0:  0000 0000 0000 0000 0000 0000 0000 0000  ................
+    0x00c0:  0000 0000 0000 0000 0000 0000 0000 0000  ................
+    0x00d0:  0000 0000 0000 0000 0000 0000 0000 0000  ................
+    0x00e0:  0000 0000 0000 0000 0000 0000 0000 0000  ................
+    0x00f0:  0000 0000 0000 0000 0000 0000 0000 0000  ................
+    0x0100:  0000 0000 0000 0000 0000 0000 0000 0000  ................
+    0x0110:  0000 0000 0000 0000 00                   .........
+
+1187335817.204667 IP (tos 0x0, ttl  64, id 17309, offset 0, flags [DF],
+length: 52) 192.168.0.35.49157 &gt; 70.84.188.130.6112: . [tcp sum ok] ack 238
+win 65535 &lt;nop,nop,timestamp 1489982569 1024351&gt;
+    0x0000:  4500 0034 439d 4000 4006 3385 c0a8 0023  <A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">E..4C. at .</A>@.3....#
+    0x0010:  4654 bc82 c005 17e0 cfc7 b105 448d 7b26  FT..........D.{&amp;
+    0x0020:  8010 ffff 4c0d 0000 0101 080a 58cf 5469  ....L.......X.Ti
+    0x0030:  000f a15f                                ..._
+
+1187335817.217542 IP (tos 0x0, ttl  64, id 17310, offset 0, flags [DF],
+length: 52) 192.168.0.35.49157 &gt; 70.84.188.130.6112: F [tcp sum ok] 68:68(0)
+ack 238 win 65535 &lt;nop,nop,timestamp 1489982569 1024351&gt;
+    0x0000:  4500 0034 439e 4000 4006 3384 c0a8 0023  <A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">E..4C. at .</A>@.3....#
+    0x0010:  4654 bc82 c005 17e0 cfc7 b105 448d 7b26  FT..........D.{&amp;
+    0x0020:  8011 ffff 4c0c 0000 0101 080a 58cf 5469  ....L.......X.Ti
+    0x0030:  000f a15f                                ..._
+
+1187335817.418571 IP (tos 0x40, ttl 114, id 29813, offset 0, flags [DF],
+length: 52) 70.84.188.130.6112 &gt; 192.168.0.35.49157: . [tcp sum ok] ack 68
+win 65468 &lt;nop,nop,timestamp 1024353 1489982568&gt;
+    0x0000:  4540 0034 7475 4000 7206 d06c 4654 bc82  <A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">E at .4tu</A>@.r..lFT..
+    0x0010:  c0a8 0023 17e0 c005 448d 7b26 cfc7 b105  ...#....D.{&amp;....
+    0x0020:  8010 ffbc 4c4f 0000 0101 080a 000f a161  ....LO.........a
+    0x0030:  58cf 5468                                X.Th
+
+1187335817.564190 IP (tos 0x40, ttl 114, id 29860, offset 0, flags [DF],
+length: 52) 70.84.188.130.6112 &gt; 192.168.0.35.49157: . [tcp sum ok] ack 69
+win 65468 &lt;nop,nop,timestamp 1024354 1489982569&gt;
+    0x0000:  4540 0034 74a4 4000 7206 d03d 4654 bc82  <A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">E at .4t.</A>@.r..=FT..
+    0x0010:  c0a8 0023 17e0 c005 448d 7b26 cfc7 b106  ...#....D.{&amp;....
+    0x0020:  8010 ffbc 4c4c 0000 0101 080a 000f a162  ....LL.........b
+    0x0030:  58cf 5469                                X.Ti
+
+1187335817.567164 IP (tos 0x40, ttl 114, id 29861, offset 0, flags [DF],
+length: 52) 70.84.188.130.6112 &gt; 192.168.0.35.49157: F [tcp sum ok]
+238:238(0) ack 69 win 65468 &lt;nop,nop,timestamp 1024354 1489982569&gt;
+    0x0000:  4540 0034 74a5 4000 7206 d03c 4654 bc82  <A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">E at .4t.</A>@.r..&lt;FT..
+    0x0010:  c0a8 0023 17e0 c005 448d 7b26 cfc7 b106  ...#....D.{&amp;....
+    0x0020:  8011 ffbc 4c4b 0000 0101 080a 000f a162  ....LK.........b
+    0x0030:  58cf 5469                                X.Ti
+
+1187335817.567298 IP (tos 0x0, ttl  64, id 17311, offset 0, flags [DF],
+length: 52) 192.168.0.35.49157 &gt; 70.84.188.130.6112: . [tcp sum ok] ack 239
+win 65535 &lt;nop,nop,timestamp 1489982569 1024354&gt;
+    0x0000:  4500 0034 439f 4000 4006 3383 c0a8 0023  <A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">E..4C. at .</A>@.3....#
+    0x0010:  4654 bc82 c005 17e0 cfc7 b106 448d 7b27  FT..........D.{'
+    0x0020:  8010 ffff 4c08 0000 0101 080a 58cf 5469  ....L.......X.Ti
+    0x0030:  000f a162                                ...b
+
+The PvPGN server log at /var/netd.log:
+
+Aug 17 09:30:14 [debug] ipbanlist_check: lastcheck: 1187335684, now:
+1187335814, now-lc: 130.
+Aug 17 09:30:14 [debug] ipbanlist_check: checking 41.244.34.50
+Aug 17 09:30:14 [info ] sd_accept: [356] accepted connection from
+41.244.34.50:1228 on 0.0.0.0:6112
+Aug 17 09:30:14 [info ] conn_create: [356][328] sessionkey=0x46c5702f
+sessionnum=0x00000005
+Aug 17 09:30:14 [debug] sd_accept: [356] client connected to a bnet
+listening address
+Aug 17 09:30:14 [info ] handle_init_packet: [356] client initiated bnet
+connection
+Aug 17 09:30:14 [trace] conn_shutdown: [356] connection allready closed
+Aug 17 09:30:14 [debug] conn_set_class: added latency check timer
+Aug 17 09:30:15 [debug] _client_countryinfo109: [356] COUNTRYINFO_109
+packet tzbias=0xffffff88(-120) lcid=1033 langid=1033 arch=&quot;XMAC&quot;
+client=&quot;W3XP&quot; versionid=0x00000015 gamelang=&quot;enUS&quot;
+Aug 17 09:30:15 [debug] _client_countryinfo109: [356] COUNTRYINFO_109
+packet from &quot;ASUUnited States&quot; &quot;&quot;
+Aug 17 09:30:15 [info ] conn_set_archtag: [356] setting client arch to
+&quot;XMAC&quot;
+Aug 17 09:30:15 [info ] conn_set_clienttag: [356] setting client type to
+&quot;W3XP&quot;
+Aug 17 09:30:15 [info ] conn_set_gamelang: [356] setting client gamelang to
+&quot;enUS&quot;
+Aug 17 09:30:15 [debug] _client_countryinfo109: [356] selecting version
+check
+Aug 17 09:30:15 [debug] versioncheck_create: version check entry
+archtag=IX86, clienttag=W3XP
+Aug 17 09:30:15 [debug] versioncheck_create: version check entry
+archtag=IX86, clienttag=WAR3
+Aug 17 09:30:15 [debug] versioncheck_create: version check entry
+archtag=IX86, clienttag=W3XP
+Aug 17 09:30:15 [debug] versioncheck_create: version check entry
+archtag=IX86, clienttag=WAR3
+Aug 17 09:30:15 [debug] versioncheck_create: version check entry
+archtag=IX86, clienttag=D2XP
+Aug 17 09:30:15 [debug] versioncheck_create: version check entry
+archtag=IX86, clienttag=D2DV
+Aug 17 09:30:15 [debug] versioncheck_create: version check entry
+archtag=IX86, clienttag=D2XP
+Aug 17 09:30:15 [debug] versioncheck_create: version check entry
+archtag=IX86, clienttag=D2DV
+Aug 17 09:30:15 [debug] versioncheck_create: version check entry
+archtag=IX86, clienttag=D2XP
+Aug 17 09:30:15 [debug] versioncheck_create: version check entry
+archtag=IX86, clienttag=D2DV
+Aug 17 09:30:15 [debug] versioncheck_create: version check entry
+archtag=IX86, clienttag=D2XP
+Aug 17 09:30:15 [debug] versioncheck_create: version check entry
+archtag=IX86, clienttag=D2DV
+Aug 17 09:30:15 [debug] versioncheck_create: version check entry
+archtag=IX86, clienttag=SEXP
+Aug 17 09:30:15 [debug] versioncheck_create: version check entry
+archtag=IX86, clienttag=STAR
+Aug 17 09:30:15 [debug] versioncheck_create: version check entry
+archtag=IX86, clienttag=STAR
+Aug 17 09:30:15 [debug] versioncheck_create: version check entry
+archtag=XMAC, clienttag=W3XP
+Aug 17 09:30:15 [debug] _client_countryinfo109: [356] selected
+&quot;XMACver1.mpq&quot; &quot;A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A
+A=A-B&quot;
+Aug 17 09:30:15 [debug] sd_tcpinput: [356] read returned -1 (closing
+connection)
+
+
+Many thanks to all!
+
+
+
+
+&gt;<i> From: Zaranthos &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">Zaranthos at NeonPlasma.com</A>&gt;
+</I>&gt;<i> Reply-To: &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">pvpgn-dev at lists.berlios.de</A>&gt;
+</I>&gt;<i> Date: Thu, 16 Aug 2007 16:24:41 -0500
+</I>&gt;<i> To: &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">pvpgn-dev at lists.berlios.de</A>&gt;
+</I>&gt;<i> Subject: Re: [pvpgn-dev] Apple Mac Client Support?
+</I>&gt;<i> 
+</I>&gt;<i> *This message was transferred with a trial version of CommuniGate(tm) Pro*
+</I>&gt;<i> 
+</I>&gt;<i> Works on BeOS. Should work on anything. :-)  But seriously a few years
+</I>&gt;<i> ago there were issues building it on BeOS that were more problems with
+</I>&gt;<i> BeOS than PvPGN and those were resolved with some minor changes. I don't
+</I>&gt;<i> think PvPGN is platform dependent.
+</I>&gt;<i> 
+</I>&gt;<i> Hendrik JA Meyer wrote:
+</I>&gt;&gt;<i> Can somebody please explain why apple mac client support was withdrawn?
+</I>&gt;&gt;<i> 
+</I>&gt;&gt;<i> I am more than willing to connect to servers with my Mac Roc and TFT
+</I>&gt;&gt;<i> Mac client to establish the relevant strings required...
+</I>&gt;&gt;<i> 
+</I>&gt;&gt;<i> Regards
+</I>&gt;&gt;<i> ------------------------------------------------------------------------
+</I>&gt;&gt;<i> 
+</I>&gt;&gt;<i> _______________________________________________
+</I>&gt;&gt;<i> pvpgn-dev mailing list
+</I>&gt;&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">pvpgn-dev at lists.berlios.de</A>
+</I>&gt;&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">https://lists.berlios.de/mailman/listinfo/pvpgn-dev</A>
+</I>&gt;&gt;<i>   
+</I>&gt;<i> 
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> pvpgn-dev mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">pvpgn-dev at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">https://lists.berlios.de/mailman/listinfo/pvpgn-dev</A>
+</I>
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000348.html">[pvpgn-dev] Apple Mac Client Support?
+</A></li>
+	<LI>Next message: <A HREF="000354.html">[pvpgn-dev] WarCraft III for Mac OS X - Was Re: Apple Mac	Client Support?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#352">[ date ]</a>
+              <a href="thread.html#352">[ thread ]</a>
+              <a href="subject.html#352">[ subject ]</a>
+              <a href="author.html#352">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

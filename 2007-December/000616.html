@@ -1,0 +1,168 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r425 - trunk/pvpgn/src/bnetd
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-December/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r425%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200712072023.lB7KNkX0002636%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000615.html">
+   <LINK REL="Next"  HREF="000617.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r425 - trunk/pvpgn/src/bnetd</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r425%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200712072023.lB7KNkX0002636%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r425 - trunk/pvpgn/src/bnetd">svn at svn.berlios.de
+       </A><BR>
+    <I>Fri Dec  7 21:23:46 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000615.html">[pvpgn-dev] [Bug #12534] ra2 can created games but cannot start	games
+</A></li>
+        <LI>Next message: <A HREF="000617.html">[pvpgn-dev] [Bug #12654] renegade bug
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#616">[ date ]</a>
+              <a href="thread.html#616">[ thread ]</a>
+              <a href="subject.html#616">[ subject ]</a>
+              <a href="author.html#616">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pelish
+Date: 2007-12-07 21:23:38 +0100 (Fri, 07 Dec 2007)
+New Revision: 425
+
+Modified:
+   trunk/pvpgn/src/bnetd/handle_wol.cpp
+Log:
+fix for [ Bug #12654 ] renegade bug, moved SETOPT command to &quot;connected&quot; state hendlers (server not send error to client when client have bad password)
+
+
+Modified: trunk/pvpgn/src/bnetd/handle_wol.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/handle_wol.cpp	2007-12-06 16:37:40 UTC (rev 424)
++++ trunk/pvpgn/src/bnetd/handle_wol.cpp	2007-12-07 20:23:38 UTC (rev 425)
+@@ -76,10 +76,10 @@
+ static int _handle_cvers_command(t_connection * conn, int numparams, char ** params, char * text);
+ static int _handle_verchk_command(t_connection * conn, int numparams, char ** params, char * text);
+ static int _handle_apgar_command(t_connection * conn, int numparams, char ** params, char * text);
++static int _handle_setopt_command(t_connection * conn, int numparams, char ** params, char * text);
+ static int _handle_serial_command(t_connection * conn, int numparams, char ** params, char * text);
+ 
+ static int _handle_squadinfo_command(t_connection * conn, int numparams, char ** params, char * text);
+-static int _handle_setopt_command(t_connection * conn, int numparams, char ** params, char * text);
+ static int _handle_setcodepage_command(t_connection * conn, int numparams, char ** params, char * text);
+ static int _handle_setlocale_command(t_connection * conn, int numparams, char ** params, char * text);
+ static int _handle_getcodepage_command(t_connection * conn, int numparams, char ** params, char * text);
+@@ -121,6 +121,7 @@
+ 	{ &quot;CVERS&quot;		, _handle_cvers_command },
+ 	{ &quot;VERCHK&quot;		, _handle_verchk_command },
+ 	{ &quot;APGAR&quot;		, _handle_apgar_command },
++	{ &quot;SETOPT&quot;		, _handle_setopt_command },
+ 	{ &quot;SERIAL&quot;		, _handle_serial_command },
+ 	
+     /* Ladder server commands */
+@@ -141,7 +142,6 @@
+ 	{ &quot;PART&quot;		, _handle_part_command },
+ 
+ 	{ &quot;SQUADINFO&quot;	, _handle_squadinfo_command },
+-	{ &quot;SETOPT&quot;		, _handle_setopt_command },
+ 	{ &quot;SETCODEPAGE&quot;	, _handle_setcodepage_command },
+ 	{ &quot;SETLOCALE&quot;	, _handle_setlocale_command },
+ 	{ &quot;GETCODEPAGE&quot;	, _handle_getcodepage_command },
+@@ -1230,22 +1230,24 @@
+ 	char temp[MAX_IRC_MESSAGE_LEN];
+ 	char _temp_a[MAX_IRC_MESSAGE_LEN];
+ 	t_channel * channel;
+-	int numelems = 0;
+ 
+ 	std::time_t now;
+ 
+  	/**
++    *  Imput expected:
++    *   STARTG [channel_name] [nick1](,nick2_optional)
++    *
+  	*  Heres the output expected (this can have up-to 8 entries (ie 8 players):
+     *  (we are assuming for this example that user1 is the game owner)
+     *
+  	*   WOLv1:
+-    *   :user1!<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">WWOL at hostname</A> STARTG u :owner_ip :gameNumber time_t
++    *   :user1!<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">WWOL at hostname</A> STARTG u :owner_ip gameNumber time_t
+     *
+     *   WOLv2:
+- 	*   user1!<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">WWOL at hostname</A> STARTG u :user1 xxx.xxx.xxx.xxx user2 xxx.xxx.xxx.xxx :gameNumber time_t
++ 	*   :user1!<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">WWOL at hostname</A> STARTG u :user1 xxx.xxx.xxx.xxx user2 xxx.xxx.xxx.xxx :gameNumber time_t
+  	*/
+ 
+-	if((numparams&gt;=1)) {
++	if (numparams&gt;=1) {
+ 	    int i;
+ 	    char ** e;
+ 
+@@ -1255,13 +1257,9 @@
+ 	    e = irc_get_listelems(params[1]);
+ 	    /* FIXME: support wildcards! */
+ 
+-        if (e) {
+-           for (numelems=0;e[numelems];numelems++);
+-        }
+-
+         std::strcat(temp,&quot;:&quot;);
+ 
+- 	    if (numelems == 1) {
++ 	    if (conn_get_clienttag(conn) == CLIENTTAG_WCHAT_UINT) {
+   		    t_connection * user;
+    		    channel = conn_get_channel(conn);
+ 
+@@ -1272,7 +1270,7 @@
+                }
+             }
+         }
+-        else if (numelems&gt;=2) {
++        else {
+             for (i=0;((e)&amp;&amp;(e[i]));i++) {
+    		        t_connection * user;
+        		    const char * addr = NULL;
+@@ -1285,7 +1283,9 @@
+             }
+         }
+ 
+-        std::strcat(temp,&quot;:&quot;);
++        if (conn_get_clienttag(conn) != CLIENTTAG_WCHAT_UINT)
++            std::strcat(temp,&quot;:&quot;);
++
+         std::strcat(temp,&quot;1337&quot;); /* yes, ha ha funny, i just don't generate game numbers yet */
+         std::strcat(temp,&quot; &quot;);
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000615.html">[pvpgn-dev] [Bug #12534] ra2 can created games but cannot start	games
+</A></li>
+	<LI>Next message: <A HREF="000617.html">[pvpgn-dev] [Bug #12654] renegade bug
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#616">[ date ]</a>
+              <a href="thread.html#616">[ thread ]</a>
+              <a href="subject.html#616">[ subject ]</a>
+              <a href="author.html#616">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

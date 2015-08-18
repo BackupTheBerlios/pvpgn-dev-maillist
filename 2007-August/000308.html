@@ -1,0 +1,108 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] pvpgn UPDATE, 1.54, 1.55 version-history.txt, 1.267,	1.268
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-August/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20pvpgn%20UPDATE%2C%201.54%2C%201.55%20version-history.txt%2C%201.267%2C%0A%091.268&In-Reply-To=%3C20070815114119.37CBE1027A0%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000307.html">
+   <LINK REL="Next"  HREF="000309.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] pvpgn UPDATE, 1.54, 1.55 version-history.txt, 1.267,	1.268</H1>
+    <B>pandaemonium</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20pvpgn%20UPDATE%2C%201.54%2C%201.55%20version-history.txt%2C%201.267%2C%0A%091.268&In-Reply-To=%3C20070815114119.37CBE1027A0%40mail.berlios.de%3E"
+       TITLE="[pvpgn-dev] pvpgn UPDATE, 1.54, 1.55 version-history.txt, 1.267,	1.268">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Wed Aug 15 13:41:19 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000307.html">[pvpgn-dev] pvpgn/src/client bnchat.c,1.22,1.23
+</A></li>
+        <LI>Next message: <A HREF="000309.html">[pvpgn-dev] pvpgn/src/bnetd connection.c, 1.154,	1.155 handle_telnet.c, 1.12, 1.13 prefs.c, 1.64, 1.65 prefs.h,	1.49, 1.50
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#308">[ date ]</a>
+              <a href="thread.html#308">[ thread ]</a>
+              <a href="subject.html#308">[ subject ]</a>
+              <a href="author.html#308">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/pvpgn/pvpgn
+In directory sheep:/tmp/cvs-serv10690
+
+Modified Files:
+	UPDATE version-history.txt 
+Log Message:
+fix for bug [ #11700 ] - oversized login with #uid as username
+
+Index: UPDATE
+===================================================================
+RCS file: /cvsroot/pvpgn/pvpgn/UPDATE,v
+retrieving revision 1.54
+retrieving revision 1.55
+diff -u -d -r1.54 -r1.55
+--- UPDATE	31 Oct 2006 17:27:53 -0000	1.54
++++ UPDATE	15 Aug 2007 11:40:56 -0000	1.55
+@@ -14,6 +14,11 @@
+ version in between and including the last one (ex. you have to go through 
+ 1.7.1 to 1.7.2 update info, then 1.7.2 to 1.7.3, and so on until 1.7.4 to 1.7.5)
+ 
++ Updating from 1.8.0 to 1.8.1
++===================================
++Configuration files changed:
++- conf/versioncheck.conf : added W3/SC entries entries
++- conf/bnetd.conf : added account_force_username option
+ 
+  Updating from 1.8.0rc2 to 1.8.0
+ ====================================
+
+Index: version-history.txt
+===================================================================
+RCS file: /cvsroot/pvpgn/pvpgn/version-history.txt,v
+retrieving revision 1.267
+retrieving revision 1.268
+diff -u -d -r1.267 -r1.268
+--- version-history.txt	15 Aug 2007 09:17:29 -0000	1.267
++++ version-history.txt	15 Aug 2007 11:40:56 -0000	1.268
+@@ -22,6 +22,8 @@
+   to &quot;StarCraft: Brood War&quot; (to better match battle.net behaviour)
+   -- fixed possible server crash caused by /ipban command
+   -- enforce (stricter) limit for maximum channel name length 
++  -- fixed problems caused by login via uid
++  -- added new &quot;account_force_username&quot; option to bnetd.conf.
+ 
+ [VCHECK]
+   -- added WAR3/W3XP IX86 1.21 vcheck entries
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000307.html">[pvpgn-dev] pvpgn/src/client bnchat.c,1.22,1.23
+</A></li>
+	<LI>Next message: <A HREF="000309.html">[pvpgn-dev] pvpgn/src/bnetd connection.c, 1.154,	1.155 handle_telnet.c, 1.12, 1.13 prefs.c, 1.64, 1.65 prefs.h,	1.49, 1.50
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#308">[ date ]</a>
+              <a href="thread.html#308">[ thread ]</a>
+              <a href="subject.html#308">[ subject ]</a>
+              <a href="author.html#308">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

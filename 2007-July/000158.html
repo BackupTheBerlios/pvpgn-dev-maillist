@@ -1,0 +1,106 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] [Patch #1945] WOL Battleclans support and any bugfixes
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-July/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BPatch%20%231945%5D%20WOL%20Battleclans%20support%20and%20any%20bugfixes&In-Reply-To=%3C200707301813.l6UIDqeU027549%40unicorn.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000157.html">
+   <LINK REL="Next"  HREF="000159.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] [Patch #1945] WOL Battleclans support and any bugfixes</H1>
+    <B>admin at berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BPatch%20%231945%5D%20WOL%20Battleclans%20support%20and%20any%20bugfixes&In-Reply-To=%3C200707301813.l6UIDqeU027549%40unicorn.berlios.de%3E"
+       TITLE="[pvpgn-dev] [Patch #1945] WOL Battleclans support and any bugfixes">admin at berlios.de
+       </A><BR>
+    <I>Mon Jul 30 20:13:52 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000157.html">[pvpgn-dev] [Patch #1665] Not allowing account creation irc/wol	when new_accounts=fals
+</A></li>
+        <LI>Next message: <A HREF="000159.html">[pvpgn-dev] r265 - in trunk/pvpgn/src: bnetd common
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#158">[ date ]</a>
+              <a href="thread.html#158">[ thread ]</a>
+              <a href="subject.html#158">[ subject ]</a>
+              <a href="author.html#158">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Patch #1945 has been updated. 
+
+Project: pvpgn
+Category: 1.99.x
+Status: Open
+Submitted by: pelish
+Assigned to : none
+Summary: WOL Battleclans support and any bugfixes
+
+Follow-Ups:
+
+Date: 2007-Jul-30 20:13
+By: pelish
+
+Comment:
+Revised patche - deleted some irc_authenticate hacks that was created by my GameSpy tests.
+
+Also solved problems that was coused by last commits.
+-------------------------------------------------------
+
+Date: 2007-Jul-15 22:19
+By: pelish
+
+Comment:
+Revised patche with small update:
+MOVED/Renamed function clienttag_sku_to_uint to tag.h/cpp (now is most general)
+-------------------------------------------------------
+
+Date: 2007-Apr-04 12:24
+By: pelish
+
+Comment:
+Added WOL BATTLECLANS support
+Fixed bug in GETISNSIDER function that freeze Emperor
+Moved TOPIC function to irc.cpp common file
+Fixed bug in handle_TOPIC_command function when was sended badly formated channel name
+Moved NAMES function to irc.cpp
+Fixed bad LOGIN-INCORECT message when login or password is bad
+Rewrited fucnton for getting clienttag from SKU (for future use in ladder system)
+-------------------------------------------------------
+
+-------------------------------------------------------
+For more info, visit:
+
+<A HREF="http://developer.berlios.de/patch/?func=detailpatch&amp;patch_id=1945&amp;group_id=2291">http://developer.berlios.de/patch/?func=detailpatch&amp;patch_id=1945&amp;group_id=2291</A>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000157.html">[pvpgn-dev] [Patch #1665] Not allowing account creation irc/wol	when new_accounts=fals
+</A></li>
+	<LI>Next message: <A HREF="000159.html">[pvpgn-dev] r265 - in trunk/pvpgn/src: bnetd common
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#158">[ date ]</a>
+              <a href="thread.html#158">[ thread ]</a>
+              <a href="subject.html#158">[ subject ]</a>
+              <a href="author.html#158">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

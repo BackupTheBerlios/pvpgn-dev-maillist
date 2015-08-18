@@ -1,0 +1,379 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r274 - in trunk/pvpgn/src: bnetd common d2dbs
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-July/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r274%20-%20in%20trunk/pvpgn/src%3A%20bnetd%20common%20d2dbs&In-Reply-To=%3C200707311751.l6VHp5EC003448%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000176.html">
+   <LINK REL="Next"  HREF="000178.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r274 - in trunk/pvpgn/src: bnetd common d2dbs</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r274%20-%20in%20trunk/pvpgn/src%3A%20bnetd%20common%20d2dbs&In-Reply-To=%3C200707311751.l6VHp5EC003448%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r274 - in trunk/pvpgn/src: bnetd common d2dbs">svn at svn.berlios.de
+       </A><BR>
+    <I>Tue Jul 31 19:51:05 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000176.html">[pvpgn-dev] r273 - in trunk/pvpgn: conf src/bnetd
+</A></li>
+        <LI>Next message: <A HREF="000178.html">[pvpgn-dev] [Patch #2094] WOL added missing table to SQL layouts,	HOST command fix...
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#177">[ date ]</a>
+              <a href="thread.html#177">[ thread ]</a>
+              <a href="subject.html#177">[ subject ]</a>
+              <a href="author.html#177">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pandaemonium
+Date: 2007-07-31 19:51:03 +0200 (Tue, 31 Jul 2007)
+New Revision: 274
+
+Modified:
+   trunk/pvpgn/src/bnetd/account_wrap.cpp
+   trunk/pvpgn/src/bnetd/alias_command.cpp
+   trunk/pvpgn/src/bnetd/anongame.cpp
+   trunk/pvpgn/src/bnetd/anongame_infos.cpp
+   trunk/pvpgn/src/bnetd/anongame_maplists.cpp
+   trunk/pvpgn/src/bnetd/handle_wol.cpp
+   trunk/pvpgn/src/bnetd/irc.cpp
+   trunk/pvpgn/src/bnetd/ladder.cpp
+   trunk/pvpgn/src/bnetd/ladder.h
+   trunk/pvpgn/src/bnetd/versioncheck.h
+   trunk/pvpgn/src/common/tag.cpp
+   trunk/pvpgn/src/common/tag.h
+   trunk/pvpgn/src/d2dbs/d2ladder.cpp
+Log:
+make gcc 4.2.0 happy again
+
+Modified: trunk/pvpgn/src/bnetd/account_wrap.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/account_wrap.cpp	2007-07-31 16:56:17 UTC (rev 273)
++++ trunk/pvpgn/src/bnetd/account_wrap.cpp	2007-07-31 17:51:03 UTC (rev 274)
+@@ -47,7 +47,7 @@
+ namespace bnetd
+ {
+ 
+-static unsigned int char_icon_to_uint(char * icon);
++static unsigned int char_icon_to_uint(const char * icon);
+ 
+ extern unsigned int account_get_numattr_real(t_account * account, char const * key, char const * fn, unsigned int ln)
+ {
+@@ -2242,7 +2242,7 @@
+ // Night Elves - Wisp, Archer, Druid of the Claw, Priestess of the Moon, Furion Stormrage, Nothing
+ // Demons - Nothing, ???(wich unit is nfgn), Infernal, Doom Guard, Pit Lord/Manaroth, Archimonde
+ // ADDED TFT ICON BY DJP 07/16/2003
+-static char * profile_code[12][6] = {
++static const char * profile_code[12][6] = {
+ 	    {NULL  , &quot;ngrd&quot;, &quot;nadr&quot;, &quot;nrdr&quot;, &quot;nbwm&quot;, NULL  },
+ 	    {&quot;hpea&quot;, &quot;hfoo&quot;, &quot;hkni&quot;, &quot;Hamg&quot;, &quot;nmed&quot;, NULL  },
+ 	    {&quot;opeo&quot;, &quot;ogru&quot;, &quot;otau&quot;, &quot;Ofar&quot;, &quot;Othr&quot;, NULL  },
+@@ -2303,7 +2303,7 @@
+ extern unsigned int account_icon_to_profile_icon(char const * icon,t_account * account, t_clienttag ctag)
+ {
+ 	char tmp_icon[4];
+-	char * result;
++	const char * result;
+ 	int number_ctag=0;
+ 
+ 	if (icon==NULL) return account_get_icon_profile(account,ctag);
+@@ -2351,7 +2351,7 @@
+ 
+ }
+ 
+-static unsigned int char_icon_to_uint(char * icon)
++static unsigned int char_icon_to_uint(const char * icon)
+ {
+     unsigned int value;
+ 
+
+Modified: trunk/pvpgn/src/bnetd/alias_command.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/alias_command.cpp	2007-07-31 16:56:17 UTC (rev 273)
++++ trunk/pvpgn/src/bnetd/alias_command.cpp	2007-07-31 17:51:03 UTC (rev 274)
+@@ -291,7 +291,7 @@
+             {
+ 		char * msgtmp;
+ 		char * tmp2;
+-		char * cmd = &quot;%C&quot;;
++		const char * cmd = &quot;%C&quot;;
+ 		match = 1;
+ 
+ 		if ((msgtmp = replace_args(output-&gt;line,offsets,numargs+1,text)))
+
+Modified: trunk/pvpgn/src/bnetd/anongame.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/anongame.cpp	2007-07-31 16:56:17 UTC (rev 273)
++++ trunk/pvpgn/src/bnetd/anongame.cpp	2007-07-31 17:51:03 UTC (rev 274)
+@@ -58,7 +58,7 @@
+ /* [quetzal] 20020827 - this one get modified by anongame_queue player when there're enough
+  * players and map has been chosen based on their preferences. otherwise its NULL
+  */
+-static char *mapname = NULL;
++static const char *mapname = NULL;
+ 
+ static int players[ANONGAME_TYPES] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+ static t_connection *player[ANONGAME_TYPES][ANONGAME_MAX_GAMECOUNT];
+@@ -75,7 +75,7 @@
+ 
+ static int _anongame_gametype_to_queue(int type, int gametype);
+ static int _anongame_level_by_queue(t_connection * c, int queue);
+-static char *_get_map_from_prefs(int queue, t_uint32 cur_prefs, t_clienttag clienttag);
++static const char * _get_map_from_prefs(int queue, t_uint32 cur_prefs, t_clienttag clienttag);
+ static unsigned int _anongame_get_gametype_tab(int queue);
+ 
+ static int _anongame_totalplayers(int queue);
+@@ -235,10 +235,10 @@
+     }
+ }
+ 
+-static char *_get_map_from_prefs(int queue, t_uint32 cur_prefs, t_clienttag clienttag)
++static const char * _get_map_from_prefs(int queue, t_uint32 cur_prefs, t_clienttag clienttag)
+ {
+     int i, j = 0;
+-    char *default_map, *selected;
++    const char *default_map, *selected;
+     char *res_maps[32];
+     char clienttag_str[5];
+ 
+
+Modified: trunk/pvpgn/src/bnetd/anongame_infos.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/anongame_infos.cpp	2007-07-31 16:56:17 UTC (rev 273)
++++ trunk/pvpgn/src/bnetd/anongame_infos.cpp	2007-07-31 17:51:03 UTC (rev 274)
+@@ -407,7 +407,7 @@
+     return 0;
+ }
+ 
+-static int anongame_infos_set_str(char **dst, const char *src, char *errstr)
++static int anongame_infos_set_str(char **dst, const char *src, const char *errstr)
+ {
+     char *temp;
+ 
+@@ -1590,7 +1590,7 @@
+     };
+ 
+     /* hack to give names for new gametypes untill there added to anongame_infos.c */
+-    char *anongame_gametype_names[ANONGAME_TYPES] = {
++    const char * anongame_gametype_names[ANONGAME_TYPES] = {
+ 	&quot;One vs. One&quot;,
+ 	&quot;Two vs. Two&quot;,
+ 	&quot;Three vs. Three&quot;,
+
+Modified: trunk/pvpgn/src/bnetd/anongame_maplists.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/anongame_maplists.cpp	2007-07-31 16:56:17 UTC (rev 273)
++++ trunk/pvpgn/src/bnetd/anongame_maplists.cpp	2007-07-31 17:51:03 UTC (rev 274)
+@@ -47,12 +47,12 @@
+ static char	maplists_w3xp[ANONGAME_TYPES][MAXMAPS_PER_QUEUE+1];
+ 
+ static int	_maplists_type_get_queue(const char * type);
+-static char *	_maplists_queue_get_type(int queue);
++static const char * _maplists_queue_get_type(int queue);
+ 
+ static void	_maplists_add_map(t_clienttag clienttag, char * mapname, int queue);
+ 
+ /*****/
+-static char *	queue_names[ANONGAME_TYPES] = {
++static const char * queue_names[ANONGAME_TYPES] = {
+ 	&quot;1v1&quot;,&quot;2v2&quot;,&quot;3v3&quot;,&quot;4v4&quot;,&quot;sffa&quot;,&quot;at2v2&quot;,&quot;tffa&quot;,&quot;at3v3&quot;,&quot;at4v4&quot;,
+ 	&quot;TY&quot;,
+ 	&quot;5v5&quot;,&quot;6v6&quot;,&quot;2v2v2&quot;,&quot;3v3v3&quot;,&quot;4v4v4&quot;,&quot;2v2v2v2&quot;,&quot;3v3v3v3&quot;,
+@@ -71,7 +71,7 @@
+ }
+ 
+ 
+-static char * _maplists_queue_get_type(int queue)
++static const char * _maplists_queue_get_type(int queue)
+ {
+     return queue_names[queue];
+ }
+
+Modified: trunk/pvpgn/src/bnetd/handle_wol.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/handle_wol.cpp	2007-07-31 16:56:17 UTC (rev 273)
++++ trunk/pvpgn/src/bnetd/handle_wol.cpp	2007-07-31 17:51:03 UTC (rev 274)
+@@ -431,10 +431,12 @@
+                    if((conn_get_wol(conn) == 1)) {
+                         t_account * tempacct;
+                         t_hash pass_hash;
+-                        char * pass = &quot;supersecret&quot;;
++                        const char * pass = &quot;supersecret&quot;;
+ 
++				/* no need to std::tolower a known contant lowercase string
+             			for (unsigned j=0; j&lt;std::strlen(pass); j++)
+             				if (std::isupper((int)pass[j])) pass[j] = std::tolower((int)pass[j]);
++				*/
+ 
+             			bnet_hash(&amp;pass_hash,std::strlen(pass),pass);
+ 
+
+Modified: trunk/pvpgn/src/bnetd/irc.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/irc.cpp	2007-07-31 16:56:17 UTC (rev 273)
++++ trunk/pvpgn/src/bnetd/irc.cpp	2007-07-31 17:51:03 UTC (rev 274)
+@@ -541,7 +541,7 @@
+     char * e4;
+     char const * tname = NULL;
+     char const * toname = &quot;AUTH&quot;; /* fallback name */
+-    char * temp;
++    const char * temp;
+ 
+     if (!packet) {
+ 	eventlog(eventlog_level_error,__FUNCTION__,&quot;got NULL packet&quot;);
+
+Modified: trunk/pvpgn/src/bnetd/ladder.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/ladder.cpp	2007-07-31 16:56:17 UTC (rev 273)
++++ trunk/pvpgn/src/bnetd/ladder.cpp	2007-07-31 17:51:03 UTC (rev 274)
+@@ -64,10 +64,10 @@
+ static t_xplevel_entry * xplevels;
+ int w3_xpcalc_maxleveldiff;
+ 
+-char * ladder_id_str[] = {&quot;0&quot;,&quot;1&quot;,&quot;&quot;,&quot;3&quot;,&quot;&quot;,&quot;solo&quot;,&quot;team&quot;,&quot;ffa&quot;};
+-char * bin_ladder_id_str[] = {&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;I&quot;,&quot;&quot;,&quot;SOLO&quot;,&quot;TEAM&quot;,&quot;FFA&quot;,&quot;AT&quot;};
+-char * bin_ladder_sort_str[] = { &quot;R&quot;, &quot;W&quot;, &quot;G&quot;, &quot;&quot;};
+-char * bin_ladder_time_str[] = { &quot;A&quot;, &quot;C&quot;, &quot;&quot;};
++const char * ladder_id_str[] = {&quot;0&quot;,&quot;1&quot;,&quot;&quot;,&quot;3&quot;,&quot;&quot;,&quot;solo&quot;,&quot;team&quot;,&quot;ffa&quot;};
++const char * bin_ladder_id_str[] = {&quot;&quot;,&quot;&quot;,&quot;&quot;,&quot;I&quot;,&quot;&quot;,&quot;SOLO&quot;,&quot;TEAM&quot;,&quot;FFA&quot;,&quot;AT&quot;};
++const char * bin_ladder_sort_str[] = { &quot;R&quot;, &quot;W&quot;, &quot;G&quot;, &quot;&quot;};
++const char * bin_ladder_time_str[] = { &quot;A&quot;, &quot;C&quot;, &quot;&quot;};
+ 
+ Ladders ladders;
+ 
+
+Modified: trunk/pvpgn/src/bnetd/ladder.h
+===================================================================
+--- trunk/pvpgn/src/bnetd/ladder.h	2007-07-31 16:56:17 UTC (rev 273)
++++ trunk/pvpgn/src/bnetd/ladder.h	2007-07-31 17:51:03 UTC (rev 274)
+@@ -44,7 +44,7 @@
+     ladder_sort_default
+ } t_ladder_sort;
+ 
+-extern char * bin_ladder_sort_str[];
++extern const char * bin_ladder_sort_str[];
+ 
+ typedef enum
+ {
+@@ -53,7 +53,7 @@
+     ladder_time_default
+ } t_ladder_time;
+ 
+-extern char * bin_ladder_time_str[];
++extern const char * bin_ladder_time_str[];
+ 
+ typedef enum
+ {
+@@ -66,8 +66,8 @@
+     ladder_id_ateam=8
+ } t_ladder_id;
+ 
+-extern char * ladder_id_str[];
+-extern char * bin_ladder_id_str[];
++const extern char * ladder_id_str[];
++const extern char * bin_ladder_id_str[];
+ 
+ typedef enum
+ {
+
+Modified: trunk/pvpgn/src/bnetd/versioncheck.h
+===================================================================
+--- trunk/pvpgn/src/bnetd/versioncheck.h	2007-07-31 16:56:17 UTC (rev 273)
++++ trunk/pvpgn/src/bnetd/versioncheck.h	2007-07-31 17:51:03 UTC (rev 274)
+@@ -58,7 +58,7 @@
+ {
+     char const * eqn;
+     char const * mpqfile;
+-    char *	 versiontag;
++    char const * versiontag;
+ }
+ #endif
+ t_versioncheck;
+
+Modified: trunk/pvpgn/src/common/tag.cpp
+===================================================================
+--- trunk/pvpgn/src/common/tag.cpp	2007-07-31 16:56:17 UTC (rev 273)
++++ trunk/pvpgn/src/common/tag.cpp	2007-07-31 17:51:03 UTC (rev 274)
+@@ -151,7 +151,7 @@
+  *
+  * Nothing to malloc, nothing to free
+  */
+-extern char * tag_uint_to_str(char * tag_str, t_tag tag_uint)
++extern const char * tag_uint_to_str(char * tag_str, t_tag tag_uint)
+ {
+     if (!tag_uint) /* return &quot;UNKN&quot; if tag_uint = 0 */
+ 	return TAG_UNKNOWN;
+@@ -164,7 +164,7 @@
+     return tag_str;
+ }
+ 
+-extern char * tag_uint_to_revstr(char * tag_str, t_tag tag_uint)
++extern const char * tag_uint_to_revstr(char * tag_str, t_tag tag_uint)
+ {
+     if (!tag_uint) /* return &quot;UNKN&quot; if tag_uint = 0 */
+ 	return TAG_UNKNOWN;
+
+Modified: trunk/pvpgn/src/common/tag.h
+===================================================================
+--- trunk/pvpgn/src/common/tag.h	2007-07-31 16:56:17 UTC (rev 273)
++++ trunk/pvpgn/src/common/tag.h	2007-07-31 17:51:03 UTC (rev 274)
+@@ -156,8 +156,8 @@
+ 
+ extern t_tag	tag_str_to_uint(char const * tag_str);
+ extern t_tag	tag_case_str_to_uint(char const * tag_str);
+-extern char *	tag_uint_to_str(char * tag_str, t_tag tag_uint);
+-extern char *	tag_uint_to_revstr(char * tag_str, t_tag tag_uint);
++extern const char * tag_uint_to_str(char * tag_str, t_tag tag_uint);
++extern const char * tag_uint_to_revstr(char * tag_str, t_tag tag_uint);
+ extern int	tag_check_arch(t_tag tag_uint);
+ extern int	tag_check_client(t_tag tag_uint);
+ extern int	tag_check_gamelang(t_tag tag_uint);
+
+Modified: trunk/pvpgn/src/d2dbs/d2ladder.cpp
+===================================================================
+--- trunk/pvpgn/src/d2dbs/d2ladder.cpp	2007-07-31 16:56:17 UTC (rev 273)
++++ trunk/pvpgn/src/d2dbs/d2ladder.cpp	2007-07-31 17:51:03 UTC (rev 274)
+@@ -44,7 +44,7 @@
+ unsigned long 		d2ladder_maxtype;
+ int 			d2ladder_change_count=0;
+ int			d2ladder_need_rebuild = 0;
+-char                    * XMLname = &quot;d2ladder.xml&quot;;
++const char              * XMLname = &quot;d2ladder.xml&quot;;
+ 
+ 
+ int d2ladderlist_init(void);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000176.html">[pvpgn-dev] r273 - in trunk/pvpgn: conf src/bnetd
+</A></li>
+	<LI>Next message: <A HREF="000178.html">[pvpgn-dev] [Patch #2094] WOL added missing table to SQL layouts,	HOST command fix...
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#177">[ date ]</a>
+              <a href="thread.html#177">[ thread ]</a>
+              <a href="subject.html#177">[ subject ]</a>
+              <a href="author.html#177">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

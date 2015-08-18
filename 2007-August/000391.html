@@ -1,0 +1,267 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r341 - in trunk/pvpgn: . conf files man src/bnetd	src/bniutils src/bnpass src/bnpcap src/bntrackd src/client	src/d2cs src/d2dbs src/tinycdb
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-August/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r341%20-%20in%20trunk/pvpgn%3A%20.%20conf%20files%20man%20src/bnetd%0A%09src/bniutils%20src/bnpass%20src/bnpcap%20src/bntrackd%20src/client%0A%09src/d2cs%20src/d2dbs%20src/tinycdb&In-Reply-To=%3C200708211943.l7LJh4h0001426%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000390.html">
+   <LINK REL="Next"  HREF="000392.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r341 - in trunk/pvpgn: . conf files man src/bnetd	src/bniutils src/bnpass src/bnpcap src/bntrackd src/client	src/d2cs src/d2dbs src/tinycdb</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r341%20-%20in%20trunk/pvpgn%3A%20.%20conf%20files%20man%20src/bnetd%0A%09src/bniutils%20src/bnpass%20src/bnpcap%20src/bntrackd%20src/client%0A%09src/d2cs%20src/d2dbs%20src/tinycdb&In-Reply-To=%3C200708211943.l7LJh4h0001426%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r341 - in trunk/pvpgn: . conf files man src/bnetd	src/bniutils src/bnpass src/bnpcap src/bntrackd src/client	src/d2cs src/d2dbs src/tinycdb">svn at svn.berlios.de
+       </A><BR>
+    <I>Tue Aug 21 21:43:04 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000390.html">[pvpgn-dev] r340 - in trunk/pvpgn: . cmake/Modules
+</A></li>
+        <LI>Next message: <A HREF="000392.html">[pvpgn-dev] r342 - trunk/pvpgn/conf
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#391">[ date ]</a>
+              <a href="thread.html#391">[ thread ]</a>
+              <a href="subject.html#391">[ subject ]</a>
+              <a href="author.html#391">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: d1zzy
+Date: 2007-08-21 21:43:03 +0200 (Tue, 21 Aug 2007)
+New Revision: 341
+
+Added:
+   trunk/pvpgn/conf/CMakeLists.txt
+   trunk/pvpgn/files/CMakeLists.txt
+   trunk/pvpgn/man/CMakeLists.txt
+Modified:
+   trunk/pvpgn/CMakeLists.txt
+   trunk/pvpgn/ConfigureChecks.cmake
+   trunk/pvpgn/src/bnetd/CMakeLists.txt
+   trunk/pvpgn/src/bniutils/CMakeLists.txt
+   trunk/pvpgn/src/bnpass/CMakeLists.txt
+   trunk/pvpgn/src/bnpcap/CMakeLists.txt
+   trunk/pvpgn/src/bntrackd/CMakeLists.txt
+   trunk/pvpgn/src/client/CMakeLists.txt
+   trunk/pvpgn/src/d2cs/CMakeLists.txt
+   trunk/pvpgn/src/d2dbs/CMakeLists.txt
+   trunk/pvpgn/src/tinycdb/CMakeLists.txt
+Log:
+Added install support for almost everything. Still not sure how to make 
+cmake create some empty directories not present in the source. Will 
+investigate further (needed for the various /var empty directories pvpgn 
+needs to make on install).
+
+
+Modified: trunk/pvpgn/CMakeLists.txt
+===================================================================
+--- trunk/pvpgn/CMakeLists.txt	2007-08-21 16:39:11 UTC (rev 340)
++++ trunk/pvpgn/CMakeLists.txt	2007-08-21 19:43:03 UTC (rev 341)
+@@ -20,4 +20,4 @@
+ 
+ include(ConfigureChecks.cmake)
+ 
+-add_subdirectory(src)
++subdirs(src conf man files)
+
+Modified: trunk/pvpgn/ConfigureChecks.cmake
+===================================================================
+--- trunk/pvpgn/ConfigureChecks.cmake	2007-08-21 16:39:11 UTC (rev 340)
++++ trunk/pvpgn/ConfigureChecks.cmake	2007-08-21 19:43:03 UTC (rev 341)
+@@ -16,6 +16,13 @@
+ include(CheckCXXCompilerFlag)
+ include(CheckMkdirArgs)
+ 
++# setup short variable path names
++set(BINDIR ${BIN_INSTALL_DIR})
++set(SBINDIR ${SBIN_INSTALL_DIR})
++set(SYSCONFDIR ${SYSCONF_INSTALL_DIR})
++set(LOCALSTATEDIR ${LOCALSTATE_INSTALL_DIR})
++set(MANDIR ${MAN_INSTALL_DIR})
++
+ # library checks
+ find_package(ZLIB REQUIRED)
+ check_library_exists(pcap pcap_open_offline &quot;&quot; HAVE_LIBPCAP)
+
+Added: trunk/pvpgn/conf/CMakeLists.txt
+===================================================================
+--- trunk/pvpgn/conf/CMakeLists.txt	2007-08-21 16:39:11 UTC (rev 340)
++++ trunk/pvpgn/conf/CMakeLists.txt	2007-08-21 19:43:03 UTC (rev 341)
+@@ -0,0 +1,24 @@
++# generate the config files replacing the path variables
++configure_file(${CMAKE_CURRENT_SOURCE_DIR}/bnetd.conf.cmake ${CMAKE_CURRENT_BINARY_DIR}/bnetd.conf)
++configure_file(${CMAKE_CURRENT_SOURCE_DIR}/d2cs.conf.cmake ${CMAKE_CURRENT_BINARY_DIR}/d2cs.conf)
++configure_file(${CMAKE_CURRENT_SOURCE_DIR}/d2dbs.conf.cmake ${CMAKE_CURRENT_BINARY_DIR}/d2dbs.conf)
++
++if(WITH_BNETD)
++    set(BNETD_CONFS bnetd.conf ad.conf anongame_infos.conf address_translation.conf 
++    autoupdate.conf bnalias.conf bnban.conf bnetd_default_user.cdb 
++    bnetd_default_user.plain bnhelp.conf bnissue.txt bnmaps.conf bnmotd.txt 
++    bnxpcalc.conf bnxplevel.conf channel.conf command_groups.conf news.txt 
++    realm.conf sql_DB_layout.conf supportfile.conf topics.conf tournament.conf 
++    versioncheck.conf)
++endif(WITH_BNETD)
++
++if(WITH_D2CS)
++    set(D2CS_CONFS d2cs.conf d2server.ini anongame_infos.conf)
++endif(WITH_D2CS)
++
++if(WITH_D2DBS)
++    set(D2DBS_CONFS d2dbs.conf)
++endif(WITH_D2DBS)
++
++install(FILES ${BNETD_CONFS} ${D2CS_CONFS} ${D2DBS_CONFS}
++    DESTINATION ${SYSCONFDIR})
+
+Added: trunk/pvpgn/files/CMakeLists.txt
+===================================================================
+--- trunk/pvpgn/files/CMakeLists.txt	2007-08-21 16:39:11 UTC (rev 340)
++++ trunk/pvpgn/files/CMakeLists.txt	2007-08-21 19:43:03 UTC (rev 341)
+@@ -0,0 +1,7 @@
++install(FILES ad000001.mng ad000001.smk ad000002.mng ad000003.mng 
++    ad000004.mng ad000075.mng chathelp-war3-default.txt 
++    chathelp-war3-enUS.txt chathelp-war3-frFR.txt chathelp-war3-ruRU.txt 
++    chathelp-war3-zhCN.txt newaccount-default.txt newaccount-enUS.txt 
++    newbie.save termsofservice-default.txt termsofservice-enUS.txt 
++    tos_default.txt tos-unicode_default.txt
++    DESTINATION ${LOCALSTATEDIR}/files)
+
+Added: trunk/pvpgn/man/CMakeLists.txt
+===================================================================
+--- trunk/pvpgn/man/CMakeLists.txt	2007-08-21 16:39:11 UTC (rev 340)
++++ trunk/pvpgn/man/CMakeLists.txt	2007-08-21 19:43:03 UTC (rev 341)
+@@ -0,0 +1,4 @@
++install(FILES bnbot.1 bnchat.1 bnetd.1 bnetd.conf.5 bnftp.1 bni2tga.1 
++    bnibuild.1 bniextract.1 bnilist.1 bnpass.1 bnpcap.1 bnproxy.1 bnstat.1 
++    bntext.5 bntrackd.1 tgainfo.1
++    DESTINATION ${MANDIR})
+
+Modified: trunk/pvpgn/src/bnetd/CMakeLists.txt
+===================================================================
+--- trunk/pvpgn/src/bnetd/CMakeLists.txt	2007-08-21 16:39:11 UTC (rev 340)
++++ trunk/pvpgn/src/bnetd/CMakeLists.txt	2007-08-21 19:43:03 UTC (rev 341)
+@@ -29,3 +29,5 @@
+ 	udptest_send.h versioncheck.cpp versioncheck.h watch.cpp watch.h)
+ target_link_libraries(bnetd compat common tinycdb win32 ${NETWORK_LIBRARIES}
+ ${ZLIB_LIBRARIES} ${MYSQL_LIBRARIES} ${SQLITE3_LIBRARIES})
++
++install(TARGETS bnetd DESTINATION ${SBINDIR})
+
+Modified: trunk/pvpgn/src/bniutils/CMakeLists.txt
+===================================================================
+--- trunk/pvpgn/src/bniutils/CMakeLists.txt	2007-08-21 16:39:11 UTC (rev 340)
++++ trunk/pvpgn/src/bniutils/CMakeLists.txt	2007-08-21 19:43:03 UTC (rev 341)
+@@ -12,3 +12,5 @@
+ 
+ add_executable(tgainfo tgainfo.cpp fileio.cpp fileio.h tga.cpp tga.h)
+ target_link_libraries(tgainfo common compat)
++
++install(TARGETS bnilist bni2tga bniextract bnibuild tgainfo DESTINATION ${BINDIR})
+
+Modified: trunk/pvpgn/src/bnpass/CMakeLists.txt
+===================================================================
+--- trunk/pvpgn/src/bnpass/CMakeLists.txt	2007-08-21 16:39:11 UTC (rev 340)
++++ trunk/pvpgn/src/bnpass/CMakeLists.txt	2007-08-21 19:43:03 UTC (rev 341)
+@@ -3,3 +3,5 @@
+ 
+ add_executable(sha1hash sha1hash.cpp)
+ target_link_libraries(sha1hash common compat)
++
++install(TARGETS bnpass sha1hash DESTINATION ${BINDIR})
+
+Modified: trunk/pvpgn/src/bnpcap/CMakeLists.txt
+===================================================================
+--- trunk/pvpgn/src/bnpcap/CMakeLists.txt	2007-08-21 16:39:11 UTC (rev 340)
++++ trunk/pvpgn/src/bnpcap/CMakeLists.txt	2007-08-21 19:43:03 UTC (rev 341)
+@@ -1,2 +1,4 @@
+ add_executable(bnpcap bnpcap.cpp)
+ target_link_libraries(bnpcap common pcap)
++
++install(TARGETS bnpcap DESTINATION ${BINDIR})
+
+Modified: trunk/pvpgn/src/bntrackd/CMakeLists.txt
+===================================================================
+--- trunk/pvpgn/src/bntrackd/CMakeLists.txt	2007-08-21 16:39:11 UTC (rev 340)
++++ trunk/pvpgn/src/bntrackd/CMakeLists.txt	2007-08-21 19:43:03 UTC (rev 341)
+@@ -1,2 +1,3 @@
+ add_executable(bntrackd bntrackd.cpp)
+ target_link_libraries(bntrackd common compat ${NETWORK_LIBRARIES})
++install(TARGETS bntrackd DESTINATION ${SBINDIR})
+
+Modified: trunk/pvpgn/src/client/CMakeLists.txt
+===================================================================
+--- trunk/pvpgn/src/client/CMakeLists.txt	2007-08-21 16:39:11 UTC (rev 340)
++++ trunk/pvpgn/src/client/CMakeLists.txt	2007-08-21 19:43:03 UTC (rev 341)
+@@ -11,3 +11,5 @@
+ add_executable(bnstat bnstat.cpp client.cpp client.h client_connect.cpp 
+ 	client_connect.h udptest.cpp udptest.h)
+ target_link_libraries(bnstat common compat ${NETWORK_LIBRARIES})
++
++install(TARGETS bnchat bnftp bnbot bnstat DESTINATION ${BINDIR})
+
+Modified: trunk/pvpgn/src/d2cs/CMakeLists.txt
+===================================================================
+--- trunk/pvpgn/src/d2cs/CMakeLists.txt	2007-08-21 16:39:11 UTC (rev 340)
++++ trunk/pvpgn/src/d2cs/CMakeLists.txt	2007-08-21 19:43:03 UTC (rev 341)
+@@ -8,3 +8,5 @@
+ 	net.h prefs.cpp prefs.h s2s.cpp s2s.h server.cpp server.h 
+ 	serverqueue.cpp serverqueue.h setup.h version.h)
+ target_link_libraries(d2cs common compat win32 ${NETWORK_LIBRARIES})
++
++install(TARGETS d2cs DESTINATION ${SBINDIR})
+
+Modified: trunk/pvpgn/src/d2dbs/CMakeLists.txt
+===================================================================
+--- trunk/pvpgn/src/d2dbs/CMakeLists.txt	2007-08-21 16:39:11 UTC (rev 340)
++++ trunk/pvpgn/src/d2dbs/CMakeLists.txt	2007-08-21 19:43:03 UTC (rev 341)
+@@ -4,3 +4,5 @@
+ 	dbspacket.h handle_signal.cpp handle_signal.h main.cpp prefs.cpp 
+ 	prefs.h setup.h version.h)
+ target_link_libraries(d2dbs common compat win32 ${NETWORK_LIBRARIES})
++
++install(TARGETS d2dbs DESTINATION ${SBINDIR})
+
+Modified: trunk/pvpgn/src/tinycdb/CMakeLists.txt
+===================================================================
+--- trunk/pvpgn/src/tinycdb/CMakeLists.txt	2007-08-21 16:39:11 UTC (rev 340)
++++ trunk/pvpgn/src/tinycdb/CMakeLists.txt	2007-08-21 19:43:03 UTC (rev 341)
+@@ -4,3 +4,5 @@
+ 	cdb_seek.cpp cdb_seq.cpp cdb_unpack.cpp)
+ add_executable(bncdb cdb.cpp)
+ target_link_libraries(bncdb tinycdb common compat )
++
++install(TARGETS bncdb DESTINATION ${BINDIR})
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000390.html">[pvpgn-dev] r340 - in trunk/pvpgn: . cmake/Modules
+</A></li>
+	<LI>Next message: <A HREF="000392.html">[pvpgn-dev] r342 - trunk/pvpgn/conf
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#391">[ date ]</a>
+              <a href="thread.html#391">[ thread ]</a>
+              <a href="subject.html#391">[ subject ]</a>
+              <a href="author.html#391">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

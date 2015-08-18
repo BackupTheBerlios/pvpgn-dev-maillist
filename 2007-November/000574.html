@@ -1,0 +1,333 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r414 - trunk/pvpgn/src/bnetd
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-November/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r414%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200711232135.lANLZev9031975%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000573.html">
+   <LINK REL="Next"  HREF="000575.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r414 - trunk/pvpgn/src/bnetd</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r414%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200711232135.lANLZev9031975%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r414 - trunk/pvpgn/src/bnetd">svn at svn.berlios.de
+       </A><BR>
+    <I>Fri Nov 23 22:35:40 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000573.html">[pvpgn-dev] r413 - branches
+</A></li>
+        <LI>Next message: <A HREF="000575.html">[pvpgn-dev] r415 - in branches/pvpgn_wol_channels_remaking: conf	src/bnetd
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#574">[ date ]</a>
+              <a href="thread.html#574">[ thread ]</a>
+              <a href="subject.html#574">[ subject ]</a>
+              <a href="author.html#574">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pandaemonium
+Date: 2007-11-23 22:35:39 +0100 (Fri, 23 Nov 2007)
+New Revision: 414
+
+Modified:
+   trunk/pvpgn/src/bnetd/channel.cpp
+   trunk/pvpgn/src/bnetd/channel.h
+   trunk/pvpgn/src/bnetd/command.cpp
+   trunk/pvpgn/src/bnetd/handle_bnet.cpp
+   trunk/pvpgn/src/bnetd/handle_wol.cpp
+Log:
+channel now stores its clienttag in t_clienttag (removes some annoying strcmps)
+
+Modified: trunk/pvpgn/src/bnetd/channel.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/channel.cpp	2007-11-23 21:31:34 UTC (rev 413)
++++ trunk/pvpgn/src/bnetd/channel.cpp	2007-11-23 21:35:39 UTC (rev 414)
+@@ -61,7 +61,7 @@
+ 
+ extern int channel_set_userflags(t_connection * c);
+ 
+-extern t_channel * channel_create(char const * fullname, char const * shortname, char const * clienttag, int permflag, int botflag, int operflag, int logflag, char const * country, char const * realmname, int maxmembers, int moderated, int clanflag, int autoname)
++extern t_channel * channel_create(char const * fullname, char const * shortname, t_clienttag clienttag, int permflag, int botflag, int operflag, int logflag, char const * country, char const * realmname, int maxmembers, int moderated, int clanflag, int autoname)
+ {
+     t_channel * channel;
+ 
+@@ -80,18 +80,13 @@
+         eventlog(eventlog_level_error,__FUNCTION__,&quot;got empty shortname&quot;);
+ 	return NULL;
+     }
+-    if (clienttag &amp;&amp; std::strlen(clienttag)!=4)
+-    {
+-	eventlog(eventlog_level_error,__FUNCTION__,&quot;client tag has bad length (%lu chars)&quot;,std::strlen(clienttag));
+-	return NULL;
+-    }
+ 
+     /* non-permanent already checks for this in conn_set_channel */
+     if (permflag)
+     {
+ 	if ((channel = channellist_find_channel_by_fullname(fullname)))
+ 	{
+-	    if ((channel_get_clienttag(channel)) &amp;&amp; (clienttag) &amp;&amp; (std::strcmp(channel_get_clienttag(channel),clienttag)==0))
++	    if ((channel_get_clienttag(channel)) &amp;&amp; (clienttag) &amp;&amp; (channel_get_clienttag(channel)==clienttag))
+ 	    {
+ 	      eventlog(eventlog_level_error,__FUNCTION__,&quot;could not create duplicate permanent channel (fullname \&quot;%s\&quot;)&quot;,fullname);
+ 	      return NULL;
+@@ -130,7 +125,7 @@
+ 	     shortname?shortname:&quot;none&quot;,
+ 	     shortname?&quot;\&quot;&quot;:&quot;)&quot;,
+ 	     clienttag?&quot;\&quot;&quot;:&quot;(&quot;,
+-	     clienttag?clienttag:&quot;none&quot;,
++	     clienttag?clienttag_uint_to_str(clienttag):&quot;none&quot;,
+ 	     clienttag?&quot;\&quot;&quot;:&quot;)&quot;,
+ 	     country?&quot;\&quot;&quot;:&quot;(&quot;,
+              country?country:&quot;none&quot;,
+@@ -147,10 +142,7 @@
+     else
+ 	channel-&gt;shortname = xstrdup(shortname);
+ 
+-    if (clienttag)
+-	channel-&gt;clienttag = xstrdup(clienttag);
+-    else
+-	channel-&gt;clienttag = NULL;
++	channel-&gt;clienttag = clienttag;
+ 
+     if (country)
+ 	channel-&gt;country = xstrdup(country);
+@@ -342,12 +334,12 @@
+ }
+ 
+ 
+-extern char const * channel_get_clienttag(t_channel const * channel)
++extern t_clienttag channel_get_clienttag(t_channel const * channel)
+ {
+     if (!channel)
+     {
+         eventlog(eventlog_level_error,__FUNCTION__,&quot;got NULL channel&quot;);
+-	return &quot;&quot;;
++	return 0;
+     }
+ 
+     return channel-&gt;clienttag;
+@@ -897,6 +889,7 @@
+     char *       name;
+     char *       sname;
+     char *       tag;
++	t_clienttag  clienttag;
+     char *       bot;
+     char *       oper;
+     char *       log;
+@@ -1031,24 +1024,26 @@
+ 	if (std::strcmp(sname,&quot;NULL&quot;) == 0)
+ 	    sname = NULL;
+ 	if (std::strcmp(tag,&quot;NULL&quot;) == 0)
+-	    tag = NULL;
+-        if (std::strcmp(name,&quot;NONE&quot;) == 0)
++	    clienttag = 0;
++	else
++		clienttag = clienttag_str_to_uint(tag);
++    if (std::strcmp(name,&quot;NONE&quot;) == 0)
+ 	    name = NULL;
+-        if (std::strcmp(country, &quot;NULL&quot;) == 0)
+-            country = NULL;
+-        if (std::strcmp(realmname,&quot;NULL&quot;) == 0)
++    if (std::strcmp(country, &quot;NULL&quot;) == 0)
++        country = NULL;
++    if (std::strcmp(realmname,&quot;NULL&quot;) == 0)
+             realmname = NULL;
+ 
+ 	if (name)
+ 	    {
+-            channel_create(name,sname,tag,1,botflag,operflag,logflag,country,realmname,std::atoi(max),modflag,0,0);
++            channel_create(name,sname,clienttag,1,botflag,operflag,logflag,country,realmname,std::atoi(max),modflag,0,0);
+ 	    }
+ 	else
+ 	    {
+             newname = channel_format_name(sname,country,realmname,1);
+             if (newname)
+ 		{
+-                   channel_create(newname,sname,tag,1,botflag,operflag,logflag,country,realmname,std::atoi(max),modflag,0,1);
++                   channel_create(newname,sname,clienttag,1,botflag,operflag,logflag,country,realmname,std::atoi(max),modflag,0,1);
+                    xfree(newname);
+ 	    }
+             else
+@@ -1386,7 +1381,7 @@
+     int            maxchannel; /* the number of &quot;rollover&quot; channels that exist */
+     char const *   saveshortname;
+     char const *   savespecialname;
+-    char const *   savetag;
++    t_clienttag    savetag;
+     int            savebotflag;
+     int            saveoperflag;
+     int            savelogflag;
+@@ -1397,8 +1392,8 @@
+     t_channel *    special_channel;
+ 
+     // try to make gcc happy and initialize all variables
+-    saveshortname = savespecialname = savetag = savecountry = saverealmname = NULL;
+-    savebotflag = saveoperflag = savelogflag = savemaxmembers = savemoderated = 0;
++    saveshortname = savespecialname = savecountry = saverealmname = NULL;
++    savetag = savebotflag = saveoperflag = savelogflag = savemaxmembers = savemoderated = 0;
+ 
+     maxchannel = 0;
+     foundperm = 0;
+
+Modified: trunk/pvpgn/src/bnetd/channel.h
+===================================================================
+--- trunk/pvpgn/src/bnetd/channel.h	2007-11-23 21:31:34 UTC (rev 413)
++++ trunk/pvpgn/src/bnetd/channel.h	2007-11-23 21:35:39 UTC (rev 414)
+@@ -87,7 +87,7 @@
+     unsigned int      flags;
+     int		      maxmembers;
+     int		      currmembers;
+-    char const *      clienttag;
++    t_clienttag       clienttag;
+     unsigned int      id;
+     t_channelmember * memberlist;
+     t_list *          banlist;    /* of char * */
+@@ -121,6 +121,7 @@
+ #include &quot;connection.h&quot;
+ #include &quot;message.h&quot;
+ #include &quot;common/list.h&quot;
++#include &quot;common/tag.h&quot;
+ #undef JUST_NEED_TYPES
+ 
+ #define CHANNEL_NAME_BANNED &quot;THE VOID&quot;
+@@ -134,11 +135,11 @@
+ {
+ 
+ extern int channel_set_userflags(t_connection * c);
+-extern t_channel * channel_create(char const * fullname, char const * shortname, char const * clienttag, int permflag, int botflag, int operflag, int logflag, char const * country, char const * realmname, int maxmembers, int moderated, int clan,int autoname) ;
++extern t_channel * channel_create(char const * fullname, char const * shortname, t_clienttag clienttag, int permflag, int botflag, int operflag, int logflag, char const * country, char const * realmname, int maxmembers, int moderated, int clan,int autoname) ;
+ extern int channel_destroy(t_channel * channel, t_elem ** elem);
+ extern char const * channel_get_name(t_channel const * channel);
+ extern char const * channel_get_shortname(t_channel const * channel);
+-extern char const * channel_get_clienttag(t_channel const * channel);
++extern t_clienttag channel_get_clienttag(t_channel const * channel);
+ extern unsigned channel_get_flags(t_channel const * channel);
+ extern int channel_set_flags(t_channel * channel, unsigned flags);
+ extern int channel_get_permanent(t_channel const * channel);
+
+Modified: trunk/pvpgn/src/bnetd/command.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/command.cpp	2007-11-23 21:31:34 UTC (rev 413)
++++ trunk/pvpgn/src/bnetd/command.cpp	2007-11-23 21:35:39 UTC (rev 414)
+@@ -2832,7 +2832,7 @@
+   unsigned int      i;
+   t_elem const *    curr;
+   t_channel const * channel;
+-  char const *      tag;
++  t_clienttag       clienttag;
+   t_connection const * conn;
+   t_account * acc;
+   char const * name;
+@@ -2844,18 +2844,18 @@
+ 
+   if (text[i]=='\0')
+     {
+-      tag = clienttag_uint_to_str(conn_get_clienttag(c));
++      clienttag = conn_get_clienttag(c);
+       message_send_text(c,message_type_info,c,&quot;Currently accessable channels:&quot;);
+     }
+   else if (std::strcmp(&amp;text[i],&quot;all&quot;)==0)
+     {
+-      tag = NULL;
++      clienttag = NULL;
+       message_send_text(c,message_type_info,c,&quot;All current channels:&quot;);
+     }
+   else
+     {
+-      tag = &amp;text[i];
+-      snprintf(msgtemp, sizeof(msgtemp), &quot;Current channels of type %.64s&quot;,tag);
++	  clienttag=tag_case_str_to_uint(&amp;text[i]);
++      snprintf(msgtemp, sizeof(msgtemp), &quot;Current channels of type %.64s&quot;,&amp;text[i]);
+       message_send_text(c,message_type_info,c,msgtemp);
+     }
+ 
+@@ -2864,9 +2864,9 @@
+   LIST_TRAVERSE_CONST(channellist(),curr)
+     {
+       channel = (t_channel*)elem_get_data(curr);
+-      if ((!(channel_get_flags(channel) &amp; channel_flags_clan)) &amp;&amp; (!tag || !prefs_get_hide_temp_channels() || channel_get_permanent(channel)) &amp;&amp;
+-	  (!tag || !channel_get_clienttag(channel) ||
+-	   strcasecmp(channel_get_clienttag(channel),tag)==0) &amp;&amp;
++      if ((!(channel_get_flags(channel) &amp; channel_flags_clan)) &amp;&amp; (!clienttag || !prefs_get_hide_temp_channels() || channel_get_permanent(channel)) &amp;&amp;
++	  (!clienttag || !channel_get_clienttag(channel) ||
++	   channel_get_clienttag(channel)==clienttag) &amp;&amp;
+ 	   ((channel_get_max(channel)!=0) || //only show restricted channels to OPs and Admins
+ 	    ((channel_get_max(channel)==0 &amp;&amp; account_is_operator_or_admin(conn_get_account(c),NULL)))) &amp;&amp;
+ 	    (!(channel_get_flags(channel) &amp; channel_flags_thevoid)) // don't list TheVoid
+
+Modified: trunk/pvpgn/src/bnetd/handle_bnet.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/handle_bnet.cpp	2007-11-23 21:31:34 UTC (rev 413)
++++ trunk/pvpgn/src/bnetd/handle_bnet.cpp	2007-11-23 21:35:39 UTC (rev 414)
+@@ -3044,7 +3044,7 @@
+ 
+ 	    LIST_TRAVERSE_CONST(channellist(), curr) {
+ 		ch = (t_channel*)elem_get_data(curr);
+-		if ((!(channel_get_flags(ch) &amp; channel_flags_clan)) &amp;&amp; (!prefs_get_hide_temp_channels() || channel_get_permanent(ch)) &amp;&amp; (!channel_get_clienttag(ch) || std::strcmp(channel_get_clienttag(ch), clienttag_uint_to_str(conn_get_clienttag(c))) == 0) &amp;&amp; (!(channel_get_flags(ch) &amp; channel_flags_thevoid)) &amp;&amp;	// don't display theVoid in channel list
++		if ((!(channel_get_flags(ch) &amp; channel_flags_clan)) &amp;&amp; (!prefs_get_hide_temp_channels() || channel_get_permanent(ch)) &amp;&amp; (!channel_get_clienttag(ch) || channel_get_clienttag(ch)== conn_get_clienttag(c)) &amp;&amp; (!(channel_get_flags(ch) &amp; channel_flags_thevoid)) &amp;&amp;	// don't display theVoid in channel list
+ 		    ((channel_get_max(ch) != 0) || ((channel_get_max(ch) == 0) &amp;&amp; (account_is_operator_or_admin(conn_get_account(c), channel_get_name(ch)) == 1))))	// don't display restricted channel for no admins/ops
+ 		    packet_append_string(rpacket, channel_get_name(ch));
+ 	    }
+
+Modified: trunk/pvpgn/src/bnetd/handle_wol.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/handle_wol.cpp	2007-11-23 21:31:34 UTC (rev 413)
++++ trunk/pvpgn/src/bnetd/handle_wol.cpp	2007-11-23 21:35:39 UTC (rev 414)
+@@ -543,8 +543,8 @@
+              if (std::strstr(tempname,&quot;_game&quot;) == NULL) {
+                 sprintf(temp,&quot;%s %u &quot;,tempname,channel_get_length(channel));
+ 
+-                if ((channel_get_clienttag(channel) != NULL) &amp;&amp;
+-                   (std::strcmp(channel_get_clienttag(channel), clienttag_uint_to_str(CLIENTTAG_WCHAT_UINT)) == 0 ))
++                if ((channel_get_clienttag(channel) != 0) &amp;&amp;
++                   (channel_get_clienttag(channel)==CLIENTTAG_WCHAT_UINT))
+                     std::strcat(temp,&quot;1&quot;);  /* WestwoodChat Icon before chanelname */
+                 else
+                     std::strcat(temp,&quot;0&quot;);  /* No WestwoodChat Icon before chanelname */
+@@ -567,8 +567,8 @@
+ 
+ 	        tempname = irc_convert_channel(channel);
+ 
+-            if ((channel_get_clienttag(channel) != NULL) &amp;&amp;
+-                (std::strcmp(channel_get_clienttag(channel), clienttag_uint_to_str(conn_get_clienttag(conn))) == 0)) {
++            if ((channel_get_clienttag(channel) != 0) &amp;&amp;
++                (channel_get_clienttag(channel)==conn_get_clienttag(conn))) {
+ 			    if((std::strstr(tempname,&quot;Lob&quot;) != NULL) || (std::strstr(tempname,&quot;Emperor&quot;) != NULL)) {
+                      eventlog(eventlog_level_debug,__FUNCTION__,&quot;[** WOL **] LIST [Channel: \&quot;Lob\&quot;] (%s)&quot;,tempname);
+ 				     if (std::strlen(tempname)+1+20+1+1&lt;MAX_IRC_MESSAGE_LEN)
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000573.html">[pvpgn-dev] r413 - branches
+</A></li>
+	<LI>Next message: <A HREF="000575.html">[pvpgn-dev] r415 - in branches/pvpgn_wol_channels_remaking: conf	src/bnetd
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#574">[ date ]</a>
+              <a href="thread.html#574">[ thread ]</a>
+              <a href="subject.html#574">[ subject ]</a>
+              <a href="author.html#574">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

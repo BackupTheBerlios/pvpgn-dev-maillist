@@ -1,0 +1,291 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r288 - trunk/pvpgn/src/bnetd
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-August/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r288%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200708051756.l75HukRE019256%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000230.html">
+   <LINK REL="Next"  HREF="000232.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r288 - trunk/pvpgn/src/bnetd</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r288%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200708051756.l75HukRE019256%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r288 - trunk/pvpgn/src/bnetd">svn at svn.berlios.de
+       </A><BR>
+    <I>Sun Aug  5 19:56:46 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000230.html">[pvpgn-dev] [Bug #11700] oversized login with #uid as username
+</A></li>
+        <LI>Next message: <A HREF="000232.html">[pvpgn-dev] r289 - trunk/pvpgn/src/bnetd
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#231">[ date ]</a>
+              <a href="thread.html#231">[ thread ]</a>
+              <a href="subject.html#231">[ subject ]</a>
+              <a href="author.html#231">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pandaemonium
+Date: 2007-08-05 19:56:45 +0200 (Sun, 05 Aug 2007)
+New Revision: 288
+
+Modified:
+   trunk/pvpgn/src/bnetd/handle_irc.cpp
+   trunk/pvpgn/src/bnetd/handle_wol.cpp
+   trunk/pvpgn/src/bnetd/irc.cpp
+   trunk/pvpgn/src/bnetd/message.cpp
+Log:
+make sure all ways to join a channel trigger a namesreply
+
+Modified: trunk/pvpgn/src/bnetd/handle_irc.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/handle_irc.cpp	2007-08-03 22:45:45 UTC (rev 287)
++++ trunk/pvpgn/src/bnetd/handle_irc.cpp	2007-08-05 17:56:45 UTC (rev 288)
+@@ -795,8 +795,6 @@
+ 					irc_send(conn,RPL_NOTOPIC,&quot;:No topic is set&quot;);
+ 
+ 				irc_send_rpl_namreply(conn,channel);
+-				irc_send(conn,RPL_ENDOFNAMES,&quot;:End of NAMES list&quot;);
+-
+ 	    		}
+ 		}
+ 		}
+
+Modified: trunk/pvpgn/src/bnetd/handle_wol.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/handle_wol.cpp	2007-08-03 22:45:45 UTC (rev 287)
++++ trunk/pvpgn/src/bnetd/handle_wol.cpp	2007-08-05 17:56:45 UTC (rev 288)
+@@ -880,10 +880,10 @@
+ 
+ static int _handle_part_command(t_connection * conn, int numparams, char ** params, char * text)
+ {
+-	if ((conn_wol_get_ingame(conn) == 1)) {
+-		conn_wol_set_ingame(conn,0);
++    if ((conn_wol_get_ingame(conn) == 1)) {
++        conn_wol_set_ingame(conn,0);
+     }
+-    conn_set_channel(conn, NULL);                        /* In WOL we disconecting from the channel */
++    conn_set_channel(conn, NULL);
+     return 0;
+ }
+ 
+@@ -1304,10 +1304,6 @@
+ 
+   					irc_send_rpl_namreply(conn,channel);
+ 
+-    				if ((std::strlen(wolname)+1+std::strlen(&quot;:End of NAMES list&quot;)+1)&lt;MAX_IRC_MESSAGE_LEN) {
+-   						snprintf(temp, sizeof(temp), &quot;%s :End of NAMES list&quot;,wolname);
+-   						irc_send(conn,RPL_ENDOFNAMES,temp);
+-   					}
+ 				}
+ 				else {
+ 				    irc_send(conn,ERR_NOSUCHCHANNEL,&quot;:JOINGAME failed&quot;);
+@@ -1390,10 +1386,6 @@
+ 
+ 	    			irc_send_rpl_namreply(conn,channel);
+ 
+-    				if ((std::strlen(wolname)+1+std::strlen(&quot;:End of NAMES list&quot;)+1)&lt;MAX_IRC_MESSAGE_LEN) {
+-						snprintf(temp, sizeof(temp), &quot;%s :End of NAMES list&quot;, wolname);
+-						irc_send(conn,RPL_ENDOFNAMES,temp);
+-					}
+ 	    		}
+ 			}
+ 			if (old_channel_name) xfree((void *)old_channel_name);
+
+Modified: trunk/pvpgn/src/bnetd/irc.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/irc.cpp	2007-08-03 22:45:45 UTC (rev 287)
++++ trunk/pvpgn/src/bnetd/irc.cpp	2007-08-05 17:56:45 UTC (rev 288)
+@@ -681,6 +681,7 @@
+             else
+                 msg = irc_message_preformat(&amp;from,&quot;JOIN&quot;,&quot;\r&quot;,irc_convert_channel(channel));
+             conn_unget_chatname(me,from.nick);
++	    irc_send_rpl_namreply(me,channel);
+             break;
+         }
+ 	    else
+@@ -879,21 +880,17 @@
+     return -1;
+ }
+ 
+-extern int irc_send_rpl_namreply(t_connection * c, t_channel const * channel)
+-{
++int irc_send_rpl_namreply_internal(t_connection * c, t_channel const * channel){
+     char temp[MAX_IRC_MESSAGE_LEN];
+     char const * ircname;
+     int first = 1;
+     t_connection * m;
+ 
+-    if (!c) {
+-	eventlog(eventlog_level_error,__FUNCTION__,&quot;got NULL connection&quot;);
+-	return -1;
+-    }
+     if (!channel) {
+-	eventlog(eventlog_level_error,__FUNCTION__,&quot;got NULL channel&quot;);
++        eventlog(eventlog_level_error,__FUNCTION__,&quot;got NULL channel&quot;);
+ 	return -1;
+     }
++
+     std::memset(temp,0,sizeof(temp));
+     ircname = irc_convert_channel(channel);
+     if (!ircname) {
+@@ -958,6 +955,37 @@
+ 	conn_unget_chatname(m,name);
+     }
+     irc_send(c,RPL_NAMREPLY,temp);
++}
++
++extern int irc_send_rpl_namreply(t_connection * c, t_channel const * channel)
++{
++    char temp[MAX_IRC_MESSAGE_LEN];
++    char const * ircname;
++
++    if (!c) {
++        eventlog(eventlog_level_error,__FUNCTION__,&quot;got NULL connection&quot;);
++	return -1;
++    }
++
++    if (channel) {
++        ircname = irc_convert_channel(channel);
++        if (!ircname) {
++	    eventlog(eventlog_level_error,__FUNCTION__,&quot;channel has NULL ircname&quot;);
++	    return -1;
++        }
++        irc_send_rpl_namreply_internal(c, channel);
++        std:sprintf(temp, &quot;%32s :End of NAMES list&quot;, ircname);
++    } else {
++        t_elem const * curr;
++        LIST_TRAVERSE_CONST(channellist(),curr)
++        {
++            channel = (t_channel*)elem_get_data(curr);
++            irc_send_rpl_namreply_internal(c, channel);
++        }
++	std::sprintf(temp, &quot;* :End of NAMES list&quot;, ircname);
++    }
++
++    irc_send(c, RPL_ENDOFNAMES, temp);
+     return 0;
+ }
+ 
+@@ -1211,25 +1239,12 @@
+ 			if (!channel)
+ 				continue; /* channel doesn't exist */
+ 			irc_send_rpl_namreply(conn,channel);
+-			ircname=irc_convert_channel(channel);
+-			if ((std::strlen(ircname)+1+std::strlen(&quot;:End of NAMES list&quot;)+1)&lt;MAX_IRC_MESSAGE_LEN) {
+-				snprintf(temp, sizeof(temp), &quot;%s :End of NAMES list&quot;,ircname);
+-				irc_send(conn,RPL_ENDOFNAMES,temp);
+-			}
+-			else
+-				irc_send(conn,RPL_ENDOFNAMES,&quot;:End of NAMES list&quot;);
+ 		}
+ 		if (e)
+ 		irc_unget_listelems(e);
+     }
+ 	else if (numparams==0) {
+-		t_elem const * curr;
+-		LIST_TRAVERSE_CONST(channellist(),curr)
+-		{
+-			channel = (t_channel*)elem_get_data(curr);
+-			irc_send_rpl_namreply(conn,channel);
+-		}
+-		irc_send(conn,RPL_ENDOFNAMES,&quot;* :End of NAMES list&quot;);
++		irc_send_rpl_namreply(conn, NULL);
+     }
+ 	return 0;
+ }
+
+Modified: trunk/pvpgn/src/bnetd/message.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/message.cpp	2007-08-03 22:45:45 UTC (rev 287)
++++ trunk/pvpgn/src/bnetd/message.cpp	2007-08-05 17:56:45 UTC (rev 288)
+@@ -344,7 +344,9 @@
+ 	    eventlog(eventlog_level_error,__FUNCTION__,&quot;got NULL connection for %s&quot;,message_type_get_str(type));
+ 	    return -1;
+ 	}
+-	if (me!=dst)
++	if (me==dst)
++            return -1;
++	else
+ 	{
+ 	    char const * tname;
+ 
+@@ -721,7 +723,9 @@
+ 		eventlog(eventlog_level_error,__FUNCTION__,&quot;got NULL connection for %s&quot;,message_type_get_str(type));
+ 		return -1;
+ 	    }
+-	    if (me!=dst)
++	    if (me==dst)
++                return -1;
++	    else
+ 	    {
+ 		char const * tname;
+ 
+@@ -737,7 +741,9 @@
+ 		eventlog(eventlog_level_error,__FUNCTION__,&quot;got NULL connection for %s&quot;,message_type_get_str(type));
+ 		return -1;
+ 	    }
+-	    if (me!=dst)
++	    if (me==dst)
++                return -1;
++	    else
+ 	    {
+ 		char const * tname;
+ 
+@@ -987,7 +993,9 @@
+         bn_int_set(&amp;packet-&gt;u.server_message.type,SERVER_MESSAGE_TYPE_JOIN);
+ 	bn_int_set(&amp;packet-&gt;u.server_message.flags,conn_get_flags(me)|dstflags);
+ 	bn_int_set(&amp;packet-&gt;u.server_message.latency,conn_get_latency(me));
+-	if (me!=dst)
++	if (me==dst)
++            return -1;
++	else
+ 	{
+ 	    char const * tname;
+ 	    char const * playerinfo;
+@@ -1013,7 +1021,9 @@
+         bn_int_set(&amp;packet-&gt;u.server_message.type,SERVER_MESSAGE_TYPE_PART);
+ 	bn_int_set(&amp;packet-&gt;u.server_message.flags,conn_get_flags(me)|dstflags);
+ 	bn_int_set(&amp;packet-&gt;u.server_message.latency,conn_get_latency(me));
+-	if (me!=dst)
++	if (me==dst)
++            return -1;
++	else
+ 	{
+ 	    char const * tname;
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000230.html">[pvpgn-dev] [Bug #11700] oversized login with #uid as username
+</A></li>
+	<LI>Next message: <A HREF="000232.html">[pvpgn-dev] r289 - trunk/pvpgn/src/bnetd
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#231">[ date ]</a>
+              <a href="thread.html#231">[ thread ]</a>
+              <a href="subject.html#231">[ subject ]</a>
+              <a href="author.html#231">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

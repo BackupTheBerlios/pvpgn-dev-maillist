@@ -1,0 +1,144 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r296 - trunk/pvpgn/src/bnetd
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-August/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r296%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200708062240.l76MeHHC025233%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000245.html">
+   <LINK REL="Next"  HREF="000247.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r296 - trunk/pvpgn/src/bnetd</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r296%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200708062240.l76MeHHC025233%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r296 - trunk/pvpgn/src/bnetd">svn at svn.berlios.de
+       </A><BR>
+    <I>Tue Aug  7 00:40:17 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000245.html">[pvpgn-dev] [Bug #10741] Tournaments
+</A></li>
+        <LI>Next message: <A HREF="000247.html">[pvpgn-dev] [Patch #2127] one SUPER hendle file for all IRC based	protocols
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#246">[ date ]</a>
+              <a href="thread.html#246">[ thread ]</a>
+              <a href="subject.html#246">[ subject ]</a>
+              <a href="author.html#246">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pandaemonium
+Date: 2007-08-07 00:40:15 +0200 (Tue, 07 Aug 2007)
+New Revision: 296
+
+Modified:
+   trunk/pvpgn/src/bnetd/channel.cpp
+   trunk/pvpgn/src/bnetd/irc.cpp
+   trunk/pvpgn/src/bnetd/message.cpp
+   trunk/pvpgn/src/bnetd/message.h
+Log:
+a small step for a man - but giant bugfix for the mankind...
+
+Modified: trunk/pvpgn/src/bnetd/channel.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/channel.cpp	2007-08-06 21:22:22 UTC (rev 295)
++++ trunk/pvpgn/src/bnetd/channel.cpp	2007-08-06 22:40:15 UTC (rev 296)
+@@ -488,6 +488,9 @@
+     else
+ 	message_send_text(connection,message_type_join,connection,NULL);
+ 
++    if (conn_is_irc_variant(connection))
++        message_send_text(connection,message_type_namreply,connection,NULL);
++
+     /* please don't remove this notice */
+     if (channel-&gt;log)
+ 	message_send_text(connection,message_type_info,connection,prefs_get_log_notice());
+
+Modified: trunk/pvpgn/src/bnetd/irc.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/irc.cpp	2007-08-06 21:22:22 UTC (rev 295)
++++ trunk/pvpgn/src/bnetd/irc.cpp	2007-08-06 22:40:15 UTC (rev 296)
+@@ -686,8 +686,6 @@
+         else {
+             msg = irc_message_preformat(&amp;from,&quot;JOIN&quot;,&quot;\r&quot;,irc_convert_channel(channel));
+         }
+-        if (me==dst)
+-	    irc_send_rpl_namreply(dst,channel);
+     	conn_unget_chatname(me,from.nick);
+     }
+     	break;
+@@ -800,7 +798,14 @@
+ 	    }
+ 	}
+ 	break;
++    case message_type_namreply:
++        t_channel * channel;
+ 
++        channel = conn_get_channel(me);
++
++        irc_send_rpl_namreply(dst,channel);
++	break;
++
+    	/**
+    	*  Westwood Online Extensions
+    	*/
+
+Modified: trunk/pvpgn/src/bnetd/message.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/message.cpp	2007-08-06 21:22:22 UTC (rev 295)
++++ trunk/pvpgn/src/bnetd/message.cpp	2007-08-06 22:40:15 UTC (rev 296)
+@@ -99,6 +99,8 @@
+         return &quot;notice&quot;;
+     case message_type_nick:
+          return &quot;nick&quot;;
++    case message_type_namreply:
++         return &quot;namreply&quot;;
+     case message_type_mode:
+          return &quot;mode&quot;;
+     case message_type_host:
+
+Modified: trunk/pvpgn/src/bnetd/message.h
+===================================================================
+--- trunk/pvpgn/src/bnetd/message.h	2007-08-06 21:22:22 UTC (rev 295)
++++ trunk/pvpgn/src/bnetd/message.h	2007-08-06 22:40:15 UTC (rev 296)
+@@ -64,6 +64,7 @@
+     */
+     message_type_nick,
+     message_type_notice,
++    message_type_namreply,
+ 
+     /**
+     *  Westwood Online Extensions
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000245.html">[pvpgn-dev] [Bug #10741] Tournaments
+</A></li>
+	<LI>Next message: <A HREF="000247.html">[pvpgn-dev] [Patch #2127] one SUPER hendle file for all IRC based	protocols
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#246">[ date ]</a>
+              <a href="thread.html#246">[ thread ]</a>
+              <a href="subject.html#246">[ subject ]</a>
+              <a href="author.html#246">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

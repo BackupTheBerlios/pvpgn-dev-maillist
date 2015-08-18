@@ -1,0 +1,147 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r556 - trunk/pvpgn/src/bnetd
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2009-March/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r556%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200903162303.n2GN3CgP022067%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001083.html">
+   <LINK REL="Next"  HREF="001085.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r556 - trunk/pvpgn/src/bnetd</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r556%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200903162303.n2GN3CgP022067%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r556 - trunk/pvpgn/src/bnetd">svn at svn.berlios.de
+       </A><BR>
+    <I>Tue Mar 17 00:03:12 CET 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001083.html">[pvpgn-dev] [Bug #15373] [svn r554] PvPGN became very unstable (?)
+</A></li>
+        <LI>Next message: <A HREF="001085.html">[pvpgn-dev] [Bug #15373] [svn r554] PvPGN became very unstable (?)
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1084">[ date ]</a>
+              <a href="thread.html#1084">[ thread ]</a>
+              <a href="subject.html#1084">[ subject ]</a>
+              <a href="author.html#1084">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pelish
+Date: 2009-03-17 00:03:12 +0100 (Tue, 17 Mar 2009)
+New Revision: 556
+
+Modified:
+   trunk/pvpgn/src/bnetd/handle_wol.cpp
+Log:
+finally fixed all potential bugs in WOL gamelist callback function
+
+Modified: trunk/pvpgn/src/bnetd/handle_wol.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/handle_wol.cpp	2009-03-15 21:52:16 UTC (rev 555)
++++ trunk/pvpgn/src/bnetd/handle_wol.cpp	2009-03-16 23:03:12 UTC (rev 556)
+@@ -464,7 +464,7 @@
+     gamelist_data* data = static_cast&lt;gamelist_data*&gt;(vdata);
+     t_channel *  gamechannel = game_get_channel(game);
+     const char * gamename = irc_convert_channel(gamechannel, data-&gt;conn);
+-    char * topic;
++    char * topic = NULL;
+   
+   	std::memset(temp,0,sizeof(temp));
+ 	std::memset(temp_a,0,sizeof(temp_a));
+@@ -484,22 +484,37 @@
+         ERROR0(&quot;game have no channel&quot;);
+         return 0;
+     }
+-    
++    if (!gamename) {
++        ERROR0(&quot;game have no name&quot;);
++        return 0;
++    }
++
+     topic = channel_get_topic(channel_get_name(gamechannel));
++
++    if (topic) {
++        if (std::strlen(gamename)+1+20+1+1+strlen(topic)&gt;MAX_IRC_MESSAGE_LEN) {
++            WARN0(&quot;LISTREPLY length exceeded&quot;);
++            return 0;
++        }
++    }
++    else {
++        if (std::strlen(gamename)+1+20+1+1&gt;MAX_IRC_MESSAGE_LEN) {
++            WARN0(&quot;LISTREPLY length exceeded&quot;);
++            return 0;
++        }
++    }
+     
+-    if (std::strlen(gamename)+1+20+1+1+strlen(topic)&lt;MAX_IRC_MESSAGE_LEN) {
+-      /***
+-       * WOLv1:
+-       * : 326 u #nick's_game 1 0 2 0 0 1122334455 128::
+-       * WOLv2:
+-       * : 326 u #nick's_game 1 0 21 0 16777216 1122334455 128::g040
+-       * : 326 u #nick's_game 1 0 41 1 2048 1122334455 128::g12P25,2097731398,0,0,0,WATERF~3.YRM // anon_game
+-       */
+-      /**
+-	   *  The layout of the game list entry is something like this:
+-       *
+-	   *   #game_channel_name users unknown gameType gameIsTournment gameExtension longIP LOCK::topic
+-	   */
++    /***
++     * WOLv1:
++     * : 326 u #nick's_game 1 0 2 0 0 1122334455 128::
++     * WOLv2:
++     * : 326 u #nick's_game 1 0 21 0 16777216 1122334455 128::g040
++     * : 326 u #nick's_game 1 0 41 1 2048 1122334455 128::g12P25,2097731398,0,0,0,WATERF~3.YRM // anon_game
++     */
++    /**
++     *  The layout of the game list entry is something like this:
++     *  #game_channel_name users unknown gameType gameIsTournment gameExtension longIP LOCK::topic
++     */
+ 
+        std::strcat(temp,gamename);
+        std::strcat(temp,&quot; &quot;);
+@@ -539,10 +554,6 @@
+ //     channel_get_length(channel),channel_wol_get_game_type(channel),channel_wol_get_game_tournament(channel),
+ //     channel_wol_get_game_extension(channel),channel_wol_get_game_ownerip(channel));
+ 
+-    }
+-    else {
+-       WARN0(&quot;LISTREPLY length exceeded&quot;);
+-    }
+     data-&gt;counter++;
+     irc_send(data-&gt;conn,RPL_GAME_CHANNEL,temp);
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001083.html">[pvpgn-dev] [Bug #15373] [svn r554] PvPGN became very unstable (?)
+</A></li>
+	<LI>Next message: <A HREF="001085.html">[pvpgn-dev] [Bug #15373] [svn r554] PvPGN became very unstable (?)
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1084">[ date ]</a>
+              <a href="thread.html#1084">[ thread ]</a>
+              <a href="subject.html#1084">[ subject ]</a>
+              <a href="author.html#1084">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

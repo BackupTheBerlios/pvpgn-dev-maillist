@@ -1,0 +1,88 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] pvpgn/src/common irc_protocol.h,1.4,1.5
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-February/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20pvpgn/src/common%20irc_protocol.h%2C1.4%2C1.5&In-Reply-To=%3C20070220220031.33CE2D87F6%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000043.html">
+   <LINK REL="Next"  HREF="000046.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] pvpgn/src/common irc_protocol.h,1.4,1.5</H1>
+    <B>d1zzy</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20pvpgn/src/common%20irc_protocol.h%2C1.4%2C1.5&In-Reply-To=%3C20070220220031.33CE2D87F6%40mail.berlios.de%3E"
+       TITLE="[pvpgn-dev] pvpgn/src/common irc_protocol.h,1.4,1.5">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Tue Feb 20 23:00:31 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000043.html">[pvpgn-dev] pvpgn/src/bnetd irc.c,1.45,1.46
+</A></li>
+        <LI>Next message: <A HREF="000046.html">[pvpgn-dev] r259 - trunk/pvpgn
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#44">[ date ]</a>
+              <a href="thread.html#44">[ thread ]</a>
+              <a href="subject.html#44">[ subject ]</a>
+              <a href="author.html#44">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/pvpgn/pvpgn/src/common
+In directory sheep:/tmp/cvs-serv4301/src/common
+
+Modified Files:
+	irc_protocol.h 
+Log Message:
+Fixed bad login issue with WOL (patch #1886 from pelish).
+
+
+Index: irc_protocol.h
+===================================================================
+RCS file: /cvsroot/pvpgn/pvpgn/src/common/irc_protocol.h,v
+retrieving revision 1.4
+retrieving revision 1.5
+diff -u -d -r1.4 -r1.5
+--- irc_protocol.h	14 Jan 2007 09:51:03 -0000	1.4
++++ irc_protocol.h	20 Feb 2007 21:58:53 -0000	1.5
+@@ -337,6 +337,8 @@
+ 
+ #define RPL_BATTLECLAN	     358
+ 
++#define RPL_BAD_LOGIN        378
++
+ #define RPL_FIND_USER_EX     398
+ 
+ #define RPL_UPDATE_RECORD    602
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000043.html">[pvpgn-dev] pvpgn/src/bnetd irc.c,1.45,1.46
+</A></li>
+	<LI>Next message: <A HREF="000046.html">[pvpgn-dev] r259 - trunk/pvpgn
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#44">[ date ]</a>
+              <a href="thread.html#44">[ thread ]</a>
+              <a href="subject.html#44">[ subject ]</a>
+              <a href="author.html#44">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

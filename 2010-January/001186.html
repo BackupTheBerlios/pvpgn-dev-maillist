@@ -1,0 +1,517 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r566 - trunk
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2010-January/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r566%20-%20trunk&In-Reply-To=%3C201001232230.o0NMUNOq007918%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001185.html">
+   <LINK REL="Next"  HREF="001187.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r566 - trunk</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r566%20-%20trunk&In-Reply-To=%3C201001232230.o0NMUNOq007918%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r566 - trunk">svn at svn.berlios.de
+       </A><BR>
+    <I>Sat Jan 23 23:30:23 CET 2010</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001185.html">[pvpgn-dev] r565 - in trunk: . admin images includes
+</A></li>
+        <LI>Next message: <A HREF="001187.html">[pvpgn-dev] r567 - in trunk: . web web/site web/site/admin	web/site/images web/site/includes
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1186">[ date ]</a>
+              <a href="thread.html#1186">[ thread ]</a>
+              <a href="subject.html#1186">[ subject ]</a>
+              <a href="author.html#1186">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: d1zzy
+Date: 2010-01-23 23:30:23 +0100 (Sat, 23 Jan 2010)
+New Revision: 566
+
+Removed:
+   trunk/admin/
+   trunk/files.php
+   trunk/images/
+   trunk/includes/
+   trunk/index.php
+   trunk/pvpgn.css
+Log:
+Revert the web import (svn!!!)
+
+
+Deleted: trunk/files.php
+===================================================================
+--- trunk/files.php	2010-01-23 22:17:50 UTC (rev 565)
++++ trunk/files.php	2010-01-23 22:30:23 UTC (rev 566)
+@@ -1,44 +0,0 @@
+-&lt;?php
+-if (!isset($filesphp)) {
+-	die('Hacking attempt!');
+-}
+-?&gt;
+-&lt;table width=&quot;95%&quot;&gt;
+-&lt;tr&gt;
+-&lt;td colspan=&quot;4&quot; class=&quot;text13&quot;&gt;
+-&lt;?php
+-if ($filesphp['type'] == 'd2pack109') {
+-    echo &quot;&lt;p&gt;&lt;strong&gt;Diablo II 1.09d support&lt;/strong&gt;&lt;/p&gt;&quot;;
+-} elseif ($filesphp['type'] == 'development') {
+-    echo &quot;&lt;p&gt;&lt;strong&gt;Latest development release: PvPGN &quot;.$filesphp['version'].&quot;&lt;/strong&gt;&lt;/p&gt;&quot;;
+-} else {
+-    echo &quot;&lt;p&gt;&lt;strong&gt;Latest stable release: PvPGN &quot;.$filesphp['version'].&quot;&lt;/strong&gt;&nbsp; [&lt;a href=\&quot;index.php?page=changelog\&quot;&gt;Changelog&lt;/a&gt;]&lt;/p&gt;&quot;;
+-}
+-?&gt;
+-&lt;/td&gt;
+-&lt;/tr&gt;
+-&lt;?php
+-$query = mysql_query(&quot;SELECT filename,description,size FROM downloads_&quot;.$filesphp['type'].&quot; ORDER BY `order` ASC;&quot;,$dbh);
+-if ($row = mysql_fetch_row($query)) {
+-	do {
+-		echo &quot;&lt;tr&gt;\n&quot;;
+-		echo &quot;&lt;td style=\&quot;width:4%\&quot;&gt;\n&quot;;
+-		echo &quot;&nbsp;\n&quot;;
+-		echo &quot;&lt;/td&gt;&lt;td style=\&quot;width:40%\&quot;&gt;\n&quot;;
+-		echo &quot;&lt;table border=\&quot;0\&quot; cellspacing=\&quot;0\&quot; cellpadding=\&quot;0\&quot;&gt;\n&quot;;
+-		echo &quot;&lt;tr&gt;&lt;td class=\&quot;text12\&quot;&gt;\n&quot;;
+-		echo &quot;&lt;a href=\&quot;<A HREF="http://download.berlios.de/pvpgn/">http://download.berlios.de/pvpgn/</A>&quot;.$row[0].&quot;\&quot; class=\&quot;link\&quot;&gt;&quot;.$row[0].&quot;&lt;/a&gt;\n&quot;;
+-		echo &quot;&lt;/td&gt;&lt;/tr&gt;\n&quot;;
+-		echo &quot;&lt;/table&gt;\n&quot;;
+-		echo &quot;&lt;/td&gt;&lt;td class=\&quot;text12\&quot; style=\&quot;width:40%\&quot;&gt;\n&quot;;
+-		echo $row[1].&quot;\n&quot;;
+-		echo &quot;&lt;/td&gt;&lt;td class=\&quot;text12\&quot; style=\&quot;width:16%\&quot;&gt;\n&quot;;
+-		echo formatsize($row[2]).&quot;\n&quot;;
+-		echo &quot;&lt;/td&gt;\n&quot;;
+-		echo &quot;&lt;/tr&gt;\n&quot;;
+-	} while ($row = mysql_fetch_row($query));
+-} else {
+-	echo &quot;&lt;td style=\&quot;width:4%\&quot;&gt;&amp;nbsp&lt;/td&gt;&lt;td colspan=\&quot;3\&quot; class=\&quot;text13\&quot;&gt;We recommend using the latest development release at this time.&lt;/td&gt;&lt;/tr&gt;\n&quot;;
+-}
+-?&gt;
+-&lt;/table&gt;
+
+Deleted: trunk/index.php
+===================================================================
+--- trunk/index.php	2010-01-23 22:17:50 UTC (rev 565)
++++ trunk/index.php	2010-01-23 22:30:23 UTC (rev 566)
+@@ -1,293 +0,0 @@
+-&lt;?php
+-require_once('config.php');
+-$dateformat = 'l F j, Y G:i:s';
+-
+-function microtime_float()
+-{
+-	list($usec, $sec) = explode(&quot; &quot;, microtime());
+-	return ((float)$usec + (float)$sec);
+-	srand($usec);
+-}
+-$time_start = microtime_float();
+-
+-$dbh = @mysql_connect($dbhost,$dbuser,$dbpass);
+-if (!$dbh) {
+-    readfile('includes/sqlerror.htm');
+-    echo &quot;&lt;div class=\&quot;footer\&quot;&gt;\n&quot;;
+-    $time = microtime_float() - $time_start;
+-    echo &quot;  Page generation time: &quot;.sprintf(&quot;%2.2f&quot;,$time).&quot; seconds\n&quot;;
+-    echo &quot;&lt;/div&gt;\n&quot;;
+-    echo &quot;&lt;/body&gt;&quot;;
+-    echo &quot;&lt;/html&gt;&quot;;
+-    die();
+-}
+-mysql_select_db($dbname,$dbh);
+-
+-if (!isset($_GET['page'])) {
+-	$_GET['page'] = 'index';
+-}
+-
+-$query = mysql_query(&quot;SELECT title FROM titles WHERE `page` = '&quot;.$_GET['page'].&quot;';&quot;,$dbh);
+-if ($row = mysql_fetch_row($query)) {
+-	$title = $row[0];
+-	mysql_free_result($query);
+-	unset($query);
+-	unset($row);
+-} else {
+-	die('Hacking attempt!');
+-}
+-?&gt;
+-&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.01//EN&quot; &quot;<A HREF="http://www.w3.org/TR/html4/strict.dtd">http://www.w3.org/TR/html4/strict.dtd</A>&quot;&gt;
+-&lt;html&gt;
+-&lt;head&gt;
+-  &lt;title&gt;&lt;?php echo $title; ?&gt;&lt;/title&gt;
+-&lt;meta http-equiv=&quot;Content-Type&quot; content=&quot;text/html; charset=iso-8859-1&quot;&gt;
+-&lt;link href=&quot;pvpgn.css&quot; rel=&quot;stylesheet&quot; type=&quot;text/css&quot;&gt;
+-&lt;/head&gt;
+-&lt;body&gt;
+-&lt;table width=&quot;100%&quot; border=&quot;0&quot; cellspacing=&quot;0&quot; cellpadding=&quot;0&quot;&gt;
+-  &lt;tr&gt; 
+-    &lt;td&gt;&lt;table width=&quot;100%&quot; border=&quot;0&quot; cellspacing=&quot;0&quot; cellpadding=&quot;0&quot;&gt;
+-        &lt;tr&gt; 
+-          &lt;td&gt;&lt;table width=&quot;100%&quot; border=&quot;0&quot; cellspacing=&quot;0&quot; cellpadding=&quot;0&quot;&gt;
+-              &lt;tr&gt;
+-                &lt;td class=&quot;topbar&quot;&gt;
+-					&lt;div&gt; 
+-                    &lt;table width=&quot;100%&quot; border=&quot;0&quot; cellspacing=&quot;0&quot; cellpadding=&quot;0&quot;&gt;
+-                      &lt;tr&gt;
+-							&lt;td style=&quot;height:50px&quot;&gt; &lt;div&gt;
+-                            &lt;table width=&quot;100%&quot; border=&quot;0&quot; cellspacing=&quot;1&quot;&gt;
+-                              &lt;tr&gt;
+-								&lt;?php
+-								$linkwidth = mysql_fetch_row($temp = mysql_query(&quot;SELECT (100 / COUNT(*))+0 AS linkwidth FROM linklist&quot;));
+-								mysql_free_result($temp);
+-								unset($temp);
+-								$query = mysql_query(&quot;SELECT url,target,name FROM linklist ORDER BY `order` ASC&quot;);
+-								while ($row = mysql_fetch_row($query)) {
+-								// target=\&quot;&quot;.$row[1].&quot;\&quot;
+-	                                echo &quot;								&lt;td style=\&quot;width:&quot;. round($linkwidth[0]) .&quot;%\&quot;&gt;&lt;div style=\&quot;text-align:center\&quot;&gt;&lt;a href=\&quot;&quot;.$row[0].&quot;\&quot; class=\&quot;link\&quot;&gt;&quot;.$row[2].&quot;&lt;/a&gt;&lt;/div&gt;&lt;/td&gt;\n&quot;;
+-								}
+-								mysql_free_result($query);
+-								unset($query);
+-								unset($row);
+-								unset($linkwidth);
+-								?&gt;
+-                              &lt;/tr&gt;
+-                            &lt;/table&gt;
+-                          &lt;/div&gt;&lt;/td&gt;
+-                      &lt;/tr&gt;
+-                    &lt;/table&gt;
+-                  &lt;/div&gt;&lt;/td&gt;
+-              &lt;/tr&gt;
+-            &lt;/table&gt;&lt;/td&gt;
+-        &lt;/tr&gt;
+-        &lt;tr&gt; 
+-          &lt;td style=&quot;vertical-align:top&quot;&gt; &lt;div style=&quot;text-align:center&quot;&gt; &lt;/div&gt;
+-            &lt;div style=&quot;text-align:center&quot;&gt; 
+-              &lt;table width=&quot;100%&quot; border=&quot;0&quot; cellspacing=&quot;0&quot; cellpadding=&quot;0&quot;&gt;
+-                &lt;tr&gt; 
+-                  &lt;td style=&quot;vertical-align:top; width:1%&quot;&gt;
+-                  &lt;div style=&quot;text-align:left&quot;&gt;
+-                  &lt;?php
+-				  // Display the random image on the left
+-                  echo &quot;                    &lt;img src=\&quot;images/left&quot; . sprintf(&quot;%02d&quot;,rand(1,4)) . &quot;.jpg\&quot; alt=\&quot;\&quot; /&gt;\n&quot;;
+-                  ?&gt;
+-                  &lt;/div&gt;
+-				  &lt;/td&gt;
+-				  &lt;td valign=&quot;top&quot; align=&quot;left&quot;&gt;
+-				  &lt;?php
+-				  if ($_GET['page'] == 'files') {
+-				// This is how we process the files page
+-				// We start by getting the latest version numbers from the &quot;config&quot; table
+-				// Then we'll save these version numbers into variables and free the result
+-				  $row = mysql_fetch_row($temp = mysql_query(&quot;SELECT value FROM config WHERE `key` = 'latest_stable'&quot;,$dbh));
+-				  $latest_stable = $row[0];
+-				  mysql_free_result($temp);
+-				  $row = mysql_fetch_row($temp = mysql_query(&quot;SELECT value FROM config WHERE `key` = 'latest_development'&quot;,$dbh));
+-				  $latest_development = $row[0];
+-				  mysql_free_result($temp);
+-				  $row = mysql_fetch_row($temp = mysql_query(&quot;SELECT value FROM config WHERE `key` = 'latest_d2pack109'&quot;,$dbh));
+-				  $latest_d2pack109 = $row[0];
+-				  mysql_free_result($temp);
+-				  unset($temp);
+-				  unset($row);
+-
+-				// A function to format the size field.  Taken from PHP-Nuke
+-				  function formatsize($size) {
+-    				$mb = 1024*1024;
+-    				if ( $size &gt; $mb ) {
+-    				    $mysize = sprintf (&quot;%01.2f&quot;,$size/$mb) . &quot; MB&quot;;
+-    				} elseif ( $size &gt;= 1024 ) {
+-    				    $mysize = sprintf (&quot;%01.2f&quot;,$size/1024) . &quot; KB&quot;;
+-    				} else {
+-    				    $mysize = $size . &quot; bytes&quot;;
+-    				}
+-						return $mysize;
+-				  }
+-
+-				// Check to see if there is a development release currently
+-				  if ($latest_development &lt;&gt; 0) {
+-					// Pass some instructions to files.php and run it
+-				  	$filesphp = array(
+-									'type' =&gt; 'development',
+-									'version' =&gt; $latest_development);
+-					include('files.php');
+-				  }
+-				// We will assume that there will always be a stable release
+-				  $filesphp = array(
+-								'type' =&gt; 'stable',
+-								'version' =&gt; $latest_stable);
+-				  include('files.php');
+-				// And finally, d2pack109
+-				  $filesphp = array(
+-								'type' =&gt; 'd2pack109',
+-								'version' =&gt; $latest_d2pack109);
+-				  include('files.php');
+-
+-				// Show downloads for support files.  There is no reason to keep these in a database
+-				// cos they rarely change.
+-				  ?&gt;
+-					&lt;table width=&quot;95%&quot;&gt;
+-					  &lt;tr&gt;
+-						&lt;td colspan=&quot;4&quot; class=&quot;text13&quot;&gt;
+-						  &lt;p&gt;&lt;strong&gt;Support files&lt;/strong&gt;&lt;/p&gt;
+-						&lt;/td&gt;
+-					  &lt;/tr&gt;
+-					  &lt;tr&gt;
+-						&lt;td style=&quot;width:4%&quot;&gt;&nbsp;						  
+-						&lt;/td&gt;
+-						&lt;td style=&quot;width:40%&quot;&gt;
+-						  &lt;table border=&quot;0&quot; cellspacing=&quot;0&quot; cellpadding=&quot;0&quot;&gt;
+-							&lt;tr&gt;
+-							  &lt;td&gt;
+-								&lt;a href=&quot;<A HREF="http://download.berlios.de/pvpgn/pvpgn-support-1.2.tar.gz">http://download.berlios.de/pvpgn/pvpgn-support-1.2.tar.gz</A>&quot; class=&quot;link&quot;&gt;pvpgn-support-1.2.tar.gz&lt;/a&gt;
+-							  &lt;/td&gt;
+-							&lt;/tr&gt;
+-						  &lt;/table&gt;
+-						&lt;/td&gt;
+-						&lt;td class=&quot;text12&quot; style=&quot;width:40%&quot;&gt;
+-						  Support files
+-						&lt;/td&gt;
+-						&lt;td class=&quot;text12&quot; style=&quot;width:16%&quot;&gt;
+-						  123.09 KB
+-						&lt;/td&gt;
+-					  &lt;/tr&gt;
+-					  &lt;tr&gt;
+-						&lt;td style=&quot;width:4%&quot;&gt;&nbsp;
+-						  
+-						&lt;/td&gt;
+-						&lt;td style=&quot;width:40%&quot;&gt;
+-						  &lt;table border=&quot;0&quot; cellspacing=&quot;0&quot; cellpadding=&quot;0&quot;&gt;
+-							&lt;tr&gt;
+-							  &lt;td&gt;
+-								&lt;a href=&quot;<A HREF="http://download.berlios.de/pvpgn/pvpgn-support-1.2.zip">http://download.berlios.de/pvpgn/pvpgn-support-1.2.zip</A>&quot; class=&quot;link&quot;&gt;pvpgn-support-1.2.zip&lt;/a&gt;
+-							  &lt;/td&gt;
+-							&lt;/tr&gt;
+-						  &lt;/table&gt;
+-						&lt;/td&gt;
+-						&lt;td class=&quot;text12&quot; style=&quot;width:40%&quot;&gt;
+-						  Support files
+-						&lt;/td&gt;
+-						&lt;td class=&quot;text12&quot; style=&quot;width:16%&quot;&gt;
+-						   125.11 KB
+-						&lt;/td&gt;
+-					  &lt;/tr&gt;
+-					&lt;/table&gt;&lt;br /&gt;
+-					  &lt;table width=&quot;100%&quot;&gt;
+-						&lt;tr&gt;
+-						  &lt;td style=&quot;text-align:center&quot;&gt;
+-							&lt;a href=&quot;<A HREF="http://developer.berlios.de/project/showfiles.php?group_id=2291">http://developer.berlios.de/project/showfiles.php?group_id=2291</A>&quot; class=&quot;link2&quot;&gt;More files...&lt;/a&gt;
+-						  &lt;/td&gt;
+-						&lt;/tr&gt;
+-					  &lt;/table&gt;
+-					  &lt;br /&gt;
+-				  &lt;?php
+-				  // End files page
+-				  } else if ($_GET['page'] == 'changelog') {
+-				    echo &quot;&lt;p class=\&quot;text13\&quot;&gt;\n&quot;;
+-                    $changelog = file('includes/version-history.txt');
+-                    $changelog[0] = 'skipme';
+-                    $changelog[1] = 'skipme';
+-                    foreach ($changelog as $line) {
+-                        $line = trim($line);
+-                        if ($line == 'skipme') {
+-                            continue;
+-                        } elseif (substr($line,0,1) == '[') {
+-                            $pos = strpos($line,']');
+-                            echo &quot;&lt;span style=\&quot;color:#FF0000\&quot;&gt;&quot;.substr($line,0,$pos+1).&quot;&lt;/span&gt;&quot;;
+-                            echo substr($line,$pos+2).&quot;&lt;br&gt;\n&quot;;
+-                        } elseif (substr($line,0,13) == 'Changelog for' || substr($line,0,13) == 'ChangeLog for') {
+-                            echo &quot;&lt;strong style=\&quot;color:#FFB019\&quot;&gt;$line&lt;/strong&gt;\n&quot;;
+-                        } elseif (ereg('^========================+', $line)) {
+-                            echo &quot;&lt;span style=\&quot;color:#FFB019\&quot;&gt;$line&lt;/span&gt;&lt;br&gt;\n&quot;;
+-                        } else {
+-                            echo $line . &quot;&lt;br&gt;\n&quot;;
+-                        }
+-                    }
+-				    echo &quot;&lt;/p&gt;\n&quot;;
+-				  } else if ($_GET['page'] == 'about') {
+-					// &quot;What is PvPGN?&quot; page
+-				  	readfile('includes/about.htm');
+-				  } else if ($_GET['page'] == 'help') {
+-					// &quot;Help&quot; page
+-					echo &quot;&lt;div&gt;&nbsp;&lt;/div&gt;\n&quot;;
+-					readfile('includes/help.htm');
+-				  } else {
+-				 // To show the news page, we just include viewnews.php
+-				 	echo &quot;&lt;div&gt;&nbsp;&lt;/div&gt;&quot;;
+-					include('includes/viewnews.php');
+-				  }
+-				  ?&gt;
+-				  &lt;/td&gt;
+-                &lt;/tr&gt;
+-              &lt;/table&gt;
+-            &lt;/div&gt;&lt;/td&gt;
+-        &lt;/tr&gt;
+-        &lt;tr&gt; 
+-          &lt;td class=&quot;botbar&quot;&gt;
+-			  &lt;table style=&quot;width:100%&quot; cellspacing=&quot;0&quot; cellpadding=&quot;0&quot;&gt;
+-			  	&lt;tr&gt;
+-			  	&lt;td style=&quot;width:99%&quot;&gt;
+-			  	&nbsp;
+-			  	&lt;/td&gt;
+-				  &lt;td&gt;
+-					  &lt;table cellspacing=&quot;0&quot; cellpadding=&quot;0&quot;&gt;
+-						&lt;tr&gt;
+-						  &lt;td class=&quot;hostedby&quot;&gt;
+-							Hosted
+-						  &lt;/td&gt;
+-						&lt;/tr&gt;
+-						&lt;tr&gt;
+-						  &lt;td class=&quot;hostedby&quot;&gt;
+-							by
+-						  &lt;/td&gt;
+-						&lt;/tr&gt;
+-					  &lt;/table&gt;
+-				  &lt;/td&gt;
+-				  &lt;td style=&quot;width:1%&quot;&gt;
+-					&lt;a href=&quot;<A HREF="http://developer.berlios.de/">http://developer.berlios.de/</A>&quot; class=&quot;popup&quot;&gt;
+-					  &lt;img src=&quot;<A HREF="http://developer.berlios.de/bslogo.php?group_id=2291&amp;amp;type=1">http://developer.berlios.de/bslogo.php?group_id=2291&amp;type=1</A>&quot; style=&quot;width:124px;height:32px;border:0&quot;alt=&quot;BerliOS&quot;&gt;
+-					&lt;/a&gt;
+-				  &lt;/td&gt;
+-				&lt;/tr&gt;
+-			  &lt;/table&gt;
+-		  &lt;/td&gt;
+-        &lt;/tr&gt;
+-      &lt;/table&gt;&lt;/td&gt;
+-  &lt;/tr&gt;
+-&lt;/table&gt;
+-&lt;div class=&quot;footer&quot;&gt;
+-&lt;?php
+-$footer = mysql_fetch_row($temp = mysql_query(&quot;SELECT value FROM config WHERE `key` = 'footer'&quot;));
+-echo &quot; &quot;.$footer[0].&quot;\n&quot;;
+-mysql_free_result($temp);
+-?&gt;
+-&lt;/div&gt;
+-&lt;div class=&quot;footer&quot;&gt;
+-&lt;?php
+-$time = microtime_float() - $time_start;
+-echo &quot;  Page generation time: &quot;.sprintf(&quot;%2.2f&quot;,$time).&quot; seconds\n&quot;;
+-?&gt;
+-&lt;/div&gt;
+-&lt;/body&gt;
+-&lt;/html&gt;
+
+Deleted: trunk/pvpgn.css
+===================================================================
+--- trunk/pvpgn.css	2010-01-23 22:17:50 UTC (rev 565)
++++ trunk/pvpgn.css	2010-01-23 22:30:23 UTC (rev 566)
+@@ -1,86 +0,0 @@
+-body {
+-	margin-left: 0px;
+-	margin-top: 0px;
+-	margin-right: 0px;
+-	margin-bottom: 0px;
+-	background-color: #000000;
+-	color: #FFFFFF;
+-}
+-a {
+-	color: #FFB019;
+-	text-decoration: underline;
+-}
+-a.link {
+-	display: block;
+-	text-decoration: none;
+-	font-family: Arial, Helvetica, sans-serif;
+-	font-weight: bold;
+-	font-size: 12px;
+-	color: #FFB019;
+-	BORDER: none;
+-}
+-a.link:hover {
+-	background-color: #333333;
+-}
+-a.link2 {
+-	font-weight: bold;
+-	font-family: Arial, Helvetica, sans-serif;
+-	font-size: 13px;
+-	color: #FFB019;
+-	text-decoration: none;
+-}
+-.text13 {
+-	font-family: Arial, Helvetica, sans-serif;
+-	font-size: 13px;
+-	color: #FFFFFF;
+-}
+-.text12 {
+-	font-family: Arial, Helvetica, sans-serif;
+-	font-size: 12px;
+-	color: #FFFFFF;
+-}
+-.text9 {
+-	font-family: Arial, Helvetica, sans-serif;
+-	font-size: 9px;
+-	color: #FFFFFF;
+-}
+-.helptitle {
+-	font-family: Arial, Helvetica, sans-serif;
+-	font-size: 18px;
+-	color: #FFB019;
+-}
+-.newstitle {
+-	font-family: Arial, Helvetica, sans-serif;
+-	font-size: 13px;
+-	color: #FFB019;
+-}
+-.newsarchive {
+-	text-align: center;
+-	font-family: Arial, Helvetica, sans-serif;
+-	font-size: 13px;
+-	color: #FFFFFF;
+-}
+-.hostedby {
+-	font-family: Arial, Helvetica, sans-serif;
+-	font-size: 9px;
+-	color: #FFFFFF;
+-	text-align: right;
+-}
+-.footer {
+-	font-size: 9px;
+-	color: #666666;
+-	font-family: Verdana, Arial, Helvetica, sans-serif;
+-	text-align: center;
+-	border: 0px;
+-}
+-td.topbar {
+-	height: 68px;
+-	vertical-align: bottom;
+-	background-image: url(images/topbar-bg.gif);
+-}
+-td.botbar {
+-	height: 63px;
+-	vertical-align: top;
+-	background-image: url(images/botbar-bg.gif);
+-	text-align: right;
+-}
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001185.html">[pvpgn-dev] r565 - in trunk: . admin images includes
+</A></li>
+	<LI>Next message: <A HREF="001187.html">[pvpgn-dev] r567 - in trunk: . web web/site web/site/admin	web/site/images web/site/includes
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1186">[ date ]</a>
+              <a href="thread.html#1186">[ thread ]</a>
+              <a href="subject.html#1186">[ subject ]</a>
+              <a href="author.html#1186">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

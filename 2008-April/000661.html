@@ -1,0 +1,86 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r444 - trunk/pvpgn/src/common
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2008-April/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r444%20-%20trunk/pvpgn/src/common&In-Reply-To=%3C200804031617.m33GH6wm012480%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000660.html">
+   <LINK REL="Next"  HREF="000662.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r444 - trunk/pvpgn/src/common</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r444%20-%20trunk/pvpgn/src/common&In-Reply-To=%3C200804031617.m33GH6wm012480%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r444 - trunk/pvpgn/src/common">svn at svn.berlios.de
+       </A><BR>
+    <I>Thu Apr  3 18:17:06 CEST 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000660.html">[pvpgn-dev] r443 - trunk/pvpgn/src/common
+</A></li>
+        <LI>Next message: <A HREF="000662.html">[pvpgn-dev] [Bug #10811] User with cg 6 able to send oversize	message.
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#661">[ date ]</a>
+              <a href="thread.html#661">[ thread ]</a>
+              <a href="subject.html#661">[ subject ]</a>
+              <a href="author.html#661">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pandaemonium
+Date: 2008-04-03 18:17:06 +0200 (Thu, 03 Apr 2008)
+New Revision: 444
+
+Modified:
+   trunk/pvpgn/src/common/bnethash.h
+Log:
+add missing changes to bnethash header file (for little endian sha1)
+
+Modified: trunk/pvpgn/src/common/bnethash.h
+===================================================================
+--- trunk/pvpgn/src/common/bnethash.h	2008-04-03 16:16:01 UTC (rev 443)
++++ trunk/pvpgn/src/common/bnethash.h	2008-04-03 16:17:06 UTC (rev 444)
+@@ -46,8 +46,10 @@
+ 
+ extern int bnet_hash(t_hash * hashout, unsigned int size, void const * data);
+ extern int sha1_hash(t_hash * hashout, unsigned int size, void const * data);
++extern int little_endian_sha1_hash(t_hash * hashout, unsigned int size, void const * data);
+ extern int hash_eq(t_hash const h1, t_hash const h2) ;
+ extern char const * hash_get_str(t_hash const hash);
++extern char const * little_endian_hash_get_str(t_hash const hash);
+ extern int hash_set_str(t_hash * hash, char const * str);
+ 
+ }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000660.html">[pvpgn-dev] r443 - trunk/pvpgn/src/common
+</A></li>
+	<LI>Next message: <A HREF="000662.html">[pvpgn-dev] [Bug #10811] User with cg 6 able to send oversize	message.
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#661">[ date ]</a>
+              <a href="thread.html#661">[ thread ]</a>
+              <a href="subject.html#661">[ subject ]</a>
+              <a href="author.html#661">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

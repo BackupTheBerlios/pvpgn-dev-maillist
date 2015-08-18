@@ -1,0 +1,128 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r291 - trunk/pvpgn/src/bnetd
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-August/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r291%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200708061619.l76GJeUg031159%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000233.html">
+   <LINK REL="Next"  HREF="000235.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r291 - trunk/pvpgn/src/bnetd</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r291%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200708061619.l76GJeUg031159%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r291 - trunk/pvpgn/src/bnetd">svn at svn.berlios.de
+       </A><BR>
+    <I>Mon Aug  6 18:19:40 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000233.html">[pvpgn-dev] r290 - trunk/pvpgn/src/bnetd
+</A></li>
+        <LI>Next message: <A HREF="000235.html">[pvpgn-dev] [Patch #2127] one SUPER hendle file for all IRC based	protocols
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#234">[ date ]</a>
+              <a href="thread.html#234">[ thread ]</a>
+              <a href="subject.html#234">[ subject ]</a>
+              <a href="author.html#234">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pandaemonium
+Date: 2007-08-06 18:19:40 +0200 (Mon, 06 Aug 2007)
+New Revision: 291
+
+Modified:
+   trunk/pvpgn/src/bnetd/irc.cpp
+Log:
+just a few more fixes and I'll revert all this back :-(
+
+Modified: trunk/pvpgn/src/bnetd/irc.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/irc.cpp	2007-08-06 15:50:05 UTC (rev 290)
++++ trunk/pvpgn/src/bnetd/irc.cpp	2007-08-06 16:19:40 UTC (rev 291)
+@@ -642,10 +642,14 @@
+ 		/* when we do it somewhere else, then we can also make sure to not get our logs spammed */
+ 		break;
+     case message_type_join:
++    {
++        t_channel * channel;
+     	from.nick = conn_get_chatname(me);
+     	from.user = ctag;
+     	from.host = addr_num_to_ip_str(conn_get_addr(me));
+ 
++        channel = conn_get_channel(me);
++
+ 	if((conn_get_wol(me) == 1) &amp;&amp; (conn_get_clienttag(me) != CLIENTTAG_WCHAT_UINT))
+ 	{
+             char temp[MAX_IRC_MESSAGE_LEN];
+@@ -664,14 +668,12 @@
+     	        clanid = clan_get_clanid(clan);
+ 
+             std::sprintf(temp,&quot;:%u,%u&quot;,clanid,conn_get_addr(me));
+-    	    msg = irc_message_preformat(&amp;from,&quot;JOIN&quot;,temp,irc_convert_channel(conn_get_channel(me)));
++    	    msg = irc_message_preformat(&amp;from,&quot;JOIN&quot;,temp,irc_convert_channel(channel));
+         }
+         else if (conn_get_clienttag(me) == CLIENTTAG_WCHAT_UINT) {
+             char temp[MAX_IRC_MESSAGE_LEN];
+-            t_channel * channel;
+     	    std::memset(temp,0,sizeof(temp));
+ 
+-            channel = conn_get_channel(me);
+             if (conn_wol_get_ingame(me) == 1) {
+                 std::sprintf(temp,&quot;2 %u %u 1 1 %u :%s&quot;, channel_get_length(channel), channel_wol_get_game_type(channel), channel_wol_get_game_tournament(channel), irc_convert_channel(channel));
+                 msg = irc_message_preformat(&amp;from,&quot;JOINGAME&quot;,temp,irc_convert_channel(channel));
+@@ -682,10 +684,11 @@
+ 	    }
+         }
+         else {
+-            msg = irc_message_preformat(&amp;from,&quot;JOIN&quot;,&quot;\r&quot;,irc_convert_channel(conn_get_channel(me)));
++            msg = irc_message_preformat(&amp;from,&quot;JOIN&quot;,&quot;\r&quot;,irc_convert_channel(channel));
+         }
+         irc_send_rpl_namreply(me,channel);
+     	conn_unget_chatname(me,from.nick);
++    }
+     	break;
+     case message_type_part:
+     	from.nick = conn_get_chatname(me);
+@@ -982,7 +985,7 @@
+             channel = (t_channel*)elem_get_data(curr);
+             irc_send_rpl_namreply_internal(c, channel);
+         }
+-	std::sprintf(temp, &quot;* :End of NAMES list&quot;, ircname);
++	std::sprintf(temp, &quot;* :End of NAMES list&quot;);
+     }
+ 
+     irc_send(c, RPL_ENDOFNAMES, temp);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000233.html">[pvpgn-dev] r290 - trunk/pvpgn/src/bnetd
+</A></li>
+	<LI>Next message: <A HREF="000235.html">[pvpgn-dev] [Patch #2127] one SUPER hendle file for all IRC based	protocols
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#234">[ date ]</a>
+              <a href="thread.html#234">[ thread ]</a>
+              <a href="subject.html#234">[ subject ]</a>
+              <a href="author.html#234">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

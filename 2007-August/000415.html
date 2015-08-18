@@ -1,0 +1,99 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r363 - trunk/pvpgn/src/bnetd
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-August/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r363%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200708261246.l7QCkJHJ007125%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000414.html">
+   <LINK REL="Next"  HREF="000416.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r363 - trunk/pvpgn/src/bnetd</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r363%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200708261246.l7QCkJHJ007125%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r363 - trunk/pvpgn/src/bnetd">svn at svn.berlios.de
+       </A><BR>
+    <I>Sun Aug 26 14:46:19 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000414.html">[pvpgn-dev] r362 - trunk/pvpgn/src/bnetd
+</A></li>
+        <LI>Next message: <A HREF="000416.html">[pvpgn-dev] r364 - trunk/pvpgn/src/bnetd
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#415">[ date ]</a>
+              <a href="thread.html#415">[ thread ]</a>
+              <a href="subject.html#415">[ subject ]</a>
+              <a href="author.html#415">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pandaemonium
+Date: 2007-08-26 14:46:19 +0200 (Sun, 26 Aug 2007)
+New Revision: 363
+
+Modified:
+   trunk/pvpgn/src/bnetd/sql_mysql.cpp
+Log:
+cleanup includes for WIN32
+
+Modified: trunk/pvpgn/src/bnetd/sql_mysql.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/sql_mysql.cpp	2007-08-26 12:45:40 UTC (rev 362)
++++ trunk/pvpgn/src/bnetd/sql_mysql.cpp	2007-08-26 12:46:19 UTC (rev 363)
+@@ -18,17 +18,18 @@
+ 
+ #ifdef WITH_SQL_MYSQL
+ #include &quot;common/setup_before.h&quot;
+-#ifdef WIN32
++#include &quot;sql_mysql.h&quot;
++
++#ifdef HAVE_WINDOWS_H
+ #include &lt;windows.h&gt;
+-#include &lt;mysql/mysql.h&gt;
+-#else
++#endif
+ #include &lt;mysql.h&gt;
+-#endif
+ #include &lt;cstdlib&gt;
++
+ #include &quot;common/eventlog.h&quot;
+ #include &quot;common/xalloc.h&quot;
+ #include &quot;storage_sql.h&quot;
+-#include &quot;sql_mysql.h&quot;
++
+ #include &quot;common/setup_after.h&quot;
+ 
+ namespace pvpgn
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000414.html">[pvpgn-dev] r362 - trunk/pvpgn/src/bnetd
+</A></li>
+	<LI>Next message: <A HREF="000416.html">[pvpgn-dev] r364 - trunk/pvpgn/src/bnetd
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#415">[ date ]</a>
+              <a href="thread.html#415">[ thread ]</a>
+              <a href="subject.html#415">[ subject ]</a>
+              <a href="author.html#415">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

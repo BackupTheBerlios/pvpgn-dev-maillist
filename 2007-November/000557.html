@@ -1,0 +1,101 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] [Bug #12172] Inaccurate gameinfo for w3
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-November/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BBug%20%2312172%5D%20Inaccurate%20gameinfo%20for%20w3&In-Reply-To=%3C200711122029.lACKTtkG009602%40unicorn.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000556.html">
+   <LINK REL="Next"  HREF="000558.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] [Bug #12172] Inaccurate gameinfo for w3</H1>
+    <B>admin at berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BBug%20%2312172%5D%20Inaccurate%20gameinfo%20for%20w3&In-Reply-To=%3C200711122029.lACKTtkG009602%40unicorn.berlios.de%3E"
+       TITLE="[pvpgn-dev] [Bug #12172] Inaccurate gameinfo for w3">admin at berlios.de
+       </A><BR>
+    <I>Mon Nov 12 21:29:55 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000556.html">[pvpgn-dev] [Bug #10745] p2p connection problem with Tiberian	Sun
+</A></li>
+        <LI>Next message: <A HREF="000558.html">[pvpgn-dev] [Bug #12173] Game with same name is merged (It didn't	get fixed)
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#557">[ date ]</a>
+              <a href="thread.html#557">[ thread ]</a>
+              <a href="subject.html#557">[ subject ]</a>
+              <a href="author.html#557">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Bug #12172, was updated on 2007-Oct-15 09:47
+Here is a current snapshot of the bug.
+
+Project: Player vs Player Gaming Network
+Category: Warcraft Series
+Status: Open
+Resolution: None
+Bug Group: bnetd
+Priority: 5
+Submitted by: megablue
+Assigned to : d1zzy
+Summary: Inaccurate gameinfo for w3
+
+Details: 1. mapname is incomplete. /gameinfo shows partial mapname only. Maybe something wrong game_set_mapname().
+
+2. Creator Name isn't validated, manipulation of the packet is possible. 
+Suggested solution: validate it if the it doesn't match, replace the playername and rebuild the gameinfo with proper header.
+
+Follow-Ups:
+
+Date: 2007-Nov-13 04:29
+By: megablue
+
+Comment:
+1. since the w3 initially append &quot;maps\&lt;folders&gt;&quot;  before the filename, sometimes it just need a lot more to display the full filename. perhaps 64 chars?
+
+2. namespoofer or packet modifier could do the tricks. it is sent by the client as a bitmask'ed string.
+-------------------------------------------------------
+
+Date: 2007-Nov-10 19:07
+By: d1zzy
+
+Comment:
+1. it is intentionally limited to 20 characters, you want more, how much?
+
+2. if game owner abuse is possible then it should be rejected at all and not gameinfo updated; explain in details how to send another owner and what happens
+-------------------------------------------------------
+
+For detailed info, follow this link:
+<A HREF="http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=12172&amp;group_id=2291">http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=12172&amp;group_id=2291</A>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000556.html">[pvpgn-dev] [Bug #10745] p2p connection problem with Tiberian	Sun
+</A></li>
+	<LI>Next message: <A HREF="000558.html">[pvpgn-dev] [Bug #12173] Game with same name is merged (It didn't	get fixed)
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#557">[ date ]</a>
+              <a href="thread.html#557">[ thread ]</a>
+              <a href="subject.html#557">[ subject ]</a>
+              <a href="author.html#557">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

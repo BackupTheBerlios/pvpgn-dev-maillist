@@ -1,0 +1,109 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r514 - trunk/pvpgn/src/common
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2008-December/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r514%20-%20trunk/pvpgn/src/common&In-Reply-To=%3C200812032005.mB3K5iQf023394%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="000885.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r514 - trunk/pvpgn/src/common</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r514%20-%20trunk/pvpgn/src/common&In-Reply-To=%3C200812032005.mB3K5iQf023394%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r514 - trunk/pvpgn/src/common">svn at svn.berlios.de
+       </A><BR>
+    <I>Wed Dec  3 21:05:44 CET 2008</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="000885.html">[pvpgn-dev] r515 - trunk/pvpgn/src/client
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#884">[ date ]</a>
+              <a href="thread.html#884">[ thread ]</a>
+              <a href="subject.html#884">[ subject ]</a>
+              <a href="author.html#884">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pandaemonium
+Date: 2008-12-03 21:05:42 +0100 (Wed, 03 Dec 2008)
+New Revision: 514
+
+Modified:
+   trunk/pvpgn/src/common/bigint.cpp
+Log:
+clean up some warnings
+
+Modified: trunk/pvpgn/src/common/bigint.cpp
+===================================================================
+--- trunk/pvpgn/src/common/bigint.cpp	2008-11-12 23:04:23 UTC (rev 513)
++++ trunk/pvpgn/src/common/bigint.cpp	2008-12-03 20:05:42 UTC (rev 514)
+@@ -274,7 +274,7 @@
+     rhs+= carry;
+     if (lhs&lt;rhs)
+     {
+-      diff = (bigint_extended_carry+lhs) - rhs;
++      diff = (bigint_extended_carry + lhs) - rhs;
+       carry = 1;
+     }
+     else
+@@ -436,7 +436,7 @@
+ BigInt
+ BigInt::operator% (const BigInt&amp; right) const
+ {
+-   int i, j, max_segment_count;
++  int i, j;
+   BigInt remainder;
+   BigInt m;
+   BigInt q;
+@@ -542,7 +542,7 @@
+     result.segment[i]=0;
+     for (j=0; j&lt;sizeof(bigint_base); j+=sizeof(unsigned int)){
+       r = rand();
+-      result.segment[i]&lt;&lt;(sizeof(unsigned int));
++      result.segment[i]&lt;&lt;=(sizeof(unsigned int));
+       result.segment[i] = result.segment[i]+r;
+     }
+   }
+@@ -600,7 +600,7 @@
+ void 
+ BigInt::getData(unsigned char* out, int byteCount, int blockSize, bool bigEndian) const
+ {
+-  int i, j, s;
++  int i, j;
+   unsigned char* pos;
+ 
+   std::memset(out,0,byteCount);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="000885.html">[pvpgn-dev] r515 - trunk/pvpgn/src/client
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#884">[ date ]</a>
+              <a href="thread.html#884">[ thread ]</a>
+              <a href="subject.html#884">[ subject ]</a>
+              <a href="author.html#884">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

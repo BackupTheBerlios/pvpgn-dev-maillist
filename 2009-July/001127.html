@@ -1,0 +1,131 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] [Patch #2371] clan management mysql account deleting	and from hash table, 
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2009-July/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BPatch%20%232371%5D%20clan%20management%20mysql%20account%20deleting%0A%09and%20from%20hash%20table%2C%20&In-Reply-To=%3C200907082036.n68KaFP1019743%40unicorn.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001126.html">
+   <LINK REL="Next"  HREF="001128.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] [Patch #2371] clan management mysql account deleting	and from hash table, </H1>
+    <B>admin at berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BPatch%20%232371%5D%20clan%20management%20mysql%20account%20deleting%0A%09and%20from%20hash%20table%2C%20&In-Reply-To=%3C200907082036.n68KaFP1019743%40unicorn.berlios.de%3E"
+       TITLE="[pvpgn-dev] [Patch #2371] clan management mysql account deleting	and from hash table, ">admin at berlios.de
+       </A><BR>
+    <I>Wed Jul  8 22:36:15 CEST 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001126.html">[pvpgn-dev] [Patch #2717] /mute /unmute - disable users chat	abilities
+</A></li>
+        <LI>Next message: <A HREF="001128.html">[pvpgn-dev] [Patch #2717] /mute /unmute - disable users chat	abilities
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1127">[ date ]</a>
+              <a href="thread.html#1127">[ thread ]</a>
+              <a href="subject.html#1127">[ subject ]</a>
+              <a href="author.html#1127">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Patch #2371 has been updated. 
+
+Project: pvpgn
+Category: 1.99.x
+Status: Rejected
+Submitted by: ile
+Assigned to : pelish
+Summary: clan management mysql account deleting and from hash table, 
+
+Follow-Ups:
+
+Date: 2009-Jul-08 22:36
+By: pelish
+
+Comment:
+I am sorry but I see that as totaly useless. Whatever we already have clan management on latest SVN.
+-------------------------------------------------------
+
+Date: 2008-Feb-14 21:18
+By: pelish
+
+Comment:
+First of all, thank you for Your work. I have take a quick look over your patche and I have some comments to you:
+
+You have made clan managemet but this semms for me unusefull. You have created new commands &quot;/clanadd&quot;, &quot;/clandell&quot; but we allready have &quot;/clan&quot; command so this commands should be &quot;/clan add&quot;, &quot;/clan del&quot;...
+
+1) You have by your patch you have not added any lines to command_groups.conf so I can only suppose that this commands are for admins/cg &lt; 6. I suppose that because the executor of this commands can add/del any clan or member of clan. But we need to have this clan management for any player. I cant imagine that here is any administrator which take message by clients with requests for new clan or for add to some clan.
+
+2) In _handle_createclan_command() function you have use clan_add_member() for adding CLAN_CHIEFTAIN but this acction is allready included in clan_create() function. So after that, you have duplicite entry in clanmember list.
+
+3) You use clan_add_member(clan, accountlist_find_account(arg1), 4); function with &quot;4&quot; as the last parameter. Please use defined CLAN_CHIEFTAIN constant for doing that. When will be in future changed this, we cant serching this hardcoded numbers.
+
+4) please use spaces for better code reading. I think that is the best four spaces separation.
+
+I hope that you understand my bad english and also I hope that you will stay arround and will coding for PvPGN trough this my suggestions.
+
+If you want to discuse about your development, you can meet us on irc.pvpgn.org channel #pvpgndev
+
+Regards
+Pelish
+-------------------------------------------------------
+
+Date: 2008-Feb-12 17:11
+By: ile
+
+Comment:
+/clanadd -&gt; add clan
+/clandel -&gt; remove clan
+/clanaddu -&gt; add user to clan
+/clandelu -&gt; remove user from clan
+/delacct -&gt;  delete account from hash ( use it before delacctsql )
+/delacctsql -&gt; deletes acct from sql
+/flushacct -&gt; load account and account's friend list
+-----------
+account renaming sql conf modify:
+&quot;acct_username varchar(32)&quot;,&quot;NULL&quot; 
+&quot;username varchar(32)&quot;,&quot;NULL&quot;
+//
+modify with set command the username and acct_username of the user
+ex /set xy BNET_username zx
+user /delacct to delete it from hash table
+use /flushacct to reload the renamed account
+
+------
+-------------------------------------------------------
+
+-------------------------------------------------------
+For more info, visit:
+
+<A HREF="http://developer.berlios.de/patch/?func=detailpatch&amp;patch_id=2371&amp;group_id=2291">http://developer.berlios.de/patch/?func=detailpatch&amp;patch_id=2371&amp;group_id=2291</A>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001126.html">[pvpgn-dev] [Patch #2717] /mute /unmute - disable users chat	abilities
+</A></li>
+	<LI>Next message: <A HREF="001128.html">[pvpgn-dev] [Patch #2717] /mute /unmute - disable users chat	abilities
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1127">[ date ]</a>
+              <a href="thread.html#1127">[ thread ]</a>
+              <a href="subject.html#1127">[ subject ]</a>
+              <a href="author.html#1127">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

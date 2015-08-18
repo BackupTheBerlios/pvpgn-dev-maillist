@@ -1,0 +1,245 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r317 - in trunk/pvpgn: . conf src/bnetd
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-August/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r317%20-%20in%20trunk/pvpgn%3A%20.%20conf%20src/bnetd&In-Reply-To=%3C200708151143.l7FBhCxM010885%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000311.html">
+   <LINK REL="Next"  HREF="000313.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r317 - in trunk/pvpgn: . conf src/bnetd</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r317%20-%20in%20trunk/pvpgn%3A%20.%20conf%20src/bnetd&In-Reply-To=%3C200708151143.l7FBhCxM010885%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r317 - in trunk/pvpgn: . conf src/bnetd">svn at svn.berlios.de
+       </A><BR>
+    <I>Wed Aug 15 13:43:12 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000311.html">[pvpgn-dev] pvpgn version-history.txt,1.268,1.269
+</A></li>
+        <LI>Next message: <A HREF="000313.html">[pvpgn-dev] [Bug #11700] oversized login with #uid as username
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#312">[ date ]</a>
+              <a href="thread.html#312">[ thread ]</a>
+              <a href="subject.html#312">[ subject ]</a>
+              <a href="author.html#312">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pandaemonium
+Date: 2007-08-15 13:43:11 +0200 (Wed, 15 Aug 2007)
+New Revision: 317
+
+Modified:
+   trunk/pvpgn/conf/bnetd.conf.in
+   trunk/pvpgn/conf/bnetd.conf.win32
+   trunk/pvpgn/src/bnetd/connection.cpp
+   trunk/pvpgn/src/bnetd/handle_telnet.cpp
+   trunk/pvpgn/src/bnetd/prefs.cpp
+   trunk/pvpgn/src/bnetd/prefs.h
+   trunk/pvpgn/version-history.txt
+Log:
+fix for bug [ #11700 ] - oversized login with #uid as username
+
+Modified: trunk/pvpgn/conf/bnetd.conf.in
+===================================================================
+--- trunk/pvpgn/conf/bnetd.conf.in	2007-08-15 10:48:10 UTC (rev 316)
++++ trunk/pvpgn/conf/bnetd.conf.in	2007-08-15 11:43:11 UTC (rev 317)
+@@ -417,6 +417,11 @@
+ # default setting is &quot;-_[]&quot; as it was previous versions
+ account_allowed_symbols = &quot;-_[]&quot;
+ 
++# This setting affects users that login with their uid rather than their 
++# username. If set to true their displayed username will be forcefully 
++# converted to their registered account name.
++account_force_username = false
++
+ # maximum number of friends a user can add to there friends list
+ # default setting is 20
+ max_friends = 20
+
+Modified: trunk/pvpgn/conf/bnetd.conf.win32
+===================================================================
+--- trunk/pvpgn/conf/bnetd.conf.win32	2007-08-15 10:48:10 UTC (rev 316)
++++ trunk/pvpgn/conf/bnetd.conf.win32	2007-08-15 11:43:11 UTC (rev 317)
+@@ -395,6 +395,11 @@
+ # default setting is &quot;-_[]&quot; as it was previous versions
+ account_allowed_symbols = &quot;-_[]&quot;
+ 
++# This setting affects users that login with their uid rather than their 
++# username. If set to true their displayed username will be forcefully 
++# converted to their registered account name.
++account_force_username = false
++
+ # maximum number of friends a user can add to there friends list
+ # default setting is 20
+ max_friends = 20
+
+Modified: trunk/pvpgn/src/bnetd/connection.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/connection.cpp	2007-08-15 10:48:10 UTC (rev 316)
++++ trunk/pvpgn/src/bnetd/connection.cpp	2007-08-15 11:43:11 UTC (rev 317)
+@@ -1494,7 +1494,28 @@
+     assert(c != NULL);
+     assert(username != NULL);
+ 
+-    temp = xstrdup(username);
++    if (username[0]!='#')
++        temp = xstrdup(username);
++    else {
++        unsigned int userid=0;
++	str_to_uint(&amp;username[1],&amp;userid);
++	if (userid!=0){
++	    if (prefs_get_account_force_username()){
++	        t_account* account = accountlist_find_account_by_uid(userid);
++	        temp = xstrdup(account_get_name(account));
++	    }
++	    else{
++	        char uid_string[MAX_USERNAME_LEN];
++		sprintf(uid_string,&quot;#%i&quot;,userid);
++		temp = xstrdup(uid_string);
++	    }
++	}
++	else{  //theoretically this should never happen...
++	    eventlog(eventlog_level_error,__FUNCTION__,&quot;got invalid numeric uid \&quot;%s\&quot;&quot;,username);
++	    // set value that would have been set prior to this bugfix...
++            temp = xstrdup(username);
++        }
++    }
+     if (c-&gt;protocol.loggeduser) xfree((void*)c-&gt;protocol.loggeduser);
+ 
+     c-&gt;protocol.loggeduser = temp;
+
+Modified: trunk/pvpgn/src/bnetd/handle_telnet.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/handle_telnet.cpp	2007-08-15 10:48:10 UTC (rev 316)
++++ trunk/pvpgn/src/bnetd/handle_telnet.cpp	2007-08-15 11:43:11 UTC (rev 317)
+@@ -306,7 +306,7 @@
+ 			conn_push_outqueue(c,rpacket);
+ 			packet_del_ref(rpacket);
+ 		    }
+-		    message_send_text(c,message_type_uniqueid,c,account_get_name(account));
++		    message_send_text(c,message_type_uniqueid,c,loggeduser);
+ 
+ 		    conn_login(c,account,loggeduser);
+ 
+
+Modified: trunk/pvpgn/src/bnetd/prefs.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/prefs.cpp	2007-08-15 10:48:10 UTC (rev 316)
++++ trunk/pvpgn/src/bnetd/prefs.cpp	2007-08-15 11:43:11 UTC (rev 317)
+@@ -139,6 +139,7 @@
+     unsigned int XML_output_ladder;
+     unsigned int XML_status_output;
+     char const * account_allowed_symbols;
++    unsigned int account_force_username;
+     char const * command_groups_file;
+     char const * tournament_file;
+     char const * aliasfile;
+@@ -564,6 +565,10 @@
+ static const char *conf_get_account_allowed_symbols(void);
+ static int conf_setdef_account_allowed_symbols(void);
+ 
++static int conf_set_account_force_username(const char *valstr);
++static const char *conf_get_account_force_username(void);
++static int conf_setdef_account_force_username(void);
++
+ static int conf_set_command_groups_file(const char *valstr);
+ static const char *conf_get_command_groups_file(void);
+ static int conf_setdef_command_groups_file(void);
+@@ -766,6 +771,7 @@
+     { &quot;XML_output_ladder&quot;,      conf_set_XML_output_ladder,    conf_get_XML_output_ladder,conf_setdef_XML_output_ladder},
+     { &quot;XML_status_output&quot;,      conf_set_XML_status_output,    conf_get_XML_status_output,conf_setdef_XML_status_output},
+     { &quot;account_allowed_symbols&quot;,conf_set_account_allowed_symbols,conf_get_account_allowed_symbols,conf_setdef_account_allowed_symbols},
++    { &quot;account_force_username&quot;, conf_set_account_force_username,conf_get_account_force_username,conf_setdef_account_force_username},
+     { &quot;command_groups_file&quot;,	conf_set_command_groups_file,  conf_get_command_groups_file,conf_setdef_command_groups_file},
+     { &quot;tournament_file&quot;,	conf_set_tournament_file,      conf_get_tournament_file,conf_setdef_tournament_file},
+     { &quot;aliasfile&quot;          ,    conf_set_aliasfile,            conf_get_aliasfile,    conf_setdef_aliasfile},
+@@ -2920,6 +2926,26 @@
+ }
+ 
+ 
++extern unsigned int prefs_get_account_force_username(void)
++{
++	return prefs_runtime_config.account_force_username;
++}
++
++static int conf_set_account_force_username(const char *valstr)
++{
++    return conf_set_bool(&amp;prefs_runtime_config.account_force_username,valstr,0);
++}
++
++static int conf_setdef_account_force_username(void)
++{
++    return conf_set_bool(&amp;prefs_runtime_config.account_force_username,NULL,0);
++}
++
++static const char* conf_get_account_force_username(void)
++{
++    return conf_get_bool(prefs_runtime_config.account_force_username);
++}
++
+ extern char const * prefs_get_command_groups_file(void)
+ {
+     return prefs_runtime_config.command_groups_file;
+
+Modified: trunk/pvpgn/src/bnetd/prefs.h
+===================================================================
+--- trunk/pvpgn/src/bnetd/prefs.h	2007-08-15 10:48:10 UTC (rev 316)
++++ trunk/pvpgn/src/bnetd/prefs.h	2007-08-15 11:43:11 UTC (rev 317)
+@@ -152,6 +152,7 @@
+ extern int prefs_get_XML_status_output(void) ;
+ 
+ extern char const * prefs_get_account_allowed_symbols(void) ;
++extern unsigned int prefs_get_account_force_username(void);
+ 
+ extern char const * prefs_get_command_groups_file(void) ;
+ extern char const * prefs_get_tournament_file(void) ;
+
+Modified: trunk/pvpgn/version-history.txt
+===================================================================
+--- trunk/pvpgn/version-history.txt	2007-08-15 10:48:10 UTC (rev 316)
++++ trunk/pvpgn/version-history.txt	2007-08-15 11:43:11 UTC (rev 317)
+@@ -37,6 +37,8 @@
+   to &quot;StarCraft: Brood War&quot; (to better match battle.net behaviour)
+   -- fixed possible server crash caused by /ipban command
+   -- enforce (stricter) limit for maximum channel name length 
++  -- fixed problems caused by login via uid
++  -- added new &quot;account_force_username&quot; option to bnetd.conf
+ 
+ [VCHECK]
+   -- added WAR3/W3XP IX86 1.21 vcheck entries
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000311.html">[pvpgn-dev] pvpgn version-history.txt,1.268,1.269
+</A></li>
+	<LI>Next message: <A HREF="000313.html">[pvpgn-dev] [Bug #11700] oversized login with #uid as username
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#312">[ date ]</a>
+              <a href="thread.html#312">[ thread ]</a>
+              <a href="subject.html#312">[ subject ]</a>
+              <a href="author.html#312">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

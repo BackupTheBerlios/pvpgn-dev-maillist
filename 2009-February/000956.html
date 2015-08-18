@@ -1,0 +1,88 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] pvpgn/src/common field_sizes.h,1.6,1.7
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2009-February/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20pvpgn/src/common%20field_sizes.h%2C1.6%2C1.7&In-Reply-To=%3C20090206205345.31E37151E57%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000955.html">
+   <LINK REL="Next"  HREF="000957.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] pvpgn/src/common field_sizes.h,1.6,1.7</H1>
+    <B>pandaemonium</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20pvpgn/src/common%20field_sizes.h%2C1.6%2C1.7&In-Reply-To=%3C20090206205345.31E37151E57%40mail.berlios.de%3E"
+       TITLE="[pvpgn-dev] pvpgn/src/common field_sizes.h,1.6,1.7">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Fri Feb  6 21:53:45 CET 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000955.html">[pvpgn-dev] [Patch #2680] Fix for Bug #15058 hosting bot exploit
+</A></li>
+        <LI>Next message: <A HREF="000957.html">[pvpgn-dev] [Bug #15058] Security exploit - disconnect users trying	to view cg list
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#956">[ date ]</a>
+              <a href="thread.html#956">[ thread ]</a>
+              <a href="subject.html#956">[ subject ]</a>
+              <a href="author.html#956">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/pvpgn/pvpgn/src/common
+In directory sheep:/tmp/cvs-serv4496/src/common
+
+Modified Files:
+	field_sizes.h 
+Log Message:
+apply patch for [ Bug #15058 ] to CVS, too
+
+
+Index: field_sizes.h
+===================================================================
+RCS file: /cvsroot/pvpgn/pvpgn/src/common/field_sizes.h,v
+retrieving revision 1.6
+retrieving revision 1.7
+diff -u -d -r1.6 -r1.7
+--- field_sizes.h	22 Nov 2004 10:18:58 -0000	1.6
++++ field_sizes.h	6 Feb 2009 20:53:42 -0000	1.7
+@@ -37,7 +37,7 @@
+ #define REALM_NAME_LEN         32
+ #define GAME_NAME_LEN          32
+ #define GAME_PASS_LEN          32
+-#define GAME_INFO_LEN         256
++#define GAME_INFO_LEN         128
+ #define MAP_NAME_LEN           64
+ #define BNETHASH_LEN           20 /* uint32*5, see bnethash.h */
+ #define MAX_EXEINFO_STR       256 /* including terminating NUL char */
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000955.html">[pvpgn-dev] [Patch #2680] Fix for Bug #15058 hosting bot exploit
+</A></li>
+	<LI>Next message: <A HREF="000957.html">[pvpgn-dev] [Bug #15058] Security exploit - disconnect users trying	to view cg list
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#956">[ date ]</a>
+              <a href="thread.html#956">[ thread ]</a>
+              <a href="subject.html#956">[ subject ]</a>
+              <a href="author.html#956">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

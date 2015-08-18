@@ -1,0 +1,91 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] [Bug #11648] [error] handle_init_packet:
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-July/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BBug%20%2311648%5D%20%5Berror%5D%20handle_init_packet%3A&In-Reply-To=%3C200707272006.l6RK6Y4G001183%40unicorn.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000127.html">
+   <LINK REL="Next"  HREF="000131.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] [Bug #11648] [error] handle_init_packet:</H1>
+    <B>admin at berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BBug%20%2311648%5D%20%5Berror%5D%20handle_init_packet%3A&In-Reply-To=%3C200707272006.l6RK6Y4G001183%40unicorn.berlios.de%3E"
+       TITLE="[pvpgn-dev] [Bug #11648] [error] handle_init_packet:">admin at berlios.de
+       </A><BR>
+    <I>Fri Jul 27 22:06:34 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000127.html">[pvpgn-dev] [Bug #11648] [error] handle_init_packet:
+</A></li>
+        <LI>Next message: <A HREF="000131.html">[pvpgn-dev] [Bug #10900] could not load saved game
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#128">[ date ]</a>
+              <a href="thread.html#128">[ thread ]</a>
+              <a href="subject.html#128">[ subject ]</a>
+              <a href="author.html#128">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Bug #11648, was updated on 2007-Jul-27 15:26
+Here is a current snapshot of the bug.
+
+Project: Player vs Player Gaming Network
+Category: None
+Status: Open
+Resolution: None
+Bug Group: None
+Priority: 5
+Submitted by: gothacked
+Assigned to : none
+Summary: [error] handle_init_packet: 
+
+Details: Pvpgn server crashes when someone passes a packet.
+
+[error] handle_init_packet: [70] client requested unknown class 0x43 (length 1) (closing connection)
+
+Follow-Ups:
+
+Date: 2007-Jul-27 16:06
+By: gothacked
+
+Comment:
+We seem to have found one of the causes of the above. We had a bot attack on our network, the botnet seemed to be messaging mass amounts of data to users in the form of /msg since the spam checking seems to be at the client not the server, this eventually causes the server to crash.
+
+
+-------------------------------------------------------
+
+For detailed info, follow this link:
+<A HREF="http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=11648&amp;group_id=2291">http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=11648&amp;group_id=2291</A>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000127.html">[pvpgn-dev] [Bug #11648] [error] handle_init_packet:
+</A></li>
+	<LI>Next message: <A HREF="000131.html">[pvpgn-dev] [Bug #10900] could not load saved game
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#128">[ date ]</a>
+              <a href="thread.html#128">[ thread ]</a>
+              <a href="subject.html#128">[ subject ]</a>
+              <a href="author.html#128">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

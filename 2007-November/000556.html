@@ -1,0 +1,134 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] [Bug #10745] p2p connection problem with Tiberian	Sun
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-November/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BBug%20%2310745%5D%20p2p%20connection%20problem%20with%20Tiberian%0A%09Sun&In-Reply-To=%3C285008.82840.qm%40web60817.mail.yahoo.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000554.html">
+   <LINK REL="Next"  HREF="000557.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] [Bug #10745] p2p connection problem with Tiberian	Sun</H1>
+    <B>Theo Nicolau</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BBug%20%2310745%5D%20p2p%20connection%20problem%20with%20Tiberian%0A%09Sun&In-Reply-To=%3C285008.82840.qm%40web60817.mail.yahoo.com%3E"
+       TITLE="[pvpgn-dev] [Bug #10745] p2p connection problem with Tiberian	Sun">theo_ni at yahoo.com
+       </A><BR>
+    <I>Sun Nov 11 12:13:12 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000554.html">[pvpgn-dev] [Bug #6845] d2ladder.xml should be in status
+</A></li>
+        <LI>Next message: <A HREF="000557.html">[pvpgn-dev] [Bug #12172] Inaccurate gameinfo for w3
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#556">[ date ]</a>
+              <a href="thread.html#556">[ thread ]</a>
+              <a href="subject.html#556">[ subject ]</a>
+              <a href="author.html#556">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi mixman,
+hi pelish,
+
+I look forward for the NAT implementation. 
+Until that I use a workaround: VPN
+I use a pptp tunnel and all my clients (public and NATed) have an IP from my local network. 
+I have played Red Alert Yuri's revenge in 3 players ( 1 local player + 2 public player, 1 with public ip and 1 NATed).
+
+Hope this helps,
+
+Theo
+
+----- Original Message ----
+From: &quot;<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">admin at berlios.de</A>&quot; &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">admin at berlios.de</A>&gt;
+To: <A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">justinas at res.lt</A>; <A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">pelish at gmail.com</A>; <A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">pvpgn-dev at berlios.de</A>
+Sent: Saturday, 10 November, 2007 12:56:32 PM
+Subject: [pvpgn-dev] [Bug #10745] p2p connection problem with Tiberian Sun
+
+Bug #10745, was updated on 2007-Mar-27 12:50
+Here is a current snapshot of the bug.
+
+Project: Player vs Player Gaming Network
+Category: Westwood Online
+Status: Closed
+Resolution: Invalid
+Bug Group: bnetd
+Priority: 5
+Submitted by: mixman
+Assigned to : pelish
+Summary: p2p connection problem with Tiberian Sun
+
+Details: &quot;Connection to player lost&quot; message appears after starting the
+ game. Server connect/join works fine but then starting game player
+ cant connect to another player. One player is connecting from outside
+ another from inside network, ports are forwarded but outside player client
+ gets invalid address another player &quot;10.0.0.2&quot; this is internal address
+ of the network pc. On the gateway 10.0.0.1 is pvpgn server that
+ handles both inside/outside connections. Starcraft works fine but wol doesnt.
+ Pvpgn version is 1.8.0 i think problem is with adress translation at
+ handle_irc.c.
+
+Follow-Ups:
+
+Date: 2007-Mar-30 01:57
+By: pelish
+
+Comment:
+Well. Your &quot;bug report&quot; is not bug at this time but is feature request.
+ The problem is as you sayed in address translations of player IPs.
+ This feature IS NOT supported at this time for player IP addresses but
+ ONLY for server IP address. I will try to code it in future.
+
+For all: at this time is possible to play on server beside the NAT but
+ 100% will work only two situations: 1)all of players have private IP
+ and can connect to server without any NAT,
+2) all of players have public IP (server can work in beside NAT but
+ need to have right configured address_translation.conf)
+-------------------------------------------------------
+
+For detailed info, follow this link:
+<A HREF="http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=10745&amp;group_id=2291">http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=10745&amp;group_id=2291</A>
+_______________________________________________
+pvpgn-dev mailing list
+<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">pvpgn-dev at lists.berlios.de</A>
+<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">https://lists.berlios.de/mailman/listinfo/pvpgn-dev</A>
+
+
+
+
+
+      _____________________________________________________
+Do not compromise. Get unlimited storage and first rate spam protection with Yahoo! Mail.
+<A HREF="http://uk.mail.yahoo.com">http://uk.mail.yahoo.com</A>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000554.html">[pvpgn-dev] [Bug #6845] d2ladder.xml should be in status
+</A></li>
+	<LI>Next message: <A HREF="000557.html">[pvpgn-dev] [Bug #12172] Inaccurate gameinfo for w3
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#556">[ date ]</a>
+              <a href="thread.html#556">[ thread ]</a>
+              <a href="subject.html#556">[ subject ]</a>
+              <a href="author.html#556">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,155 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r471 - trunk/pvpgn/conf
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2008-July/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r471%20-%20trunk/pvpgn/conf&In-Reply-To=%3C200807171126.m6HBQPZO023378%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000744.html">
+   <LINK REL="Next"  HREF="000746.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r471 - trunk/pvpgn/conf</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r471%20-%20trunk/pvpgn/conf&In-Reply-To=%3C200807171126.m6HBQPZO023378%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r471 - trunk/pvpgn/conf">svn at svn.berlios.de
+       </A><BR>
+    <I>Thu Jul 17 13:26:25 CEST 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000744.html">[pvpgn-dev] pvpgn version-history.txt,1.283,1.284
+</A></li>
+        <LI>Next message: <A HREF="000746.html">[pvpgn-dev] r472 - trunk/pvpgn
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#745">[ date ]</a>
+              <a href="thread.html#745">[ thread ]</a>
+              <a href="subject.html#745">[ subject ]</a>
+              <a href="author.html#745">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pandaemonium
+Date: 2008-07-17 13:26:25 +0200 (Thu, 17 Jul 2008)
+New Revision: 471
+
+Modified:
+   trunk/pvpgn/conf/versioncheck.conf.in
+Log:
+add WAR3 1.22 entries
+
+Modified: trunk/pvpgn/conf/versioncheck.conf.in
+===================================================================
+--- trunk/pvpgn/conf/versioncheck.conf.in	2008-07-07 20:26:54 UTC (rev 470)
++++ trunk/pvpgn/conf/versioncheck.conf.in	2008-07-17 11:26:25 UTC (rev 471)
+@@ -61,29 +61,29 @@
+ 
+ # -=-=-=-=-=-=- Latest Versions -=-=-=-=-=-=- No Update Required -=-=-=-=-=-=-
+ 
+-# Warcraft III - TFT (Expansion) 1.21b
++# Warcraft III - TFT (Expansion) 1.22a
+ # Note: this version check is sent in both FT and ROC mode
+ &quot;A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B&quot; \
+  IX86ver1.mpq \
+  IX86 \
+  W3XP \
+- &quot;war3.exe 07/19/07 18:41:12 409660&quot; \
+- 0x00000015 \
+- 1.21.1.156 \
+- 0x1b735294 \
+- W3XP_121B
++ &quot;war3.exe 06/27/08 00:01:35 471040&quot; \
++ 0x00000016 \
++ 1.22.0.184 \
++ 0x909998db \
++ W3XP_122A
+ 
+-# Warcraft III - ROC 1.21b
++# Warcraft III - ROC 1.22a
+ # Note: this version check is sent in both FT and ROC mode
+ &quot;A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B&quot; \
+  IX86ver1.mpq \
+  IX86 \
+  WAR3 \
+- &quot;war3.exe 07/19/07 18:41:12 409660&quot; \
+- 0x00000015 \
+- 1.21.1.156 \
+- 0x1b735294 \
+- WAR3_121B
++ &quot;war3.exe 06/27/08 00:01:35 471040&quot; \
++ 0x00000016 \
++ 1.22.0.184 \
++ 0x909998db \
++ WAR3_122A
+ 
+ # Diablo II - LoD (Expansion) 1.12a
+ &quot;A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B&quot; \
+@@ -330,6 +330,18 @@
+ 
+ # =================== WarCraft 3 Expansion Entries ==================
+ 
++# Warcraft III - TFT (Expansion) 1.21b
++# Note: this version check is sent in both FT and ROC mode
++&quot;A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B&quot; \
++ IX86ver1.mpq \
++ IX86 \
++ W3XP \
++ &quot;war3.exe 07/19/07 18:41:12 409660&quot; \
++ 0x00000015 \
++ 1.21.1.156 \
++ 0x1b735294 \
++ W3XP_121B
++
+ # Warcraft III - TFT (Expansion) 1.21a
+ # Note: this version check is sent in both FT and ROC mode
+ &quot;A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B&quot; \
+@@ -574,6 +586,18 @@
+ 
+ # ====================== WarCraft 3 Entries ========================
+ 
++# Warcraft III - ROC 1.21b
++# Note: this version check is sent in both FT and ROC mode
++&quot;A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B&quot; \
++ IX86ver1.mpq \
++ IX86 \
++ WAR3 \
++ &quot;war3.exe 07/19/07 18:41:12 409660&quot; \
++ 0x00000015 \
++ 1.21.1.156 \
++ 0x1b735294 \
++ WAR3_121B
++
+ # Warcraft III - ROC 1.21a
+ # Note: this version check is sent in both FT and ROC mode
+ &quot;A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B&quot; \
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000744.html">[pvpgn-dev] pvpgn version-history.txt,1.283,1.284
+</A></li>
+	<LI>Next message: <A HREF="000746.html">[pvpgn-dev] r472 - trunk/pvpgn
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#745">[ date ]</a>
+              <a href="thread.html#745">[ thread ]</a>
+              <a href="subject.html#745">[ subject ]</a>
+              <a href="author.html#745">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

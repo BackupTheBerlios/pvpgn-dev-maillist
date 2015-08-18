@@ -1,0 +1,109 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] Some patches commite needed.
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-July/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20Some%20patches%20commite%20needed.&In-Reply-To=%3C46AC9623.6040102%40gmx.net%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000129.html">
+   <LINK REL="Next"  HREF="000133.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] Some patches commite needed.</H1>
+    <B>Olaf Freyer</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20Some%20patches%20commite%20needed.&In-Reply-To=%3C46AC9623.6040102%40gmx.net%3E"
+       TITLE="[pvpgn-dev] Some patches commite needed.">aaron667 at gmx.net
+       </A><BR>
+    <I>Sun Jul 29 15:29:07 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000129.html">[pvpgn-dev] Some patches commite needed.
+</A></li>
+        <LI>Next message: <A HREF="000133.html">[pvpgn-dev] Some patches commite needed.
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#130">[ date ]</a>
+              <a href="thread.html#130">[ thread ]</a>
+              <a href="subject.html#130">[ subject ]</a>
+              <a href="author.html#130">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi Pelish,
+
+even though I asked for a list of patches a few minutes ago I've 
+allready taken a first look at some of your patches -
+and have to reject some of them with objections (or you need to explain 
+so I understand they are right the way they are now).
+
+[ Patch #1945 ] WOL Battleclans support and any bugfixes
+in src/bnetd/irc.cpp you seem to apply alot &quot;bad hacks&quot; in 
+irc_authenticate to get things working for WOL like:
+    - returning &quot;everything fine&quot; when someone tries logs in with 
+nonexistant account (near line 229)
+    - still have WOL specific code in irc.cpp (starting line 245) - this 
+special WOL authenticate handling should be done somewheere else
+    - return &quot;everythign fine&quot; on a bad passhash (near line 286)
+
+I'll review other patches later this evening...
+
+Regards
+  Aaron
+
+
+Pelish schrieb:
+&gt;<i> Good day all developers.
+</I>&gt;<i> Im so sorry but Im lost in some my changes. Im not sure that is 
+</I>&gt;<i> allredy included in some my previrous patche or not and some of my 
+</I>&gt;<i> patches will need to be re-revised to new situation when will be 
+</I>&gt;<i> commited previrous.
+</I>&gt;<i>
+</I>&gt;<i> So im very pleased - try to check some of my patche and commite them. 
+</I>&gt;<i> That will give me some new work and I will see, what is needed.
+</I>&gt;<i>
+</I>&gt;<i> Thank you very much
+</I>&gt;<i>
+</I>&gt;<i> - beside this - when will be time to my potential add in to PvPGN project and SVN/CVS access? Well Im not coding in C++ now but I will learn it but that can take one year. 
+</I>&gt;<i> Sure - when will have some of you time to commite my patches I will 
+</I>&gt;<i> not need that access.
+</I>&gt;<i>
+</I>&gt;<i> Thank you for answers
+</I>&gt;<i> Pelish
+</I>&gt;<i> ------------------------------------------------------------------------
+</I>&gt;<i>
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> pvpgn-dev mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">pvpgn-dev at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">https://lists.berlios.de/mailman/listinfo/pvpgn-dev</A>
+</I>&gt;<i>   
+</I>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000129.html">[pvpgn-dev] Some patches commite needed.
+</A></li>
+	<LI>Next message: <A HREF="000133.html">[pvpgn-dev] Some patches commite needed.
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#130">[ date ]</a>
+              <a href="thread.html#130">[ thread ]</a>
+              <a href="subject.html#130">[ subject ]</a>
+              <a href="author.html#130">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

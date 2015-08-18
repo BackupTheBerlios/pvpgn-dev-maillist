@@ -1,0 +1,187 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r497 - trunk/pvpgn/src/bnetd
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2008-September/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r497%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200809152022.m8FKMu16030104%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000799.html">
+   <LINK REL="Next"  HREF="000801.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r497 - trunk/pvpgn/src/bnetd</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r497%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200809152022.m8FKMu16030104%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r497 - trunk/pvpgn/src/bnetd">svn at svn.berlios.de
+       </A><BR>
+    <I>Mon Sep 15 22:22:56 CEST 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000799.html">[pvpgn-dev] pvpgn/src/bnetd irc.c,1.49,1.50
+</A></li>
+        <LI>Next message: <A HREF="000801.html">[pvpgn-dev] [Bug #14542] CMake doesn't include sql_DBlayout2.conf
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#800">[ date ]</a>
+              <a href="thread.html#800">[ thread ]</a>
+              <a href="subject.html#800">[ subject ]</a>
+              <a href="author.html#800">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pelish
+Date: 2008-09-15 22:22:54 +0200 (Mon, 15 Sep 2008)
+New Revision: 497
+
+Modified:
+   trunk/pvpgn/src/bnetd/handle_irc.cpp
+   trunk/pvpgn/src/bnetd/handle_wol.cpp
+   trunk/pvpgn/src/bnetd/irc.cpp
+Log:
+fix for bug when account is already in use but kick_old_login = true
+
+Modified: trunk/pvpgn/src/bnetd/handle_irc.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/handle_irc.cpp	2008-09-14 21:19:17 UTC (rev 496)
++++ trunk/pvpgn/src/bnetd/handle_irc.cpp	2008-09-15 20:22:54 UTC (rev 497)
+@@ -193,11 +193,6 @@
+     message_send_text(conn,message_type_notice,NULL,&quot;This is an experimental service&quot;);
+ 
+     conn_set_state(conn,conn_state_bot_password);
+-    if (connlist_find_connection_by_accountname(conn_get_loggeduser(conn))) {
+-        snprintf(temp, sizeof(temp), &quot;%s :Nickname is already in use!&quot;,conn_get_loggeduser(conn));
+-        irc_send(conn,ERR_NICKNAMEINUSE,temp);
+-        return -1;
+-    }
+ 
+     if (conn_get_ircpass(conn)) {
+         message_send_text(conn,message_type_notice,NULL,&quot;Trying to authenticate with PASS ...&quot;);
+
+Modified: trunk/pvpgn/src/bnetd/handle_wol.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/handle_wol.cpp	2008-09-14 21:19:17 UTC (rev 496)
++++ trunk/pvpgn/src/bnetd/handle_wol.cpp	2008-09-15 20:22:54 UTC (rev 497)
+@@ -204,6 +204,7 @@
+     char const * tempapgar;
+     char const * temphash;
+     char const * username;
++    char temp[MAX_IRC_MESSAGE_LEN];
+ 
+     if (!conn) {
+         ERROR0(&quot;got NULL connection&quot;);
+@@ -228,32 +229,34 @@
+     tempapgar = conn_wol_get_apgar(conn);
+     temphash = account_get_wol_apgar(a);
+ 
+-    if(!temphash) {
+-        /* Acount auto creating */
+-        account_set_wol_apgar(a,tempapgar);
+-        temphash = account_get_wol_apgar(a);
++    if (connlist_find_connection_by_account(a) &amp;&amp; prefs_get_kick_old_login()==0) {
++        snprintf(temp, sizeof(temp), &quot;%s :Account is already in use!&quot;, conn_get_loggeduser(conn));
++        irc_send(conn, ERR_NICKNAMEINUSE, temp);
+     }
+-    if(!tempapgar) {
+-        irc_send(conn,RPL_BAD_LOGIN,&quot;:You have specified an invalid password for that nickname.&quot;); /* bad APGAR */
+-        //std::sprintf(temp,&quot;:Closing Link %s[Some.host]:(Password needed for that nickname.)&quot;,conn_get_loggeduser(conn));
+-        //message_send_text(conn,message_type_error,conn,temp);
+-        conn_increment_passfail_count(conn);
+-        return 0;
++    else if (account_get_auth_lock(a)==1) {
++        /* FIXME: Send real error code */
++        message_send_text(conn,message_type_notice,NULL,&quot;Authentication rejected (account is locked) &quot;);
+     }
+-    if(std::strcmp(temphash,tempapgar) == 0) {
+-        /* LOGIN is OK. We sends motd */
+-        conn_login(conn,a,username);
+-    	conn_set_state(conn,conn_state_loggedin);
+-    	irc_send_motd(conn);
+-        return 1;
+-    }
+     else {
+-        irc_send(conn,RPL_BAD_LOGIN,&quot;:You have specified an invalid password for that nickname.&quot;); /* bad APGAR */
+-        //std::sprintf(temp,&quot;:Closing Link %s[Some.host]:(Password needed for that nickname.)&quot;,conn_get_loggeduser(conn));
+-        //message_send_text(conn,message_type_error,conn,temp);
+-        conn_increment_passfail_count(conn);
+-        return 0;
++        if (!temphash) {
++            /* Account auto creating */
++            account_set_wol_apgar(a,tempapgar);
++            temphash = account_get_wol_apgar(a);
++        }
++        if ((tempapgar) &amp;&amp; (temphash) &amp;&amp; (std::strcmp(temphash,tempapgar) == 0)) {
++            /* LOGIN is OK. We sends motd */
++            conn_login(conn,a,username);
++       	    conn_set_state(conn,conn_state_loggedin);
++       	    irc_send_motd(conn);
++        }
++        else {
++            irc_send(conn,RPL_BAD_LOGIN,&quot;:You have specified an invalid password for that nickname.&quot;); /* bad APGAR */
++            conn_increment_passfail_count(conn);
++            //std::sprintf(temp,&quot;:Closing Link %s[Some.host]:(Password needed for that nickname.)&quot;,conn_get_loggeduser(conn));
++            //message_send_text(conn,message_type_error,conn,temp);
++        }
+     }
++    return 0;
+ }
+ 
+ extern int handle_wol_welcome(t_connection * conn)
+@@ -263,12 +266,6 @@
+     /* This function need rewrite */
+     conn_set_state(conn,conn_state_bot_password);
+ 
+-    if (connlist_find_connection_by_accountname(conn_get_loggeduser(conn))) {
+-        snprintf(_temp, sizeof(_temp), &quot;%s :Nickname is already in use!&quot;,conn_get_loggeduser(conn));
+-        irc_send(conn,ERR_NICKNAMEINUSE,_temp);
+-        return -1;
+-    }
+-
+     if (conn_wol_get_apgar(conn)) {
+         handle_wol_authenticate(conn,conn_wol_get_apgar(conn));
+     }
+
+Modified: trunk/pvpgn/src/bnetd/irc.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/irc.cpp	2008-09-14 21:19:17 UTC (rev 496)
++++ trunk/pvpgn/src/bnetd/irc.cpp	2008-09-15 20:22:54 UTC (rev 497)
+@@ -239,7 +239,8 @@
+     }
+ 
+     if (connlist_find_connection_by_account(a) &amp;&amp; prefs_get_kick_old_login()==0) {
+-            message_send_text(conn,message_type_notice,NULL,&quot;Authentication rejected (already logged in) &quot;);
++        snprintf(temp, sizeof(temp), &quot;%s :Account is already in use!&quot;, conn_get_loggeduser(conn));
++        irc_send(conn, ERR_NICKNAMEINUSE, temp);
+     }
+     else if (account_get_auth_lock(a)==1) {
+             message_send_text(conn,message_type_notice,NULL,&quot;Authentication rejected (account is locked) &quot;);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000799.html">[pvpgn-dev] pvpgn/src/bnetd irc.c,1.49,1.50
+</A></li>
+	<LI>Next message: <A HREF="000801.html">[pvpgn-dev] [Bug #14542] CMake doesn't include sql_DBlayout2.conf
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#800">[ date ]</a>
+              <a href="thread.html#800">[ thread ]</a>
+              <a href="subject.html#800">[ subject ]</a>
+              <a href="author.html#800">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

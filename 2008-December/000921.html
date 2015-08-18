@@ -1,0 +1,103 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r522 - branches/clan_refactorings/src/d2dbs
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2008-December/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r522%20-%20branches/clan_refactorings/src/d2dbs&In-Reply-To=%3C200812211640.mBLGejlQ010705%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000920.html">
+   <LINK REL="Next"  HREF="000922.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r522 - branches/clan_refactorings/src/d2dbs</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r522%20-%20branches/clan_refactorings/src/d2dbs&In-Reply-To=%3C200812211640.mBLGejlQ010705%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r522 - branches/clan_refactorings/src/d2dbs">svn at svn.berlios.de
+       </A><BR>
+    <I>Sun Dec 21 17:40:45 CET 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000920.html">[pvpgn-dev] [Patch #2605] New clan with no chieftain - Bug #14571
+</A></li>
+        <LI>Next message: <A HREF="000922.html">[pvpgn-dev] [Bug #14973] Segmentation Fault at pvpgn init when chat	logging is on
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#921">[ date ]</a>
+              <a href="thread.html#921">[ thread ]</a>
+              <a href="subject.html#921">[ subject ]</a>
+              <a href="author.html#921">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pandaemonium
+Date: 2008-12-21 17:40:39 +0100 (Sun, 21 Dec 2008)
+New Revision: 522
+
+Modified:
+   branches/clan_refactorings/src/d2dbs/d2ladder.cpp
+Log:
+# PvPGN 1.8.0rc2 fix for non-expansion ladder title bug
+# by Florian 'fw' Weingarten &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">flo at hackvalue.de</A>&gt; &lt;<A HREF="http://hackvalue.de/">http://hackvalue.de/</A>&gt;
+
+# usage:    go to pvpgn-1.8.0rc2 directory and use &quot;patch -p0 &lt; ladder_xml_output_bug.patch&quot;
+
+# software: pvpgn
+# version:  1.8.0rc2
+# file:     src/d2dbs/d2ladder.c
+# function: get_prefix()
+# bug:      the character titles in generated d2ladder.xml are incorrect in D2 (not XP).
+#           Dukes are titled as Count, Kings are titled as Dukes, etc.
+#           see <A HREF="https://forums.pvpgn.org/index.php/topic,5547.0.html">https://forums.pvpgn.org/index.php/topic,5547.0.html</A>
+# reason:   the software assumes five acts, which is only correct for expansion
+# fix:      use /4 instead of /5 (well, use macros for it) for non-expansion ladders
+
+
+Modified: branches/clan_refactorings/src/d2dbs/d2ladder.cpp
+===================================================================
+--- branches/clan_refactorings/src/d2dbs/d2ladder.cpp	2008-12-14 23:01:27 UTC (rev 521)
++++ branches/clan_refactorings/src/d2dbs/d2ladder.cpp	2008-12-21 16:40:39 UTC (rev 522)
+@@ -538,9 +538,11 @@
+ 
+   static int sex[11] = {0,1,1,0,0,0,0,1,0,0,0};
+ 
+-  difficulty = ((status &gt;&gt; 0x08) &amp; 0x0f) / 5;
++  if(type == 0 || type == 1) // D2
++    difficulty = charstatus_get_difficulty(status);  
++  else if(type == 2 || type == 3) // D2XP
++    difficulty = charstatus_get_difficulty_expansion(status);
+ 
+-
+   return prefix[difficulty][type][sex[chclass]];
+ }
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000920.html">[pvpgn-dev] [Patch #2605] New clan with no chieftain - Bug #14571
+</A></li>
+	<LI>Next message: <A HREF="000922.html">[pvpgn-dev] [Bug #14973] Segmentation Fault at pvpgn init when chat	logging is on
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#921">[ date ]</a>
+              <a href="thread.html#921">[ thread ]</a>
+              <a href="subject.html#921">[ subject ]</a>
+              <a href="author.html#921">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

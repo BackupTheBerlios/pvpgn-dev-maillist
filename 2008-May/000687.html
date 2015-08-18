@@ -1,0 +1,93 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r447 - trunk/pvpgn/src/bnetd
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2008-May/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r447%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200805022252.m42Mq89n021135%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000686.html">
+   <LINK REL="Next"  HREF="000690.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r447 - trunk/pvpgn/src/bnetd</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r447%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200805022252.m42Mq89n021135%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r447 - trunk/pvpgn/src/bnetd">svn at svn.berlios.de
+       </A><BR>
+    <I>Sat May  3 00:52:08 CEST 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000686.html">[pvpgn-dev] [Bug #13730] unable to join clan channel post game
+</A></li>
+        <LI>Next message: <A HREF="000690.html">[pvpgn-dev] r447 - trunk/pvpgn/src/bnetd
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#687">[ date ]</a>
+              <a href="thread.html#687">[ thread ]</a>
+              <a href="subject.html#687">[ subject ]</a>
+              <a href="author.html#687">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pelish
+Date: 2008-05-03 00:51:58 +0200 (Sat, 03 May 2008)
+New Revision: 447
+
+Modified:
+   trunk/pvpgn/src/bnetd/connection.cpp
+Log:
+Fix for [ Bug #13730 ], thanks goes to saidin
+
+Modified: trunk/pvpgn/src/bnetd/connection.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/connection.cpp	2008-04-17 13:41:10 UTC (rev 446)
++++ trunk/pvpgn/src/bnetd/connection.cpp	2008-05-02 22:51:58 UTC (rev 447)
+@@ -1882,9 +1882,15 @@
+         if (!channel)
+         {
+             char msgtemp[MAX_MESSAGE_LEN];
+-            std::sprintf(msgtemp, &quot;Unable to join channel %s, there is no member of that clan in the channel!&quot;, channelname);
++            std::snprintf(msgtemp, sizeof(msgtemp), &quot;Unable to join channel %s, there is no member of that clan in the channel!&quot;, channelname);
+             message_send_text(c, message_type_error, c, msgtemp);
+-            return 0;
++
++            if (conn_get_game(c)) {  // fix for empty clan channels with preventing to join CHANNEL_NAME_BANNED when is used _handle_join_command
++                std::snprintf(msgtemp, sizeof(msgtemp), &quot;You have been redirected to %s.&quot;, CHANNEL_NAME_BANNED);
++                message_send_text(c, message_type_error, c, msgtemp);    
++                channel = channellist_find_channel_by_name(CHANNEL_NAME_BANNED,conn_get_country(c),realm_get_name(conn_get_realm(c)));
++            } else
++                return 0;
+         }
+         else
+         {
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000686.html">[pvpgn-dev] [Bug #13730] unable to join clan channel post game
+</A></li>
+	<LI>Next message: <A HREF="000690.html">[pvpgn-dev] r447 - trunk/pvpgn/src/bnetd
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#687">[ date ]</a>
+              <a href="thread.html#687">[ thread ]</a>
+              <a href="subject.html#687">[ subject ]</a>
+              <a href="author.html#687">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

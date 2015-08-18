@@ -1,0 +1,194 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r424 - trunk/pvpgn/src/bnetd
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2008-January/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r424%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3CBAY110-W4090786E2E57C52ED689F1884D0%40phx.gbl%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="000625.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r424 - trunk/pvpgn/src/bnetd</H1>
+    <B>Paul Do</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r424%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3CBAY110-W4090786E2E57C52ED689F1884D0%40phx.gbl%3E"
+       TITLE="[pvpgn-dev] r424 - trunk/pvpgn/src/bnetd">mr.cqd at hotmail.com
+       </A><BR>
+    <I>Sat Jan  5 11:05:36 CET 2008</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="000625.html">[pvpgn-dev] r424 - trunk/pvpgn/src/bnetd
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#624">[ date ]</a>
+              <a href="thread.html#624">[ thread ]</a>
+              <a href="subject.html#624">[ subject ]</a>
+              <a href="author.html#624">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>
+STOP 
+can u stop emailing me on the list pls pls pls
+I dun know how to cancel it
+im getting mass message from you guys
+thankyou
+
+&gt;<i> Date: Thu, 6 Dec 2007 17:37:42 +0100
+</I>&gt;<i> To: <A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">pvpgn-dev at lists.berlios.de</A>
+</I>&gt;<i> From: <A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">svn at svn.berlios.de</A>
+</I>&gt;<i> Subject: [pvpgn-dev] r424 - trunk/pvpgn/src/bnetd
+</I>&gt;<i> 
+</I>&gt;<i> Author: pelish
+</I>&gt;<i> Date: 2007-12-06 17:37:40 +0100 (Thu, 06 Dec 2007)
+</I>&gt;<i> New Revision: 424
+</I>&gt;<i> 
+</I>&gt;<i> Modified:
+</I>&gt;<i>    trunk/pvpgn/src/bnetd/channel.cpp
+</I>&gt;<i>    trunk/pvpgn/src/bnetd/handle_apireg.cpp
+</I>&gt;<i>    trunk/pvpgn/src/bnetd/irc.cpp
+</I>&gt;<i> Log:
+</I>&gt;<i> fix for bug on apireg protocol handling, fixed IRC/WOL bug when admin has been not showed as admin to self when connect to channel
+</I>&gt;<i> 
+</I>&gt;<i> Modified: trunk/pvpgn/src/bnetd/channel.cpp
+</I>&gt;<i> ===================================================================
+</I>&gt;<i> --- trunk/pvpgn/src/bnetd/channel.cpp	2007-12-02 17:15:25 UTC (rev 423)
+</I>&gt;<i> +++ trunk/pvpgn/src/bnetd/channel.cpp	2007-12-06 16:37:40 UTC (rev 424)
+</I>&gt;<i> @@ -480,6 +480,7 @@
+</I>&gt;<i>      }
+</I>&gt;<i>  
+</I>&gt;<i>      if (conn_is_irc_variant(connection) &amp;&amp; (!conn_wol_get_ingame(connection))) {
+</I>&gt;<i> +        channel_set_userflags(connection);
+</I>&gt;<i>          message_send_text(connection,message_type_topic,connection,NULL);
+</I>&gt;<i>          message_send_text(connection,message_type_namreply,connection,NULL);
+</I>&gt;<i>      }
+</I>&gt;<i> 
+</I>&gt;<i> Modified: trunk/pvpgn/src/bnetd/handle_apireg.cpp
+</I>&gt;<i> ===================================================================
+</I>&gt;<i> --- trunk/pvpgn/src/bnetd/handle_apireg.cpp	2007-12-02 17:15:25 UTC (rev 423)
+</I>&gt;<i> +++ trunk/pvpgn/src/bnetd/handle_apireg.cpp	2007-12-06 16:37:40 UTC (rev 424)
+</I>&gt;<i> @@ -797,6 +797,7 @@
+</I>&gt;<i>  	char const * newnick = apiregmember_get_newnick(apiregmember);
+</I>&gt;<i>  	char const * newpass = apiregmember_get_newpass(apiregmember);
+</I>&gt;<i>  	char const * email = apiregmember_get_email(apiregmember);
+</I>&gt;<i> +	char const * request = apiregmember_get_request(apiregmember);
+</I>&gt;<i>  //    char const * newpass2 = apiregmember_get_newpass2(apiregmember);
+</I>&gt;<i>  	char hresult[12];
+</I>&gt;<i>  	char message[MAX_IRC_MESSAGE_LEN];
+</I>&gt;<i> @@ -827,7 +828,7 @@
+</I>&gt;<i>  
+</I>&gt;<i>  	DEBUG3(&quot;APIREG:/%s/%s/%s/&quot;,apiregmember_get_request(apiregmember),apiregmember_get_newnick(apiregmember),apiregmember_get_newpass(apiregmember));
+</I>&gt;<i>  	
+</I>&gt;<i> -    if (std::strcmp(apiregmember_get_request(apiregmember), REQUEST_AGEVERIFY) == 0) {
+</I>&gt;<i> +    if ((request) &amp;&amp; (std::strcmp(apiregmember_get_request(apiregmember), REQUEST_AGEVERIFY) == 0)) {
+</I>&gt;<i>          snprintf(data,sizeof(data),&quot;HRESULT=%s\nMessage=%s\nNewNick=((NewNick))\nNewPass=((NewPass))\n&quot;,hresult,message);
+</I>&gt;<i>          /* FIXME: Count real age here! */
+</I>&gt;<i>     	    snprintf(age,sizeof(age),&quot;28&quot;); /* FIXME: Here must be counted age */
+</I>&gt;<i> @@ -836,15 +837,25 @@
+</I>&gt;<i>         	apireg_send(apiregmember_get_conn(apiregmember),data);
+</I>&gt;<i>         	return 0;
+</I>&gt;<i>      }
+</I>&gt;<i> -    else if (std::strcmp(apiregmember_get_request(apiregmember), REQUEST_GETNICK) == 0) {
+</I>&gt;<i> +    else if ((request) &amp;&amp; (std::strcmp(apiregmember_get_request(apiregmember), REQUEST_GETNICK) == 0)) {
+</I>&gt;<i>          if(!prefs_get_allow_new_accounts()){
+</I>&gt;<i>              snprintf(message,sizeof(message),&quot;Account creation is not allowed&quot;);
+</I>&gt;<i>              snprintf(hresult,sizeof(hresult),&quot;-2147221248&quot;);
+</I>&gt;<i>          }
+</I>&gt;<i>          else {
+</I>&gt;<i> -            /* Chceck */
+</I>&gt;<i> -            account = accountlist_find_account(newnick);
+</I>&gt;<i> -            if (!account) {  /* done, we can create new account */
+</I>&gt;<i> +            if (!newnick) {
+</I>&gt;<i> +                snprintf(message,sizeof(message),&quot;Nick must be specifed!&quot;);
+</I>&gt;<i> +                snprintf(hresult,sizeof(hresult),&quot;-2147221248&quot;);
+</I>&gt;<i> +            }
+</I>&gt;<i> +            else if (!newpass) {
+</I>&gt;<i> +                snprintf(message,sizeof(message),&quot;Pussword must be specifed!&quot;);
+</I>&gt;<i> +                snprintf(hresult,sizeof(hresult),&quot;-2147221248&quot;);
+</I>&gt;<i> +            }
+</I>&gt;<i> +            else if (account = accountlist_find_account(newnick)) {
+</I>&gt;<i> +                snprintf(message,sizeof(message),&quot;That login is already in use! Please try another NICK name.&quot;);
+</I>&gt;<i> +                snprintf(hresult,sizeof(hresult),&quot;-2147221248&quot;);
+</I>&gt;<i> +            }
+</I>&gt;<i> +            else {  /* done, we can create new account */
+</I>&gt;<i>                  t_account * tempacct;
+</I>&gt;<i>                  t_hash bnet_pass_hash;
+</I>&gt;<i>                  t_wolhash wol_pass_hash;
+</I>&gt;<i> @@ -863,16 +874,12 @@
+</I>&gt;<i>                  else {
+</I>&gt;<i>                      eventlog(eventlog_level_debug,__FUNCTION__,&quot;WOLHASH: %s&quot;,wol_pass_hash);
+</I>&gt;<i>                      account_set_wol_apgar(tempacct,wol_pass_hash);
+</I>&gt;<i> -                    account_set_email(tempacct,apiregmember_get_email(apiregmember));
+</I>&gt;<i> +                    if (apiregmember_get_email(apiregmember))
+</I>&gt;<i> +                        account_set_email(tempacct,apiregmember_get_email(apiregmember));
+</I>&gt;<i>                      snprintf(message,sizeof(message),&quot;Welcome in the amazing world of PvPGN! Your login can be used for all PvPGN Supported games!&quot;);
+</I>&gt;<i>                      snprintf(hresult,sizeof(hresult),&quot;0&quot;);
+</I>&gt;<i>                  }
+</I>&gt;<i>              }
+</I>&gt;<i> -            else {
+</I>&gt;<i> -                /* Account with that login is already in use! */
+</I>&gt;<i> -                snprintf(message,sizeof(message),&quot;That login is already in use! Please try another NICK name.&quot;);
+</I>&gt;<i> -                snprintf(hresult,sizeof(hresult),&quot;-2147221248&quot;);
+</I>&gt;<i> -            }
+</I>&gt;<i>          }
+</I>&gt;<i>          snprintf(data,sizeof(data),&quot;HRESULT=%s\nMessage=%s\nNewNick=%s\nNewPass=%s\nAge=%s\nConsent=0\nEND\r&quot;,hresult,message,newnick,newpass,age,consent);
+</I>&gt;<i>          apireg_send(apiregmember_get_conn(apiregmember),data);
+</I>&gt;<i> 
+</I>&gt;<i> Modified: trunk/pvpgn/src/bnetd/irc.cpp
+</I>&gt;<i> ===================================================================
+</I>&gt;<i> --- trunk/pvpgn/src/bnetd/irc.cpp	2007-12-02 17:15:25 UTC (rev 423)
+</I>&gt;<i> +++ trunk/pvpgn/src/bnetd/irc.cpp	2007-12-06 16:37:40 UTC (rev 424)
+</I>&gt;<i> @@ -1297,12 +1297,6 @@
+</I>&gt;<i>                  snprintf(temp, sizeof(temp), &quot;%s :JOIN failed&quot;,e[0]);
+</I>&gt;<i>                  irc_send(conn,ERR_NOSUCHCHANNEL,temp); /* Anything is still bad */
+</I>&gt;<i>              }
+</I>&gt;<i> -            else {
+</I>&gt;<i> -                channel = conn_get_channel(conn);
+</I>&gt;<i> -
+</I>&gt;<i> -                if (channel!=old_channel)
+</I>&gt;<i> -                    channel_set_userflags(conn);
+</I>&gt;<i> -            }
+</I>&gt;<i>          }
+</I>&gt;<i>          if (e)
+</I>&gt;<i>              irc_unget_listelems(e);
+</I>&gt;<i> 
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> pvpgn-dev mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">pvpgn-dev at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">https://lists.berlios.de/mailman/listinfo/pvpgn-dev</A>
+</I>
+_________________________________________________________________
+What are you waiting for? Join Lavalife FREE
+<A HREF="http://a.ninemsn.com.au/b.aspx?URL=http%3A%2F%2Flavalife9%2Eninemsn%2Ecom%2Eau%2Fclickthru%2Fclickthru%2Eact%3Fid%3Dninemsn%26context%3Dan99%26locale%3Den%5FAU%26a%3D30288&amp;_t=764581033&amp;_r=email_taglines_Join_free_OCT07&amp;_m=EXT">http://a.ninemsn.com.au/b.aspx?URL=http%3A%2F%2Flavalife9%2Eninemsn%2Ecom%2Eau%2Fclickthru%2Fclickthru%2Eact%3Fid%3Dninemsn%26context%3Dan99%26locale%3Den%5FAU%26a%3D30288&amp;_t=764581033&amp;_r=email_taglines_Join_free_OCT07&amp;_m=EXT</A>
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: &lt;<A HREF="https://lists.berlios.de/pipermail/pvpgn-dev/attachments/20080105/ebca7e3f/attachment.html">https://lists.berlios.de/pipermail/pvpgn-dev/attachments/20080105/ebca7e3f/attachment.html</A>&gt;
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="000625.html">[pvpgn-dev] r424 - trunk/pvpgn/src/bnetd
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#624">[ date ]</a>
+              <a href="thread.html#624">[ thread ]</a>
+              <a href="subject.html#624">[ subject ]</a>
+              <a href="author.html#624">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

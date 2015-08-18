@@ -1,0 +1,145 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] [Patch #2441] New /wolpass command
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2008-April/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BPatch%20%232441%5D%20New%20/wolpass%20command&In-Reply-To=%3C200804221650.m3MGoxUs005220%40unicorn.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000677.html">
+   <LINK REL="Next"  HREF="000679.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] [Patch #2441] New /wolpass command</H1>
+    <B>admin at berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BPatch%20%232441%5D%20New%20/wolpass%20command&In-Reply-To=%3C200804221650.m3MGoxUs005220%40unicorn.berlios.de%3E"
+       TITLE="[pvpgn-dev] [Patch #2441] New /wolpass command">admin at berlios.de
+       </A><BR>
+    <I>Tue Apr 22 18:50:59 CEST 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000677.html">[pvpgn-dev] [Bug #10900] could not load saved game
+</A></li>
+        <LI>Next message: <A HREF="000679.html">[pvpgn-dev] [Bug #10900] could not load saved game
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#678">[ date ]</a>
+              <a href="thread.html#678">[ thread ]</a>
+              <a href="subject.html#678">[ subject ]</a>
+              <a href="author.html#678">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Patch #2441 has been updated. 
+
+Project: pvpgn
+Category: 1.99.x
+Status: Open
+Submitted by: tokman_
+Assigned to : none
+Summary: New /wolpass command
+
+Follow-Ups:
+
+Date: 2008-Apr-22 18:50
+By: pelish
+
+Comment:
+Good job. You are most of done but you still does not using the lastes SVN code (I dont know why but this is unusefull for us). Please, try to make your changes on SVN repository.
+
+Thank you
+-------------------------------------------------------
+
+Date: 2008-Apr-19 12:35
+By: tokman_
+
+Comment:
+oky I fixed it.
+-------------------------------------------------------
+
+Date: 2008-Apr-18 22:06
+By: pelish
+
+Comment:
+Well, I have look over your archive, but you still does not use patch file (wich is bad, because I cant simply read in your files) and you are also not using the lastes 1.99 code. Please download them via SVN from <A HREF="svn://svn.berlios.de/pvpgn/trunk">svn://svn.berlios.de/pvpgn/trunk</A>
+
+To your changes:
+1) You are creating some constant named MAX_WOLLPASS_LEN. If I omit way how you do it, we using field_sizes.h to define new constatns.
+2) You are using direct access to &quot;WOL\\auth\\apgar&quot; trouhg account_set_strattr() funciton but we allready have function account_set_wol_apgar() for that purpose. We does not using account_set_strattr() function because we need to have &quot;WOL\\auth\\apgar&quot; on many places and that will complicate hipotetical changing of this string.
+
+Anyways good luck with your coding
+-------------------------------------------------------
+
+Date: 2008-Apr-18 08:38
+By: tokman_
+
+Comment:
+<A HREF="http://dfg-12f.extra.hu/pvpgn-1.99.x.zip">http://dfg-12f.extra.hu/pvpgn-1.99.x.zip</A>
+<A HREF="http://dfg-12f.extra.hu/pvpgn-1.99.x.rar">http://dfg-12f.extra.hu/pvpgn-1.99.x.rar</A>
+<A HREF="http://dfg-12f.extra.hu/pvpgn-1.99.x.tar">http://dfg-12f.extra.hu/pvpgn-1.99.x.tar</A>
+<A HREF="http://dfg-12f.extra.hu/pvpgn-1.99.x.tgz">http://dfg-12f.extra.hu/pvpgn-1.99.x.tgz</A>
+
+These links where you can download the file.
+I think you have got linux becouse first I upload a zip file
+and you can't download It now I linked also tar,tgz file.
+all extracted files are the same just the extenction is different.
+-------------------------------------------------------
+
+Date: 2008-Apr-17 21:51
+By: pelish
+
+Comment:
+First of all thank you for your coding but Im not possible to get your files. Can you upload plain *.patch file? Thank you
+-------------------------------------------------------
+
+Date: 2008-Apr-17 17:19
+By: tokman_
+
+Comment:
+I upload a zip file so please use right click then use save target as...
+-------------------------------------------------------
+
+Date: 2008-Apr-17 17:12
+By: tokman_
+
+Comment:
+new command /wolpass [username] password
+You can modify your password like as /chpass.
+And also I fixed a bug in winmain.cpp.
+Now you can really open bnetd.conf, when you click
+Edit Server config file button.
+-------------------------------------------------------
+
+-------------------------------------------------------
+For more info, visit:
+
+<A HREF="http://developer.berlios.de/patch/?func=detailpatch&amp;patch_id=2441&amp;group_id=2291">http://developer.berlios.de/patch/?func=detailpatch&amp;patch_id=2441&amp;group_id=2291</A>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000677.html">[pvpgn-dev] [Bug #10900] could not load saved game
+</A></li>
+	<LI>Next message: <A HREF="000679.html">[pvpgn-dev] [Bug #10900] could not load saved game
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#678">[ date ]</a>
+              <a href="thread.html#678">[ thread ]</a>
+              <a href="subject.html#678">[ subject ]</a>
+              <a href="author.html#678">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

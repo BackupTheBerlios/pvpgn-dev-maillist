@@ -1,0 +1,633 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r390 - in trunk/pvpgn/src: bnetd common d2cs d2dbs win32
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-September/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r390%20-%20in%20trunk/pvpgn/src%3A%20bnetd%20common%20d2cs%20d2dbs%20win32&In-Reply-To=%3C200709230027.l8N0RrYS003725%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000461.html">
+   <LINK REL="Next"  HREF="000463.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r390 - in trunk/pvpgn/src: bnetd common d2cs d2dbs win32</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r390%20-%20in%20trunk/pvpgn/src%3A%20bnetd%20common%20d2cs%20d2dbs%20win32&In-Reply-To=%3C200709230027.l8N0RrYS003725%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r390 - in trunk/pvpgn/src: bnetd common d2cs d2dbs win32">svn at svn.berlios.de
+       </A><BR>
+    <I>Sun Sep 23 02:27:53 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000461.html">[pvpgn-dev] r389 - in trunk/pvpgn/src: bnetd common d2cs d2dbs win32
+</A></li>
+        <LI>Next message: <A HREF="000463.html">[pvpgn-dev] r391 - in trunk/pvpgn/src: d2cs d2dbs
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#462">[ date ]</a>
+              <a href="thread.html#462">[ thread ]</a>
+              <a href="subject.html#462">[ subject ]</a>
+              <a href="author.html#462">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pandaemonium
+Date: 2007-09-23 02:27:49 +0200 (Sun, 23 Sep 2007)
+New Revision: 390
+
+Added:
+   trunk/pvpgn/src/common/gui_printf.cpp
+   trunk/pvpgn/src/common/gui_printf.h
+Removed:
+   trunk/pvpgn/src/win32/gui_printf.cpp
+   trunk/pvpgn/src/win32/gui_printf.h
+Modified:
+   trunk/pvpgn/src/bnetd/CMakeLists.txt
+   trunk/pvpgn/src/common/CMakeLists.txt
+   trunk/pvpgn/src/common/eventlog.cpp
+   trunk/pvpgn/src/d2cs/CMakeLists.txt
+   trunk/pvpgn/src/d2dbs/CMakeLists.txt
+   trunk/pvpgn/src/win32/CMakeLists.txt
+   trunk/pvpgn/src/win32/d2cs_winmain.cpp
+   trunk/pvpgn/src/win32/d2dbs_winmain.cpp
+   trunk/pvpgn/src/win32/winmain.cpp
+Log:
+Cleaned up the build process for WIN32_GUI - now you only end up with one binary for the GUI-enabled apps.
+
+Modified: trunk/pvpgn/src/bnetd/CMakeLists.txt
+===================================================================
+--- trunk/pvpgn/src/bnetd/CMakeLists.txt	2007-09-22 23:50:50 UTC (rev 389)
++++ trunk/pvpgn/src/bnetd/CMakeLists.txt	2007-09-23 00:27:49 UTC (rev 390)
+@@ -32,7 +32,7 @@
+ 	team.cpp team.h tick.cpp tick.h timer.cpp timer.h topic.cpp topic.h 
+ 	tournament.cpp tournament.h tracker.cpp tracker.h udptest_send.cpp 
+ 	udptest_send.h versioncheck.cpp versioncheck.h watch.cpp watch.h
+-    handle_wserv.cpp handle_wserv.h
++  handle_wserv.cpp handle_wserv.h ../win32/winmain.cpp ../win32/winmain.h
+ 	)
+ 	
+ set(BNETD_CONSOLE_RESOURCES
+@@ -41,22 +41,13 @@
+ set(BNETD_GUI_RESOURCES
+   ../win32/resource.h ../win32/resource.rc)
+ 
+-set(BNETD_GUI_SOURCES
+-	../win32/winmain.cpp ../win32/winmain.h)
+-
+-add_executable(bnetd ${BNETD_SOURCES} 
+-  ${BNETD_CONSOLE_RESOURCES})
+-target_link_libraries(bnetd common compat win32 tinycdb ${NETWORK_LIBRARIES}
+-    ${ZLIB_LIBRARIES} ${MYSQL_LIBRARIES} ${SQLITE3_LIBRARIES} ${PGSQL_LIBRARIES})
+-install(TARGETS bnetd DESTINATION ${SBINDIR})
+-
+-# build the GUI version too
+-# (this will practically recompile every file again)
+ if(WITH_WIN32_GUI)
+-  add_executable(bnetd_gui WIN32 ${BNETD_SOURCES} ${BNETD_GUI_SOURCES} 
+-    ${BNETD_GUI_RESOURCES})
+-  set_target_properties(bnetd_gui PROPERTIES COMPILE_FLAGS &quot;-DWIN32_GUI&quot;)
+-  target_link_libraries(bnetd_gui common_gui compat win32_gui tinycdb ${NETWORK_LIBRARIES}
+-    ${ZLIB_LIBRARIES} ${MYSQL_LIBRARIES} ${SQLITE3_LIBRARIES} ${PGSQL_LIBRARIES})
+-  install(TARGETS bnetd_gui DESTINATION ${SBINDIR})
++  add_executable(bnetd WIN32 ${BNETD_SOURCES} ${BNETD_GUI_RESOURCES})
++  set_target_properties(bnetd PROPERTIES COMPILE_FLAGS &quot;-DWIN32_GUI&quot;)
++else(WITH_WIN32_GUI)  
++  add_executable(bnetd ${BNETD_SOURCES} ${BNETD_CONSOLE_RESOURCES})
+ endif(WITH_WIN32_GUI)
++
++  target_link_libraries(bnetd common compat win32 tinycdb ${NETWORK_LIBRARIES}
++    ${ZLIB_LIBRARIES} ${MYSQL_LIBRARIES} ${SQLITE3_LIBRARIES} ${PGSQL_LIBRARIES})
++  install(TARGETS bnetd DESTINATION ${SBINDIR})
+
+Modified: trunk/pvpgn/src/common/CMakeLists.txt
+===================================================================
+--- trunk/pvpgn/src/common/CMakeLists.txt	2007-09-22 23:50:50 UTC (rev 389)
++++ trunk/pvpgn/src/common/CMakeLists.txt	2007-09-23 00:27:49 UTC (rev 390)
+@@ -17,17 +17,12 @@
+ 	setup_before.h systemerror.cpp systemerror.h tag.cpp tag.h token.cpp 
+ 	token.h tracker.h trans.cpp trans.h udp_protocol.h util.cpp util.h 
+ 	version.h wolhash.cpp wolhash.h xalloc.cpp xalloc.h xstr.cpp xstr.h 
+-	xstring.cpp xstring.h)
++	xstring.cpp xstring.h gui_printf.h gui_printf.cpp )
+ 
+ add_library(common
+   ${COMMON_SOURCES}
+ )
+ 
+-# build the GUI version too
+-# (this will practically recompile every file again)
+ if(WITH_WIN32_GUI)
+-add_library(common_gui
+-  ${COMMON_SOURCES}
+-)
+-set_target_properties(common_gui PROPERTIES COMPILE_FLAGS &quot;-DWIN32_GUI&quot;)
++set_target_properties(common PROPERTIES COMPILE_FLAGS &quot;-DWIN32_GUI&quot;)
+ endif(WITH_WIN32_GUI)
+
+Modified: trunk/pvpgn/src/common/eventlog.cpp
+===================================================================
+--- trunk/pvpgn/src/common/eventlog.cpp	2007-09-22 23:50:50 UTC (rev 389)
++++ trunk/pvpgn/src/common/eventlog.cpp	2007-09-23 00:27:49 UTC (rev 390)
+@@ -27,7 +27,7 @@
+ #include &quot;compat/strcasecmp.h&quot;
+ #include &quot;common/hexdump.h&quot;
+ #ifdef WIN32_GUI
+-# include &quot;win32/gui_printf.h&quot;
++# include &quot;common/gui_printf.h&quot;
+ #endif
+ #include &quot;common/setup_after.h&quot;
+ 
+
+Copied: trunk/pvpgn/src/common/gui_printf.cpp (from rev 387, trunk/pvpgn/src/win32/gui_printf.cpp)
+===================================================================
+--- trunk/pvpgn/src/win32/gui_printf.cpp	2007-09-18 09:23:17 UTC (rev 387)
++++ trunk/pvpgn/src/common/gui_printf.cpp	2007-09-23 00:27:49 UTC (rev 390)
+@@ -0,0 +1,121 @@
++/*
++ * Copyright (C) 2004   CreepLord (<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">creeplord at pvpgn.org</A>)
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License
++ * as published by the Free Software Foundation; either version 2
++ * of the License, or (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++ */
++ 
++#ifdef WIN32_GUI 
++ 
++#include &quot;common/setup_before.h&quot;
++#include &quot;gui_printf.h&quot;
++
++#include &lt;windows.h&gt;
++#include &lt;richedit.h&gt;
++#include &lt;cstdarg&gt;
++#include &quot;common/eventlog.h&quot;
++#include &quot;common/setup_after.h&quot;
++
++namespace pvpgn
++{
++
++HWND		ghwndConsole;         
++          
++static void guiAddText(const char *str, COLORREF clr)
++{
++    int start_lines, text_length, end_lines;
++    CHARRANGE cr;
++    CHARRANGE ds;
++    CHARFORMAT fmt;
++    
++    text_length = SendMessage(ghwndConsole, WM_GETTEXTLENGTH, 0, 0);
++    
++    if (text_length &gt; 30000)
++    {
++        ds.cpMin = 0;
++        ds.cpMax = text_length - 30000;
++        SendMessage(ghwndConsole, EM_EXSETSEL, 0, (LPARAM)&amp;ds);
++        SendMessage(ghwndConsole, EM_REPLACESEL, FALSE, 0);
++    }
++	
++    cr.cpMin = text_length;
++    cr.cpMax = text_length;
++    SendMessage(ghwndConsole, EM_EXSETSEL, 0, (LPARAM)&amp;cr); 
++	
++    fmt.cbSize = sizeof(CHARFORMAT);
++    fmt.dwMask = CFM_COLOR|CFM_FACE|CFM_SIZE|CFM_BOLD|CFM_ITALIC|CFM_STRIKEOUT|CFM_UNDERLINE;
++    fmt.yHeight = 160;
++    fmt.dwEffects = 0;
++    fmt.crTextColor = clr;
++    strcpy(fmt.szFaceName,&quot;Courier New&quot;);
++
++    SendMessage(ghwndConsole, EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM)&amp;fmt);
++    SendMessage(ghwndConsole, EM_REPLACESEL, FALSE, (LPARAM)str);
++}
++          
++extern int gui_lvprintf(t_eventlog_level l, const char *format, va_list arglist)
++{
++    char buff[4096];
++    int result;
++    COLORREF clr;
++    
++    result = vsprintf(buff, format, arglist);
++    
++    switch(l)
++    {
++        case eventlog_level_none:
++            clr = RGB(0, 0, 0);
++            break;
++        case eventlog_level_trace:
++            clr = RGB(255, 0, 255);
++            break;
++        case eventlog_level_debug:
++            clr = RGB(0, 0, 255);
++            break;
++        case eventlog_level_info:
++            clr = RGB(0, 0, 0);
++            break;
++        case eventlog_level_warn:
++            clr = RGB(255, 128, 64);
++            break;
++        case eventlog_level_error:
++            clr = RGB(255, 0, 0);
++            break;
++        case eventlog_level_fatal:
++            clr = RGB(255, 0, 0);
++            break;
++        default:
++            clr = RGB(0, 0, 0);
++    }
++    guiAddText(buff, clr);
++    return result;
++}
++
++extern int gui_lprintf(t_eventlog_level l, const char *format, ...)
++{
++    va_list arglist;
++    va_start(arglist, format);
++    
++    return gui_lvprintf(l, format, arglist);
++}
++
++extern int gui_printf(const char *format, ...)
++{
++	va_list arglist;
++	va_start(arglist, format);
++	return gui_lvprintf(eventlog_level_error, format, arglist);
++}
++
++}
++#endif
+
+Copied: trunk/pvpgn/src/common/gui_printf.h (from rev 387, trunk/pvpgn/src/win32/gui_printf.h)
+
+Modified: trunk/pvpgn/src/d2cs/CMakeLists.txt
+===================================================================
+--- trunk/pvpgn/src/d2cs/CMakeLists.txt	2007-09-22 23:50:50 UTC (rev 389)
++++ trunk/pvpgn/src/d2cs/CMakeLists.txt	2007-09-23 00:27:49 UTC (rev 390)
+@@ -6,19 +6,15 @@
+ 	handle_d2cs.h handle_d2gs.cpp handle_d2gs.h handle_init.cpp 
+ 	handle_init.h handle_signal.cpp handle_signal.h main.cpp net.cpp 
+ 	net.h prefs.cpp prefs.h s2s.cpp s2s.h server.cpp server.h 
+-	serverqueue.h serverqueue.cpp setup.h version.h ../win32/gui_printf.h 
+-	../win32/gui_printf.cpp ../win32/d2cs_winmain.cpp 
++	serverqueue.h serverqueue.cpp setup.h version.h ../win32/d2cs_winmain.cpp 
+ 	../win32/d2cs_resource.h ../win32/d2cs_resource.rc)
+ 
+-add_executable(d2cs ${D2CS_SOURCES})
+-target_link_libraries(d2cs common compat win32 ${NETWORK_LIBRARIES})
+-install(TARGETS d2cs DESTINATION ${SBINDIR})
+-
+-# build the GUI version too
+-# (this will practically recompile every file again)
+ if(WITH_WIN32_GUI)
+-  add_executable(d2cs_gui WIN32 ${D2CS_SOURCES})
+-  set_target_properties(d2cs_gui PROPERTIES COMPILE_FLAGS &quot;-DWIN32_GUI&quot;)
+-  target_link_libraries(d2cs_gui common_gui compat win32_gui ${NETWORK_LIBRARIES})
+-  install(TARGETS d2cs_gui DESTINATION ${SBINDIR})
++  add_executable(d2cs WIN32 ${D2CS_SOURCES})
++  set_target_properties(d2cs PROPERTIES COMPILE_FLAGS &quot;-DWIN32_GUI&quot;)
++else(WITH_WIN32_GUI)
++  add_executable(d2cs ${D2CS_SOURCES})
+ endif(WITH_WIN32_GUI)
++
++target_link_libraries(d2cs common compat win32 ${NETWORK_LIBRARIES})
++install(TARGETS d2cs DESTINATION ${SBINDIR})
+
+Modified: trunk/pvpgn/src/d2dbs/CMakeLists.txt
+===================================================================
+--- trunk/pvpgn/src/d2dbs/CMakeLists.txt	2007-09-22 23:50:50 UTC (rev 389)
++++ trunk/pvpgn/src/d2dbs/CMakeLists.txt	2007-09-23 00:27:49 UTC (rev 390)
+@@ -2,19 +2,15 @@
+ 	charlock.cpp charlock.h cmdline.cpp cmdline.h d2ladder.cpp d2ladder.h 
+ 	dbsdupecheck.cpp dbsdupecheck.h dbserver.cpp dbserver.h dbspacket.cpp 
+ 	dbspacket.h handle_signal.cpp handle_signal.h main.cpp prefs.cpp 
+-	prefs.h setup.h version.h ../win32/gui_printf.h ../win32/gui_printf.cpp 
+-	../win32/d2dbs_winmain.cpp ../win32/d2dbs_resource.h 
++	prefs.h setup.h version.h ../win32/d2dbs_winmain.cpp ../win32/d2dbs_resource.h 
+ 	../win32/d2dbs_resource.rc)
+ 
+-add_executable(d2dbs ${D2DBS_SOURCES})
+-target_link_libraries(d2dbs common compat win32 ${NETWORK_LIBRARIES})
+-install(TARGETS d2dbs DESTINATION ${SBINDIR})
+-
+-# build the GUI version too
+-# (this will practically recompile every file again)
+ if(WITH_WIN32_GUI)
+-  add_executable(d2dbs_gui WIN32 ${D2DBS_SOURCES})
+-  set_target_properties(d2dbs_gui PROPERTIES COMPILE_FLAGS &quot;-DWIN32_GUI&quot;)
+-  target_link_libraries(d2dbs_gui common_gui compat win32_gui ${NETWORK_LIBRARIES})
+-  install(TARGETS d2dbs_gui DESTINATION ${SBINDIR})
++  add_executable(d2dbs WIN32 ${D2DBS_SOURCES})
++  set_target_properties(d2dbs PROPERTIES COMPILE_FLAGS &quot;-DWIN32_GUI&quot;)
++else(WITH_WIN32_GUI)
++  add_executable(d2dbs ${D2DBS_SOURCES})
+ endif(WITH_WIN32_GUI)
++
++target_link_libraries(d2dbs common compat win32 ${NETWORK_LIBRARIES})
++install(TARGETS d2dbs DESTINATION ${SBINDIR})
+
+Modified: trunk/pvpgn/src/win32/CMakeLists.txt
+===================================================================
+--- trunk/pvpgn/src/win32/CMakeLists.txt	2007-09-22 23:50:50 UTC (rev 389)
++++ trunk/pvpgn/src/win32/CMakeLists.txt	2007-09-23 00:27:49 UTC (rev 390)
+@@ -1,18 +1,10 @@
+ set(WIN32_SOURCES
+-  service.cpp service.h
++  service.cpp service.h console_output.h console_output.cpp
+ )
+ 
+-set(WIN32_GUI_SOURCES
+-	gui_printf.h gui_printf.cpp console_output.h console_output.cpp
+-)
+-
+ add_library(win32 ${WIN32_SOURCES})
+ 
+-# build the GUI version too
+-# (this will practically recompile every file again)
+ if(WITH_WIN32_GUI)
+-add_library(win32_gui
+-  ${WIN32_SOURCES} ${WIN32_GUI_SOURCES}
+-)
+-set_target_properties(win32_gui PROPERTIES COMPILE_FLAGS &quot;-DWIN32_GUI&quot;)
++
++set_target_properties(win32 PROPERTIES COMPILE_FLAGS &quot;-DWIN32_GUI&quot;)
+ endif(WITH_WIN32_GUI)
+
+Modified: trunk/pvpgn/src/win32/d2cs_winmain.cpp
+===================================================================
+--- trunk/pvpgn/src/win32/d2cs_winmain.cpp	2007-09-22 23:50:50 UTC (rev 389)
++++ trunk/pvpgn/src/win32/d2cs_winmain.cpp	2007-09-23 00:27:49 UTC (rev 390)
+@@ -23,8 +23,8 @@
+ #include &lt;windowsx.h&gt;
+ #include &lt;richedit.h&gt;
+ #include &lt;process.h&gt;
+-#include &quot;gui_printf.h&quot;
+ #include &quot;d2cs_resource.h&quot;
++#include &quot;common/gui_printf.h&quot;
+ #include &quot;common/eventlog.h&quot;
+ #include &quot;d2cs/version.h&quot;
+ #include &quot;d2cs/handle_signal.h&quot;
+@@ -42,7 +42,7 @@
+ namespace pvpgn
+ {
+ 
+-HWND		ghwndConsole; /* hwnd for eventlog output */
++extern HWND		ghwndConsole; /* hwnd for eventlog output */
+           
+ namespace d2cs
+ {
+
+Modified: trunk/pvpgn/src/win32/d2dbs_winmain.cpp
+===================================================================
+--- trunk/pvpgn/src/win32/d2dbs_winmain.cpp	2007-09-22 23:50:50 UTC (rev 389)
++++ trunk/pvpgn/src/win32/d2dbs_winmain.cpp	2007-09-23 00:27:49 UTC (rev 390)
+@@ -23,8 +23,8 @@
+ #include &lt;windowsx.h&gt;
+ #include &lt;richedit.h&gt;
+ #include &lt;process.h&gt;
+-#include &quot;gui_printf.h&quot;
+ #include &quot;d2dbs_resource.h&quot;
++#include &quot;common/gui_printf.h&quot;
+ #include &quot;common/eventlog.h&quot;
+ #include &quot;d2dbs/version.h&quot;
+ #include &quot;d2dbs/handle_signal.h&quot;
+@@ -42,7 +42,7 @@
+ namespace pvpgn
+ {
+           
+-HWND		ghwndConsole; /* hwnd for eventlog output */
++extern HWND		ghwndConsole; /* hwnd for eventlog output */
+           
+ namespace d2dbs
+ {
+
+Deleted: trunk/pvpgn/src/win32/gui_printf.cpp
+===================================================================
+--- trunk/pvpgn/src/win32/gui_printf.cpp	2007-09-22 23:50:50 UTC (rev 389)
++++ trunk/pvpgn/src/win32/gui_printf.cpp	2007-09-23 00:27:49 UTC (rev 390)
+@@ -1,121 +0,0 @@
+-/*
+- * Copyright (C) 2004   CreepLord (<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">creeplord at pvpgn.org</A>)
+- *
+- * This program is free software; you can redistribute it and/or
+- * modify it under the terms of the GNU General Public License
+- * as published by the Free Software Foundation; either version 2
+- * of the License, or (at your option) any later version.
+- *
+- * This program is distributed in the hope that it will be useful,
+- * but WITHOUT ANY WARRANTY; without even the implied warranty of
+- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+- * GNU General Public License for more details.
+- *
+- * You should have received a copy of the GNU General Public License
+- * along with this program; if not, write to the Free Software
+- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+- */
+- 
+-#ifdef WIN32_GUI 
+- 
+-#include &quot;common/setup_before.h&quot;
+-#include &quot;gui_printf.h&quot;
+-
+-#include &lt;windows.h&gt;
+-#include &lt;richedit.h&gt;
+-#include &lt;cstdarg&gt;
+-#include &quot;common/eventlog.h&quot;
+-#include &quot;common/setup_after.h&quot;
+-
+-namespace pvpgn
+-{
+-
+-extern HWND		ghwndConsole;         
+-          
+-static void guiAddText(const char *str, COLORREF clr)
+-{
+-    int start_lines, text_length, end_lines;
+-    CHARRANGE cr;
+-    CHARRANGE ds;
+-    CHARFORMAT fmt;
+-    
+-    text_length = SendMessage(ghwndConsole, WM_GETTEXTLENGTH, 0, 0);
+-    
+-    if (text_length &gt; 30000)
+-    {
+-        ds.cpMin = 0;
+-        ds.cpMax = text_length - 30000;
+-        SendMessage(ghwndConsole, EM_EXSETSEL, 0, (LPARAM)&amp;ds);
+-        SendMessage(ghwndConsole, EM_REPLACESEL, FALSE, 0);
+-    }
+-	
+-    cr.cpMin = text_length;
+-    cr.cpMax = text_length;
+-    SendMessage(ghwndConsole, EM_EXSETSEL, 0, (LPARAM)&amp;cr); 
+-	
+-    fmt.cbSize = sizeof(CHARFORMAT);
+-    fmt.dwMask = CFM_COLOR|CFM_FACE|CFM_SIZE|CFM_BOLD|CFM_ITALIC|CFM_STRIKEOUT|CFM_UNDERLINE;
+-    fmt.yHeight = 160;
+-    fmt.dwEffects = 0;
+-    fmt.crTextColor = clr;
+-    strcpy(fmt.szFaceName,&quot;Courier New&quot;);
+-
+-    SendMessage(ghwndConsole, EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM)&amp;fmt);
+-    SendMessage(ghwndConsole, EM_REPLACESEL, FALSE, (LPARAM)str);
+-}
+-          
+-extern int gui_lvprintf(t_eventlog_level l, const char *format, va_list arglist)
+-{
+-    char buff[4096];
+-    int result;
+-    COLORREF clr;
+-    
+-    result = vsprintf(buff, format, arglist);
+-    
+-    switch(l)
+-    {
+-        case eventlog_level_none:
+-            clr = RGB(0, 0, 0);
+-            break;
+-        case eventlog_level_trace:
+-            clr = RGB(255, 0, 255);
+-            break;
+-        case eventlog_level_debug:
+-            clr = RGB(0, 0, 255);
+-            break;
+-        case eventlog_level_info:
+-            clr = RGB(0, 0, 0);
+-            break;
+-        case eventlog_level_warn:
+-            clr = RGB(255, 128, 64);
+-            break;
+-        case eventlog_level_error:
+-            clr = RGB(255, 0, 0);
+-            break;
+-        case eventlog_level_fatal:
+-            clr = RGB(255, 0, 0);
+-            break;
+-        default:
+-            clr = RGB(0, 0, 0);
+-    }
+-    guiAddText(buff, clr);
+-    return result;
+-}
+-
+-extern int gui_lprintf(t_eventlog_level l, const char *format, ...)
+-{
+-    va_list arglist;
+-    va_start(arglist, format);
+-    
+-    return gui_lvprintf(l, format, arglist);
+-}
+-
+-extern int gui_printf(const char *format, ...)
+-{
+-	va_list arglist;
+-	va_start(arglist, format);
+-	return gui_lvprintf(eventlog_level_error, format, arglist);
+-}
+-
+-}
+-#endif
+
+Deleted: trunk/pvpgn/src/win32/gui_printf.h
+===================================================================
+--- trunk/pvpgn/src/win32/gui_printf.h	2007-09-22 23:50:50 UTC (rev 389)
++++ trunk/pvpgn/src/win32/gui_printf.h	2007-09-23 00:27:49 UTC (rev 390)
+@@ -1,37 +0,0 @@
+-/*
+- * Copyright (C) 2004   CreepLord (<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">creeplord at pvpgn.org</A>)
+- *
+- * This program is free software; you can redistribute it and/or
+- * modify it under the terms of the GNU General Public License
+- * as published by the Free Software Foundation; either version 2
+- * of the License, or (at your option) any later version.
+- *
+- * This program is distributed in the hope that it will be useful,
+- * but WITHOUT ANY WARRANTY; without even the implied warranty of
+- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+- * GNU General Public License for more details.
+- *
+- * You should have received a copy of the GNU General Public License
+- * along with this program; if not, write to the Free Software
+- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+- */
+- 
+-#ifndef __GUI_PRINTF_H__
+-#define __GUI_PRINTF_H__
+- 
+-#ifdef WIN32_GUI 
+- 
+-#include &lt;cstdarg&gt;
+-#include &quot;common/eventlog.h&quot;
+-
+-namespace pvpgn
+-{
+-          
+-extern int gui_lvprintf(t_eventlog_level l, const char *format, va_list arglist);
+-extern int gui_lprintf(t_eventlog_level l, const char *format, ...);
+-extern int gui_printf(const char *format, ...);
+-
+-}
+-#endif
+-
+-#endif
+
+Modified: trunk/pvpgn/src/win32/winmain.cpp
+===================================================================
+--- trunk/pvpgn/src/win32/winmain.cpp	2007-09-22 23:50:50 UTC (rev 389)
++++ trunk/pvpgn/src/win32/winmain.cpp	2007-09-23 00:27:49 UTC (rev 390)
+@@ -37,9 +37,8 @@
+ #include &quot;common/eventlog.h&quot;
+ #include &quot;common/list.h&quot;
+ #include &quot;common/version.h&quot;
++#include &quot;common/gui_printf.h&quot;
+ 
+-#include &quot;gui_printf.h&quot;
+-
+ #include &quot;bnetd/connection.h&quot;
+ #include &quot;bnetd/account.h&quot;
+ #include &quot;bnetd/account_wrap.h&quot;
+@@ -59,7 +58,7 @@
+ namespace pvpgn
+ {
+ 
+-HWND	ghwndConsole;
++extern HWND	ghwndConsole;
+ 
+ namespace bnetd
+ {
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000461.html">[pvpgn-dev] r389 - in trunk/pvpgn/src: bnetd common d2cs d2dbs win32
+</A></li>
+	<LI>Next message: <A HREF="000463.html">[pvpgn-dev] r391 - in trunk/pvpgn/src: d2cs d2dbs
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#462">[ date ]</a>
+              <a href="thread.html#462">[ thread ]</a>
+              <a href="subject.html#462">[ subject ]</a>
+              <a href="author.html#462">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

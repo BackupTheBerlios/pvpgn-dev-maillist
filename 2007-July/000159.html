@@ -1,0 +1,1112 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r265 - in trunk/pvpgn/src: bnetd common
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-July/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r265%20-%20in%20trunk/pvpgn/src%3A%20bnetd%20common&In-Reply-To=%3C200707301830.l6UIUONp004663%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000158.html">
+   <LINK REL="Next"  HREF="000160.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r265 - in trunk/pvpgn/src: bnetd common</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r265%20-%20in%20trunk/pvpgn/src%3A%20bnetd%20common&In-Reply-To=%3C200707301830.l6UIUONp004663%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r265 - in trunk/pvpgn/src: bnetd common">svn at svn.berlios.de
+       </A><BR>
+    <I>Mon Jul 30 20:30:24 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000158.html">[pvpgn-dev] [Patch #1945] WOL Battleclans support and any bugfixes
+</A></li>
+        <LI>Next message: <A HREF="000160.html">[pvpgn-dev] [Patch #1945] WOL Battleclans support and any bugfixes
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#159">[ date ]</a>
+              <a href="thread.html#159">[ thread ]</a>
+              <a href="subject.html#159">[ subject ]</a>
+              <a href="author.html#159">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pandaemonium
+Date: 2007-07-30 20:30:23 +0200 (Mon, 30 Jul 2007)
+New Revision: 265
+
+Modified:
+   trunk/pvpgn/src/bnetd/handle_irc.cpp
+   trunk/pvpgn/src/bnetd/handle_wol.cpp
+   trunk/pvpgn/src/bnetd/irc.cpp
+   trunk/pvpgn/src/bnetd/irc.h
+   trunk/pvpgn/src/common/irc_protocol.h
+   trunk/pvpgn/src/common/tag.cpp
+   trunk/pvpgn/src/common/tag.h
+Log:
+[ Patch #1945 ] WOL Battleclans support and any bugfixes -  thx go once again to pelish
+
+Modified: trunk/pvpgn/src/bnetd/handle_irc.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/handle_irc.cpp	2007-07-30 16:13:15 UTC (rev 264)
++++ trunk/pvpgn/src/bnetd/handle_irc.cpp	2007-07-30 18:30:23 UTC (rev 265)
+@@ -1,7 +1,7 @@
+ /*
+  * Copyright (C) 2001  Marco Ziech (<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">mmz at gmx.net</A>)
+  * Copyright (C) 2005  Bryan Biedenkapp (<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">gatekeep at gmail.com</A>)
+- * Copyright (C) 2006  Pelish (<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">pelish at gmail.com</A>)
++ * Copyright (C) 2006,2007  Pelish (<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">pelish at gmail.com</A>)
+  *
+  * This program is free software; you can redistribute it and/or
+  * modify it under the terms of the GNU General Public License
+@@ -71,9 +71,7 @@
+ 
+ static int _handle_who_command(t_connection * conn, int numparams, char ** params, char * text);
+ static int _handle_list_command(t_connection * conn, int numparams, char ** params, char * text);
+-static int _handle_topic_command(t_connection * conn, int numparams, char ** params, char * text);
+ static int _handle_join_command(t_connection * conn, int numparams, char ** params, char * text);
+-static int _handle_names_command(t_connection * conn, int numparams, char ** params, char * text);
+ static int _handle_mode_command(t_connection * conn, int numparams, char ** params, char * text);
+ static int _handle_userhost_command(t_connection * conn, int numparams, char ** params, char * text);
+ static int _handle_ison_command(t_connection * conn, int numparams, char ** params, char * text);
+@@ -758,41 +756,6 @@
+ 	return 0;
+ }
+ 
+-static int _handle_topic_command(t_connection * conn, int numparams, char ** params, char * text)
+-{
+-	char ** e = NULL;
+-
+-	if (params!=NULL) e = irc_get_listelems(params[0]);
+-
+-	if ((e)&amp;&amp;(e[0])) {
+-		t_channel *channel = conn_get_channel(conn);
+-
+-		if (channel) {
+-			char * topic;
+-			char temp[MAX_IRC_MESSAGE_LEN];
+-			char const * ircname = irc_convert_ircname(e[0]);
+-
+-			if ((ircname) &amp;&amp; (strcasecmp(channel_get_name(channel),ircname)==0)) {
+-				if ((topic = channel_get_topic(channel_get_name(channel)))) {
+-			  		snprintf(temp, sizeof(temp), &quot;%s :%s&quot;, ircname, topic);
+-			    		irc_send(conn,RPL_TOPIC,temp);
+-				}
+-				else
+-			    		irc_send(conn,RPL_NOTOPIC,&quot;:No topic is set&quot;);
+-			}
+-			else
+-				irc_send(conn,ERR_NOTONCHANNEL,&quot;:You are not on that channel&quot;);
+-		}
+-		else {
+-			irc_send(conn,ERR_NOTONCHANNEL,&quot;:You're not on a channel&quot;);
+-		}
+-		irc_unget_listelems(e);
+-	}
+-	else
+-		irc_send(conn,ERR_NEEDMOREPARAMS,&quot;:too few arguments to TOPIC&quot;);
+-	return 0;
+-}
+-
+ static int _handle_join_command(t_connection * conn, int numparams, char ** params, char * text)
+ {
+ 	if (numparams&gt;=1) {
+@@ -855,50 +818,6 @@
+ 	return 0;
+ }
+ 
+-static int _handle_names_command(t_connection * conn, int numparams, char ** params, char * text)
+-{
+-	t_channel * channel;
+-
+-    if (numparams&gt;=1) {
+-		char ** e;
+-		char const * ircname;
+-		char const * verytemp;
+-		char temp[MAX_IRC_MESSAGE_LEN];
+-		int i;
+-
+-		e = irc_get_listelems(params[0]);
+-		for (i=0;((e)&amp;&amp;(e[i]));i++) {
+-			verytemp = irc_convert_ircname(e[i]);
+-
+-			if (!verytemp)
+-				continue; /* something is wrong with the name ... */
+-			channel = channellist_find_channel_by_name(verytemp,NULL,NULL);
+-			if (!channel)
+-				continue; /* channel doesn't exist */
+-			irc_send_rpl_namreply(conn,channel);
+-			ircname=irc_convert_channel(channel);
+-			if ((std::strlen(ircname)+1+std::strlen(&quot;:End of NAMES list&quot;)+1)&lt;MAX_IRC_MESSAGE_LEN) {
+-				snprintf(temp, sizeof(temp), &quot;%s :End of NAMES list&quot;,ircname);
+-				irc_send(conn,RPL_ENDOFNAMES,temp);
+-			}
+-			else
+-				irc_send(conn,RPL_ENDOFNAMES,&quot;:End of NAMES list&quot;);
+-		}
+-		if (e)
+-		irc_unget_listelems(e);
+-    }
+-	else if (numparams==0) {
+-		t_elem const * curr;
+-		LIST_TRAVERSE_CONST(channellist(),curr)
+-		{
+-			channel = (t_channel*)elem_get_data(curr);
+-			irc_send_rpl_namreply(conn,channel);
+-		}
+-		irc_send(conn,RPL_ENDOFNAMES,&quot;* :End of NAMES list&quot;);
+-    }
+-	return 0;
+-}
+-
+ static int _handle_mode_command(t_connection * conn, int numparams, char ** params, char * text)
+ {
+ 	/* FIXME: Not yet implemented */
+
+Modified: trunk/pvpgn/src/bnetd/handle_wol.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/handle_wol.cpp	2007-07-30 16:13:15 UTC (rev 264)
++++ trunk/pvpgn/src/bnetd/handle_wol.cpp	2007-07-30 18:30:23 UTC (rev 265)
+@@ -1,7 +1,7 @@
+ /*
+  * Copyright (C) 2001  Marco Ziech (<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">mmz at gmx.net</A>)
+  * Copyright (C) 2005  Bryan Biedenkapp (<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">gatekeep at gmail.com</A>)
+- * Copyright (C) 2006  Pelish (<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">pelish at gmail.com</A>)
++ * Copyright (C) 2006,2007  Pelish (<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">pelish at gmail.com</A>)
+  *
+  * This program is free software; you can redistribute it and/or
+  * modify it under the terms of the GNU General Public License
+@@ -47,6 +47,7 @@
+ #include &quot;topic.h&quot;
+ #include &quot;server.h&quot;
+ #include &quot;friends.h&quot;
++#include &quot;clan.h&quot;
+ #include &quot;common/setup_after.h&quot;
+ 
+ namespace pvpgn
+@@ -70,7 +71,6 @@
+ static int _handle_quit_command(t_connection * conn, int numparams, char ** params, char * text);
+ 
+ static int _handle_list_command(t_connection * conn, int numparams, char ** params, char * text);
+-static int _handle_topic_command(t_connection * conn, int numparams, char ** params, char * text);
+ static int _handle_join_command(t_connection * conn, int numparams, char ** params, char * text);
+ static int _handle_part_command(t_connection * conn, int numparams, char ** params, char * text);
+ 
+@@ -94,7 +94,6 @@
+ static int _handle_finduserex_command(t_connection * conn, int numparams, char ** params, char * text);
+ static int _handle_page_command(t_connection * conn, int numparams, char ** params, char * text);
+ static int _handle_startg_command(t_connection * conn, int numparams, char ** params, char * text);
+-static int _handle_listsearch_command(t_connection * conn, int numparams, char ** params, char * text);
+ static int _handle_advertr_command(t_connection * conn, int numparams, char ** params, char * text);
+ static int _handle_chanchk_command(t_connection * conn, int numparams, char ** params, char * text);
+ static int _handle_getbuddy_command(t_connection * conn, int numparams, char ** params, char * text);
+@@ -108,6 +107,11 @@
+ static int _handle_clanbyname_command(t_connection * conn, int numparams, char ** params, char * text);
+ static int _handle_userip_command(t_connection * conn, int numparams, char ** params, char * text);
+ 
++/* Ladder server commands (we will probalby move this commands to any another handle file */
++static int _handle_listsearch_command(t_connection * conn, int numparams, char ** params, char * text);
++static int _handle_rungsearch_command(t_connection * conn, int numparams, char ** params, char * text);
++static int _handle_highscore_command(t_connection * conn, int numparams, char ** params, char * text);
++
+ /* state &quot;connected&quot; handlers */
+ static const t_wol_command_table_row wol_con_command_table[] =
+ {
+@@ -125,6 +129,11 @@
+ 	{ &quot;WHERETO&quot;		, _handle_whereto_command },
+ 	{ &quot;APGAR&quot;		, _handle_apgar_command },
+ 	{ &quot;SERIAL&quot;		, _handle_serial_command },
++	
++    /* Ladder server commands */
++	{ &quot;LISTSEARCH&quot;	, _handle_listsearch_command },
++	{ &quot;RUNGSEARCH&quot;	, _handle_rungsearch_command },
++	{ &quot;HIGHSCORE&quot;	, _handle_highscore_command },
+ 
+ 	{ NULL			, NULL }
+ };
+@@ -135,6 +144,7 @@
+ 	{ &quot;LIST&quot;		, _handle_list_command },
+ 	{ &quot;TOPIC&quot;		, _handle_topic_command },
+ 	{ &quot;JOIN&quot;		, _handle_join_command },
++	{ &quot;NAMES&quot;	    , _handle_names_command },
+ 	{ &quot;PART&quot;		, _handle_part_command },
+ 
+ 	{ &quot;SQUADINFO&quot;	, _handle_squadinfo_command },
+@@ -150,7 +160,6 @@
+ 	{ &quot;FINDUSEREX&quot;	, _handle_finduserex_command },
+ 	{ &quot;PAGE&quot;		, _handle_page_command },
+ 	{ &quot;STARTG&quot;		, _handle_startg_command },
+-	{ &quot;LISTSEARCH&quot;	, _handle_listsearch_command },
+     { &quot;ADVERTR&quot;	    , _handle_advertr_command },
+     { &quot;CHANCHK&quot;	    , _handle_chanchk_command },
+     { &quot;GETBUDDY&quot;    , _handle_getbuddy_command },
+@@ -167,124 +176,6 @@
+ 	{ NULL			, NULL }
+ };
+ 
+-static int handle_wol_set_clienttag (t_connection * conn, int sku)
+-{
+-   eventlog(eventlog_level_debug,__FUNCTION__,&quot;[** WOL **] SKU: %d&quot;,sku);
+-
+-    /**
+-    *  Here is table of SKU and by this SKU setting CLIENTTAG
+-    *  SKU is from Autoupdate FTP and from windows registry
+-    */
+-
+-   switch (sku) {
+-      case 1000:  /* Westwood Chat */
+-           conn_set_clienttag(conn,CLIENTTAG_WCHAT_UINT);
+-           return 0;
+-      case 1003:  /* Command &amp; Conquer */
+-           conn_set_clienttag(conn,CLIENTTAG_WCHAT_UINT);
+-//           conn_set_clienttag(conn,CLIENTTAG_CNCONQUER_UINT);
+-           return 0;
+-      case 1005:  /* Red Alert 1 v2.00 (Westwood Chat Version) */
+-      case 1006:
+-      case 1007:
+-      case 1008:
+-           conn_set_clienttag(conn,CLIENTTAG_WCHAT_UINT);
+-//           conn_set_clienttag(conn,CLIENTTAG_REDALERT_UINT);
+-           return 0;
+-      case 1040:  /* C&amp;C Sole Survivor */
+-           conn_set_clienttag(conn,CLIENTTAG_WCHAT_UINT);
+-//           conn_set_clienttag(conn,CLIENTTAG_CNCSOLES_UINT);
+-           return 0;
+-      case 3072:  /* C&amp;C Renegade */
+-      case 3074:
+-      case 3075:
+-      case 3078:
+-      case 3081:
+-      case 3082:
+-           conn_set_clienttag(conn,CLIENTTAG_RENEGADE_UINT);
+-           return 0;
+-      case 3584:  /* Dune 2000 */
+-      case 3586:
+-      case 3587:
+-      case 3589:
+-      case 3591:
+-           conn_set_clienttag(conn,CLIENTTAG_DUNE2000_UINT);
+-           return 0;
+-      case 4096:  /* Nox */
+-      case 4098:
+-      case 4099:
+-      case 4101:
+-      case 4102:
+-      case 4105:
+-           conn_set_clienttag(conn,CLIENTTAG_NOX_UINT);
+-           return 0;
+-      case 4608:  /* Tiberian Sun */
+-      case 4610:
+-      case 4611:
+-      case 4615:
+-           conn_set_clienttag(conn,CLIENTTAG_TIBERNSUN_UINT);
+-           return 0;
+-      case 5376:  /* Red Alert 1 v3.03 (4 Players Internet Version) */
+-      case 5378:
+-      case 5379:
+-           conn_set_clienttag(conn,CLIENTTAG_REDALERT_UINT);
+-           return 0;
+-      case 7168:  /* Tiberian Sun: Firestorm */
+-      case 7170:
+-      case 7171:
+-      case 7175:
+-      case 7424:
+-      case 7426:
+-      case 7427:
+-      case 7431:
+-           conn_set_clienttag(conn,CLIENTTAG_TIBSUNXP_UINT);
+-           return 0;
+-      case 7936:  /* Emperor: Battle for Dune */
+-      case 7938:
+-      case 7939:
+-      case 7945:
+-      case 7946:
+-           conn_set_clienttag(conn,CLIENTTAG_EMPERORBD_UINT);
+-           return 0;
+-      case 8448:  /* Red Alert 2 */
+-      case 8450:
+-      case 8451:
+-      case 8457:
+-      case 8458:
+-      case 8960:
+-      case 8962:
+-      case 8963:
+-      case 8969:
+-      case 8970:
+-           conn_set_clienttag(conn,CLIENTTAG_REDALERT2_UINT);
+-           return 0;
+-      case 9472:  /* Nox Quest */
+-      case 9474:
+-      case 9475:
+-      case 9477:
+-      case 9478:
+-      case 9481:
+-           conn_set_clienttag(conn,CLIENTTAG_NOXQUEST_UINT);
+-           return 0;
+-      case 10496:  /* Yuri's Revenge */
+-      case 10498:
+-      case 10499:
+-      case 10505:
+-      case 10506:
+-           conn_set_clienttag(conn,CLIENTTAG_YURISREV_UINT);
+-           return 0;
+-      case 12288:  /* C&amp;C Renegade Free Dedicated Server */
+-           conn_set_clienttag(conn,CLIENTTAG_RENEGADE_UINT); //FIXME: SET NEW TAG FOR RENEGADE FDS
+-           return 0;
+-      case 32512:  /* Westwood Online API */
+-           return 0;
+-      default:  /* Other Westwood Online games -- is anyone SKU what we havent??? */
+-           conn_set_clienttag(conn,CLIENTTAG_WWOL_UINT);
+-           return 0;
+-   }
+-   return -1;
+-}
+-
+ static int handle_wol_con_command(t_connection * conn, char const * command, int numparams, char ** params, char * text)
+ {
+   t_wol_command_table_row const *p;
+@@ -455,6 +346,7 @@
+     } else {
+     	    message_send_text(conn,message_type_notice,NULL,&quot;No PASS command received. Please identify yourself by /msg NICKSERV identify &lt;password&gt;.&quot;);
+     }
++
+     return 0;
+ }
+ 
+@@ -930,46 +822,6 @@
+     	return 0;
+ }
+ 
+-static int _handle_topic_command(t_connection * conn, int numparams, char ** params, char * text)
+-{
+-	char ** e = NULL;
+-
+-	if((conn_get_wol(conn) == 1)) {
+-	    t_channel * channel = conn_get_channel(conn);
+-	    channel_set_topic(channel_get_name(channel),text,NO_SAVE_TOPIC);
+-	}
+-
+-	if (params!=NULL) e = irc_get_listelems(params[0]);
+-
+-	if ((e)&amp;&amp;(e[0])) {
+-		t_channel *channel = conn_get_channel(conn);
+-
+-		if (channel) {
+-			char * topic;
+-			char temp[MAX_IRC_MESSAGE_LEN];
+-			char const * wolname = irc_convert_ircname(e[0]);
+-
+-			if ((wolname) &amp;&amp; (strcasecmp(channel_get_name(channel),wolname)==0)) {
+-				if ((topic = channel_get_topic(channel_get_name(channel)))) {
+-			  		snprintf(temp, sizeof(temp), &quot;%s :%s&quot;, wolname, topic);
+-			    		irc_send(conn,RPL_TOPIC,temp);
+-				}
+-				else
+-			    		irc_send(conn,RPL_NOTOPIC,&quot;:No topic is set&quot;);
+-			}
+-			else
+-				irc_send(conn,ERR_NOTONCHANNEL,&quot;:You are not on that channel&quot;);
+-		}
+-		else {
+-			irc_send(conn,ERR_NOTONCHANNEL,&quot;:You're not on a channel&quot;);
+-		}
+-		irc_unget_listelems(e);
+-	}
+-	else
+-		irc_send(conn,ERR_NEEDMOREPARAMS,&quot;:too few arguments to TOPIC&quot;);
+-	return 0;
+-}
+-
+ static int _handle_join_command(t_connection * conn, int numparams, char ** params, char * text)
+ {
+     /* NOTICE: Move this function to IRC Common file!!! */
+@@ -1073,6 +925,8 @@
+ */
+ static int _handle_cvers_command(t_connection * conn, int numparams, char ** params, char * text)
+ {
++    t_clienttag clienttag;
++
+ 	/* Ignore command but set clienttag */
+ 
+ 	/**
+@@ -1085,7 +939,9 @@
+ 	*/
+ 
+ 	if (numparams == 2) {
+-        handle_wol_set_clienttag (conn, std::atoi(params[1]));
++        clienttag = tag_sku_to_uint(std::atoi(params[1]));
++        if (clienttag != CLIENTTAG_WWOL_UINT)
++             conn_set_clienttag(conn,clienttag);
+  	    return 0;
+     }
+ 
+@@ -1095,6 +951,7 @@
+ static int _handle_verchk_command(t_connection * conn, int numparams, char ** params, char * text)
+ {
+     char temp[MAX_IRC_MESSAGE_LEN];
++    t_clienttag clienttag;
+ 
+     /**
+     *  Heres the imput expected:
+@@ -1115,20 +972,26 @@
+     if (conn_get_class(conn) == conn_class_wserv) {
+         // FIXME: We send only update non-existant now!
+         // THIS is point for autoupdate!!!
+-        handle_wol_set_clienttag (conn, std::atoi(params[0]));
++
++        clienttag = tag_sku_to_uint(std::atoi(params[0]));
++        if (clienttag != CLIENTTAG_WWOL_UINT)
++            conn_set_clienttag(conn,clienttag);
++
+         eventlog(eventlog_level_debug,__FUNCTION__,&quot;[** WOL **] VERCHK :Update record non-existant&quot;);
+         irc_send(conn,RPL_UPDATE_NONEX,&quot;:Update record non-existant&quot;);
+       	return 0;
+     }
+     else {
+-        handle_wol_set_clienttag (conn, std::atoi(params[0]));
++        clienttag = tag_sku_to_uint(std::atoi(params[0]));
++        if (clienttag != CLIENTTAG_WWOL_UINT)
++            conn_set_clienttag(conn,clienttag);
++
+         snprintf(temp, sizeof(temp), &quot;:none none none 1 %s NONREQ&quot;, params[0]);
+         eventlog(eventlog_level_debug,__FUNCTION__,&quot;[** WOL **] VERCHK %s&quot;,temp);
+         irc_send(conn,RPL_VERCHK_NONREQ,temp);
+       	return 0;
+     }
+-
+- 	return 0;
++ 	return -1;
+ }
+ 
+ static int _handle_lobcount_command(t_connection * conn, int numparams, char ** params, char * text)
+@@ -1179,17 +1042,23 @@
+ 	      //I dont know for what is this server...? (used in renegade and yuri)
+ 	      //snprintf(temp, sizeof(temp), &quot;:%s 4321 'Port Mangler' %s %s %s&quot;, wolip, woltimezone, wollong, wollat);
+ 	      //irc_send(conn,RPL_MANGLERSERV,temp);
++	      // on official server list is for Renegade also this server:
++	      //:noxchat1.wol.abn-sjc.ea.com 613 UserName :ea4.str.ea.com 0 '0,1,2,3,4,5,6,7,8,9,10:EA Ticket Server' -8 36.1083 -115.0582
+        }
+ 
+        /*  There are servers for anyone game */
+        snprintf(temp, sizeof(temp), &quot;:%s %d 'Live chat server' %s %s %s&quot;, wolip, BNETD_WOL_PORT, woltimezone, wollong, wollat);
+        irc_send(conn,RPL_WOLSERV,temp);
+     }
++
+     /* If game is not allowed than we still send this servers */
+ 	snprintf(temp, sizeof(temp), &quot;:%s %d 'Gameres server' %s %s %s&quot;, wolip, BNETD_WGAMERES_PORT, woltimezone, wollong, wollat);
+ 	irc_send(conn,RPL_GAMERESSERV,temp);
+-	snprintf(temp, sizeof(temp), &quot;:%s %d 'Ladder server' %s %s %s&quot;, wolip, BNETD_WGAMERES_PORT, woltimezone, wollong, wollat);
++	snprintf(temp, sizeof(temp), &quot;:%s %d 'Ladder server' %s %s %s&quot;, wolip, BNETD_WOL_PORT, woltimezone, wollong, wollat);
+ 	irc_send(conn,RPL_LADDERSERV,temp);
++	/* There is Word Domination Tour server for Firestorm (maybe for future coding) */
++	//snprintf(temp, sizeof(temp), &quot;:%s %d 'WDT server' %s %s %s&quot;, wolip, BNETD_WOL_PORT, woltimezone, wollong, wollat); //I dont know for what is this server...?
++	//irc_send(conn,RPL_WDTSERV,temp);
+ 
+ 	return 0;
+ }
+@@ -1215,15 +1084,37 @@
+ static int _handle_squadinfo_command(t_connection * conn, int numparams, char ** params, char * text)
+ {
+ 	char _temp[MAX_IRC_MESSAGE_LEN];
++	t_clan * clan;
++	unsigned int clanid;
++	const char * clantag;
++	const char * clanname;
+ 
+ 	std::memset(_temp,0,sizeof(_temp));
+ 
+-   /* FIXME: Not completed! Here we will send info about BATLLECLANS */
++    if (params[0]) {
++       if (std::strcmp(params[0], &quot;0&quot;) == 0) {
++           /* 0 == question for me! */
++           clan = account_get_clan(conn_get_account(conn));
++       }
++       else {
++           /* question for another one */
++           clan = clanlist_find_clan_by_clanid(std::atoi(params[0]));
++       }
++    }
+ 
+-	if ((numparams=1)) {
++    if (clan) {
++        clanid = clan_get_clanid(clan);
++	    clantag = clantag_to_str(clan_get_clantag(clan));
++	    clanname = clan_get_name(clan);
++        snprintf(_temp, sizeof(_temp), &quot;%u`%s`%s`0`0`1`0`0`0`0`0`0`0`x`x`x&quot;,clanid,clanname,clantag);
++        irc_send(conn,RPL_BATTLECLAN,_temp);
++    }
++    else {
+         snprintf(_temp, sizeof(_temp), &quot;ID does not exist&quot;);
+ 	    irc_send(conn,ERR_IDNOEXIST,_temp);
+     }
++    eventlog(eventlog_level_debug,__FUNCTION__,&quot;[** WOL **] SQUADINFO: %s&quot;,_temp);
++
+ 	return 0;
+ }
+ 
+@@ -1340,11 +1231,22 @@
+ 
+ static int _handle_getinsider_command(t_connection * conn, int numparams, char ** params, char * text)
+ {
+-    /* Ignore command but, return pramas[1] */
+-
+-    eventlog(eventlog_level_debug,__FUNCTION__,&quot;[** WOL **] GETINSIDER %s&quot;,params[1]);
+-    irc_send(conn,RPL_GET_INSIDER,params[1]);
+-	return 0;
++    /**
++     * FIXME:
++     * XWIS working:
++     *   GETINSIDER Pelish
++     *   : 399 u Pelish`0
++     * FSGS working: (used in PvPGN now)
++     *   GETINSIDER Pelish
++     *    :irc.westwood.com 399 Pelish
++     */
++    
++    if (params[0]) {
++       eventlog(eventlog_level_debug,__FUNCTION__,&quot;[** WOL **] GETINSIDER %s&quot;,params[0]);
++       irc_send(conn,RPL_GET_INSIDER,params[0]);
++       return 0;
++    }
++    return -1;
+ }
+ 
+ static int _handle_joingame_command(t_connection * conn, int numparams, char ** params, char * text)
+@@ -1665,12 +1567,32 @@
+ 	    t_connection * user;
+ 
+ 	    snprintf(_temp, sizeof(_temp), &quot;:%s&quot;, text);
+-	    if((user = connlist_find_connection_by_accountname(params[0]))&amp;&amp;(conn_wol_get_pageme(user) == 33)) {
++
++	    if (std::strcmp(params[0], &quot;0&quot;) == 0) {
++            /* PAGE for MY BATTLECLAN */
++            t_clan * clan = account_get_clan(conn_get_account(conn));
++            t_list * cl_member_list;
++            t_elem * curr;
++            if (clan) {
++               cl_member_list = clan_get_members(clan);
++
++               LIST_TRAVERSE(cl_member_list,curr) {
++                   t_clanmember * member = (t_clanmember*)elem_get_data(curr);
++
++                   if ((user = clanmember_get_conn(member))&amp;&amp;(conn_wol_get_pageme(user) == 33));
++                       message_send_text(user,message_wol_page,conn,_temp);
++               }
++            }
++            else
++                ERROR1(&quot;User %s want to ClanPAGE but is not clanmember!&quot;,conn_get_chatname(conn));
++            return 0;
++        }
++	    else if((user = connlist_find_connection_by_accountname(params[0]))&amp;&amp;(conn_wol_get_pageme(user) == 33)) {
+      		message_send_text(user,message_wol_page,conn,_temp);
+      		snprintf(_temp, sizeof(_temp), &quot;0 :&quot;); /* Page was succesfull */
+ 	    }
+ 	    else
+-	    snprintf(_temp, sizeof(_temp), &quot;1 :&quot;); /* User not loged in or have not allowed page */
++	        snprintf(_temp, sizeof(_temp), &quot;1 :&quot;); /* User not loged in or have not allowed page */
+ 	    irc_send(conn,RPL_PAGE,_temp);
+ 	}
+ 	return 0;
+@@ -1759,12 +1681,6 @@
+    	return 0;
+ }
+ 
+-static int _handle_listsearch_command(t_connection * conn, int numparams, char ** params, char * text)
+-{
+-	// THAT IS LADDER SERVER COMMAND!!!!
+-	return 0;
+-}
+-
+ static int _handle_advertr_command(t_connection * conn, int numparams, char ** params, char * text)
+ {
+     char temp[MAX_IRC_MESSAGE_LEN];
+@@ -2025,7 +1941,29 @@
+ 
+ static int _handle_clanbyname_command(t_connection * conn, int numparams, char ** params, char * text)
+ {
+-    /* FIXME: Not implemented yet */
++	char temp[MAX_IRC_MESSAGE_LEN];
++	t_clan * clan;
++	unsigned int clanid;
++	const char * clantag;
++	const char * clanname;
++
++	std::memset(temp,0,sizeof(temp));
++
++    if (params[0])
++        clan = account_get_clan(accountlist_find_account(params[0]));
++
++    if (clan) {
++        clanid = clan_get_clanid(clan);
++	    clantag = clantag_to_str(clan_get_clantag(clan));
++	    clanname = clan_get_name(clan);
++        snprintf(temp, sizeof(temp), &quot;%u`%s`%s`0`0`1`0`0`0`0`0`0`0`x`x`x&quot;,clanid,clanname,clantag);
++        irc_send(conn,RPL_BATTLECLAN,temp);
++    }
++    else {
++        snprintf(temp, sizeof(temp), &quot;ID does not exist&quot;);
++	    irc_send(conn,ERR_IDNOEXIST,temp);
++    }
++    eventlog(eventlog_level_debug,__FUNCTION__,&quot;[** WOL **] CLANBYNAME (%s)&quot;,temp);
+     return 0;
+ }
+ 
+@@ -2048,6 +1986,30 @@
+     return 0;
+ }
+ 
++/**
++ * LADDER Server commands:
++ */
++static int _handle_listsearch_command(t_connection * conn, int numparams, char ** params, char * text)
++{
++	// FIXME: Not implemetned yet
++	conn_set_state(conn, conn_state_destroy);
++	return 0;
+ }
+ 
++static int _handle_rungsearch_command(t_connection * conn, int numparams, char ** params, char * text)
++{
++	// FIXME: Not implemetned yet
++	conn_set_state(conn, conn_state_destroy);
++	return 0;
+ }
++
++static int _handle_highscore_command(t_connection * conn, int numparams, char ** params, char * text)
++{
++	// FIXME: Not implemetned yet
++	conn_set_state(conn, conn_state_destroy);
++	return 0;
++}
++
++}
++
++}
+
+Modified: trunk/pvpgn/src/bnetd/irc.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/irc.cpp	2007-07-30 16:13:15 UTC (rev 264)
++++ trunk/pvpgn/src/bnetd/irc.cpp	2007-07-30 18:30:23 UTC (rev 265)
+@@ -1,7 +1,7 @@
+ /*
+  * Copyright (C) 2001  Marco Ziech (<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">mmz at gmx.net</A>)
+  * Copyright (C) 2005  Bryan Biedenkapp (<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">gatekeep at gmail.com</A>)
+- * Copyright (C) 2006  Pelish (<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">pelish at gmail.com</A>)
++ * Copyright (C) 2006,2007  Pelish (<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">pelish at gmail.com</A>)
+  *
+  * This program is free software; you can redistribute it and/or
+  * modify it under the terms of the GNU General Public License
+@@ -34,6 +34,7 @@
+ #include &quot;common/xalloc.h&quot;
+ #include &quot;common/addr.h&quot;
+ #include &quot;common/tag.h&quot;
++#include &quot;common/list.h&quot;
+ #include &quot;common/util.h&quot;
+ 
+ #include &quot;message.h&quot;
+@@ -47,6 +48,8 @@
+ #include &quot;handle_irc.h&quot;
+ #include &quot;handle_wol.h&quot;
+ #include &quot;command_groups.h&quot;
++#include &quot;topic.h&quot;
++#include &quot;clan.h&quot;
+ #include &quot;common/setup_after.h&quot;
+ 
+ namespace pvpgn
+@@ -224,7 +227,7 @@
+     }
+     a = accountlist_find_account(username);
+     if (!a) {
+-            message_send_text(conn,message_type_notice,NULL,&quot;Authentication failed.&quot;);
++        message_send_text(conn,message_type_notice,NULL,&quot;Authentication failed.&quot;);
+ 	return 0;
+     }
+ 
+@@ -246,8 +249,9 @@
+     	    }
+ 
+     	    if(tempapgar == NULL) {
+-                std::sprintf(temp,&quot;:Closing Link %s[Some.host]:(Password needed for that nickname.)&quot;,conn_get_loggeduser(conn));
+-                message_send_text(conn,message_type_error,conn,temp);  /* bad APGAR */
++                irc_send(conn,RPL_BAD_LOGIN,&quot;:You have specified an invalid password for that nickname.&quot;); /* bad APGAR */
++                //std::sprintf(temp,&quot;:Closing Link %s[Some.host]:(Password needed for that nickname.)&quot;,conn_get_loggeduser(conn));
++                //message_send_text(conn,message_type_error,conn,temp);
+                 conn_increment_passfail_count(conn);
+                 return 0;
+             }
+@@ -258,8 +262,9 @@
+         		return 1;
+     	    }
+     	    else {
+-                std::sprintf(temp,&quot;:Closing Link %s[Some.host]:(Password needed for that nickname.)&quot;,conn_get_loggeduser(conn));
+-                message_send_text(conn,message_type_error,conn,temp);  /* bad APGAR */
++                irc_send(conn,RPL_BAD_LOGIN,&quot;:You have specified an invalid password for that nickname.&quot;); /* bad APGAR */
++                //std::sprintf(temp,&quot;:Closing Link %s[Some.host]:(Password needed for that nickname.)&quot;,conn_get_loggeduser(conn));
++                ///message_send_text(conn,message_type_error,conn,temp);
+         		conn_increment_passfail_count(conn);
+         		return 0;
+     	    }
+@@ -644,13 +649,21 @@
+ 	    if((conn_get_wol(me) == 1) &amp;&amp; (conn_get_clienttag(me) != CLIENTTAG_WCHAT_UINT))
+ 	    {
+         	char temp[MAX_IRC_MESSAGE_LEN];
++    		t_clan * clan;
++    		unsigned int clanid = 0;
+     		std::memset(temp,0,sizeof(temp));
+ 
+     		/**
+             *  For WOLv2 the channel JOIN output must be like the following:
+     		*  user!<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">WWOL at hostname</A> JOIN :clanID,longIP channelName
+     		*/
+-    		std::sprintf(temp,&quot;:0,%u&quot;,conn_get_addr(me));
++
++    		clan = account_get_clan(conn_get_account(me));
++
++    		if (clan)
++    			clanid = clan_get_clanid(clan);
++
++    		std::sprintf(temp,&quot;:%u,%u&quot;,clanid,conn_get_addr(me));
+     		msg = irc_message_preformat(&amp;from,&quot;JOIN&quot;,temp,irc_convert_channel(conn_get_channel(me)));
+ 	    	conn_unget_chatname(me,from.nick);
+     	    break;
+@@ -907,9 +920,16 @@
+                 else if ((conn_wol_get_ingame(c) == 0)) {
+                    	if (flags &amp; MF_BLIZZARD)
+ 		               std::strcat(temp,&quot;@&quot;);
+-               }
++                }
+                 if (conn_get_clienttag(c) != CLIENTTAG_WCHAT_UINT) {
+-                    std::sprintf(temp,&quot;%s%s,0,%u&quot;,temp,name,conn_get_addr(m));
++                    /* BATTLECLAN Support */
++                    t_clan * clan = account_get_clan(conn_get_account(m));
++                    unsigned int clanid = 0;
++
++                    if (clan)
++                        clanid = clan_get_clanid(clan);
++
++                    std::sprintf(temp,&quot;%s%s,%u,%u&quot;,temp,name,clanid,conn_get_addr(m));
+                 }
+                 else {
+                     std::sprintf(temp,&quot;%s%s&quot;,temp,name);
+@@ -1118,6 +1138,90 @@
+ 	return 0;
+ }
+ 
++extern int _handle_topic_command(t_connection * conn, int numparams, char ** params, char * text)
++{
++	char ** e = NULL;
++
++	if((conn_get_wol(conn) == 1)) {
++	    t_channel * channel = conn_get_channel(conn);
++	    channel_set_topic(channel_get_name(channel),text,NO_SAVE_TOPIC);
++	}
++
++	if (params!=NULL) e = irc_get_listelems(params[0]);
++
++	if ((e)&amp;&amp;(e[0])) {
++		t_channel *channel = conn_get_channel(conn);
++
++		if (channel) {
++			char * topic;
++			char temp[MAX_IRC_MESSAGE_LEN];
++			char const * ircname = irc_convert_ircname(e[0]);
++
++			if ((ircname) &amp;&amp; (strcasecmp(channel_get_name(channel),ircname)==0)) {
++				if ((topic = channel_get_topic(channel_get_name(channel)))) {
++			  		snprintf(temp, sizeof(temp), &quot;%s :%s&quot;, irc_convert_channel(channel), topic);
++			    		irc_send(conn,RPL_TOPIC,temp);
++				}
++				else
++			    		irc_send(conn,RPL_NOTOPIC,&quot;:No topic is set&quot;);
++			}
++			else
++				irc_send(conn,ERR_NOTONCHANNEL,&quot;:You are not on that channel&quot;);
++		}
++		else {
++			irc_send(conn,ERR_NOTONCHANNEL,&quot;:You're not on a channel&quot;);
++		}
++		irc_unget_listelems(e);
++	}
++	else
++		irc_send(conn,ERR_NEEDMOREPARAMS,&quot;:too few arguments to TOPIC&quot;);
++	return 0;
+ }
+ 
++extern int _handle_names_command(t_connection * conn, int numparams, char ** params, char * text)
++{
++	t_channel * channel;
++
++    if (numparams&gt;=1) {
++		char ** e;
++		char const * ircname;
++		char const * verytemp;
++		char temp[MAX_IRC_MESSAGE_LEN];
++		int i;
++
++		e = irc_get_listelems(params[0]);
++		for (i=0;((e)&amp;&amp;(e[i]));i++) {
++			verytemp = irc_convert_ircname(e[i]);
++
++			if (!verytemp)
++				continue; /* something is wrong with the name ... */
++			channel = channellist_find_channel_by_name(verytemp,NULL,NULL);
++			if (!channel)
++				continue; /* channel doesn't exist */
++			irc_send_rpl_namreply(conn,channel);
++			ircname=irc_convert_channel(channel);
++			if ((std::strlen(ircname)+1+std::strlen(&quot;:End of NAMES list&quot;)+1)&lt;MAX_IRC_MESSAGE_LEN) {
++				snprintf(temp, sizeof(temp), &quot;%s :End of NAMES list&quot;,ircname);
++				irc_send(conn,RPL_ENDOFNAMES,temp);
++			}
++			else
++				irc_send(conn,RPL_ENDOFNAMES,&quot;:End of NAMES list&quot;);
++		}
++		if (e)
++		irc_unget_listelems(e);
++    }
++	else if (numparams==0) {
++		t_elem const * curr;
++		LIST_TRAVERSE_CONST(channellist(),curr)
++		{
++			channel = (t_channel*)elem_get_data(curr);
++			irc_send_rpl_namreply(conn,channel);
++		}
++		irc_send(conn,RPL_ENDOFNAMES,&quot;* :End of NAMES list&quot;);
++    }
++	return 0;
+ }
++
++}
++
++}
+
+Modified: trunk/pvpgn/src/bnetd/irc.h
+===================================================================
+--- trunk/pvpgn/src/bnetd/irc.h	2007-07-30 16:13:15 UTC (rev 264)
++++ trunk/pvpgn/src/bnetd/irc.h	2007-07-30 18:30:23 UTC (rev 265)
+@@ -1,5 +1,6 @@
+ /*
+  * Copyright (C) 2001  Marco Ziech (<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">mmz at gmx.net</A>)
++ * Copyright (C) 2007  Pelish (<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">pelish at gmail.com</A>)
+  *
+  * This program is free software; you can redistribute it and/or
+  * modify it under the terms of the GNU General Public License
+@@ -50,7 +51,8 @@
+ extern int irc_who(t_connection * c, char const * name);
+ extern int irc_send_motd(t_connection * conn);
+ extern int _handle_nick_command(t_connection * conn, int numparams, char ** params, char * text);
+-
++extern int _handle_topic_command(t_connection * conn, int numparams, char ** params, char * text);
++extern int _handle_names_command(t_connection * conn, int numparams, char ** params, char * text);
+ }
+ 
+ }
+
+Modified: trunk/pvpgn/src/common/irc_protocol.h
+===================================================================
+--- trunk/pvpgn/src/common/irc_protocol.h	2007-07-30 16:13:15 UTC (rev 264)
++++ trunk/pvpgn/src/common/irc_protocol.h	2007-07-30 18:30:23 UTC (rev 265)
+@@ -1,7 +1,7 @@
+ /*
+  * Copyright (C) 2001  Marco Ziech (<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">mmz at gmx.net</A>)
+  * Copyright (C) 2005  Bryan Biedenkapp (<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">gatekeep at gmail.com</A>)
+- * Copyright (C) 2006  Ondrej Pelikan (<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">pelish at gmail.com</A>)
++ * Copyright (C) 2006,2007  Pelish (<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">pelish at gmail.com</A>)
+  *
+  * This program is free software; you can redistribute it and/or
+  * modify it under the terms of the GNU General Public License
+@@ -341,6 +341,7 @@
+ 
+ #define RPL_BATTLECLAN	     358
+ 
++#define RPL_BAD_LOGIN        378
+ #define RPL_VERCHK_NONREQ    379  /* for WOL */
+ 
+ #define RPL_FIND_USER        388
+@@ -358,9 +359,10 @@
+ #define RPL_GAMERESSERV	     608
+ #define RPL_LADDERSERV	     609
+ #define RPL_LOBCOUNT	     610
++#define RPL_WDTSERV          611
++#define RPL_MANGLERSERV      612
++#define RPL_TICKETSERV       613
+ 
+-#define RPL_MANGLERSERV	     612
+-
+ #define RPL_PINGSERVER	     615
+ 
+ #define ERR_IDNOEXIST        439
+
+Modified: trunk/pvpgn/src/common/tag.cpp
+===================================================================
+--- trunk/pvpgn/src/common/tag.cpp	2007-07-30 16:13:15 UTC (rev 264)
++++ trunk/pvpgn/src/common/tag.cpp	2007-07-30 18:30:23 UTC (rev 265)
+@@ -1,6 +1,7 @@
+ /*
+  * Copyright (C) 2004	Aaron
+  * Copyright (C) 2004	CreepLord (<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">creeplord at pvpgn.org</A>)
++ * Copyright (C) 2007	Pelish (<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">pelish at gmail.com</A>)
+  *
+  * This program is free software; you can redistribute it and/or
+  * modify it under the terms of the GNU General Public License
+@@ -347,4 +348,110 @@
+     return 0;
+ }
+ 
++extern t_clienttag tag_sku_to_uint (int sku)
++{
++  /**
++   *  Here is table of Westwood Online SKUs and by this SKU returning CLIENTTAG
++   *  SKUs are from Autoupdate FTP and from windows registry
++   */
++    
++   if (!sku)
++   {
++        ERROR0(&quot;got NULL sku&quot;);
++        return CLIENTTAG_UNKNOWN_UINT;
++   }
++
++   switch (sku) {
++      case 1000:  /* Westwood Chat */
++           return CLIENTTAG_WCHAT_UINT;
++      case 1003:  /* Command &amp; Conquer */
++           return CLIENTTAG_WCHAT_UINT;
++//           return CLIENTTAG_CNCONQUER_UINT;
++      case 1005:  /* Red Alert 1 v2.00 (Westwood Chat Version) */
++      case 1006:
++      case 1007:
++      case 1008:
++           return CLIENTTAG_WCHAT_UINT;
++//           return CLIENTTAG_REDALERT_UINT;
++      case 1040:  /* C&amp;C Sole Survivor */
++           return CLIENTTAG_WCHAT_UINT;
++//           return CLIENTTAG_CNCSOLES_UINT;
++      case 3072:  /* C&amp;C Renegade */
++      case 3074:
++      case 3075:
++      case 3078:
++      case 3081:
++      case 3082:
++//      case 16780288: /* renegade ladder players */
++           return CLIENTTAG_RENEGADE_UINT;
++      case 3584:  /* Dune 2000 */
++      case 3586:
++      case 3587:
++      case 3589:
++      case 3591:
++           return CLIENTTAG_DUNE2000_UINT;
++      case 4096:  /* Nox */
++      case 4098:
++      case 4099:
++      case 4101:
++      case 4102:
++      case 4105:
++           return CLIENTTAG_NOX_UINT;
++      case 4608:  /* Tiberian Sun */
++      case 4610:
++      case 4611:
++      case 4615:
++           return CLIENTTAG_TIBERNSUN_UINT;
++      case 5376:  /* Red Alert 1 v3.03 (4 Players Internet Version) */
++      case 5378:
++      case 5379:
++           return CLIENTTAG_REDALERT_UINT;
++      case 7168:  /* Tiberian Sun: Firestorm */
++      case 7170:
++      case 7171:
++      case 7175:
++      case 7424:
++      case 7426:
++      case 7427:
++      case 7431:
++           return CLIENTTAG_TIBSUNXP_UINT;
++      case 7936:  /* Emperor: Battle for Dune */
++      case 7938:
++      case 7939:
++      case 7945:
++      case 7946:
++           return CLIENTTAG_EMPERORBD_UINT;
++      case 8448:  /* Red Alert 2 */
++      case 8450:
++      case 8451:
++      case 8457:
++      case 8458:
++      case 8960:
++      case 8962:
++      case 8963:
++      case 8969:
++      case 8970:
++           return CLIENTTAG_REDALERT2_UINT;
++      case 9472:  /* Nox Quest */
++      case 9474:
++      case 9475:
++      case 9477:
++      case 9478:
++      case 9481:
++           return CLIENTTAG_NOXQUEST_UINT;
++      case 10496:  /* Yuri's Revenge */
++      case 10498:
++      case 10499:
++      case 10505:
++      case 10506:
++           return CLIENTTAG_YURISREV_UINT;
++      case 12288:  /* C&amp;C Renegade Free Dedicated Server */
++           return CLIENTTAG_RENEGADE_UINT; //FIXME: SET NEW CLIENTTAG FOR RENEGADE FDS
++      case 32512:  /* Westwood Online API */
++           return CLIENTTAG_WWOL_UINT;
++      default:  /* Unknown Westwood Online game -&gt; is anyone SKU that we havent??? */
++           return CLIENTTAG_WWOL_UINT;
++   }
+ }
++
++}
+
+Modified: trunk/pvpgn/src/common/tag.h
+===================================================================
+--- trunk/pvpgn/src/common/tag.h	2007-07-30 16:13:15 UTC (rev 264)
++++ trunk/pvpgn/src/common/tag.h	2007-07-30 18:30:23 UTC (rev 265)
+@@ -2,6 +2,7 @@
+  * Copyright (C) 1998  Mark Baysinger (<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">mbaysing at ucsd.edu</A>)
+  * Copyright (C) 1998,1999,2000  Ross Combs (<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">rocombs at cs.nmsu.edu</A>)
+  * Copyright (C) 2004 CreepLord (<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">creeplord at pvpgn.org</A>)
++ * Copyright (C) 2007  Pelish (<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">pelish at gmail.com</A>)
+  *
+  * This program is free software; you can redistribute it and/or
+  * modify it under the terms of the GNU General Public License
+@@ -161,6 +162,7 @@
+ extern int	tag_check_client(t_tag tag_uint);
+ extern int	tag_check_gamelang(t_tag tag_uint);
+ extern int	tag_check_in_list(t_clienttag clienttag,const char * list);
++extern t_clienttag tag_sku_to_uint (int sku);
+ 
+ }
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000158.html">[pvpgn-dev] [Patch #1945] WOL Battleclans support and any bugfixes
+</A></li>
+	<LI>Next message: <A HREF="000160.html">[pvpgn-dev] [Patch #1945] WOL Battleclans support and any bugfixes
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#159">[ date ]</a>
+              <a href="thread.html#159">[ thread ]</a>
+              <a href="subject.html#159">[ subject ]</a>
+              <a href="author.html#159">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

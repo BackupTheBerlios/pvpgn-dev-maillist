@@ -1,0 +1,92 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] pvpgn/src/bnetd command.c,1.164,1.165
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-August/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20pvpgn/src/bnetd%20command.c%2C1.164%2C1.165&In-Reply-To=%3C20070801163925.07A46E00AD%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000192.html">
+   <LINK REL="Next"  HREF="000194.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] pvpgn/src/bnetd command.c,1.164,1.165</H1>
+    <B>pandaemonium</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20pvpgn/src/bnetd%20command.c%2C1.164%2C1.165&In-Reply-To=%3C20070801163925.07A46E00AD%40mail.berlios.de%3E"
+       TITLE="[pvpgn-dev] pvpgn/src/bnetd command.c,1.164,1.165">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Wed Aug  1 18:39:25 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000192.html">[pvpgn-dev] pvpgn version-history.txt,1.262,1.263
+</A></li>
+        <LI>Next message: <A HREF="000194.html">[pvpgn-dev] r279 - trunk/pvpgn
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#193">[ date ]</a>
+              <a href="thread.html#193">[ thread ]</a>
+              <a href="subject.html#193">[ subject ]</a>
+              <a href="author.html#193">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/pvpgn/pvpgn/src/bnetd
+In directory sheep:/tmp/cvs-serv15027/src/bnetd
+
+Modified Files:
+	command.c 
+Log Message:
+[Bug #9262] Channel Char Limit Bug
+
+Index: command.c
+===================================================================
+RCS file: /cvsroot/pvpgn/pvpgn/src/bnetd/command.c,v
+retrieving revision 1.164
+retrieving revision 1.165
+diff -u -d -r1.164 -r1.165
+--- command.c	5 Mar 2006 11:28:11 -0000	1.164
++++ command.c	1 Aug 2007 16:39:08 -0000	1.165
+@@ -2136,6 +2136,13 @@
+ //	 }
+      }
+ 
++   if (!(strlen(text) &lt; CHANNEL_NAME_LEN))
++   {
++     sprintf(msgtemp,&quot;max channel name length exceeded (max %d symbols)&quot;, CHANNEL_NAME_LEN - 1);
++     message_send_text(c,message_type_error,c,msgtemp);
++     return 0;
++   }
++
+    if ((channel = conn_get_channel(c)) &amp;&amp; (strcasecmp(channel_get_name(channel),text)==0))
+      return 0; // we don't have to do anything, we are allready in this channel
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000192.html">[pvpgn-dev] pvpgn version-history.txt,1.262,1.263
+</A></li>
+	<LI>Next message: <A HREF="000194.html">[pvpgn-dev] r279 - trunk/pvpgn
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#193">[ date ]</a>
+              <a href="thread.html#193">[ thread ]</a>
+              <a href="subject.html#193">[ subject ]</a>
+              <a href="author.html#193">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

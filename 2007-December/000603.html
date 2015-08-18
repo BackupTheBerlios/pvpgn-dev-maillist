@@ -1,0 +1,105 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] Changing PvPGN license from &quot;GPLv2 and later&quot; to	GPLv3/AGPLv3
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-December/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20Changing%20PvPGN%20license%20from%20%22GPLv2%20and%20later%22%20to%0A%09GPLv3/AGPLv3&In-Reply-To=%3C200712031130.30984.dizone%40gmail.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000602.html">
+   <LINK REL="Next"  HREF="000604.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] Changing PvPGN license from &quot;GPLv2 and later&quot; to	GPLv3/AGPLv3</H1>
+    <B>dizzy</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20Changing%20PvPGN%20license%20from%20%22GPLv2%20and%20later%22%20to%0A%09GPLv3/AGPLv3&In-Reply-To=%3C200712031130.30984.dizone%40gmail.com%3E"
+       TITLE="[pvpgn-dev] Changing PvPGN license from &quot;GPLv2 and later&quot; to	GPLv3/AGPLv3">dizone at gmail.com
+       </A><BR>
+    <I>Mon Dec  3 10:30:30 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000602.html">[pvpgn-dev] [Bug #12534] ra2 can created games but cannot start	games
+</A></li>
+        <LI>Next message: <A HREF="000604.html">[pvpgn-dev] Changing PvPGN license from &quot;GPLv2 and later&quot; to GPLv3/AGPLv3
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#603">[ date ]</a>
+              <a href="thread.html#603">[ thread ]</a>
+              <a href="subject.html#603">[ subject ]</a>
+              <a href="author.html#603">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi
+
+Lately I have noticed there is alot of servers out there that perform 
+customizations on the PvPGN source code and do not give us any patches or do 
+not provide the source. This is (according to GPLv2, the current PvPGN 
+license) absolutely legal (tho not very much in the spirit of the license). 
+The FSF (which makes these licenses) also made a licensed called Affero GPL 
+(AGPL) which is now at version 3. It is the same identical text as GPLv3 with 
+the addition that you do need to distribute source code to your network users 
+(just as with GPL you needed to do that to the people you distributed binary 
+code). So I was thinking maybe we should switch PvPGN license from &quot;GPLv2 and 
+later&quot; to AGPLv3 (and GPLv3, see bellow).
+
+We cannot change it completely to AGPLv3 because it is impossible to contact 
+and get agreement to switch to AGPLv3 for every person who contributed enough 
+code in PvPGN to be protected by copyright (think about all those old bnetd 
+contributers). But, from what I have discussed with fsf.org people, we can 
+change all the code we have written (or for which we get permission from the 
+author) to AGPLv3 and we can distribute this along with the code we cannot 
+change, because that code is still under &quot;GPLv2 or later&quot;, meaning it can be 
+distributed under GPLv3 and GPLv3 is compatible with AGPLv3 (ie you can 
+combine code of GPLv3 and AGPLv3 in the same project).
+
+If we do this then any person who receives our combined GPLv3/AGPLv3 code has 
+to obey both licenses (because it contains code both with GPLv3 and with 
+AGPLv3). Which means that they will have to provide source code of their 
+modifications to pvpgn (they can avoid this if they remove every AGPL code 
+part from the project, possibly reimplementing those features themselves but 
+this is very unlikely because if we change to AGPLv3 at least the code that 
+aaron, Pelish and I have written then it is enough of code to make it very 
+hard to remove it and rewrite it to avoid AGPL constraints).
+
+Of course, there is also the issue that they can just ignore the license 
+alltogether and act illegal about it, that is their choice but then they risk 
+to be made fun of, appear in slashdot.org or even be sued by FSF lawyers :)
+
+What do you think? (I would expect people who perform modifications and do not 
+release to oppose this but I really do not care, I am interested about 
+reasons against doing this that would hurt pvpgn and the development process, 
+not reasons that hurt whatever random people who &quot;steal&quot; the code and don't 
+give anything back)
+
+-- 
+Dizzy
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000602.html">[pvpgn-dev] [Bug #12534] ra2 can created games but cannot start	games
+</A></li>
+	<LI>Next message: <A HREF="000604.html">[pvpgn-dev] Changing PvPGN license from &quot;GPLv2 and later&quot; to GPLv3/AGPLv3
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#603">[ date ]</a>
+              <a href="thread.html#603">[ thread ]</a>
+              <a href="subject.html#603">[ subject ]</a>
+              <a href="author.html#603">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

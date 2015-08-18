@@ -1,0 +1,430 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] error :D mapalist
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2010-February/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20error%20%3AD%20mapalist&In-Reply-To=%3C7bbfc04a1002061602r22fb1c35sc2550bbfa3f53426%40mail.gmail.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001196.html">
+   <LINK REL="Next"  HREF="001198.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] error :D mapalist</H1>
+    <B>^A|An M0r3n0^</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20error%20%3AD%20mapalist&In-Reply-To=%3C7bbfc04a1002061602r22fb1c35sc2550bbfa3f53426%40mail.gmail.com%3E"
+       TITLE="[pvpgn-dev] error :D mapalist">alanstr at gmail.com
+       </A><BR>
+    <I>Sun Feb  7 01:02:22 CET 2010</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001196.html">[pvpgn-dev] r573 - in trunk/pvpgn/src: bnetd common
+</A></li>
+        <LI>Next message: <A HREF="001198.html">[pvpgn-dev] r574 - trunk/pvpgn/src/bnetd
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1197">[ date ]</a>
+              <a href="thread.html#1197">[ thread ]</a>
+              <a href="subject.html#1197">[ subject ]</a>
+              <a href="author.html#1197">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>file anongame_maplist in line : 177
+
+maplists_yuri[queue][(int)maplists_ral2[queue][0]] = j;
+change :=)
+
+maplists_yuri[queue][(int)maplists_yuri[queue][0]] = j;
+
+nice work pelish :D..
+
+2010/2/6 &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">svn at svn.berlios.de</A>&gt;
+
+&gt;<i> Author: pelish
+</I>&gt;<i> Date: 2010-02-07 00:10:12 +0100 (Sun, 07 Feb 2010)
+</I>&gt;<i> New Revision: 573
+</I>&gt;<i>
+</I>&gt;<i> Modified:
+</I>&gt;<i>   trunk/pvpgn/src/bnetd/anongame_wol.cpp
+</I>&gt;<i>   trunk/pvpgn/src/bnetd/handle_wol.cpp
+</I>&gt;<i>   trunk/pvpgn/src/bnetd/handle_wol_gameres.cpp
+</I>&gt;<i>   trunk/pvpgn/src/common/wol_gameres_protocol.h
+</I>&gt;<i> Log:
+</I>&gt;<i> add WOL quickmatch player ability to prefer colour/country
+</I>&gt;<i>
+</I>&gt;<i> Modified: trunk/pvpgn/src/bnetd/anongame_wol.cpp
+</I>&gt;<i> ===================================================================
+</I>&gt;<i> --- trunk/pvpgn/src/bnetd/anongame_wol.cpp      2010-02-05 20:51:34 UTC
+</I>&gt;<i> (rev 572)
+</I>&gt;<i> +++ trunk/pvpgn/src/bnetd/anongame_wol.cpp      2010-02-06 23:10:12 UTC
+</I>&gt;<i> (rev 573)
+</I>&gt;<i> @@ -97,6 +97,8 @@
+</I>&gt;<i>     /* Used only in Red Alert 2 and Yuri's Revenge */
+</I>&gt;<i>     player-&gt;address = 0;
+</I>&gt;<i>     player-&gt;port = 0;
+</I>&gt;<i> +    player-&gt;country = -2; /* Default values are form packet dumps - not
+</I>&gt;<i> prefered country */
+</I>&gt;<i> +    player-&gt;colour = -2; /* Default values are form packet dumps - not
+</I>&gt;<i> prefered colour */
+</I>&gt;<i>
+</I>&gt;<i>     conn_wol_set_anongame_player(conn, player);
+</I>&gt;<i>
+</I>&gt;<i> @@ -333,6 +335,25 @@
+</I>&gt;<i>     return 0;
+</I>&gt;<i>  }
+</I>&gt;<i>
+</I>&gt;<i> +static int _get_pair(int * i, int * j, int max, bool different)
+</I>&gt;<i> +{
+</I>&gt;<i> +    max++; /* We want to use just real maximum number - no metter what
+</I>&gt;<i> function do */
+</I>&gt;<i> +
+</I>&gt;<i> +    if (*i == -2)
+</I>&gt;<i> +        *i = (max * rand() / (RAND_MAX + 1));
+</I>&gt;<i> +
+</I>&gt;<i> +    if (*j == -2)
+</I>&gt;<i> +        *j = (max * rand() / (RAND_MAX + 1));
+</I>&gt;<i> +
+</I>&gt;<i> +    if ((different) &amp;&amp; (*i == *j)) {
+</I>&gt;<i> +        do {
+</I>&gt;<i> +            *j = (max * rand() / (RAND_MAX + 1));
+</I>&gt;<i> +        } while (*i == *j);
+</I>&gt;<i> +    }
+</I>&gt;<i> +    return 0;
+</I>&gt;<i> +}
+</I>&gt;<i> +
+</I>&gt;<i> +
+</I>&gt;<i>  static int anongame_wol_trystart(t_anongame_wol_player const * player1)
+</I>&gt;<i>  {
+</I>&gt;<i>     t_elem * curr;
+</I>&gt;<i> @@ -379,22 +400,31 @@
+</I>&gt;<i>
+</I>&gt;<i>            if ((player1 != player2) &amp;&amp; ((conn_get_channel(conn_pl1)) ==
+</I>&gt;<i> (conn_get_channel(conn_pl2)))) {
+</I>&gt;<i>             switch (ctag) {
+</I>&gt;<i> -                case CLIENTTAG_REDALERT2_UINT:
+</I>&gt;<i> +                case CLIENTTAG_REDALERT2_UINT: {
+</I>&gt;<i>                     random = rand();
+</I>&gt;<i> +
+</I>&gt;<i>                     if (std::strcmp(channelname , RAL2_CHANNEL_FFA) == 0) {
+</I>&gt;<i> -                        mapname =
+</I>&gt;<i> anongame_get_map_from_prefs(ANONGAME_TYPE_1V1, ctag);
+</I>&gt;<i> +                        int pl1_colour =
+</I>&gt;<i> anongame_wol_player_get_colour(player1);
+</I>&gt;<i> +                        int pl1_country =
+</I>&gt;<i> anongame_wol_player_get_country(player1);
+</I>&gt;<i> +                        int pl2_colour =
+</I>&gt;<i> anongame_wol_player_get_colour(player2);
+</I>&gt;<i> +                        int pl2_country =
+</I>&gt;<i> anongame_wol_player_get_country(player2);
+</I>&gt;<i> +
+</I>&gt;<i>                         DEBUG0(&quot;Generating SOLO game for Red Alert 2&quot;);
+</I>&gt;<i>
+</I>&gt;<i> -                         /* We have madatory of game */
+</I>&gt;<i> +                        _get_pair(&amp;pl1_colour,&amp;pl2_colour, 7, true);
+</I>&gt;<i> +                        _get_pair(&amp;pl1_country,&amp;pl2_country, 8, false);
+</I>&gt;<i> +                        mapname =
+</I>&gt;<i> anongame_get_map_from_prefs(ANONGAME_TYPE_1V1, ctag);
+</I>&gt;<i> +
+</I>&gt;<i> +                        /* We have madatory of game */
+</I>&gt;<i>                         snprintf(_temp, sizeof(_temp), &quot;:Start
+</I>&gt;<i> %u,0,0,10000,0,1,0,1,1,0,1,x,2,1,165368,%s,1:&quot;, random, mapname);
+</I>&gt;<i>                         std::strcat(temp,_temp);
+</I>&gt;<i>
+</I>&gt;<i>                         /* GameHost informations */
+</I>&gt;<i> -                        snprintf(_temp,
+</I>&gt;<i> sizeof(_temp),&quot;%s,8,4,%x,1,%x,&quot;,conn_get_chatname(conn_pl1),anongame_wol_player_get_address(player1),anongame_wol_player_get_port(player1));
+</I>&gt;<i> +                        snprintf(_temp, sizeof(_temp),&quot;%s,%d,%d,%x,1,%x,&quot;,
+</I>&gt;<i> conn_get_chatname(conn_pl1), pl1_country, pl1_colour,
+</I>&gt;<i> anongame_wol_player_get_address(player1),anongame_wol_player_get_port(player1));
+</I>&gt;<i>                         std::strcat(temp,_temp);
+</I>&gt;<i>
+</I>&gt;<i>                          /* GameJoinie informations */
+</I>&gt;<i> -                        snprintf(_temp,
+</I>&gt;<i> sizeof(_temp),&quot;%s,5,2,%x,1,%x&quot;,conn_get_chatname(conn_pl2),anongame_wol_player_get_address(player2),anongame_wol_player_get_port(player2));
+</I>&gt;<i> +                        snprintf(_temp, sizeof(_temp),&quot;%s,%d,%d,%x,1,%x&quot;,
+</I>&gt;<i> conn_get_chatname(conn_pl2), pl2_country, pl2_colour,
+</I>&gt;<i> anongame_wol_player_get_address(player2),anongame_wol_player_get_port(player2));
+</I>&gt;<i>                         std::strcat(temp,_temp);
+</I>&gt;<i>
+</I>&gt;<i>                         _send_msg(conn_pl1,&quot;PRIVMSG&quot;,temp);
+</I>&gt;<i> @@ -402,26 +432,35 @@
+</I>&gt;<i>                     }
+</I>&gt;<i>                     else
+</I>&gt;<i>                         ERROR1(&quot;undefined channel type for %s channel&quot;,
+</I>&gt;<i> channelname);
+</I>&gt;<i> +                    }
+</I>&gt;<i>                     return 0;
+</I>&gt;<i> -                case CLIENTTAG_YURISREV_UINT:
+</I>&gt;<i> +                case CLIENTTAG_YURISREV_UINT: {
+</I>&gt;<i>                     random = rand();
+</I>&gt;<i> -
+</I>&gt;<i> +
+</I>&gt;<i>                     if (std::strcmp(channelname , YURI_CHANNEL_FFA) == 0) {
+</I>&gt;<i> -                        mapname =
+</I>&gt;<i> anongame_get_map_from_prefs(ANONGAME_TYPE_1V1, ctag);
+</I>&gt;<i> +                        int pl1_colour =
+</I>&gt;<i> anongame_wol_player_get_colour(player1);
+</I>&gt;<i> +                        int pl1_country =
+</I>&gt;<i> anongame_wol_player_get_country(player1);
+</I>&gt;<i> +                        int pl2_colour =
+</I>&gt;<i> anongame_wol_player_get_colour(player2);
+</I>&gt;<i> +                        int pl2_country =
+</I>&gt;<i> anongame_wol_player_get_country(player2);
+</I>&gt;<i> +
+</I>&gt;<i>                         DEBUG0(&quot;Generating SOLO game for Yuri's Revenge&quot;);
+</I>&gt;<i>
+</I>&gt;<i> +                        _get_pair(&amp;pl1_colour,&amp;pl2_colour, 7, true);
+</I>&gt;<i> +                        _get_pair(&amp;pl1_country,&amp;pl2_country, 9, false);
+</I>&gt;<i> +                        mapname =
+</I>&gt;<i> anongame_get_map_from_prefs(ANONGAME_TYPE_1V1, ctag);
+</I>&gt;<i> +
+</I>&gt;<i>                         /* We have madatory of game */
+</I>&gt;<i>                         snprintf(_temp, sizeof(_temp), &quot;:Start
+</I>&gt;<i> %u,0,0,10000,0,0,1,1,1,0,3,0,x,2,1,163770,%s,1:&quot;, random, mapname);
+</I>&gt;<i>                         std::strcat(temp,_temp);
+</I>&gt;<i>
+</I>&gt;<i>                         /* GameHost informations */
+</I>&gt;<i> -                        snprintf(_temp,
+</I>&gt;<i> sizeof(_temp),&quot;%s,1,4,-2,-2,&quot;,conn_get_chatname(conn_pl1));
+</I>&gt;<i> +                        snprintf(_temp, sizeof(_temp),&quot;%s,%d,%d,-2,-2,&quot;,
+</I>&gt;<i> conn_get_chatname(conn_pl1), pl1_country, pl1_colour);
+</I>&gt;<i>                         std::strcat(temp,_temp);
+</I>&gt;<i>                         snprintf(_temp,
+</I>&gt;<i> sizeof(_temp),&quot;%x,1,%x,&quot;,anongame_wol_player_get_address(player1),anongame_wol_player_get_port(player1));
+</I>&gt;<i>                         std::strcat(temp,_temp);
+</I>&gt;<i>
+</I>&gt;<i>                         /* GameJoinie informations */
+</I>&gt;<i> -                        snprintf(_temp,
+</I>&gt;<i> sizeof(_temp),&quot;%s,6,5,-2,-2,&quot;,conn_get_chatname(anongame_wol_player_get_conn(player2)));
+</I>&gt;<i> +                        snprintf(_temp,
+</I>&gt;<i> sizeof(_temp),&quot;%s,%d,%d,-2,-2,&quot;,conn_get_chatname(conn_pl2), pl2_country,
+</I>&gt;<i> pl2_colour);
+</I>&gt;<i>                         std::strcat(temp,_temp);
+</I>&gt;<i>                         snprintf(_temp,
+</I>&gt;<i> sizeof(_temp),&quot;%x,1,%x&quot;,anongame_wol_player_get_address(player2),anongame_wol_player_get_port(player2));
+</I>&gt;<i>                         std::strcat(temp,_temp);
+</I>&gt;<i> @@ -457,6 +496,7 @@
+</I>&gt;<i>                     }
+</I>&gt;<i>                     else
+</I>&gt;<i>                         ERROR1(&quot;undefined channel type for %s channel&quot;,
+</I>&gt;<i> channelname);
+</I>&gt;<i> +                    }
+</I>&gt;<i>                     return 0;
+</I>&gt;<i>                 default:
+</I>&gt;<i>                     DEBUG0(&quot;unsupported client for WOL Matchgame&quot;);
+</I>&gt;<i>
+</I>&gt;<i> Modified: trunk/pvpgn/src/bnetd/handle_wol.cpp
+</I>&gt;<i> ===================================================================
+</I>&gt;<i> --- trunk/pvpgn/src/bnetd/handle_wol.cpp        2010-02-05 20:51:34 UTC
+</I>&gt;<i> (rev 572)
+</I>&gt;<i> +++ trunk/pvpgn/src/bnetd/handle_wol.cpp        2010-02-06 23:10:12 UTC
+</I>&gt;<i> (rev 573)
+</I>&gt;<i> @@ -514,7 +514,7 @@
+</I>&gt;<i>      */
+</I>&gt;<i>     /**
+</I>&gt;<i>      *  The layout of the game list entry is something like this:
+</I>&gt;<i> -     *  #game_channel_name users unknown gameType gameIsTournment
+</I>&gt;<i> gameExtension longIP LOCK::topic
+</I>&gt;<i> +     *  #game_channel_name currentusers maxplayers gameType
+</I>&gt;<i> gameIsTournment gameExtension longIP LOCK::topic
+</I>&gt;<i>      */
+</I>&gt;<i>
+</I>&gt;<i>        std::strcat(temp,gamename);
+</I>&gt;<i> @@ -543,7 +543,7 @@
+</I>&gt;<i>        else
+</I>&gt;<i>            std::strcat(temp,&quot;384&quot;); /* game is loocked 384 == pass */
+</I>&gt;<i>
+</I>&gt;<i> -       std::strcat(temp,&quot;::&quot;);
+</I>&gt;<i> +       std::strcat(temp,&quot;::&quot;);
+</I>&gt;<i>
+</I>&gt;<i>        if (topic) {
+</I>&gt;<i>            snprintf(temp_a, sizeof(temp_a), &quot;%s&quot;, topic);  /* topic */
+</I>&gt;<i>
+</I>&gt;<i> Modified: trunk/pvpgn/src/bnetd/handle_wol_gameres.cpp
+</I>&gt;<i> ===================================================================
+</I>&gt;<i> --- trunk/pvpgn/src/bnetd/handle_wol_gameres.cpp        2010-02-05 20:51:34
+</I>&gt;<i> UTC (rev 572)
+</I>&gt;<i> +++ trunk/pvpgn/src/bnetd/handle_wol_gameres.cpp        2010-02-06 23:10:12
+</I>&gt;<i> UTC (rev 573)
+</I>&gt;<i> @@ -187,6 +187,15 @@
+</I>&gt;<i>  static int _client_col6(t_wol_gameres_result * game_result,
+</I>&gt;<i> wol_gameres_type type, int size, void const * data);
+</I>&gt;<i>  static int _client_col7(t_wol_gameres_result * game_result,
+</I>&gt;<i> wol_gameres_type type, int size, void const * data);
+</I>&gt;<i>
+</I>&gt;<i> +static int _client_crd0(t_wol_gameres_result * game_result,
+</I>&gt;<i> wol_gameres_type type, int size, void const * data);
+</I>&gt;<i> +static int _client_crd1(t_wol_gameres_result * game_result,
+</I>&gt;<i> wol_gameres_type type, int size, void const * data);
+</I>&gt;<i> +static int _client_crd2(t_wol_gameres_result * game_result,
+</I>&gt;<i> wol_gameres_type type, int size, void const * data);
+</I>&gt;<i> +static int _client_crd3(t_wol_gameres_result * game_result,
+</I>&gt;<i> wol_gameres_type type, int size, void const * data);
+</I>&gt;<i> +static int _client_crd4(t_wol_gameres_result * game_result,
+</I>&gt;<i> wol_gameres_type type, int size, void const * data);
+</I>&gt;<i> +static int _client_crd5(t_wol_gameres_result * game_result,
+</I>&gt;<i> wol_gameres_type type, int size, void const * data);
+</I>&gt;<i> +static int _client_crd6(t_wol_gameres_result * game_result,
+</I>&gt;<i> wol_gameres_type type, int size, void const * data);
+</I>&gt;<i> +static int _client_crd7(t_wol_gameres_result * game_result,
+</I>&gt;<i> wol_gameres_type type, int size, void const * data);
+</I>&gt;<i> +
+</I>&gt;<i>  static int _client_inb0(t_wol_gameres_result * game_result,
+</I>&gt;<i> wol_gameres_type type, int size, void const * data);
+</I>&gt;<i>  static int _client_inb1(t_wol_gameres_result * game_result,
+</I>&gt;<i> wol_gameres_type type, int size, void const * data);
+</I>&gt;<i>  static int _client_inb2(t_wol_gameres_result * game_result,
+</I>&gt;<i> wol_gameres_type type, int size, void const * data);
+</I>&gt;<i> @@ -456,6 +465,15 @@
+</I>&gt;<i>     {CLIENT_COL6_UINT, _client_col6},
+</I>&gt;<i>     {CLIENT_COL7_UINT, _client_col7},
+</I>&gt;<i>
+</I>&gt;<i> +    {CLIENT_CRD0_UINT, _client_crd0},
+</I>&gt;<i> +    {CLIENT_CRD1_UINT, _client_crd1},
+</I>&gt;<i> +    {CLIENT_CRD2_UINT, _client_crd2},
+</I>&gt;<i> +    {CLIENT_CRD3_UINT, _client_crd3},
+</I>&gt;<i> +    {CLIENT_CRD4_UINT, _client_crd4},
+</I>&gt;<i> +    {CLIENT_CRD5_UINT, _client_crd5},
+</I>&gt;<i> +    {CLIENT_CRD6_UINT, _client_crd6},
+</I>&gt;<i> +    {CLIENT_CRD7_UINT, _client_crd7},
+</I>&gt;<i> +
+</I>&gt;<i>     {CLIENT_INB0_UINT, _client_inb0},
+</I>&gt;<i>     {CLIENT_INB1_UINT, _client_inb1},
+</I>&gt;<i>     {CLIENT_INB2_UINT, _client_inb2},
+</I>&gt;<i> @@ -2528,6 +2546,59 @@
+</I>&gt;<i>     return _cl_col_general(7, type, size, data);
+</I>&gt;<i>  }
+</I>&gt;<i>
+</I>&gt;<i> +static int _cl_crd_general(int num, wol_gameres_type type, int size, void
+</I>&gt;<i> const * data)
+</I>&gt;<i> +{
+</I>&gt;<i> +    switch (type) {
+</I>&gt;<i> +        case wol_gameres_type_time:
+</I>&gt;<i> +            DEBUG2(&quot;Player %u had %u credits on end of game&quot;, num,
+</I>&gt;<i> (unsigned int) bn_int_nget(*((bn_int *)data)));
+</I>&gt;<i> +            break;
+</I>&gt;<i> +        default:
+</I>&gt;<i> +            WARN2(&quot;got unknown gameres type %u for CRD%u&quot;, type, num);
+</I>&gt;<i> +            break;
+</I>&gt;<i> +    }
+</I>&gt;<i> +    return 0;
+</I>&gt;<i> +}
+</I>&gt;<i> +
+</I>&gt;<i> +static int _client_crd0(t_wol_gameres_result * game_result,
+</I>&gt;<i> wol_gameres_type type, int size, void const * data)
+</I>&gt;<i> +{
+</I>&gt;<i> +    return _cl_crd_general(0, type, size, data);
+</I>&gt;<i> +}
+</I>&gt;<i> +
+</I>&gt;<i> +static int _client_crd1(t_wol_gameres_result * game_result,
+</I>&gt;<i> wol_gameres_type type, int size, void const * data)
+</I>&gt;<i> +{
+</I>&gt;<i> +    return _cl_crd_general(1, type, size, data);
+</I>&gt;<i> +}
+</I>&gt;<i> +
+</I>&gt;<i> +static int _client_crd2(t_wol_gameres_result * game_result,
+</I>&gt;<i> wol_gameres_type type, int size, void const * data)
+</I>&gt;<i> +{
+</I>&gt;<i> +    return _cl_crd_general(2, type, size, data);
+</I>&gt;<i> +}
+</I>&gt;<i> +
+</I>&gt;<i> +static int _client_crd3(t_wol_gameres_result * game_result,
+</I>&gt;<i> wol_gameres_type type, int size, void const * data)
+</I>&gt;<i> +{
+</I>&gt;<i> +    return _cl_crd_general(3, type, size, data);
+</I>&gt;<i> +}
+</I>&gt;<i> +
+</I>&gt;<i> +static int _client_crd4(t_wol_gameres_result * game_result,
+</I>&gt;<i> wol_gameres_type type, int size, void const * data)
+</I>&gt;<i> +{
+</I>&gt;<i> +    return _cl_crd_general(4, type, size, data);
+</I>&gt;<i> +}
+</I>&gt;<i> +
+</I>&gt;<i> +static int _client_crd5(t_wol_gameres_result * game_result,
+</I>&gt;<i> wol_gameres_type type, int size, void const * data)
+</I>&gt;<i> +{
+</I>&gt;<i> +    return _cl_crd_general(5, type, size, data);
+</I>&gt;<i> +}
+</I>&gt;<i> +
+</I>&gt;<i> +static int _client_crd6(t_wol_gameres_result * game_result,
+</I>&gt;<i> wol_gameres_type type, int size, void const * data)
+</I>&gt;<i> +{
+</I>&gt;<i> +    return _cl_crd_general(6, type, size, data);
+</I>&gt;<i> +}
+</I>&gt;<i> +
+</I>&gt;<i> +static int _client_crd7(t_wol_gameres_result * game_result,
+</I>&gt;<i> wol_gameres_type type, int size, void const * data)
+</I>&gt;<i> +{
+</I>&gt;<i> +    return _cl_crd_general(7, type, size, data);
+</I>&gt;<i> +}
+</I>&gt;<i> +
+</I>&gt;<i>  static int _cl_inb_general(int num, wol_gameres_type type, int size, void
+</I>&gt;<i> const * data)
+</I>&gt;<i>  {
+</I>&gt;<i>     switch (type) {
+</I>&gt;<i>
+</I>&gt;<i> Modified: trunk/pvpgn/src/common/wol_gameres_protocol.h
+</I>&gt;<i> ===================================================================
+</I>&gt;<i> --- trunk/pvpgn/src/common/wol_gameres_protocol.h       2010-02-05 20:51:34
+</I>&gt;<i> UTC (rev 572)
+</I>&gt;<i> +++ trunk/pvpgn/src/common/wol_gameres_protocol.h       2010-02-06 23:10:12
+</I>&gt;<i> UTC (rev 573)
+</I>&gt;<i> @@ -213,6 +213,15 @@
+</I>&gt;<i>  const t_tag CLIENT_COL6_UINT = 0x434f4c36;
+</I>&gt;<i>  const t_tag CLIENT_COL7_UINT = 0x434f4c37;
+</I>&gt;<i>
+</I>&gt;<i> +const t_tag CLIENT_CRD0_UINT = 0x43524430;
+</I>&gt;<i> +const t_tag CLIENT_CRD1_UINT = 0x43524431;
+</I>&gt;<i> +const t_tag CLIENT_CRD2_UINT = 0x43524432;
+</I>&gt;<i> +const t_tag CLIENT_CRD3_UINT = 0x43524433;
+</I>&gt;<i> +const t_tag CLIENT_CRD4_UINT = 0x43524434;
+</I>&gt;<i> +const t_tag CLIENT_CRD5_UINT = 0x43524435;
+</I>&gt;<i> +const t_tag CLIENT_CRD6_UINT = 0x43524436;
+</I>&gt;<i> +const t_tag CLIENT_CRD7_UINT = 0x43524437;
+</I>&gt;<i> +
+</I>&gt;<i>  const t_tag CLIENT_INB0_UINT = 0x494e4230;
+</I>&gt;<i>  const t_tag CLIENT_INB1_UINT = 0x494e4231;
+</I>&gt;<i>  const t_tag CLIENT_INB2_UINT = 0x494e4232;
+</I>&gt;<i>
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> pvpgn-dev mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">pvpgn-dev at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">https://lists.berlios.de/mailman/listinfo/pvpgn-dev</A>
+</I>&gt;<i>
+</I>
+
+
+-- 
+<A HREF="http://www.freewebtown.com/amoreno/alan.gif">http://www.freewebtown.com/amoreno/alan.gif</A>
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: &lt;<A HREF="https://lists.berlios.de/pipermail/pvpgn-dev/attachments/20100206/9ab71dc7/attachment.html">https://lists.berlios.de/pipermail/pvpgn-dev/attachments/20100206/9ab71dc7/attachment.html</A>&gt;
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001196.html">[pvpgn-dev] r573 - in trunk/pvpgn/src: bnetd common
+</A></li>
+	<LI>Next message: <A HREF="001198.html">[pvpgn-dev] r574 - trunk/pvpgn/src/bnetd
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1197">[ date ]</a>
+              <a href="thread.html#1197">[ thread ]</a>
+              <a href="subject.html#1197">[ subject ]</a>
+              <a href="author.html#1197">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

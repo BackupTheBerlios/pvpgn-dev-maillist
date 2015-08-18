@@ -1,0 +1,85 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r258 - trunk/pvpgn/src/bnetd
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-February/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r258%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200702202155.l1KLtNJE004077%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000041.html">
+   <LINK REL="Next"  HREF="000045.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r258 - trunk/pvpgn/src/bnetd</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r258%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200702202155.l1KLtNJE004077%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r258 - trunk/pvpgn/src/bnetd">svn at svn.berlios.de
+       </A><BR>
+    <I>Tue Feb 20 22:55:23 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000041.html">[pvpgn-dev] r257 - in trunk/pvpgn/src: bnetd bnpcap client common
+</A></li>
+        <LI>Next message: <A HREF="000045.html">[pvpgn-dev] [Patch #1886] WOL - Added missing &quot;bad login&quot; table
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#42">[ date ]</a>
+              <a href="thread.html#42">[ thread ]</a>
+              <a href="subject.html#42">[ subject ]</a>
+              <a href="author.html#42">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: d1zzy
+Date: 2007-02-20 22:55:23 +0100 (Tue, 20 Feb 2007)
+New Revision: 258
+
+Modified:
+   trunk/pvpgn/src/bnetd/irc.cpp
+Log:
+Fixed the irc.cpp warning/bug (from pelish).
+
+
+Modified: trunk/pvpgn/src/bnetd/irc.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/irc.cpp	2007-02-20 21:30:34 UTC (rev 257)
++++ trunk/pvpgn/src/bnetd/irc.cpp	2007-02-20 21:55:23 UTC (rev 258)
+@@ -662,7 +662,7 @@
+ 
+    		channel = conn_get_channel(me);
+     		if (conn_wol_get_ingame(me) == 1) {
+-    		    std::sprintf(temp,&quot;2 %u %u 1 1 %u :%u&quot;,channel_get_length(channel),channel_wol_get_game_type(channel),channel_wol_get_game_tournament(channel));
++    		    std::sprintf(temp,&quot;2 %u %u 1 1 %u :%s&quot;, channel_get_length(channel), channel_wol_get_game_type(channel), channel_wol_get_game_tournament(channel), irc_convert_channel(channel));
+                 msg = irc_message_preformat(&amp;from,&quot;JOINGAME&quot;,temp,irc_convert_channel(channel));
+             }
+             else
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000041.html">[pvpgn-dev] r257 - in trunk/pvpgn/src: bnetd bnpcap client common
+</A></li>
+	<LI>Next message: <A HREF="000045.html">[pvpgn-dev] [Patch #1886] WOL - Added missing &quot;bad login&quot; table
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#42">[ date ]</a>
+              <a href="thread.html#42">[ thread ]</a>
+              <a href="subject.html#42">[ subject ]</a>
+              <a href="author.html#42">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,1415 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r492 - in trunk/pvpgn/src: bnetd common
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2008-August/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r492%20-%20in%20trunk/pvpgn/src%3A%20bnetd%20common&In-Reply-To=%3C200808301856.m7UIuw3C029315%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000785.html">
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r492 - in trunk/pvpgn/src: bnetd common</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r492%20-%20in%20trunk/pvpgn/src%3A%20bnetd%20common&In-Reply-To=%3C200808301856.m7UIuw3C029315%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r492 - in trunk/pvpgn/src: bnetd common">svn at svn.berlios.de
+       </A><BR>
+    <I>Sat Aug 30 20:56:58 CEST 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000785.html">[pvpgn-dev] d2cl, a character list backend to d2cs
+</A></li>
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#786">[ date ]</a>
+              <a href="thread.html#786">[ thread ]</a>
+              <a href="subject.html#786">[ subject ]</a>
+              <a href="author.html#786">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pelish
+Date: 2008-08-30 20:56:48 +0200 (Sat, 30 Aug 2008)
+New Revision: 492
+
+Added:
+   trunk/pvpgn/src/bnetd/handle_wol_gameres.cpp
+   trunk/pvpgn/src/bnetd/handle_wol_gameres.h
+   trunk/pvpgn/src/common/wol_gameres_protocol.h
+Modified:
+   trunk/pvpgn/src/bnetd/CMakeLists.txt
+   trunk/pvpgn/src/bnetd/irc.cpp
+   trunk/pvpgn/src/bnetd/server.cpp
+   trunk/pvpgn/src/common/CMakeLists.txt
+   trunk/pvpgn/src/common/field_sizes.h
+   trunk/pvpgn/src/common/packet.cpp
+   trunk/pvpgn/src/common/packet.h
+Log:
+add WOL GameRes protocol handler, add MAX_WOL_GAMERES_PACKET_SIZE and changed packet.* according this new packet size. Should not brake anything... (small step for mankind but the big one for me ;)
+
+Modified: trunk/pvpgn/src/bnetd/CMakeLists.txt
+===================================================================
+--- trunk/pvpgn/src/bnetd/CMakeLists.txt	2008-08-18 12:56:14 UTC (rev 491)
++++ trunk/pvpgn/src/bnetd/CMakeLists.txt	2008-08-30 18:56:48 UTC (rev 492)
+@@ -20,7 +20,8 @@
+ 	handle_file.cpp handle_file.h handle_init.cpp handle_init.h 
+ 	handle_irc_common.cpp handle_irc_common.h handle_irc.cpp handle_irc.h 
+ 	handlers.h handle_telnet.cpp handle_telnet.h handle_udp.cpp 
+-	handle_udp.h handle_wol.cpp handle_wol.h helpfile.cpp helpfile.h 
++	handle_udp.h handle_wol.cpp handle_wol.h handle_wol_gameres.cpp
++    handle_wol_gameres.h helpfile.cpp helpfile.h 
+ 	ipban.cpp ipban.h irc.cpp irc.h ladder_calc.cpp ladder_calc.h ladder.cpp 
+ 	ladder.h mail.cpp mail.h main.cpp message.cpp message.h news.cpp news.h
+ 	output.cpp output.h prefs.cpp prefs.h quota.h realm.cpp realm.h 
+
+Added: trunk/pvpgn/src/bnetd/handle_wol_gameres.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/handle_wol_gameres.cpp	2008-08-18 12:56:14 UTC (rev 491)
++++ trunk/pvpgn/src/bnetd/handle_wol_gameres.cpp	2008-08-30 18:56:48 UTC (rev 492)
+@@ -0,0 +1,774 @@
++/*
++ * Copyright (C) 2008  Pelish (<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">pelish at gmail.com</A>)
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License
++ * as published by the Free Software Foundation; either version 2
++ * of the License, or (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++ */
++
++#include &quot;common/setup_before.h&quot;
++#include &quot;handle_wol_gameres.h&quot;
++
++//#include &lt;sstream&gt;
++//nclude &lt;cstring&gt;
++//nclude &lt;cctype&gt;
++//nclude &lt;ctime&gt;
++
++#include &quot;common/wol_gameres_protocol.h&quot;
++#include &quot;common/packet.h&quot;
++#include &quot;common/eventlog.h&quot;
++#include &quot;common/tag.h&quot;
++#include &quot;common/bn_type.h&quot;
++
++#include &quot;connection.h&quot;
++//#include &quot;prefs.h&quot;
++//#include &quot;server.h&quot;
++#ifdef WIN32_GUI
++#include &lt;win32/winmain.h&gt;
++#endif
++#include &quot;common/setup_after.h&quot;
++
++namespace pvpgn
++{
++
++namespace bnetd
++{
++
++/* handlers prototypes */
++static int _client_sern(wol_gameres_type type, int size, void const * data);
++static int _client_idno(wol_gameres_type type, int size, void const * data);
++static int _client_gsku(wol_gameres_type type, int size, void const * data);
++static int _client_trny(wol_gameres_type type, int size, void const * data);
++static int _client_oosy(wol_gameres_type type, int size, void const * data);
++static int _client_fini(wol_gameres_type type, int size, void const * data);
++static int _client_dura(wol_gameres_type type, int size, void const * data);
++static int _client_cred(wol_gameres_type type, int size, void const * data);
++static int _client_shrt(wol_gameres_type type, int size, void const * data);
++static int _client_supr(wol_gameres_type type, int size, void const * data);
++static int _client_mode(wol_gameres_type type, int size, void const * data);
++static int _client_bamr(wol_gameres_type type, int size, void const * data);
++static int _client_crat(wol_gameres_type type, int size, void const * data);
++static int _client_aipl(wol_gameres_type type, int size, void const * data);
++static int _client_unit(wol_gameres_type type, int size, void const * data);
++static int _client_scen(wol_gameres_type type, int size, void const * data);
++static int _client_pngs(wol_gameres_type type, int size, void const * data);
++static int _client_pngr(wol_gameres_type type, int size, void const * data);
++static int _client_plrs(wol_gameres_type type, int size, void const * data);
++static int _client_spid(wol_gameres_type type, int size, void const * data);
++static int _client_time(wol_gameres_type type, int size, void const * data);
++static int _client_afps(wol_gameres_type type, int size, void const * data);
++static int _client_proc(wol_gameres_type type, int size, void const * data);
++static int _client_memo(wol_gameres_type type, int size, void const * data);
++static int _client_vidm(wol_gameres_type type, int size, void const * data);
++static int _client_sped(wol_gameres_type type, int size, void const * data);
++static int _client_vers(wol_gameres_type type, int size, void const * data);
++static int _client_date(wol_gameres_type type, int size, void const * data);
++static int _client_base(wol_gameres_type type, int size, void const * data);
++static int _client_tibr(wol_gameres_type type, int size, void const * data);
++static int _client_shad(wol_gameres_type type, int size, void const * data);
++static int _client_flag(wol_gameres_type type, int size, void const * data);
++static int _client_tech(wol_gameres_type type, int size, void const * data);
++
++static int _client_nam0(wol_gameres_type type, int size, void const * data);
++static int _client_nam1(wol_gameres_type type, int size, void const * data);
++static int _client_nam2(wol_gameres_type type, int size, void const * data);
++static int _client_nam3(wol_gameres_type type, int size, void const * data);
++static int _client_nam4(wol_gameres_type type, int size, void const * data);
++static int _client_nam5(wol_gameres_type type, int size, void const * data);
++static int _client_nam6(wol_gameres_type type, int size, void const * data);
++static int _client_nam7(wol_gameres_type type, int size, void const * data);
++static int _client_cmp0(wol_gameres_type type, int size, void const * data);
++static int _client_cmp1(wol_gameres_type type, int size, void const * data);
++static int _client_cmp2(wol_gameres_type type, int size, void const * data);
++static int _client_cmp3(wol_gameres_type type, int size, void const * data);
++static int _client_cmp4(wol_gameres_type type, int size, void const * data);
++static int _client_cmp5(wol_gameres_type type, int size, void const * data);
++static int _client_cmp6(wol_gameres_type type, int size, void const * data);
++static int _client_cmp7(wol_gameres_type type, int size, void const * data);
++
++typedef int (* t_wol_gamerestag)(wol_gameres_type type, int size, void const * data);
++
++typedef struct {
++    t_tag               wol_gamerestag_uint;
++    t_wol_gamerestag    wol_gamerestag_handler;
++} t_wol_gamerestag_table_row;
++
++/* handler table */
++static const t_wol_gamerestag_table_row wol_gamreres_htable[] = {
++    {CLIENT_SERN_UINT, _client_sern},
++    {CLIENT_IDNO_UINT, _client_idno},
++    {CLIENT_GSKU_UINT, _client_gsku},
++    {CLIENT_TRNY_UINT, _client_trny},
++    {CLIENT_OOSY_UINT, _client_oosy},
++    {CLIENT_FINI_UINT, _client_fini},
++    {CLIENT_DURA_UINT, _client_dura},
++    {CLIENT_CRED_UINT, _client_cred},
++    {CLIENT_SHRT_UINT, _client_shrt},
++    {CLIENT_SUPR_UINT, _client_supr},
++    {CLIENT_MODE_UINT, _client_mode},
++    {CLIENT_BAMR_UINT, _client_bamr},
++    {CLIENT_CRAT_UINT, _client_crat},
++    {CLIENT_AIPL_UINT, _client_aipl},
++    {CLIENT_UNIT_UINT, _client_unit},
++    {CLIENT_SCEN_UINT, _client_scen},
++    {CLIENT_PNGS_UINT, _client_pngs},
++    {CLIENT_PNGR_UINT, _client_pngr},
++    {CLIENT_PLRS_UINT, _client_plrs},
++    {CLIENT_SPID_UINT, _client_spid},
++    {CLIENT_TIME_UINT, _client_time},
++    {CLIENT_AFPS_UINT, _client_afps},
++    {CLIENT_PROC_UINT, _client_proc},
++    {CLIENT_MEMO_UINT, _client_memo},
++    {CLIENT_VIDM_UINT, _client_vidm},
++    {CLIENT_SPED_UINT, _client_sped},
++    {CLIENT_VERS_UINT, _client_vers},
++    {CLIENT_DATE_UINT, _client_date},
++    {CLIENT_BASE_UINT, _client_base},
++    {CLIENT_TIBR_UINT, _client_tibr},
++    {CLIENT_SHAD_UINT, _client_shad},
++    {CLIENT_FLAG_UINT, _client_flag},
++    {CLIENT_TECH_UINT, _client_tech},
++
++    {CLIENT_NAM0_UINT, _client_nam0},
++    {CLIENT_NAM1_UINT, _client_nam1},
++    {CLIENT_NAM2_UINT, _client_nam2},
++    {CLIENT_NAM3_UINT, _client_nam3},
++    {CLIENT_NAM4_UINT, _client_nam4},
++    {CLIENT_NAM5_UINT, _client_nam5},
++    {CLIENT_NAM6_UINT, _client_nam6},
++    {CLIENT_NAM7_UINT, _client_nam7},
++    {CLIENT_CMP0_UINT, _client_cmp0},
++    {CLIENT_CMP1_UINT, _client_cmp1},
++    {CLIENT_CMP2_UINT, _client_cmp2},
++    {CLIENT_CMP3_UINT, _client_cmp3},
++    {CLIENT_CMP4_UINT, _client_cmp4},
++    {CLIENT_CMP5_UINT, _client_cmp5},
++    {CLIENT_CMP6_UINT, _client_cmp6},
++    {CLIENT_CMP7_UINT, _client_cmp7},
++
++    {1, NULL}
++};
++
++static int handle_wolgameres_tag(t_tag gamerestag, wol_gameres_type type, int size, void const * data)
++{
++  t_wol_gamerestag_table_row const *p;
++
++  for (p = wol_gamreres_htable; p-&gt;wol_gamerestag_uint != 1; p++) {
++    if (gamerestag == p-&gt;wol_gamerestag_uint) {
++	  if (p-&gt;wol_gamerestag_handler != NULL)
++		  return ((p-&gt;wol_gamerestag_handler)(type,size,data));
++	}
++  }
++  return -1;
++}
++
++static wol_gameres_type wol_gameres_type_from_int(int type)
++{
++    switch (type) {
++        case 1:
++            return wol_gameres_type_byte;
++        case 2:
++            return wol_gameres_type_bool;
++        case 5:
++            return wol_gameres_type_time;
++        case 6:
++            return wol_gameres_type_int;
++        case 7:
++            return wol_gameres_type_string;
++        default:
++            WARN1(&quot;type %d is not defined&quot;,type);
++            return wol_gameres_type_unknown;
++        }
++}
++
++extern int handle_wol_gameres_packet(t_connection * c, t_packet const * const packet)
++{
++    unsigned offset;
++    t_tag wgtag;
++    char wgtag_str[5];
++    unsigned datatype;
++    unsigned datalen;
++    void const * data;
++
++    DEBUG2(&quot;[%d] got WOL Gameres packet length %u&quot;, conn_get_socket(c), packet_get_size(packet));
++    offset = sizeof(t_wolgameres_header);
++
++    while (offset &lt; packet_get_size(packet)) {
++        wgtag = (unsigned int) bn_int_nget(*((bn_int *) packet_get_data_const(packet, offset, 4)));
++        offset += 4;
++
++        datatype = (unsigned int) bn_short_nget(*((bn_short *) packet_get_data_const(packet, offset, 2)));
++        offset += 2;
++
++        datalen = (unsigned int) bn_short_nget(*((bn_short *) packet_get_data_const(packet, offset, 2)));
++        offset += 2;
++
++        data = packet_get_data_const(packet, offset, 1);
++
++        if (handle_wolgameres_tag(wgtag, wol_gameres_type_from_int(datatype), datalen, data) != 0) {
++            tag_uint_to_str(wgtag_str, wgtag);
++            eventlog(eventlog_level_warn, __FUNCTION__, &quot;[%d] got unknown WOL Gameres tag: %s, data type %u, data lent %u&quot;,conn_get_socket(c), wgtag_str, datatype, datalen);
++        }
++
++        datalen = 4 * ((datalen + 3) / 4);
++        offset += datalen;
++    }
++
++    return 0;
++}
++
++/**
++ * WOL Gamreres tag handlers
++ */
++
++static int _client_sern(wol_gameres_type type, int size, void const * data)
++{
++    /* SER# */
++    return 0;
++}
++
++static int _client_idno(wol_gameres_type type, int size, void const * data)
++{
++    int gameidnumber;
++
++    if (type == wol_gameres_type_int) {
++        gameidnumber = (unsigned int) bn_int_nget(*((bn_int *)data));
++        DEBUG1(&quot;Game ID Number: %u&quot;, gameidnumber);
++    }
++    else
++        WARN1(&quot;got unknown gameres type %u for IDNO&quot;, type);
++
++    return 0;
++}
++
++static int _client_gsku(wol_gameres_type type, int size, void const * data)
++{
++    int sku;
++
++    if (type == wol_gameres_type_int) {
++        sku = (unsigned int) bn_int_nget(*((bn_int *)data));
++        DEBUG1(&quot;Got WOL game resolution of %s&quot;, clienttag_get_title(tag_sku_to_uint(sku)));
++    }
++    else
++        WARN1(&quot;got unknown gameres type %u for GSKU&quot;, type);
++
++    return 0;
++}
++
++static int _client_trny(wol_gameres_type type, int size, void const * data)
++{
++    int tournament;
++
++    if (type == wol_gameres_type_int) {
++        tournament = (unsigned int) bn_int_nget(*((bn_int *)data));
++
++        if (tournament)
++            DEBUG0(&quot;game is tournament&quot;);
++        else
++            DEBUG0(&quot;game is not tournament&quot;);
++    }
++    else
++        WARN1(&quot;got unknown gameres type %u for TRNY&quot;, type);
++
++    return 0;
++}
++
++static int _client_oosy(wol_gameres_type type, int size, void const * data)
++{
++    /* Not implemented yet */
++    return 0;
++}
++
++static int _client_fini(wol_gameres_type type, int size, void const * data)
++{
++    /* Not implemented yet */
++    return 0;
++}
++
++static int _client_dura(wol_gameres_type type, int size, void const * data)
++{
++    /* Game dureation in seconds??? */
++    // DURA : Game Duration
++    // DURA 00 06 00 04 [00 00 01 F4]
++    // DURA 00 06 00 04 [00 00 00 06]
++
++
++    return 0;
++}
++
++static int _client_cred(wol_gameres_type type, int size, void const * data)
++{
++    int credits;
++
++    if (type == wol_gameres_type_int) {
++        credits = (unsigned int) bn_int_nget(*((bn_int *)data));
++        DEBUG1(&quot;Game was start with %u credits&quot;, credits);
++    }
++    else
++        WARN1(&quot;got unknown gameres type %u for CRED&quot;, type);
++
++    return 0;
++}
++
++static int _client_shrt(wol_gameres_type type, int size, void const * data)
++{
++    bool shortgame;
++
++    if (type == wol_gameres_type_bool) {
++        shortgame = (bool) bn_byte_get(*((bn_byte *)data));
++        if (shortgame)
++            DEBUG0(&quot;Game has shortgame ON&quot;);
++        else
++            DEBUG0(&quot;Game has shortgame OFF&quot;);
++    }
++    else
++        WARN1(&quot;got unknown gameres type %u for SHRT&quot;, type);
++
++    return 0;
++}
++
++static int _client_supr(wol_gameres_type type, int size, void const * data)
++{
++    bool superweapons;
++
++    if (type == wol_gameres_type_bool) {
++        superweapons = (bool) bn_byte_get(*((bn_byte *)data));
++        if (superweapons)
++            DEBUG0(&quot;Game has superweapons ON&quot;);
++        else
++            DEBUG0(&quot;Game has superweapons OFF&quot;);
++    }
++    else
++        WARN1(&quot;got unknown gameres type %u for SUPR&quot;, type);
++
++    return 0;
++}
++
++static int _client_mode(wol_gameres_type type, int size, void const * data)
++{
++    /* Not implemented yet */
++    return 0;
++}
++
++static int _client_bamr(wol_gameres_type type, int size, void const * data)
++{
++    /* Not implemented yet */
++    return 0;
++}
++
++static int _client_crat(wol_gameres_type type, int size, void const * data)
++{
++    bool crates;
++
++    if (type == wol_gameres_type_bool) {
++        crates = (bool) bn_byte_get(*((bn_byte *)data));
++        if (crates)
++            DEBUG0(&quot;Game has crates ON&quot;);
++        else
++            DEBUG0(&quot;Game has crates OFF&quot;);
++    }
++    else
++        WARN1(&quot;got unknown gameres type %u for CRAT&quot;, type);
++
++    return 0;
++}
++
++static int _client_aipl(wol_gameres_type type, int size, void const * data)
++{
++    /* Not implemented yet */
++    return 0;
++}
++
++static int _client_unit(wol_gameres_type type, int size, void const * data)
++{
++    int units;
++
++    if (type == wol_gameres_type_int) {
++        units = (unsigned int) bn_int_nget(*((bn_int *)data));
++        DEBUG1(&quot;Game was start with %u units&quot;, units);
++    }
++    else
++        WARN1(&quot;got unknown gameres type %u for UNIT&quot;, type);
++
++    return 0;
++}
++
++static int _client_scen(wol_gameres_type type, int size, void const * data)
++{
++    /* Not implemented yet */
++    if (type == wol_gameres_type_string) {
++        DEBUG1(&quot;Secnario %s&quot;,data);
++    }
++    else
++        WARN1(&quot;got unknown gameres type %u for SCEN&quot;, type);
++
++    return 0;
++}
++
++static int _client_pngs(wol_gameres_type type, int size, void const * data)
++{
++    /* Not implemented yet */
++    return 0;
++}
++
++static int _client_pngr(wol_gameres_type type, int size, void const * data)
++{
++    /* Not implemented yet */
++    return 0;
++}
++
++static int _client_plrs(wol_gameres_type type, int size, void const * data)
++{
++    unsigned int playercount;
++
++    if (type == wol_gameres_type_int) {
++        playercount = (unsigned int) bn_int_nget(*((bn_int *)data));
++        DEBUG1(&quot;Game was played %u players&quot;, playercount);
++    }
++    else
++        WARN1(&quot;got unknown gameres type %u for PLRS&quot;, type);
++
++    return 0;
++}
++
++static int _client_spid(wol_gameres_type type, int size, void const * data)
++{
++    /* Not implemented yet */
++    return 0;
++}
++
++static int _client_time(wol_gameres_type type, int size, void const * data)
++{
++    /* PELISH: Time when was game started??? we need to check it ;) */
++    std::time_t time;
++
++    if (type == wol_gameres_type_time) {
++        time = (std::time_t) bn_int_nget(*((bn_int *)data));
++        DEBUG1(&quot;Game was start at %s &quot;, ctime(&amp;time));
++    }
++    else
++        WARN1(&quot;got unknown gameres type %u for TIME&quot;, type);
++
++    return 0;
++}
++
++static int _client_afps(wol_gameres_type type, int size, void const * data)
++{
++    /* Not implemented yet */
++    return 0;
++}
++
++static int _client_proc(wol_gameres_type type, int size, void const * data)
++{
++    /* Not implemented yet */
++    return 0;
++}
++
++static int _client_memo(wol_gameres_type type, int size, void const * data)
++{
++    /* Not implemented yet */
++    return 0;
++}
++
++static int _client_vidm(wol_gameres_type type, int size, void const * data)
++{
++    /* Not implemented yet */
++    return 0;
++}
++
++static int _client_sped(wol_gameres_type type, int size, void const * data)
++{
++    unsigned int speed;
++
++    //SPED 00 01 00 01 [00 00 00 00]
++
++    if (type == wol_gameres_type_byte) {
++        speed = (unsigned int) bn_byte_get(*((bn_byte *)data));
++        DEBUG1(&quot;Game speed %s&quot;, speed);
++    }
++    else
++        WARN1(&quot;got unknown gameres type %u for VERS&quot;, type);
++
++    return 0;
++}
++
++static int _client_vers(wol_gameres_type type, int size, void const * data)
++{
++    if (type == wol_gameres_type_string) {
++        DEBUG1(&quot;Version of client %s&quot;,data);
++    }
++    else
++        WARN1(&quot;got unknown gameres type %u for VERS&quot;, type);
++
++    return 0;
++}
++
++static int _client_date(wol_gameres_type type, int size, void const * data)
++{
++    /* Not implemented yet */
++    return 0;
++}
++
++static int _client_base(wol_gameres_type type, int size, void const * data)
++{
++    bool bases;
++
++    //WOLv1 BASE 00 07 00 03 ON
++
++    if (type == wol_gameres_type_bool) {
++        bases = (bool) bn_byte_get(*((bn_byte *)data));
++        if (bases)
++            DEBUG0(&quot;Game has bases ON&quot;);
++        else
++            DEBUG0(&quot;Game has bases OFF&quot;);
++    }
++    else if (type == wol_gameres_type_string) {
++        DEBUG1(&quot;Game has bases %s&quot;, data);
++    }
++    else
++        WARN1(&quot;got unknown gameres type %u for BASE&quot;, type);
++
++    return 0;
++}
++
++static int _client_tibr(wol_gameres_type type, int size, void const * data)
++{
++    bool tiberium;
++
++    if (type == wol_gameres_type_bool) {
++        tiberium = (bool) bn_byte_get(*((bn_byte *)data));
++        if (tiberium)
++            DEBUG0(&quot;Game has tiberium ON&quot;);
++        else
++            DEBUG0(&quot;Game has tiberium OFF&quot;);
++    }
++    else if (type == wol_gameres_type_string) {
++        DEBUG1(&quot;Game has tiberium %s&quot;, data);
++    }
++    else
++        WARN1(&quot;got unknown gameres type %u for TIBR&quot;, type);
++
++    return 0;
++}
++
++static int _client_shad(wol_gameres_type type, int size, void const * data)
++{
++    //SHAD 00 02 00 01 [00 FF FF FF]
++    //SHAD 00 02 00 01 [00 00 00 00]
++    
++    bool shadows;
++
++    if (type == wol_gameres_type_bool) {
++        shadows = (bool) bn_byte_get(*((bn_byte *)data));
++        if (shadows)
++            DEBUG0(&quot;Game has shadows ON&quot;);
++        else
++            DEBUG0(&quot;Game has shadows OFF&quot;);
++    }
++    else
++        WARN1(&quot;got unknown gameres type %u for SHAD&quot;, type);
++
++    return 0;
++}
++
++static int _client_flag(wol_gameres_type type, int size, void const * data)
++{
++    bool captureflag;
++
++    if (type == wol_gameres_type_bool) {
++        captureflag = (bool) bn_byte_get(*((bn_byte *)data));
++        if (captureflag)
++            DEBUG0(&quot;Game has capture the flag ON&quot;);
++        else
++            DEBUG0(&quot;Game has capture the flag OFF&quot;);
++    }
++    else
++        WARN1(&quot;got unknown gameres type %u for FLAG&quot;, type);
++
++    return 0;
++}
++
++static int _client_tech(wol_gameres_type type, int size, void const * data)
++{
++    unsigned int techlevel;
++
++    if (type == wol_gameres_type_int) {
++        techlevel = (unsigned int) bn_int_nget(*((bn_int *)data));
++        DEBUG1(&quot;Game has techlevel %u&quot;, techlevel);
++    }
++    else
++        WARN1(&quot;got unknown gameres type %u for TECH&quot;, type);
++
++    return 0;
++}
++
++
++/* player related tag handlers*/
++
++static int _client_nam0(wol_gameres_type type, int size, void const * data)
++{
++    DEBUG1(&quot;Name of palyer 0: %s&quot;,data);
++    return 0;
++}
++
++static int _client_nam1(wol_gameres_type type, int size, void const * data)
++{
++    DEBUG1(&quot;Name of palyer 1: %s&quot;,data);
++    return 0;
++}
++
++static int _client_nam2(wol_gameres_type type, int size, void const * data)
++{
++    DEBUG1(&quot;Name of palyer 2: %s&quot;,data);
++    return 0;
++}
++
++static int _client_nam3(wol_gameres_type type, int size, void const * data)
++{
++    DEBUG1(&quot;Name of palyer 3: %s&quot;,data);
++    return 0;
++}
++
++static int _client_nam4(wol_gameres_type type, int size, void const * data)
++{
++    DEBUG1(&quot;Name of palyer 4: %s&quot;,data);
++    return 0;
++}
++
++static int _client_nam5(wol_gameres_type type, int size, void const * data)
++{
++    DEBUG1(&quot;Name of palyer 5: %s&quot;,data);
++    return 0;
++}
++
++static int _client_nam6(wol_gameres_type type, int size, void const * data)
++{
++    DEBUG1(&quot;Name of palyer 6: %s&quot;,data);
++    return 0;
++}
++
++static int _client_nam7(wol_gameres_type type, int size, void const * data)
++{
++    DEBUG1(&quot;Name of palyer 7: %s&quot;,data);
++    return 0;
++}
++
++/**/
++static int show_player_reslut(int playernum, int result)
++{
++    /* FIXME: This does not work! */
++    DEBUG2(&quot;%u player has %u&quot;, playernum ,result);
++    if (result == 0x100)
++        DEBUG0(&quot;WIN&quot;);
++    if (result == 0x200)
++        DEBUG0(&quot;LOSE&quot;);
++    if (result == 0x300)
++        DEBUG0(&quot;DISCONECT&quot;);
++    return 0;
++}
++/**/
++
++static int _client_cmp0(wol_gameres_type type, int size, void const * data)
++{
++    //CMPx 00 06 00 04 00 00 02 00
++    //0x0100=WIN 0x0200=LOSE (0x0210) 0x0300=DISCONECT
++
++    int result;
++
++    if (type == wol_gameres_type_int) {
++        result = (unsigned int) bn_int_nget(*((bn_int *)data));
++        show_player_reslut(0,result);
++    }
++    return 0;
++}
++
++static int _client_cmp1(wol_gameres_type type, int size, void const * data)
++{
++    int result;
++
++    if (type == wol_gameres_type_int) {
++        result = (unsigned int) bn_int_nget(*((bn_int *)data));
++        show_player_reslut(1,result);
++    }
++    return 0;
++}
++
++static int _client_cmp2(wol_gameres_type type, int size, void const * data)
++{
++    int result;
++
++    if (type == wol_gameres_type_int) {
++        result = (unsigned int) bn_int_nget(*((bn_int *)data));
++        show_player_reslut(2,result);
++    }
++    return 0;
++}
++
++static int _client_cmp3(wol_gameres_type type, int size, void const * data)
++{
++    int result;
++
++    if (type == wol_gameres_type_int) {
++        result = (unsigned int) bn_int_nget(*((bn_int *)data));
++        show_player_reslut(3,result);
++    }
++    return 0;
++}
++
++static int _client_cmp4(wol_gameres_type type, int size, void const * data)
++{
++    int result;
++
++    if (type == wol_gameres_type_int) {
++        result = (unsigned int) bn_int_nget(*((bn_int *)data));
++        show_player_reslut(4,result);
++    }
++    return 0;
++}
++
++static int _client_cmp5(wol_gameres_type type, int size, void const * data)
++{
++    int result;
++
++    if (type == wol_gameres_type_int) {
++        result = (unsigned int) bn_int_nget(*((bn_int *)data));
++        show_player_reslut(5,result);
++    }
++    return 0;
++}
++
++static int _client_cmp6(wol_gameres_type type, int size, void const * data)
++{
++    int result;
++
++    if (type == wol_gameres_type_int) {
++        result = (unsigned int) bn_int_nget(*((bn_int *)data));
++        show_player_reslut(6,result);
++    }
++    return 0;
++}
++
++static int _client_cmp7(wol_gameres_type type, int size, void const * data)
++{
++    int result;
++
++    if (type == wol_gameres_type_int) {
++        result = (unsigned int) bn_int_nget(*((bn_int *)data));
++        show_player_reslut(7,result);
++    }
++    return 0;
++}
++
++}
++
++}
+
+Added: trunk/pvpgn/src/bnetd/handle_wol_gameres.h
+===================================================================
+--- trunk/pvpgn/src/bnetd/handle_wol_gameres.h	2008-08-18 12:56:14 UTC (rev 491)
++++ trunk/pvpgn/src/bnetd/handle_wol_gameres.h	2008-08-30 18:56:48 UTC (rev 492)
+@@ -0,0 +1,52 @@
++/*
++ * Copyright (C) 2008  Pelish (<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">pelish at gmail.com</A>)
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License
++ * as published by the Free Software Foundation; either version 2
++ * of the License, or (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++ */
++
++
++/*****/
++#ifndef JUST_NEED_TYPES
++#ifndef INCLUDED_HANDLE_WOL_GAMERES_PROTOS
++#define INCLUDED_HANDLE_WOL_GAMERES_PROTOS
++
++#define JUST_NEED_TYPES
++#include &quot;connection.h&quot;
++#include &quot;common/packet.h&quot;
++#undef JUST_NEED_TYPES
++
++namespace pvpgn
++{
++
++namespace bnetd
++{
++
++typedef enum {
++    wol_gameres_type_unknown,
++    wol_gameres_type_byte,
++    wol_gameres_type_bool,
++    wol_gameres_type_time,
++    wol_gameres_type_int,
++    wol_gameres_type_string
++} wol_gameres_type;
++
++extern int handle_wol_gameres_packet(t_connection * c, t_packet const * const packet);
++
++}
++
++}
++
++#endif
++#endif
+
+Modified: trunk/pvpgn/src/bnetd/irc.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/irc.cpp	2008-08-18 12:56:14 UTC (rev 491)
++++ trunk/pvpgn/src/bnetd/irc.cpp	2008-08-30 18:56:48 UTC (rev 492)
+@@ -1341,6 +1341,7 @@
+     else {
+         snprintf(temp, sizeof(temp), &quot;%s :&quot;, irc_convert_channel(channel,c));
+         irc_send(c, RPL_TOPIC, temp);
++        /* PELISH: This is according to RFC2812 but brakes WOLv1/WOLv2 */
+         //snprintf(temp, sizeof(temp), &quot;%s :No topic is set&quot;, irc_convert_channel(channel,c));
+         //irc_send(c, RPL_NOTOPIC, temp);
+     }
+
+Modified: trunk/pvpgn/src/bnetd/server.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/server.cpp	2008-08-18 12:56:14 UTC (rev 491)
++++ trunk/pvpgn/src/bnetd/server.cpp	2008-08-30 18:56:48 UTC (rev 492)
+@@ -62,6 +62,7 @@
+ #include &quot;handle_irc_common.h&quot;
+ #include &quot;handle_udp.h&quot;
+ #include &quot;handle_apireg.h&quot;
++#include &quot;handle_wol_gameres.h&quot;
+ #include &quot;anongame.h&quot;
+ #include &quot;clan.h&quot;
+ #include &quot;attrlayer.h&quot;
+@@ -530,7 +531,6 @@
+ 	case conn_class_wol:
+ 	case conn_class_wserv:
+  	case conn_class_apireg:
+-	case conn_class_wgameres:
+ 	case conn_class_wladder:
+ 	case conn_class_telnet:
+ 	    if (!(packet = packet_create(packet_class_raw)))
+@@ -547,7 +547,13 @@
+ 		return -1;
+ 	    }
+ 	    break;
+-
++ 	case conn_class_wgameres:
++        if (!(packet = packet_create(packet_class_wolgameres)))
++	    {
++		eventlog(eventlog_level_error,__FUNCTION__,&quot;could not allocate wolgameres packet for input&quot;);
++		return -1;
++	    }
++	    break;
+ 	default:
+ 	    eventlog(eventlog_level_error,__FUNCTION__,&quot;[%d] connection has bad class (closing connection)&quot;,conn_get_socket(c));
+ 	    conn_close_read(c);
+@@ -648,7 +654,6 @@
+ 		case conn_class_wol:
+ 		case conn_class_wserv:
+ 		case conn_class_wladder:
+-		case conn_class_wgameres: /* NOTICE: Will be handled in another file */
+ 		    ret = handle_irc_common_packet(c,packet);
+ 		    break;
+ 		case conn_class_apireg:
+@@ -657,6 +662,9 @@
+ 		case conn_class_w3route:
+ 		    ret = handle_w3route_packet(c,packet);
+ 		    break;
++		case conn_class_wgameres:
++		    ret = handle_wol_gameres_packet(c,packet);
++		    break;
+ 		default:
+ 		    eventlog(eventlog_level_error,__FUNCTION__,&quot;[%d] bad packet class %d (closing connection)&quot;,conn_get_socket(c),(int)packet_get_class(packet));
+ 		    ret = -1;
+
+Modified: trunk/pvpgn/src/common/CMakeLists.txt
+===================================================================
+--- trunk/pvpgn/src/common/CMakeLists.txt	2008-08-18 12:56:14 UTC (rev 491)
++++ trunk/pvpgn/src/common/CMakeLists.txt	2008-08-30 18:56:48 UTC (rev 492)
+@@ -18,7 +18,8 @@
+ 	token.h tracker.h trans.cpp trans.h udp_protocol.h util.cpp util.h 
+ 	version.h wolhash.cpp wolhash.h xalloc.cpp xalloc.h xstr.cpp xstr.h 
+ 	xstring.cpp xstring.h gui_printf.h gui_printf.cpp 
+-	bigint.cpp bigint.h bnetsrp3.cpp bnetsrp3.h peerchat.cpp peerchat.h)
++	bigint.cpp bigint.h bnetsrp3.cpp bnetsrp3.h peerchat.cpp peerchat.h
++    wol_gameres_protocol.h)
+ 
+ add_library(common
+   ${COMMON_SOURCES}
+
+Modified: trunk/pvpgn/src/common/field_sizes.h
+===================================================================
+--- trunk/pvpgn/src/common/field_sizes.h	2008-08-18 12:56:14 UTC (rev 491)
++++ trunk/pvpgn/src/common/field_sizes.h	2008-08-30 18:56:48 UTC (rev 492)
+@@ -19,6 +19,7 @@
+ #define INCLUDED_FIELD_SIZES_TYPES
+ 
+ const unsigned MAX_PACKET_SIZE = 3072;
++const unsigned MAX_WOL_GAMERES_PACKET_SIZE = 65535;
+ const unsigned MAX_NORMAL_TYPE = 0xffff;
+ const unsigned MAX_FILE_TYPE = 0xffff;
+ const int MAX_AUTH_TYPE = 0xff;
+
+Modified: trunk/pvpgn/src/common/packet.cpp
+===================================================================
+--- trunk/pvpgn/src/common/packet.cpp	2008-08-18 12:56:14 UTC (rev 491)
++++ trunk/pvpgn/src/common/packet.cpp	2008-08-30 18:56:48 UTC (rev 492)
+@@ -37,15 +37,16 @@
+     t_packet * temp;
+ 
+     if (pclass!=packet_class_init &amp;&amp;
+-	pclass!=packet_class_bnet &amp;&amp;
+-	pclass!=packet_class_file &amp;&amp;
+-	pclass!=packet_class_udp &amp;&amp;
+-	pclass!=packet_class_raw &amp;&amp;
+-	pclass!=packet_class_d2game &amp;&amp;
++        pclass!=packet_class_bnet &amp;&amp;
++        pclass!=packet_class_file &amp;&amp;
++        pclass!=packet_class_udp &amp;&amp;
++        pclass!=packet_class_raw &amp;&amp;
++        pclass!=packet_class_d2game &amp;&amp;
+         pclass!=packet_class_d2cs &amp;&amp;
+         pclass!=packet_class_d2gs &amp;&amp;
+-	pclass!=packet_class_d2cs_bnetd &amp;&amp;
+-	pclass!=packet_class_w3route)
++        pclass!=packet_class_d2cs_bnetd &amp;&amp;
++        pclass!=packet_class_w3route &amp;&amp;
++        pclass!=packet_class_wolgameres)
+     {
+ 	eventlog(eventlog_level_error,__FUNCTION__,&quot;invalid packet class %d&quot;,(int)pclass);
+         return NULL;
+@@ -131,6 +132,8 @@
+         return packet_class_d2cs_bnetd;
+     case packet_class_w3route:
+         return packet_class_w3route;
++    case packet_class_wolgameres:
++        return packet_class_wolgameres;
+     case packet_class_none:
+ 	return packet_class_none;
+     default:
+@@ -169,12 +172,14 @@
+     case packet_class_d2cs:
+         return &quot;d2cs&quot;;
+     case packet_class_w3route:
+-	return &quot;w3route&quot;;
++        return &quot;w3route&quot;;
++    case packet_class_wolgameres:
++        return &quot;wolgameres&quot;;
+     case packet_class_none:
+-	return &quot;none&quot;;
++        return &quot;none&quot;;
+     default:
+-	eventlog(eventlog_level_error,__FUNCTION__,&quot;packet has invalid class %d&quot;,(int)packet-&gt;pclass);
+-	return &quot;unknown&quot;;
++        eventlog(eventlog_level_error,__FUNCTION__,&quot;packet has invalid class %d&quot;,(int)packet-&gt;pclass);
++        return &quot;unknown&quot;;
+     }
+ }
+ 
+@@ -183,26 +188,27 @@
+ {
+     if (!packet)
+     {
+-	eventlog(eventlog_level_error,__FUNCTION__,&quot;got NULL packet&quot;);
+-	return -1;
++        eventlog(eventlog_level_error,__FUNCTION__,&quot;got NULL packet&quot;);
++        return -1;
+     }
+     if (packet-&gt;pclass!=packet_class_raw)
+     {
+-	eventlog(eventlog_level_error,__FUNCTION__,&quot;got non-raw packet&quot;);
+-	return -1;
++        eventlog(eventlog_level_error,__FUNCTION__,&quot;got non-raw packet&quot;);
++        return -1;
+     }
+     if (pclass!=packet_class_init &amp;&amp;
+-	pclass!=packet_class_bnet &amp;&amp;
+-	pclass!=packet_class_file &amp;&amp;
+-	pclass!=packet_class_udp &amp;&amp;
+-	pclass!=packet_class_raw &amp;&amp;
+-	pclass!=packet_class_d2game &amp;&amp;
++        pclass!=packet_class_bnet &amp;&amp;
++        pclass!=packet_class_file &amp;&amp;
++        pclass!=packet_class_udp &amp;&amp;
++        pclass!=packet_class_raw &amp;&amp;
++        pclass!=packet_class_d2game &amp;&amp;
+         pclass!=packet_class_d2cs &amp;&amp;
+         pclass!=packet_class_d2gs &amp;&amp;
+         pclass!=packet_class_d2cs_bnetd &amp;&amp;
+-	pclass!=packet_class_w3route)
++        pclass!=packet_class_w3route &amp;&amp;
++        pclass!=packet_class_wolgameres)
+     {
+-	eventlog(eventlog_level_error,__FUNCTION__,&quot;invalid packet class %d&quot;,(int)pclass);
++        eventlog(eventlog_level_error,__FUNCTION__,&quot;invalid packet class %d&quot;,(int)pclass);
+         return -1;
+     }
+ 
+@@ -288,8 +294,9 @@
+ 	    return 0;
+ 	}
+ 	return bn_short_get(packet-&gt;u.w3route.h.type);
++    case packet_class_wolgameres:
++	    return 0; /* wolgameres packets don't have a type */
+ 
+-
+     default:
+ 	eventlog(eventlog_level_error,__FUNCTION__,&quot;packet has invalid class %d&quot;,(int)packet-&gt;pclass);
+ 	return 0;
+@@ -817,6 +824,8 @@
+ 	        return &quot;SERVER_W3ROUTE_STARTGAME2&quot;;
+ 	    }
+ 	    return &quot;unknown&quot;;
++ 	case packet_class_wolgameres:
++	    return &quot;CLIENT_WOLGAMERES&quot;;
+ 	case packet_class_none:
+ 	    return &quot;unknown&quot;;
+ 	}
+@@ -930,6 +939,9 @@
+ 	bn_short_set(&amp;packet-&gt;u.w3route.h.type,(unsigned short)type);
+ 	return 0;
+ 
++    case packet_class_wolgameres:
++	eventlog(eventlog_level_error,__FUNCTION__,&quot;can not set packet type for wol gameres packet&quot;);
++	return 0;
+ 
+     case packet_class_raw:
+ 	eventlog(eventlog_level_error,__FUNCTION__,&quot;can not set packet type for raw packet&quot;);
+@@ -983,10 +995,19 @@
+         size = (unsigned int)bn_short_get(packet-&gt;u.d2cs_client.h.size);
+         break;
+     case packet_class_w3route:
+-	size = (unsigned int)bn_short_get(packet-&gt;u.w3route.h.size);
+-	break;
++        size = (unsigned int)bn_short_get(packet-&gt;u.w3route.h.size);
++        break;
++    case packet_class_wolgameres:
++        {
++            size = (unsigned int)bn_short_nget(packet-&gt;u.wolgameres.h.size);
++            if (size&gt;MAX_WOL_GAMERES_PACKET_SIZE) {
++                eventlog(eventlog_level_error,__FUNCTION__,&quot;packet has bad size %u&quot;,size);
++                return 0;
++            }
++        }
++        return size;
+     default:
+-	eventlog(eventlog_level_error,__FUNCTION__,&quot;packet has invalid class %d&quot;,(int)packet-&gt;pclass);
++        eventlog(eventlog_level_error,__FUNCTION__,&quot;packet has invalid class %d&quot;,(int)packet-&gt;pclass);
+ 	return 0;
+     }
+ 
+@@ -1069,6 +1090,9 @@
+ 	}
+         bn_short_set(&amp;packet-&gt;u.w3route.h.size,size);
+         return 0;
++     case packet_class_wolgameres:
++        /* PELISH: useless - there is no server packet for wolgameres */
++        return 0;
+     default:
+ 	eventlog(eventlog_level_error,__FUNCTION__,&quot;packet has invalid class %d&quot;,(int)packet-&gt;pclass);
+ 	return -1;
+@@ -1106,6 +1130,8 @@
+         return sizeof(t_d2cs_bnetd_header);
+     case packet_class_w3route:
+         return sizeof(t_w3route_header);
++    case packet_class_wolgameres:
++        return sizeof(t_wolgameres_header);
+     default:
+         eventlog(eventlog_level_error,__FUNCTION__,&quot;packet has bad class %d&quot;,(int)packet_get_class(packet));
+         return MAX_PACKET_SIZE;
+@@ -1290,7 +1316,7 @@
+         return NULL;
+     }
+     size = (unsigned int)packet_get_size(packet);
+-    if (offset&gt;=size || offset&gt;=MAX_PACKET_SIZE)
++    if (offset&gt;=size || (((offset&gt;=MAX_PACKET_SIZE) &amp;&amp; (packet-&gt;pclass != packet_class_wolgameres)) || (offset&gt;=MAX_WOL_GAMERES_PACKET_SIZE)))
+     {
+         eventlog(eventlog_level_error,__FUNCTION__,&quot;got bad offset %u for packet size %u&quot;,offset,size);
+         return NULL;
+@@ -1310,7 +1336,7 @@
+         return NULL;
+     }
+     size = (unsigned int)packet_get_size(packet);
+-    if (offset&gt;=size || offset&gt;=MAX_PACKET_SIZE)
++    if (offset&gt;=size || (((offset&gt;=MAX_PACKET_SIZE) &amp;&amp; (packet-&gt;pclass != packet_class_wolgameres)) || (offset&gt;=MAX_WOL_GAMERES_PACKET_SIZE)))
+     {
+         eventlog(eventlog_level_error,__FUNCTION__,&quot;got bad offset %u for packet size %u&quot;,offset,size);
+         return NULL;
+@@ -1328,7 +1354,7 @@
+         return NULL;
+     }
+ 
+-    if (offset&gt;=MAX_PACKET_SIZE)
++    if (((offset&gt;=MAX_PACKET_SIZE) &amp;&amp; (packet-&gt;pclass != packet_class_wolgameres)) || (offset&gt;=MAX_WOL_GAMERES_PACKET_SIZE))
+     {
+         eventlog(eventlog_level_error,__FUNCTION__,&quot;got bad offset %u for packet&quot;,offset);
+         return NULL;
+
+Modified: trunk/pvpgn/src/common/packet.h
+===================================================================
+--- trunk/pvpgn/src/common/packet.h	2008-08-18 12:56:14 UTC (rev 491)
++++ trunk/pvpgn/src/common/packet.h	2008-08-30 18:56:48 UTC (rev 492)
+@@ -31,6 +31,7 @@
+ # include &quot;d2cs_protocol.h&quot;
+ # include &quot;d2cs_d2gs_protocol.h&quot;
+ # include &quot;d2cs_bnetd_protocol.h&quot;
++# include &quot;wol_gameres_protocol.h&quot;
+ #else
+ # define JUST_NEED_TYPES
+ # include &quot;field_sizes.h&quot;
+@@ -44,6 +45,7 @@
+ # include &quot;d2cs_protocol.h&quot;
+ # include &quot;d2cs_d2gs_protocol.h&quot;
+ # include &quot;d2cs_bnetd_protocol.h&quot;
++# include &quot;wol_gameres_protocol.h&quot;
+ # undef JUST_NEED_TYPES
+ #endif
+ 
+@@ -62,7 +64,8 @@
+     packet_class_d2gs,
+     packet_class_d2cs,
+     packet_class_d2cs_bnetd,
+-    packet_class_w3route
++    packet_class_w3route,
++    packet_class_wolgameres
+ } t_packet_class;
+ 
+ 
+@@ -79,24 +82,26 @@
+  */
+ typedef struct
+ {
+-    unsigned int   ref;   /* reference count */
++    unsigned int   ref;      /* reference count */
+     t_packet_class pclass;
+-    unsigned int   flags; /* user-defined flags (used to mark UDP in bnproxy) */
+-    unsigned int   len;   /* raw packets have no header, so we use this */
++    unsigned int   flags;    /* user-defined flags (used to mark UDP in bnproxy) */
++    unsigned int   len;      /* raw packets have no header, so we use this */
+ 
+     /* next part looks just like it would on the network (no padding, byte for byte) */
+     union
+     {
+         char data[MAX_PACKET_SIZE];
+ 
+-        t_bnet_generic   bnet;
+-        t_file_generic   file;
+-        t_udp_generic    udp;
+-        t_d2game_generic d2game;
+-	t_w3route_generic w3route;
++        t_bnet_generic              bnet;
++        t_file_generic              file;
++        t_udp_generic               udp;
++        t_d2game_generic            d2game;
++        t_w3route_generic           w3route;
++        t_wolgameres_generic        wolgameres;
+ 
+-	t_client_initconn client_initconn;
+ 
++        t_client_initconn           client_initconn;
++
+         t_server_authreply1         server_authreply1;
+         t_server_authreq1           server_authreq1;
+         t_client_authreq1           client_authreq1;
+
+Added: trunk/pvpgn/src/common/wol_gameres_protocol.h
+===================================================================
+--- trunk/pvpgn/src/common/wol_gameres_protocol.h	2008-08-18 12:56:14 UTC (rev 491)
++++ trunk/pvpgn/src/common/wol_gameres_protocol.h	2008-08-30 18:56:48 UTC (rev 492)
+@@ -0,0 +1,121 @@
++/*
++ * Copyright (C) 2008  Pelish (<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">pelish at gmail.com</A>)
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License
++ * as published by the Free Software Foundation; either version 2
++ * of the License, or (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++ */
++#ifndef INCLUDED_WOL_GAMERES_PROTOCOL_TYPES
++#define INCLUDED_WOL_GAMERES_PROTOCOL_TYPES
++
++#ifdef JUST_NEED_TYPES
++# include &quot;common/bn_type.h&quot;
++# include &quot;common/tag.h&quot;
++#else
++# define JUST_NEED_TYPES
++# include &quot;common/bn_type.h&quot;
++# include &quot;common/tag.h&quot;
++# undef JUST_NEED_TYPES
++#endif
++
++/*
++ * The &quot;wol gamreres&quot; protocol is used for sending Game reports to server
++ * for ladders support.
++ */
++
++
++namespace pvpgn
++{
++
++/******************************************************/
++typedef struct
++{
++    bn_short size;
++    bn_short unknown1;
++} PACKED_ATTR() t_wolgameres_header;
++/******************************************************/
++
++/******************************************************/
++typedef struct
++{
++    t_wolgameres_header h;
++} PACKED_ATTR() t_wolgameres_generic;
++/******************************************************/
++
++/* PELISH: not used now...
++typedef struct
++{
++	bn_short type;
++	bn_short length;
++//	data;
++} PACKED_ATTR() t_client_wolgameres_generic;
++*/
++/* Game tags */
++
++const t_tag CLIENT_SERN_UINT = 0x53455223;
++const t_tag CLIENT_IDNO_UINT = 0x49444E4F;
++const t_tag CLIENT_GSKU_UINT = 0x47534B55;
++const t_tag CLIENT_TRNY_UINT = 0x54524E59;
++const t_tag CLIENT_OOSY_UINT = 0x4F4F5359;
++const t_tag CLIENT_FINI_UINT = 0x46494E49;
++const t_tag CLIENT_DURA_UINT = 0x44555241;
++const t_tag CLIENT_CRED_UINT = 0x43524544;
++const t_tag CLIENT_SHRT_UINT = 0x53485254;
++const t_tag CLIENT_SUPR_UINT = 0x53555052;
++const t_tag CLIENT_MODE_UINT = 0x4D4F4445;
++const t_tag CLIENT_BAMR_UINT = 0x42414D52;
++const t_tag CLIENT_CRAT_UINT = 0x43524154;
++const t_tag CLIENT_AIPL_UINT = 0x4149504C;
++const t_tag CLIENT_UNIT_UINT = 0x554E4954;
++const t_tag CLIENT_SCEN_UINT = 0x5343454E;
++const t_tag CLIENT_PNGS_UINT = 0x504E4753;
++const t_tag CLIENT_PNGR_UINT = 0x504E4752;
++const t_tag CLIENT_PLRS_UINT = 0x504C5253;
++const t_tag CLIENT_SPID_UINT = 0x53504944;
++const t_tag CLIENT_TIME_UINT = 0x54494D45;
++const t_tag CLIENT_AFPS_UINT = 0x41465053;
++const t_tag CLIENT_PROC_UINT = 0x50524F43;
++const t_tag CLIENT_MEMO_UINT = 0x4D454D4F;
++const t_tag CLIENT_VIDM_UINT = 0x5649444D;
++const t_tag CLIENT_SPED_UINT = 0x53504544;
++const t_tag CLIENT_VERS_UINT = 0x56455253;
++const t_tag CLIENT_DATE_UINT = 0x44415445;
++const t_tag CLIENT_BASE_UINT = 0x42415345;
++const t_tag CLIENT_TIBR_UINT = 0x54494252;
++const t_tag CLIENT_SHAD_UINT = 0x53484144;
++const t_tag CLIENT_FLAG_UINT = 0x464C4147;
++const t_tag CLIENT_TECH_UINT = 0x54454348;
++
++/* Player tags */
++const t_tag CLIENT_NAM0_UINT = 0x4E414D30;
++const t_tag CLIENT_NAM1_UINT = 0x4E414D31;
++const t_tag CLIENT_NAM2_UINT = 0x4E414D32;
++const t_tag CLIENT_NAM3_UINT = 0x4E414D33;
++const t_tag CLIENT_NAM4_UINT = 0x4E414D34;
++const t_tag CLIENT_NAM5_UINT = 0x4E414D35;
++const t_tag CLIENT_NAM6_UINT = 0x4E414D36;
++const t_tag CLIENT_NAM7_UINT = 0x4E414D37;
++
++const t_tag CLIENT_CMP0_UINT = 0x434D5030;
++const t_tag CLIENT_CMP1_UINT = 0x434D5031;
++const t_tag CLIENT_CMP2_UINT = 0x434D5032;
++const t_tag CLIENT_CMP3_UINT = 0x434D5033;
++const t_tag CLIENT_CMP4_UINT = 0x434D5034;
++const t_tag CLIENT_CMP5_UINT = 0x434D5035;
++const t_tag CLIENT_CMP6_UINT = 0x434D5036;
++const t_tag CLIENT_CMP7_UINT = 0x434D5037;
++
++}
++
++#endif  /* INCLUDED_WOL_GAMERES_PROTOCOL_TYPES */
++
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000785.html">[pvpgn-dev] d2cl, a character list backend to d2cs
+</A></li>
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#786">[ date ]</a>
+              <a href="thread.html#786">[ thread ]</a>
+              <a href="subject.html#786">[ subject ]</a>
+              <a href="author.html#786">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

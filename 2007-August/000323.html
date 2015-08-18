@@ -1,0 +1,136 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] pvpgn/src/common tracker.h,1.1.1.1,1.2
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-August/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20pvpgn/src/common%20tracker.h%2C1.1.1.1%2C1.2&In-Reply-To=%3C20070816014129.341CE102E40%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000324.html">
+   <LINK REL="Next"  HREF="000325.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] pvpgn/src/common tracker.h,1.1.1.1,1.2</H1>
+    <B>pandaemonium</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20pvpgn/src/common%20tracker.h%2C1.1.1.1%2C1.2&In-Reply-To=%3C20070816014129.341CE102E40%40mail.berlios.de%3E"
+       TITLE="[pvpgn-dev] pvpgn/src/common tracker.h,1.1.1.1,1.2">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Thu Aug 16 03:41:29 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000324.html">[pvpgn-dev] pvpgn/src/bntrackd bntrackd.c,1.13,1.14
+</A></li>
+        <LI>Next message: <A HREF="000325.html">[pvpgn-dev] r320 - trunk/pvpgn
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#323">[ date ]</a>
+              <a href="thread.html#323">[ thread ]</a>
+              <a href="subject.html#323">[ subject ]</a>
+              <a href="author.html#323">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/pvpgn/pvpgn/src/common
+In directory sheep:/tmp/cvs-serv12535/src/common
+
+Modified Files:
+	tracker.h 
+Log Message:
+fix for bug [ #11671 ] bnetd on 64bit sends currupt packets to tracker
+
+Index: tracker.h
+===================================================================
+RCS file: /cvsroot/pvpgn/pvpgn/src/common/tracker.h,v
+retrieving revision 1.1.1.1
+retrieving revision 1.2
+diff -u -d -r1.1.1.1 -r1.2
+--- tracker.h	27 Dec 2002 08:45:08 -0000	1.1.1.1
++++ tracker.h	16 Aug 2007 01:41:06 -0000	1.2
+@@ -18,6 +18,16 @@
+ #ifndef INCLUDED_TRACKER_TYPES
+ #define INCLUDED_TRACKER_TYPES
+ 
++#ifdef TRACKER_INTERNAL_ACCESS
++#ifdef JUST_NEED_TYPES
++#include &quot;common/bn_type.h&quot;
++#else
++#define JUST_NEED_TYPES
++#include &quot;common/bn_type.h&quot;
++#undef JUST_NEED_TYPES
++#endif
++#endif
++
+ /*
+  *
+  * Here's how this works:
+@@ -30,23 +40,23 @@
+ #ifdef TRACKER_INTERNAL_ACCESS
+ typedef struct
+ {
+-  unsigned short packet_version;      /* set to TRACK_VERSION, network byte order */
+-  unsigned short port;                /* port server is listening on, network byte order */
+-  unsigned long  flags;               /* see below, network byte order */
+-  char           software[32];        /* example: Bnetd, NUL terminated */
+-  char           version[16];         /* example: 0.4, NUL terminated */
+-  char           platform[32];        /* Windows, Linux, etc., NUL terminated */
+-  char           server_desc[64];     /* description, NUL terminated */
+-  char           server_location[64]; /* geographical location, NUL terminated */
+-  char           server_url[96];      /* web address: <A HREF="http://...,">http://...,</A> NUL terminated */
+-  char           contact_name[64];    /* name of operator, NUL terminated */
+-  char           contact_email[64];   /* e-mail address of operator, NUL terminated */
+-  unsigned long  users;               /* current number of users, network byte order */
+-  unsigned long  channels;            /* current number of channels, network byte order */
+-  unsigned long  games;               /* current number of games, network byte order */
+-  unsigned long  uptime;              /* daemon uptime in seconds, network byte order */
+-  unsigned long  total_games;         /* total number of games served */
+-  unsigned long  total_logins;        /* total number of client logins */
++  bn_short	packet_version;      /* set to TRACK_VERSION, network byte order */
++  bn_short	port;                /* port server is listening on, network byte order */
++  bn_int	flags;               /* see below, network byte order */
++  bn_byte	software[32];        /* example: Bnetd, NUL terminated */
++  bn_byte	version[16];         /* example: 0.4, NUL terminated */
++  bn_byte	platform[32];        /* Windows, Linux, etc., NUL terminated */
++  bn_byte	server_desc[64];     /* description, NUL terminated */
++  bn_byte	server_location[64]; /* geographical location, NUL terminated */
++  bn_byte	server_url[96];      /* web address: <A HREF="http://...,">http://...,</A> NUL terminated */
++  bn_byte	contact_name[64];    /* name of operator, NUL terminated */
++  bn_byte	contact_email[64];   /* e-mail address of operator, NUL terminated */
++  bn_int	users;               /* current number of users, network byte order */
++  bn_int	channels;            /* current number of channels, network byte order */
++  bn_int	games;               /* current number of games, network byte order */
++  bn_int	uptime;              /* daemon uptime in seconds, network byte order */
++  bn_int	total_games;         /* total number of games served */
++  bn_int	total_logins;        /* total number of client logins */
+ 
+   /* new versions will add fields to end of packet */
+ } t_trackpacket;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000324.html">[pvpgn-dev] pvpgn/src/bntrackd bntrackd.c,1.13,1.14
+</A></li>
+	<LI>Next message: <A HREF="000325.html">[pvpgn-dev] r320 - trunk/pvpgn
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#323">[ date ]</a>
+              <a href="thread.html#323">[ thread ]</a>
+              <a href="subject.html#323">[ subject ]</a>
+              <a href="author.html#323">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

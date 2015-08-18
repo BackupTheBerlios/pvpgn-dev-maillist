@@ -1,0 +1,144 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r305 - trunk/pvpgn/src/bnetd
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-August/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r305%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200708121314.l7CDEpvF029291%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000279.html">
+   <LINK REL="Next"  HREF="000281.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r305 - trunk/pvpgn/src/bnetd</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r305%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200708121314.l7CDEpvF029291%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r305 - trunk/pvpgn/src/bnetd">svn at svn.berlios.de
+       </A><BR>
+    <I>Sun Aug 12 15:14:51 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000279.html">[pvpgn-dev] r304 - trunk/pvpgn
+</A></li>
+        <LI>Next message: <A HREF="000281.html">[pvpgn-dev] r306 - trunk/pvpgn/src/common
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#280">[ date ]</a>
+              <a href="thread.html#280">[ thread ]</a>
+              <a href="subject.html#280">[ subject ]</a>
+              <a href="author.html#280">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pandaemonium
+Date: 2007-08-12 15:14:51 +0200 (Sun, 12 Aug 2007)
+New Revision: 305
+
+Modified:
+   trunk/pvpgn/src/bnetd/handle_bnet.cpp
+Log:
+only send locked reply on D2&gt;=1.11 (previous version simply discs on that reply code)
+
+Modified: trunk/pvpgn/src/bnetd/handle_bnet.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/handle_bnet.cpp	2007-08-09 21:34:54 UTC (rev 304)
++++ trunk/pvpgn/src/bnetd/handle_bnet.cpp	2007-08-12 13:14:51 UTC (rev 305)
+@@ -1558,7 +1558,14 @@
+     {
+ 	char const *username;
+ 	t_account *account;
++	char supports_locked_reply = 0;
++	t_clienttag clienttag = conn_get_clienttag(c);
+ 
++	if (clienttag == CLIENTTAG_DIABLO2XP_UINT || clienttag == CLIENTTAG_DIABLO2DV_UINT){
++	  if (conn_get_versionid(c) &gt;= 0x0000000b)
++	    supports_locked_reply = 1;
++	}
++
+ 	if (!(username = packet_get_str_const(packet, sizeof(t_client_loginreq2), MAX_USERNAME_LEN))) {
+ 	    eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad LOGINREQ2 (missing or too long username)&quot;, conn_get_socket(c));
+ 	    return -1;
+@@ -1573,8 +1580,13 @@
+ 	if (prefs_get_max_concurrent_logins() &gt; 0) {
+ 	    if (prefs_get_max_concurrent_logins() &lt;= connlist_login_get_length()) {
+ 		eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] login denied, too many concurrent logins. max: %d. current: %d.&quot;, conn_get_socket(c), prefs_get_max_concurrent_logins(), connlist_login_get_length());
+-		bn_int_set(&amp;rpacket-&gt;u.server_loginreply2.message, SERVER_LOGINREPLY2_MESSAGE_LOCKED);
+-		packet_append_string(rpacket, &quot;Too many concurrent logins. Try again later.&quot;);
++		if (supports_locked_reply) {
++		    bn_int_set(&amp;rpacket-&gt;u.server_loginreply2.message, SERVER_LOGINREPLY2_MESSAGE_LOCKED);
++		    packet_append_string(rpacket, &quot;Too many concurrent logins. Try again later.&quot;);
++		}
++		else {
++		    bn_int_set(&amp;rpacket-&gt;u.server_loginreply2.message, SERVER_LOGINREPLY2_MESSAGE_BADPASS);
++		}
+ 		return -1;
+ 	    }
+ 	}
+@@ -1587,16 +1599,31 @@
+ 	/* already logged in */
+ 	else if (connlist_find_connection_by_account(account) &amp;&amp; prefs_get_kick_old_login() == 0) {
+ 	    eventlog(eventlog_level_info, __FUNCTION__, &quot;[%d] login for \&quot;%s\&quot; refused (already logged in)&quot;, conn_get_socket(c), username);
+-	    bn_int_set(&amp;rpacket-&gt;u.server_loginreply2.message, SERVER_LOGINREPLY2_MESSAGE_LOCKED);
+-	    packet_append_string(rpacket, &quot;This account is allready logged in.&quot;);
++	    if (supports_locked_reply) {
++	        bn_int_set(&amp;rpacket-&gt;u.server_loginreply1.message, SERVER_LOGINREPLY2_MESSAGE_LOCKED);
++	        packet_append_string(rpacket, &quot;This account is allready logged in.&quot;);
++	    }
++	    else {
++	        bn_int_set(&amp;rpacket-&gt;u.server_loginreply1.message, SERVER_LOGINREPLY2_MESSAGE_BADPASS);
++	    }
+ 	} else if (account_get_auth_bnetlogin(account) == 0) {	/* default to true */
+ 	    eventlog(eventlog_level_info, __FUNCTION__, &quot;[%d] login for \&quot;%s\&quot; refused (no bnet access)&quot;, conn_get_socket(c), username);
+-	    bn_int_set(&amp;rpacket-&gt;u.server_loginreply2.message, SERVER_LOGINREPLY2_MESSAGE_LOCKED);
+-	    packet_append_string(rpacket, &quot;This account is barred from bnet access.&quot;);
++	    if (supports_locked_reply) {
++	        bn_int_set(&amp;rpacket-&gt;u.server_loginreply1.message, SERVER_LOGINREPLY2_MESSAGE_LOCKED);
++	        packet_append_string(rpacket, &quot;This account is barred from bnet access.&quot;);
++	    }
++	    else {
++	        bn_int_set(&amp;rpacket-&gt;u.server_loginreply1.message, SERVER_LOGINREPLY2_MESSAGE_BADPASS);
++	    }
+ 	} else if (account_get_auth_lock(account) == 1) {	/* default to false */
+ 	    eventlog(eventlog_level_info, __FUNCTION__, &quot;[%d] login for \&quot;%s\&quot; refused (this account is locked)&quot;, conn_get_socket(c), username);
+-	    bn_int_set(&amp;rpacket-&gt;u.server_loginreply1.message, SERVER_LOGINREPLY2_MESSAGE_LOCKED);
+-	    packet_append_string(rpacket, &quot;This account has been locked.&quot;);
++	    if (supports_locked_reply) {
++	        bn_int_set(&amp;rpacket-&gt;u.server_loginreply1.message, SERVER_LOGINREPLY2_MESSAGE_LOCKED);
++	        packet_append_string(rpacket, &quot;This account has been locked.&quot;);
++	    }
++	    else {
++	        bn_int_set(&amp;rpacket-&gt;u.server_loginreply1.message, SERVER_LOGINREPLY2_MESSAGE_BADPASS);
++	    }
+ 	} else if (conn_get_sessionkey(c) != bn_int_get(packet-&gt;u.client_loginreq2.sessionkey)) {
+ 	    eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] login for \&quot;%s\&quot; refused (expected session key 0x%08x, got 0x%08x)&quot;, conn_get_socket(c), username, conn_get_sessionkey(c), bn_int_get(packet-&gt;u.client_loginreq2.sessionkey));
+ 	    bn_int_set(&amp;rpacket-&gt;u.server_loginreply2.message, SERVER_LOGINREPLY2_MESSAGE_BADPASS);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000279.html">[pvpgn-dev] r304 - trunk/pvpgn
+</A></li>
+	<LI>Next message: <A HREF="000281.html">[pvpgn-dev] r306 - trunk/pvpgn/src/common
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#280">[ date ]</a>
+              <a href="thread.html#280">[ thread ]</a>
+              <a href="subject.html#280">[ subject ]</a>
+              <a href="author.html#280">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

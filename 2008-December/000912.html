@@ -1,0 +1,138 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] cd-key check idea
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2008-December/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20cd-key%20check%20idea&In-Reply-To=%3C693cb946655c678c1f65f4a3ce1433f9%40127.0.0.1%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000911.html">
+   <LINK REL="Next"  HREF="000913.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] cd-key check idea</H1>
+    <B>Pieter De Wit</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20cd-key%20check%20idea&In-Reply-To=%3C693cb946655c678c1f65f4a3ce1433f9%40127.0.0.1%3E"
+       TITLE="[pvpgn-dev] cd-key check idea">pieter at insync.za.net
+       </A><BR>
+    <I>Mon Dec 15 22:15:52 CET 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000911.html">[pvpgn-dev] cd-key check idea
+</A></li>
+        <LI>Next message: <A HREF="000913.html">[pvpgn-dev] cd-key check idea
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#912">[ date ]</a>
+              <a href="thread.html#912">[ thread ]</a>
+              <a href="subject.html#912">[ subject ]</a>
+              <a href="author.html#912">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>
+Hi D1zzy,
+
+I forgot about the encryption, but I think the ball is with Blizzard
+now. PvPGN (bnetd) did offer to implement something, and Blizzard
+rejected it.
+
+I dont think you will ever convince them otherwise, PvPGN is a thron
+in the side of Blizzard and will always be one. I don't think it's a
+good idea to wiggle the thorn, unless they ask :)
+
+What would the result be of someone emailing/contacting them with a
+request to add cd-key checking in ? I think such a &quot;contact&quot; would
+have to be carefully worded. They might also have other ideas of how
+to do this
+
+Cheers
+
+On Mon, 15 Dec 2008 13:07:02 -0800, dizzy &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">dizone at gmail.com</A>&gt; wrote:
+&gt;<i> On Monday 15 December 2008 12:35:14 Pieter De Wit wrote:
+</I>&gt;&gt;<i> Hi d1zzy,
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> What do you expect to get out of this &quot;after all is said and done&quot; ?
+</I>&gt;<i> 
+</I>&gt;<i> Some kind of assurance that they won't sue us after SC2 gets released and
+</I>&gt;<i> some 
+</I>&gt;<i> random guy on the net adds sc2 support to pvpgn (as it happened with
+</I>&gt;<i> bnetd).
+</I>&gt;<i> 
+</I>&gt;&gt;<i> The idea of a secure &quot;tunnel&quot; for these cd-key checks makes sense no
+</I>&gt;&gt;<i> matter how you look at it. The fact that Blizzard didn't go for this
+</I>&gt;&gt;<i> option was their own choice.
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> With PvPGN attempting to intersect/proxy these requests I think it will
+</I>&gt;&gt;<i> restart Blizzard's hunt to close PvPGN down. I think, if PvPGN is to do
+</I>&gt;&gt;<i> cd-keys, it should be via the secure tunnel, and every admin is giving
+</I>&gt;&gt;<i> a server login.
+</I>&gt;<i> 
+</I>&gt;<i> A client proxy would not send the cdkeys to pvpgn. But even if it would
+</I>&gt;<i> send 
+</I>&gt;<i> them (like right now the clients send the packets directly to pvpgn), the
+</I>
+&gt;<i> protocol makes it impossible for the admin to retrieve them, they are 
+</I>&gt;<i> encrypted (which kinda makes it hard to proxy but probably not
+</I>&gt;<i> impossible).
+</I>&gt;<i> 
+</I>&gt;&gt;<i> If anything is tracked to that server admin, they will know where to
+</I>&gt;&gt;<i> look (stolen keys etc.)
+</I>&gt;<i> 
+</I>&gt;<i> Nobody can steal client keys with pvpgn because they are sent encrypted
+</I>by
+&gt;<i> the 
+</I>&gt;<i> client in a way pvpgn can't do nothing about. This is a myth (which
+</I>&gt;<i> started 
+</I>&gt;<i> because some time ag oblizzard did NOT encrypt the cdkey, not sure if
+</I>it's
+&gt;<i> 
+</I>&gt;<i> still valid with older than W3 clients, I assume not but for W3 I know
+</I>for
+&gt;<i> 
+</I>&gt;<i> sure it's encrypted and can me read only by Blizzard with their private
+</I>&gt;<i> key 
+</I>&gt;<i> on their servers).
+</I>&gt;<i> 
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> Either way, what would happen if the key failed a check ? What good
+</I>&gt;&gt;<i> is it to PvPGN to check the key (not talking legally now :) )
+</I>&gt;<i> 
+</I>&gt;<i> Hopefully that would make it clear to Blizzard and the courts that pvpgn
+</I>&gt;<i> does 
+</I>&gt;<i> not exists to offer an alternative for those that do not have cdkeys but 
+</I>&gt;<i> actually to offer an alternative for bnet (for example to run a closed 
+</I>&gt;<i> community LAN party pvpgn server where you cannot use Blizzard's
+</I>servers).
+&gt;<i> 
+</I>&gt;<i>
+</I>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000911.html">[pvpgn-dev] cd-key check idea
+</A></li>
+	<LI>Next message: <A HREF="000913.html">[pvpgn-dev] cd-key check idea
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#912">[ date ]</a>
+              <a href="thread.html#912">[ thread ]</a>
+              <a href="subject.html#912">[ subject ]</a>
+              <a href="author.html#912">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,108 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] [Bug #13730] unable to join clan channel post game
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2008-May/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BBug%20%2313730%5D%20unable%20to%20join%20clan%20channel%20post%20game&In-Reply-To=%3C200805022252.m42Mqn4P023840%40unicorn.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000691.html">
+   <LINK REL="Next"  HREF="000689.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] [Bug #13730] unable to join clan channel post game</H1>
+    <B>admin at berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BBug%20%2313730%5D%20unable%20to%20join%20clan%20channel%20post%20game&In-Reply-To=%3C200805022252.m42Mqn4P023840%40unicorn.berlios.de%3E"
+       TITLE="[pvpgn-dev] [Bug #13730] unable to join clan channel post game">admin at berlios.de
+       </A><BR>
+    <I>Sat May  3 00:52:49 CEST 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000691.html">[pvpgn-dev] r447 - trunk/pvpgn/src/bnetd
+</A></li>
+        <LI>Next message: <A HREF="000689.html">[pvpgn-dev] [Bug #13730] unable to join clan channel post game
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#688">[ date ]</a>
+              <a href="thread.html#688">[ thread ]</a>
+              <a href="subject.html#688">[ subject ]</a>
+              <a href="author.html#688">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Bug #13730, was updated on 2008-May-02 23:57
+Here is a current snapshot of the bug.
+
+Project: Player vs Player Gaming Network
+Category: General
+Status: Closed
+Resolution: Fixed
+Bug Group: bnetd
+Priority: 5
+Submitted by: saidin
+Assigned to : pelish
+Summary: unable to join clan channel post game
+
+Details: Minor, annoying bug.
+Follow these steps to reproduce:
+1. Join a clan channel (not your clan)
+2. Bnetd will only let you in if you are a member of that clan, or if there is a clan member in that channel
+3. Play a game
+4. Leave game when finished
+
+bnetd automatically rejoins your previous channel before removing you from the game. If there are no members of the clan in the channel anymore, your join will fail. Unfortunately, you are still marked as being in a game, which means some server commands are disabled (such as joining channels). i.e. you are now unable to do anything. To fix you have to disconnect from the server.
+
+Here is a patch, made from the SVN 1.99.r446 (latest at time of writing)
+&quot;Fix&quot; joins you to THE VOID if the bug is detected. Thereafter you can join whatever channel you want. There are many ways to fix this, this was just my take on it.
+
+<A HREF="http://pastebin.com/f5999b902">http://pastebin.com/f5999b902</A>
+
+queries to <A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">saidin54 at gmail.com</A>
+
+Follow-Ups:
+
+Date: 2008-May-03 00:52
+By: pelish
+
+Comment:
+Thank you for reporting/fixing that.
+-------------------------------------------------------
+
+Date: 2008-May-03 00:11
+By: saidin
+
+Comment:
+Oh, by the way. I choose to redirect them to the banned channel, default is THE VOID. Just change CHANNEL_NAME_BANNED to where-ever you want the player to be redirected to.
+-------------------------------------------------------
+
+For detailed info, follow this link:
+<A HREF="http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=13730&amp;group_id=2291">http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=13730&amp;group_id=2291</A>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000691.html">[pvpgn-dev] r447 - trunk/pvpgn/src/bnetd
+</A></li>
+	<LI>Next message: <A HREF="000689.html">[pvpgn-dev] [Bug #13730] unable to join clan channel post game
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#688">[ date ]</a>
+              <a href="thread.html#688">[ thread ]</a>
+              <a href="subject.html#688">[ subject ]</a>
+              <a href="author.html#688">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

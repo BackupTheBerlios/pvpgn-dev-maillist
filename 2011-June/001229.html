@@ -1,0 +1,82 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] [PATCH] Add option ignore-version for bnchat and bnstat
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2011-June/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BPATCH%5D%20Add%20option%20ignore-version%20for%20bnchat%20and%20bnstat&In-Reply-To=%3CAANLkTikVPKaonw_OPPZ6n4EjfQOOsBbMy0mziPapVADU%40mail.gmail.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] [PATCH] Add option ignore-version for bnchat and bnstat</H1>
+    <B>Pali Roh&#225;r</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BPATCH%5D%20Add%20option%20ignore-version%20for%20bnchat%20and%20bnstat&In-Reply-To=%3CAANLkTikVPKaonw_OPPZ6n4EjfQOOsBbMy0mziPapVADU%40mail.gmail.com%3E"
+       TITLE="[pvpgn-dev] [PATCH] Add option ignore-version for bnchat and bnstat">pali.rohar at gmail.com
+       </A><BR>
+    <I>Tue Jun 14 21:57:22 CEST 2011</I>
+    <P><UL>
+        
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1229">[ date ]</a>
+              <a href="thread.html#1229">[ thread ]</a>
+              <a href="subject.html#1229">[ subject ]</a>
+              <a href="author.html#1229">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hello,
+
+I tried use bnchat/bnstat programs to connect to eurobattle.net pvpgn
+server, but these programs cannot connect.
+
+When I configured my own pvpgn server which accept all clients with
+all version, all worked fine. When I enable only one specified war3
+version, bnchat/bnstat cannot connect to my server too (like on
+eurobattle.net). I found problem and I'm sending patch which fix it.
+
+This patch add option -i / --ignore-version in client_connect.cpp
+which does not send game version information, cd owner and cd key
+after SERVER_AUTHREQ_109 (like program bnbot). When I used bnchat with
+--ignore-version I was able connect without problems to my server and
+server.eurobattle.net too.
+
+-- 
+Pali Roh&#225;r
+<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">pali.rohar at gmail.com</A>
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: ignore-version.patch
+Type: application/octet-stream
+Size: 6875 bytes
+Desc: not available
+URL: &lt;<A HREF="https://lists.berlios.de/pipermail/pvpgn-dev/attachments/20110614/2ebeb30b/attachment.obj">https://lists.berlios.de/pipermail/pvpgn-dev/attachments/20110614/2ebeb30b/attachment.obj</A>&gt;
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1229">[ date ]</a>
+              <a href="thread.html#1229">[ thread ]</a>
+              <a href="subject.html#1229">[ subject ]</a>
+              <a href="author.html#1229">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,107 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] [Bug #8093] Memory Corruption occours after Mysql	restarts
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-November/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BBug%20%238093%5D%20Memory%20Corruption%20occours%20after%20Mysql%0A%09restarts&In-Reply-To=%3C200711101055.lAAAtgkQ001267%40unicorn.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000542.html">
+   <LINK REL="Next"  HREF="000544.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] [Bug #8093] Memory Corruption occours after Mysql	restarts</H1>
+    <B>admin at berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BBug%20%238093%5D%20Memory%20Corruption%20occours%20after%20Mysql%0A%09restarts&In-Reply-To=%3C200711101055.lAAAtgkQ001267%40unicorn.berlios.de%3E"
+       TITLE="[pvpgn-dev] [Bug #8093] Memory Corruption occours after Mysql	restarts">admin at berlios.de
+       </A><BR>
+    <I>Sat Nov 10 11:55:42 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000542.html">[pvpgn-dev] [Bug #7992] /clearstats does not completely clear stats
+</A></li>
+        <LI>Next message: <A HREF="000544.html">[pvpgn-dev] [Bug #10745] p2p connection problem with Tiberian Sun
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#543">[ date ]</a>
+              <a href="thread.html#543">[ thread ]</a>
+              <a href="subject.html#543">[ subject ]</a>
+              <a href="author.html#543">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Bug #8093, was updated on 2006-Jul-08 12:00
+Here is a current snapshot of the bug.
+
+Project: Player vs Player Gaming Network
+Category: None
+Status: Closed
+Resolution: Invalid
+Bug Group: None
+Priority: 5
+Submitted by: megablue
+Assigned to : none
+Summary: Memory Corruption occours after Mysql restarts
+
+Details: i'm using sql1, mysql 4.1.18. SVN rev234.
+Before that i was using some older SVN which dated around april. Same problem happened when mysql restarted.
+
+when fingering users...
+
+email = -1
+location = -1
+is_admin = -1
+
+all of the logged on users do not have any problems... only those who try to log in after the mysql restart will receive &quot;wrong password&quot; error.
+
+Suspect memory corruption when failed to sync and reconnect with the mysql server.
+
+Follow-Ups:
+
+Date: 2007-Nov-10 12:55
+By: d1zzy
+
+Comment:
+Unsupported behaviour for the admin, closing.
+-------------------------------------------------------
+
+Date: 2006-Oct-11 00:15
+By: d1zzy
+
+Comment:
+well first of all we dont support that... ie to restart the SQL server while pvpgn connected to it and running with users. As nobody took this into consideration when writing the storage code ANYTHING can happen in that case.
+
+But, maybe its an easy problem after all. Pvpgn has a cache for account data. Can you double check if ANY logged in user works after mysql restart ? Or just who had their attirbutes accessed at maximum userflush seconds ago (pvpgn keeps user attributes in memory until userflush timer is reached). Anyway it also sounds like something that could be reproduced on a local server, maybe someone will give it a try.
+-------------------------------------------------------
+
+For detailed info, follow this link:
+<A HREF="http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=8093&amp;group_id=2291">http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=8093&amp;group_id=2291</A>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000542.html">[pvpgn-dev] [Bug #7992] /clearstats does not completely clear stats
+</A></li>
+	<LI>Next message: <A HREF="000544.html">[pvpgn-dev] [Bug #10745] p2p connection problem with Tiberian Sun
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#543">[ date ]</a>
+              <a href="thread.html#543">[ thread ]</a>
+              <a href="subject.html#543">[ subject ]</a>
+              <a href="author.html#543">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

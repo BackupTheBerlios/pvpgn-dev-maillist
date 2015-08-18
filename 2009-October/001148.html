@@ -1,0 +1,185 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] activating country, color, preferably quicktmach WOL
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2009-October/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20activating%20country%2C%20color%2C%20preferably%20quicktmach%20WOL&In-Reply-To=%3C7bbfc04a0910091458l4fea2527jcc8188e283394921%40mail.gmail.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001146.html">
+   <LINK REL="Next"  HREF="001149.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] activating country, color, preferably quicktmach WOL</H1>
+    <B>^A|An M0r3n0^</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20activating%20country%2C%20color%2C%20preferably%20quicktmach%20WOL&In-Reply-To=%3C7bbfc04a0910091458l4fea2527jcc8188e283394921%40mail.gmail.com%3E"
+       TITLE="[pvpgn-dev] activating country, color, preferably quicktmach WOL">alanstr at gmail.com
+       </A><BR>
+    <I>Fri Oct  9 23:58:08 CEST 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001146.html">[pvpgn-dev] [Bug #16317] autoupdate incorrectly initializing memory
+</A></li>
+        <LI>Next message: <A HREF="001149.html">[pvpgn-dev] activating country, color, preferably quicktmach WOL
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1148">[ date ]</a>
+              <a href="thread.html#1148">[ thread ]</a>
+              <a href="subject.html#1148">[ subject ]</a>
+              <a href="author.html#1148">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Sorry I pelish intrude both the WOL, but I am very interested in the
+WOL.....
+
+:<i>Start [rand_num],0,0,[credits],0,1,[SUPER
+</I>WEAPON],1,1,0,1,x,2,1,[mapsize_kilobytes],[mapname],1:
+
+
+mapsize_kilobytes =  seems it's always : 165368 ------&gt; I've seen in xwis
+for YURI
+
+&quot;%s,[COU],[COL],%x,1,%x,&quot;,  -&gt; for red alert2
+
+,&quot;%s,[COU],[COL],-2,-2,&quot;, --&gt; for YUri
+I have added the following:
+
+anongame_wol.h
+============
+
+typedef struct anongame_wol_player
+#ifdef
+
+ANONGAME_WOL_INTERNAL_ACCESS
+{
+t_connection * conn;
+/* Red Alert 2 and Yuri's Revnenge */
+
+int address;
+int port;
+int cou;  // NEW
+int col; //NEW
+
+}
+
+#endif
+
+t_anongame_wol_player;
+
+anongame_wol.cpp
+============
+static int _handle_cou_tag(t_anongame_wol_player * player, char * param);
+//new
+static int _handle_col_tag(t_anongame_wol_player * player, char *
+param); //new
+static const t_wol_anongame_tag_table_row t_wol_anongame_tag_table[] =
+{
+    { MATCHTAG_ADDRESS   , _handle_address_tag },
+    { MATCHTAG_PORT      , _handle_port_tag },
+   { MATCHTAG_COUNTRY   , _handle_cou_tag },  // NEW
+     { MATCHTAG_COLOR     , _handle_col_tag },  //NEW
+    { NULL                        , NULL }
+};
+..
+
+ static int anongame_wol_player_get_cou(t_anongame_wol_player const *
+player)  //new
+{
+    if (!player) {
+        ERROR0(&quot;got NULL player&quot;);
+        return -1;
+    }
+    return player-&gt;cou;
+}
+static int anongame_wol_player_get_col(t_anongame_wol_player const *
+player)  //new
+{
+    if (!player) {
+        ERROR0(&quot;got NULL player&quot;);
+        return -1;
+    }
+    return player-&gt;col;
+}
+
+
+static int _handle_cou_tag(t_anongame_wol_player * player, char * param)
+//new
+{
+    if (!player) {
+        ERROR0(&quot;got NULL player&quot;);
+        return -1;
+    }
+ if (param)
+        player-&gt;cou = std::atoi(param);
+    return 0;
+}
+static int _handle_col_tag(t_anongame_wol_player * player, char * param)
+//new
+{
+    if (!player) {
+        ERROR0(&quot;got NULL player&quot;);
+        return -1;
+    }
+ if (param)
+        player-&gt;col = std::atoi(param);
+    return 0;
+}
+
+
+====================================
+
+lin 422 add:
+ snprintf(_temp,
+sizeof(_temp),&quot;%s,%u,%u,%x,1,%x,&quot;,conn_get_chatname(conn_pl1),anongame_wol_player_get_cou(player1),anongame_wol_player_get_col(player1),anongame_wol_player_get_address(player1),anongame_wol_player_get_port(player1));
+
+
+lin 428 add:
+snprintf(_temp,
+sizeof(_temp),&quot;%s,%u,%u,%x,1,%x&quot;,conn_get_chatname(conn_pl2),anongame_wol_player_get_cou(player2),anongame_wol_player_get_col(player2),anongame_wol_player_get_address(player2),anongame_wol_player_get_port(player2));
+
+lin 476 add:
+
+snprintf(_temp,
+sizeof(_temp),&quot;%s,%u,%u,-2,-2,&quot;,conn_get_chatname(conn_pl1),anongame_wol_player_get_cou(player1),anongame_wol_player_get_col(player2));
+
+lin 482 add:
+
+snprintf(_temp,
+sizeof(_temp),&quot;%s,%u,%u,-2,-2,&quot;,conn_get_chatname(anongame_wol_player_get_conn(player2)),anongame_wol_player_get_cou(player2)anongame_wol_player_get_col(player2));
+
+ I try to help :)
+
+atte
+Alan MOreno
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: &lt;<A HREF="https://lists.berlios.de/pipermail/pvpgn-dev/attachments/20091009/7572d6f2/attachment.html">https://lists.berlios.de/pipermail/pvpgn-dev/attachments/20091009/7572d6f2/attachment.html</A>&gt;
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001146.html">[pvpgn-dev] [Bug #16317] autoupdate incorrectly initializing memory
+</A></li>
+	<LI>Next message: <A HREF="001149.html">[pvpgn-dev] activating country, color, preferably quicktmach WOL
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1148">[ date ]</a>
+              <a href="thread.html#1148">[ thread ]</a>
+              <a href="subject.html#1148">[ subject ]</a>
+              <a href="author.html#1148">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

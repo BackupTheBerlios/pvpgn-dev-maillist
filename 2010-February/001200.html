@@ -1,0 +1,148 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r575 - trunk/pvpgn/src/bnetd
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2010-February/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r575%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C201002141155.o1EBtxuw000547%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001199.html">
+   <LINK REL="Next"  HREF="001201.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r575 - trunk/pvpgn/src/bnetd</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r575%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C201002141155.o1EBtxuw000547%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r575 - trunk/pvpgn/src/bnetd">svn at svn.berlios.de
+       </A><BR>
+    <I>Sun Feb 14 12:55:59 CET 2010</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001199.html">[pvpgn-dev] [Patch #2852] Lanhost command to allow LAN players to	join
+</A></li>
+        <LI>Next message: <A HREF="001201.html">[pvpgn-dev] [Patch #2933] Implemented W3GS probe on host and	/canihost command
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1200">[ date ]</a>
+              <a href="thread.html#1200">[ thread ]</a>
+              <a href="subject.html#1200">[ subject ]</a>
+              <a href="author.html#1200">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pelish
+Date: 2010-02-14 12:55:56 +0100 (Sun, 14 Feb 2010)
+New Revision: 575
+
+Modified:
+   trunk/pvpgn/src/bnetd/handle_wol.cpp
+Log:
+fix for WOL gamepass bug
+
+Modified: trunk/pvpgn/src/bnetd/handle_wol.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/handle_wol.cpp	2010-02-07 10:55:30 UTC (rev 574)
++++ trunk/pvpgn/src/bnetd/handle_wol.cpp	2010-02-14 11:55:56 UTC (rev 575)
+@@ -1021,8 +1021,10 @@
+ 	   	 	t_game_type gametype;
+             t_channel * channel;
+ 	   	 	t_channel * old_channel = conn_get_channel(conn);
+-	   	 	char * gamepass;
++            char gamepass [MAX_GAMEPASS_LEN];
+ 
++            std::memset(gamepass,0,sizeof(gamepass));
++
+             if ((conn_get_clienttag(conn) == CLIENTTAG_REDALERT_UINT)
+                 &amp;&amp; (channellist_find_channel_by_name(gamename, NULL, NULL) != NULL)
+                 &amp;&amp; (gamelist_find_game_available(gamename, conn_get_clienttag(conn), game_type_all) == NULL)) {
+@@ -1061,8 +1063,9 @@
+             }
+ 
+             if (std::strcmp(game_get_pass(game),&quot;&quot;) != 0) {
+-                if ((params[2]) &amp;&amp; (std::strcmp(params[2], game_get_pass(game)) == 0))
+-                    gamepass = params[2];
++                if ((numparams==3) &amp;&amp; (params[2]) &amp;&amp; (std::strcmp(params[2], game_get_pass(game)) == 0)) {
++                    strcpy(gamepass, params[2]);
++                }
+                 else {
+                     snprintf(_temp, sizeof(_temp), &quot;%s :Bad password&quot;, e[0]);
+                     irc_send(conn,ERR_BADCHANNELKEY,_temp);
+@@ -1071,8 +1074,6 @@
+      	            return 0;
+                 }
+             }
+-            else
+-                gamepass = &quot;&quot;;
+ 
+ 			conn_wol_set_ingame(conn,1);
+ 	   	 	gametype = game_get_type(game);
+@@ -1120,9 +1121,9 @@
+ 				}
+ 			}
+ 		}
+-    		if (e)
+-		    irc_unget_listelems(e);
+-    	    return 0;
++    	if (e)
++		irc_unget_listelems(e);
++    	return 0;
+ 	}
+ 	else if((numparams&gt;=7)) {
+ 	    char ** e;
+@@ -1151,18 +1152,19 @@
+ 	    if ((e)&amp;&amp;(e[0])) {
+     		char const * gamename = irc_convert_ircname(e[0]);
+     		t_game_type gametype;
+-            char * gamepass;
+-    		
+-    		if (std::atoi(params[6]) == 1)
++            char gamepass [MAX_GAMEPASS_LEN];
++
++            std::memset(gamepass,0,sizeof(gamepass));
++
++            if (std::strcmp(params[6], &quot;1&quot;) == 0)   		
+     		    gametype = game_type_ladder;
+ 		    else
+     		    gametype = game_type_ffa;		    
+ //    		    gametype = game_type_none;
+ 
+-            if (params[8])
+-                gamepass = params[8];
+-            else
+-                gamepass = &quot;&quot;;
++            if ((numparams&gt;=8) &amp;&amp; (params[8])) {
++                strcpy(gamepass, params[8]);
++            }
+ 
+ 			if ((!(gamename)) || ((conn_set_game(conn, gamename, gamepass, &quot;&quot;, gametype, 0))&lt;0)) {
+ 				irc_send(conn,ERR_NOSUCHCHANNEL,&quot;:JOINGAME failed&quot;); /* FIXME: be more precise; what is the real error code for that? */
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001199.html">[pvpgn-dev] [Patch #2852] Lanhost command to allow LAN players to	join
+</A></li>
+	<LI>Next message: <A HREF="001201.html">[pvpgn-dev] [Patch #2933] Implemented W3GS probe on host and	/canihost command
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1200">[ date ]</a>
+              <a href="thread.html#1200">[ thread ]</a>
+              <a href="subject.html#1200">[ subject ]</a>
+              <a href="author.html#1200">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,128 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] pvpgn/src/bnetd clan.c,1.38,1.39 sql_common.c,1.4,1.5
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2009-February/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20pvpgn/src/bnetd%20clan.c%2C1.38%2C1.39%20sql_common.c%2C1.4%2C1.5&In-Reply-To=%3C20090225221902.09063172B21%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001015.html">
+   <LINK REL="Next"  HREF="001017.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] pvpgn/src/bnetd clan.c,1.38,1.39 sql_common.c,1.4,1.5</H1>
+    <B>pandaemonium</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20pvpgn/src/bnetd%20clan.c%2C1.38%2C1.39%20sql_common.c%2C1.4%2C1.5&In-Reply-To=%3C20090225221902.09063172B21%40mail.berlios.de%3E"
+       TITLE="[pvpgn-dev] pvpgn/src/bnetd clan.c,1.38,1.39 sql_common.c,1.4,1.5">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Wed Feb 25 23:19:02 CET 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001015.html">[pvpgn-dev] pvpgn/src/common field_sizes.h,1.7,1.8
+</A></li>
+        <LI>Next message: <A HREF="001017.html">[pvpgn-dev] [Bug #15279] clan set motd doesn't escape characters
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1016">[ date ]</a>
+              <a href="thread.html#1016">[ thread ]</a>
+              <a href="subject.html#1016">[ subject ]</a>
+              <a href="author.html#1016">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/pvpgn/pvpgn/src/bnetd
+In directory sheep:/tmp/cvs-serv506/src/bnetd
+
+Modified Files:
+	clan.c sql_common.c 
+Log Message:
+fix potential SQL injection via clan MOTD
+
+
+Index: clan.c
+===================================================================
+RCS file: /cvsroot/pvpgn/pvpgn/src/bnetd/clan.c,v
+retrieving revision 1.38
+retrieving revision 1.39
+diff -u -d -r1.38 -r1.39
+--- clan.c	16 Dec 2005 14:09:35 -0000	1.38
++++ clan.c	25 Feb 2009 22:18:59 -0000	1.39
+@@ -407,7 +407,7 @@
+     if ((clan = account_get_clan(account)) == NULL)
+ 	return -1;
+     offset = sizeof(packet-&gt;u.client_w3xp_clan_motdchg);
+-    motd = packet_get_str_const(packet, offset, 25);
++    motd = packet_get_str_const(packet, offset, CLAN_MOTD_MAX);
+     eventlog(eventlog_level_trace, __FUNCTION__, &quot;[%d] got W3XP_CLAN_MOTDCHG packet : %s&quot;, conn_get_socket(c), motd);
+     if (clan_set_motd(clan, motd) != 0)
+     {
+
+Index: sql_common.c
+===================================================================
+RCS file: /cvsroot/pvpgn/pvpgn/src/bnetd/sql_common.c,v
+retrieving revision 1.4
+retrieving revision 1.5
+diff -u -d -r1.4 -r1.5
+--- sql_common.c	10 Oct 2006 20:54:30 -0000	1.4
++++ sql_common.c	25 Feb 2009 22:18:59 -0000	1.5
+@@ -99,7 +99,7 @@
+ 
+ const char* tab_prefix = SQL_DEFAULT_PREFIX;
+ 
+-static char query[512];
++static char query[1024];
+ 
+ extern int sql_init(const char *dbpath)
+ {
+@@ -481,6 +481,7 @@
+ 
+ extern int sql_write_clan(void *data)
+ {
++    char esc_motd[CLAN_MOTD_MAX * 2 + 1];
+     t_sql_res *result;
+     t_sql_row *row;
+     t_elem *curr;
+@@ -506,10 +507,11 @@
+ 	}
+ 	num = atol(row[0]);
+ 	sql-&gt;free_result(result);
++	sql-&gt;escape_string(esc_motd, clan-&gt;clan_motd, strlen(clan-&gt;clan_motd));
+ 	if (num &lt; 1)
+-	    snprintf(query, sizeof(query), &quot;INSERT INTO %sclan (cid, short, name, motd, creation_time) VALUES('%u', '%d', '%s', '%s', '%u')&quot;, tab_prefix, clan-&gt;clanid, clan-&gt;clantag, clan-&gt;clanname, clan-&gt;clan_motd, (unsigned) clan-&gt;creation_time);
++	    snprintf(query, sizeof(query), &quot;INSERT INTO %sclan (cid, short, name, motd, creation_time) VALUES('%u', '%d', '%s', '%s', '%u')&quot;, tab_prefix, clan-&gt;clanid, clan-&gt;clantag, clan-&gt;clanname, esc_motd, (unsigned) clan-&gt;creation_time);
+ 	else
+-	    snprintf(query, sizeof(query), &quot;UPDATE %sclan SET short='%d', name='%s', motd='%s', creation_time='%u' WHERE cid='%u'&quot;, tab_prefix, clan-&gt;clantag, clan-&gt;clanname, clan-&gt;clan_motd, (unsigned) clan-&gt;creation_time, clan-&gt;clanid);
++	    snprintf(query, sizeof(query), &quot;UPDATE %sclan SET short='%d', name='%s', motd='%s', creation_time='%u' WHERE cid='%u'&quot;, tab_prefix, clan-&gt;clantag, clan-&gt;clanname, esc_motd, (unsigned) clan-&gt;creation_time, clan-&gt;clanid);
+ 	if (sql-&gt;query(query) &lt; 0)
+ 	{
+ 	    eventlog(eventlog_level_error, __FUNCTION__, &quot;error trying query: \&quot;%s\&quot;&quot;, query);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001015.html">[pvpgn-dev] pvpgn/src/common field_sizes.h,1.7,1.8
+</A></li>
+	<LI>Next message: <A HREF="001017.html">[pvpgn-dev] [Bug #15279] clan set motd doesn't escape characters
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1016">[ date ]</a>
+              <a href="thread.html#1016">[ thread ]</a>
+              <a href="subject.html#1016">[ subject ]</a>
+              <a href="author.html#1016">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

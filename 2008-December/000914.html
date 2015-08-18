@@ -1,0 +1,190 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] [Patch #2572] Fixed Same Game Name Get Merged
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2008-December/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BPatch%20%232572%5D%20Fixed%20Same%20Game%20Name%20Get%20Merged&In-Reply-To=%3C200812172304.mBHN4RHo010603%40unicorn.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000913.html">
+   <LINK REL="Next"  HREF="000915.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] [Patch #2572] Fixed Same Game Name Get Merged</H1>
+    <B>admin at berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BPatch%20%232572%5D%20Fixed%20Same%20Game%20Name%20Get%20Merged&In-Reply-To=%3C200812172304.mBHN4RHo010603%40unicorn.berlios.de%3E"
+       TITLE="[pvpgn-dev] [Patch #2572] Fixed Same Game Name Get Merged">admin at berlios.de
+       </A><BR>
+    <I>Thu Dec 18 00:04:27 CET 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000913.html">[pvpgn-dev] cd-key check idea
+</A></li>
+        <LI>Next message: <A HREF="000915.html">[pvpgn-dev] [Patch #2605] New clan with no chieftain - Bug #14571
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#914">[ date ]</a>
+              <a href="thread.html#914">[ thread ]</a>
+              <a href="subject.html#914">[ subject ]</a>
+              <a href="author.html#914">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Patch #2572 has been updated. 
+
+Project: pvpgn
+Category: 1.99.x
+Status: Open
+Submitted by: megablue
+Assigned to : pelish
+Summary: Fixed Same Game Name Get Merged
+
+Follow-Ups:
+
+Date: 2008-Dec-18 00:04
+By: pelish
+
+Comment:
+This idea seems really good for me. At last it will be needed for Westwood Online and for completing ladders for that. Im Assigning this patch for me and I also vote for commite (after some biger testing)
+
+Thank You
+-------------------------------------------------------
+
+Date: 2008-Oct-10 22:10
+By: megablue
+
+Comment:
+Seems failed again... I'll just paste the patch here..
+
+handle_bnet.cpp.patch
+
+3685c3685
+&lt; 	if (!(game = gamelist_find_game(gamename, conn_get_clienttag(c), game_type_all))) {
+---
+&gt;<i> 	if (!(game = gamelist_find_game_bystatus(gamename, conn_get_clienttag(c), game_type_all, game_status_open))) {
+</I>3897a3898,3899
+&gt;<i> 	bool allow_create_custom = false;
+</I>&gt;<i> 	t_game *game;
+</I>3945,3952c3947,3973
+&lt; 	    else if (conn_set_game(c, gamename, gamepass, gameinfo, gtype, STARTVER_GW4) == 0) {
+&lt; 		game_set_option(conn_get_game(c), bngoption_to_goption(conn_get_clienttag(c), gtype, option));
+&lt; 		if (status &amp; CLIENT_STARTGAME4_STATUS_PRIVATE)
+&lt; 		    game_set_flag(conn_get_game(c), game_flag_private);
+&lt; 		if (status &amp; CLIENT_STARTGAME4_STATUS_FULL)
+&lt; 		    game_set_status(conn_get_game(c), game_status_full);
+&lt; 		//FIXME: still need special handling for status disc-is-loss and replay
+&lt; 	    }
+---
+&gt;<i> 	    else
+</I>&gt;<i> 		{
+</I>&gt;<i> 			//find is there any existing game with same name
+</I>&gt;<i> 			if(game = gamelist_find_game(gamename, conn_get_clienttag(c), game_type_all))
+</I>&gt;<i> 			{
+</I>&gt;<i> 				//allow the host to create game with same name only when another game is already started
+</I>&gt;<i> 				if(game_status_started == game_get_status(game))
+</I>&gt;<i> 				{
+</I>&gt;<i> 					allow_create_custom = true;
+</I>&gt;<i> 				}
+</I>&gt;<i> 			}
+</I>&gt;<i> 			else //the game lobby with same name doesn't exist
+</I>&gt;<i> 			{
+</I>&gt;<i> 				allow_create_custom = true;
+</I>&gt;<i> 			}
+</I>&gt;<i> 			
+</I>&gt;<i> 			if (allow_create_custom &amp;&amp; conn_set_game(c, gamename, gamepass, gameinfo, gtype, STARTVER_GW4) == 0) 
+</I>&gt;<i> 			{
+</I>&gt;<i> 				game_set_option(conn_get_game(c), bngoption_to_goption(conn_get_clienttag(c), gtype, option));
+</I>&gt;<i> 				
+</I>&gt;<i> 				if (status &amp; CLIENT_STARTGAME4_STATUS_PRIVATE)
+</I>&gt;<i> 					game_set_flag(conn_get_game(c), game_flag_private);
+</I>&gt;<i> 				if (status &amp; CLIENT_STARTGAME4_STATUS_FULL)
+</I>&gt;<i> 					game_set_status(conn_get_game(c), game_status_full);
+</I>&gt;<i> 				//FIXME: still need special handling for status disc-is-loss and replay
+</I>&gt;<i> 		    }
+</I>&gt;<i> 		}
+</I>
+
+game.cpp.patch
+
+2060a2061,2080
+&gt;<i> extern t_game * gamelist_find_game_bystatus(char const * name, t_clienttag ctag, t_game_type type, unsigned int status)
+</I>&gt;<i> {
+</I>&gt;<i>     t_elist *curr;
+</I>&gt;<i>     t_game *game;
+</I>&gt;<i> 
+</I>&gt;<i>     elist_for_each(curr,&amp;gamelist_head)
+</I>&gt;<i>     {
+</I>&gt;<i> 	game = elist_entry(curr,t_game,glist_link);
+</I>&gt;<i> 	
+</I>&gt;<i> 	if ((type==game_type_all || game-&gt;type==type)
+</I>&gt;<i> 	    &amp;&amp; ctag == game-&gt;clienttag
+</I>&gt;<i> 	    &amp;&amp; game-&gt;name
+</I>&gt;<i> 	    &amp;&amp; !strcasecmp(name,game-&gt;name)
+</I>&gt;<i> 		&amp;&amp; (status &amp; game_get_status(game)) ) return game;
+</I>&gt;<i>     }
+</I>&gt;<i> 
+</I>&gt;<i>     return NULL;
+</I>&gt;<i> }
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>2068a2089
+&gt;<i>
+</I>
+
+
+game.h.patch
+
+317a318
+&gt;<i> extern t_game * gamelist_find_game_bystatus(char const * name, t_clienttag ctag, t_game_type type, unsigned int status);
+</I>
+
+
+-------------------------------------------------------
+
+Date: 2008-Oct-10 22:06
+By: megablue
+
+Comment:
+uploaded again
+-------------------------------------------------------
+
+Date: 2008-Oct-10 20:42
+By: pandaemonium
+
+Comment:
+Attached patch seems to be broken - only retorns a strange 5 byte file.
+-------------------------------------------------------
+
+-------------------------------------------------------
+For more info, visit:
+
+<A HREF="http://developer.berlios.de/patch/?func=detailpatch&amp;patch_id=2572&amp;group_id=2291">http://developer.berlios.de/patch/?func=detailpatch&amp;patch_id=2572&amp;group_id=2291</A>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000913.html">[pvpgn-dev] cd-key check idea
+</A></li>
+	<LI>Next message: <A HREF="000915.html">[pvpgn-dev] [Patch #2605] New clan with no chieftain - Bug #14571
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#914">[ date ]</a>
+              <a href="thread.html#914">[ thread ]</a>
+              <a href="subject.html#914">[ subject ]</a>
+              <a href="author.html#914">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

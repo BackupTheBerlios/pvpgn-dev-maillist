@@ -1,0 +1,116 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] pvpgn/src/bnetd handle_irc.c, 1.57, 1.58 irc.c, 1.46,	1.47
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-August/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20pvpgn/src/bnetd%20handle_irc.c%2C%201.57%2C%201.58%20irc.c%2C%201.46%2C%0A%091.47&In-Reply-To=%3C20070803160356.CC860DFD5E%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000216.html">
+   <LINK REL="Next"  HREF="000218.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] pvpgn/src/bnetd handle_irc.c, 1.57, 1.58 irc.c, 1.46,	1.47</H1>
+    <B>pandaemonium</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20pvpgn/src/bnetd%20handle_irc.c%2C%201.57%2C%201.58%20irc.c%2C%201.46%2C%0A%091.47&In-Reply-To=%3C20070803160356.CC860DFD5E%40mail.berlios.de%3E"
+       TITLE="[pvpgn-dev] pvpgn/src/bnetd handle_irc.c, 1.57, 1.58 irc.c, 1.46,	1.47">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Fri Aug  3 18:03:56 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000216.html">[pvpgn-dev] [Patch #2117] Feature reqest 2436 add (clan whisper)
+</A></li>
+        <LI>Next message: <A HREF="000218.html">[pvpgn-dev] [Patch #2123] &quot;/&quot; commands support in WOL
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#217">[ date ]</a>
+              <a href="thread.html#217">[ thread ]</a>
+              <a href="subject.html#217">[ subject ]</a>
+              <a href="author.html#217">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/pvpgn/pvpgn/src/bnetd
+In directory sheep:/tmp/cvs-serv6633/src/bnetd
+
+Modified Files:
+	handle_irc.c irc.c 
+Log Message:
+[ Patch #2123 ] &quot;/&quot; commands support in WOL
+
+Index: handle_irc.c
+===================================================================
+RCS file: /cvsroot/pvpgn/pvpgn/src/bnetd/handle_irc.c,v
+retrieving revision 1.57
+retrieving revision 1.58
+diff -u -d -r1.57 -r1.58
+--- handle_irc.c	14 Jan 2007 09:51:03 -0000	1.57
++++ handle_irc.c	3 Aug 2007 16:03:38 -0000	1.58
+@@ -664,8 +664,14 @@
+ 							channel_message_send(channel,message_type_emote,conn,text);
+ 						} 
+ 						else {
+-							channel_message_log(channel, conn, 1, text);
+-							channel_message_send(channel,message_type_talk,conn,text);
++                            if (text[0] == '/') {
++                                /* &quot;/&quot; commands (like &quot;/help...&quot; */
++                                handle_command(conn, text);
++                            }
++                            else {
++                                channel_message_log(channel, conn, 1, text);
++                                channel_message_send(channel,message_type_talk,conn,text);
++                            }
+ 						}
+ 					}
+ 					else {
+
+Index: irc.c
+===================================================================
+RCS file: /cvsroot/pvpgn/pvpgn/src/bnetd/irc.c,v
+retrieving revision 1.46
+retrieving revision 1.47
+diff -u -d -r1.46 -r1.47
+--- irc.c	20 Feb 2007 21:58:52 -0000	1.46
++++ irc.c	3 Aug 2007 16:03:38 -0000	1.47
+@@ -898,7 +898,10 @@
+ 	{
+ 	    char temp[MAX_IRC_MESSAGE_LEN];
+ 	    sprintf(temp,&quot;:%s&quot;,text);
+-	    msg = irc_message_preformat(NULL,&quot;NOTICE&quot;,NULL,temp);
++        if ((type==message_type_info || type==message_type_error) &amp;&amp; (conn_get_wol(dst) == 1))
++            msg = irc_message_preformat(NULL,&quot;PAGE&quot;,NULL,temp);
++        else
++	        msg = irc_message_preformat(NULL,&quot;NOTICE&quot;,NULL,temp);
+ 	}
+ 	break;
+     case message_type_channel:
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000216.html">[pvpgn-dev] [Patch #2117] Feature reqest 2436 add (clan whisper)
+</A></li>
+	<LI>Next message: <A HREF="000218.html">[pvpgn-dev] [Patch #2123] &quot;/&quot; commands support in WOL
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#217">[ date ]</a>
+              <a href="thread.html#217">[ thread ]</a>
+              <a href="subject.html#217">[ subject ]</a>
+              <a href="author.html#217">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

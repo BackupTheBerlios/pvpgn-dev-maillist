@@ -1,0 +1,90 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] [PATCH] Add option ignore-version for bnchat and	bnstat
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2011-October/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BPATCH%5D%20Add%20option%20ignore-version%20for%20bnchat%20and%0A%09bnstat&In-Reply-To=%3CCAGAEriaBUQh7tYb0dG2x9YZqA%3DXE5pqdrgG16Ob55v%3DHxFGJwg%40mail.gmail.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="001240.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] [PATCH] Add option ignore-version for bnchat and	bnstat</H1>
+    <B>Dizzy</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BPATCH%5D%20Add%20option%20ignore-version%20for%20bnchat%20and%0A%09bnstat&In-Reply-To=%3CCAGAEriaBUQh7tYb0dG2x9YZqA%3DXE5pqdrgG16Ob55v%3DHxFGJwg%40mail.gmail.com%3E"
+       TITLE="[pvpgn-dev] [PATCH] Add option ignore-version for bnchat and	bnstat">dizone at gmail.com
+       </A><BR>
+    <I>Mon Oct  3 03:36:09 CEST 2011</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="001240.html">[pvpgn-dev] [PATCH] Add option ignore-version for bnchat and	bnstat
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1235">[ date ]</a>
+              <a href="thread.html#1235">[ thread ]</a>
+              <a href="subject.html#1235">[ subject ]</a>
+              <a href="author.html#1235">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Sorry for the delayed answer.
+
+On Fri, Mar 25, 2011 at 3:55 PM, Pali Roh&#225;r &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">pali.rohar at gmail.com</A>&gt; wrote:
+&gt;<i> Hello,
+</I>&gt;<i>
+</I>&gt;<i> I tried use bnchat/bnstat programs to connect to eurobattle.net pvpgn
+</I>&gt;<i> server, but these programs cannot connect.
+</I>&gt;<i>
+</I>&gt;<i> When I configured my own pvpgn server which accept all clients with
+</I>&gt;<i> all version, all worked fine. When I enable only one specified war3
+</I>&gt;<i> version, bnchat/bnstat cannot connect to my server too (like on
+</I>&gt;<i> eurobattle.net). I found problem and I'm sending patch which fix it.
+</I>&gt;<i>
+</I>&gt;<i> This patch add option -i / --ignore-version in client_connect.cpp
+</I>&gt;<i> which does not send game version information, cd owner and cd key
+</I>&gt;<i> after SERVER_AUTHREQ_109 (like program bnbot). When I used bnchat with
+</I>&gt;<i> --ignore-version I was able connect without problems to my server and
+</I>&gt;<i> server.eurobattle.net too.
+</I>
+It's interesting that this works (that pvpgn is allowing you to
+connect without sending that information). Normally what you want to
+do is update the client data to identify itself as a good/latest
+client but that requires updating it constantly, your solution may be
+more future proof.
+
+Right now I don't have time to look into including the patch but I'll
+work on that after moving the project. We need to move off
+developer.berlios.de as they're shutting down.
+
+-- 
+Dizzy
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="001240.html">[pvpgn-dev] [PATCH] Add option ignore-version for bnchat and	bnstat
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1235">[ date ]</a>
+              <a href="thread.html#1235">[ thread ]</a>
+              <a href="subject.html#1235">[ subject ]</a>
+              <a href="author.html#1235">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

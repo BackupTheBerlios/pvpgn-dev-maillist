@@ -1,0 +1,206 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] pvpgn/src/bnetd handle_irc.c, 1.60, 1.61 irc.c, 1.47,	1.48
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-December/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20pvpgn/src/bnetd%20handle_irc.c%2C%201.60%2C%201.61%20irc.c%2C%201.47%2C%0A%091.48&In-Reply-To=%3C20071202161857.DBC3E120887%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000598.html">
+   <LINK REL="Next"  HREF="000600.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] pvpgn/src/bnetd handle_irc.c, 1.60, 1.61 irc.c, 1.47,	1.48</H1>
+    <B>pelish</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20pvpgn/src/bnetd%20handle_irc.c%2C%201.60%2C%201.61%20irc.c%2C%201.47%2C%0A%091.48&In-Reply-To=%3C20071202161857.DBC3E120887%40mail.berlios.de%3E"
+       TITLE="[pvpgn-dev] pvpgn/src/bnetd handle_irc.c, 1.60, 1.61 irc.c, 1.47,	1.48">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sun Dec  2 17:18:57 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000598.html">[pvpgn-dev] pvpgn IGNOREME, 1.7, 1.8 UPDATE, 1.60,	1.61 version-history.txt, 1.277, 1.278
+</A></li>
+        <LI>Next message: <A HREF="000600.html">[pvpgn-dev] pvpgn/Win32-Projects PvPGN.dev,1.9,1.10
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#599">[ date ]</a>
+              <a href="thread.html#599">[ thread ]</a>
+              <a href="subject.html#599">[ subject ]</a>
+              <a href="author.html#599">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/pvpgn/pvpgn/src/bnetd
+In directory sheep:/tmp/cvs-serv4008/src/bnetd
+
+Modified Files:
+	handle_irc.c irc.c 
+Log Message:
+fixed warnings/errors rising in login process, fixed problems in WOL ladder support (added missing commands and conn_set_state(conn, conn_state_destroy) to body of functions since client wait to close connection) added DUNE2000 check to LIST of lobbyes. We support this client on 1.8.x now.
+
+Index: handle_irc.c
+===================================================================
+RCS file: /cvsroot/pvpgn/pvpgn/src/bnetd/handle_irc.c,v
+retrieving revision 1.60
+retrieving revision 1.61
+diff -u -d -r1.60 -r1.61
+--- handle_irc.c	20 Aug 2007 09:00:38 -0000	1.60
++++ handle_irc.c	2 Dec 2007 16:17:54 -0000	1.61
+@@ -1,7 +1,7 @@
+ /*
+  * Copyright (C) 2001  Marco Ziech (<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">mmz at gmx.net</A>)
+  * Copyright (C) 2005  Bryan Biedenkapp (<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">gatekeep at gmail.com</A>)
+- * Copyright (C) 2006  Pelish (<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">pelish at gmail.com</A>)
++ * Copyright (C) 2006,2007  Pelish (<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">pelish at gmail.com</A>)
+  *
+  * This program is free software; you can redistribute it and/or
+  * modify it under the terms of the GNU General Public License
+@@ -120,6 +120,8 @@
+ static int _handle_page_command(t_connection * conn, int numparams, char ** params, char * text);
+ static int _handle_startg_command(t_connection * conn, int numparams, char ** params, char * text);
+ static int _handle_listsearch_command(t_connection * conn, int numparams, char ** params, char * text);
++static int _handle_rungsearch_command(t_connection * conn, int numparams, char ** params, char * text);
++static int _handle_highscore_command(t_connection * conn, int numparams, char ** params, char * text);
+ 
+ /* state &quot;connected&quot; handlers */
+ static const t_irc_command_table_row irc_con_command_table[] =
+@@ -140,6 +142,11 @@
+ 	{ &quot;APGAR&quot;		, _handle_apgar_command },	
+ 	{ &quot;SERIAL&quot;		, _handle_serial_command },	
+ 
++    /* Ladder server commands */
++	{ &quot;LISTSEARCH&quot;	, _handle_listsearch_command },
++	{ &quot;RUNGSEARCH&quot;	, _handle_rungsearch_command },
++	{ &quot;HIGHSCORE&quot;	, _handle_highscore_command },
++
+ 	{ NULL			, NULL }
+ };
+ 
+@@ -168,7 +175,6 @@
+ 	{ &quot;FINDUSEREX&quot;	, _handle_finduserex_command },	
+ 	{ &quot;PAGE&quot;		, _handle_page_command },		
+ 	{ &quot;STARTG&quot;		, _handle_startg_command },		
+-	{ &quot;LISTSEARCH&quot;	, _handle_listsearch_command },
+ 
+ 	{ NULL			, NULL }
+ };
+@@ -781,10 +787,11 @@
+     		}
+ 	    }
+ 	    /**
+-        *  18 = Tiberian Sun game channels, 21 = Red alert 1 channels, 
++        *  14 = Dune 2000, 18 = Tiberian Sun game channels, 21 = Red alert 1 channels, 
+ 		*  33 = Red alert 2 channels, 41 = Yuri's Revenge
+ 		*/
+-	    else if((params) &amp;&amp; ((strcmp(params[0], &quot;18&quot;) == 0) ||
++	    else if((params) &amp;&amp; ((strcmp(params[0], &quot;14&quot;) == 0) ||
++				             (strcmp(params[0], &quot;18&quot;) == 0) ||
+ 				             (strcmp(params[0], &quot;21&quot;) == 0) ||
+ 				             (strcmp(params[0], &quot;33&quot;) == 0) ||
+ 				             (strcmp(params[0], &quot;41&quot;) == 0))) {
+@@ -1079,7 +1086,8 @@
+ 
+ static int _handle_quit_command(t_connection * conn, int numparams, char ** params, char * text)
+ {
+-	conn_set_channel(conn, NULL);
++	if (conn_get_channel(conn))
++	    conn_set_channel(conn, NULL);
+ 	conn_set_state(conn, conn_state_destroy);
+ 	return 0;
+ }
+@@ -1616,7 +1624,7 @@
+  	*  Heres the output expected (this can have up-to 8 entries (ie 8 players): 
+     *  (we are assuming for this example that user1 is the game owner)
+     *
+- 	*   user1!<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">WWOL at hostname</A> STARTG u :user1 xxx.xxx.xxx.xxx user2 xxx.xxx.xxx.xxx :gameNumber cTime
++ 	*   user1!<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">WWOL at hostname</A> STARTG u :user1 xxx.xxx.xxx.xxx user2 xxx.xxx.xxx.xxx :gameNumber t_Time
+  	*/
+ 	if((numparams&gt;=1)) {
+ 	    int i;
+@@ -1645,7 +1653,8 @@
+         strcat(temp,&quot; &quot;);
+         
+         now = time(NULL);
+-        strcat(temp,ctime(&amp;now));
++        sprintf(_temp_a,&quot;%lu&quot;,now);
++    	strcat(temp,_temp_a);;
+ 	    
+ 	    eventlog(eventlog_level_debug,__FUNCTION__,&quot;[** WOL **] STARTG: (%s)&quot;,temp);
+ 
+@@ -1659,8 +1668,26 @@
+    	return 0;
+ }	    
+ 
++/**
++ * LADDER Server commands:
++ */
+ static int _handle_listsearch_command(t_connection * conn, int numparams, char ** params, char * text)
+ {
+-	// FIXME: Not implemented
++	// FIXME: Not implemetned yet
++	conn_set_state(conn, conn_state_destroy);
++	return 0;
++}
++
++static int _handle_rungsearch_command(t_connection * conn, int numparams, char ** params, char * text)
++{
++	// FIXME: Not implemetned yet
++	conn_set_state(conn, conn_state_destroy);
++	return 0;
++}
++
++static int _handle_highscore_command(t_connection * conn, int numparams, char ** params, char * text)
++{
++	// FIXME: Not implemetned yet
++	conn_set_state(conn, conn_state_destroy);
+ 	return 0;
+ }
+
+Index: irc.c
+===================================================================
+RCS file: /cvsroot/pvpgn/pvpgn/src/bnetd/irc.c,v
+retrieving revision 1.47
+retrieving revision 1.48
+diff -u -d -r1.47 -r1.48
+--- irc.c	3 Aug 2007 16:03:38 -0000	1.47
++++ irc.c	2 Dec 2007 16:17:54 -0000	1.48
+@@ -907,6 +907,9 @@
+     case message_type_channel:
+     	/* ignore it */
+ 	break;
++    case message_type_userflags:
++    	/* ignore it */
++	break;
+     case message_type_mode:
+ 	from.nick = conn_get_chatname(me);
+ 	from.user = ctag;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000598.html">[pvpgn-dev] pvpgn IGNOREME, 1.7, 1.8 UPDATE, 1.60,	1.61 version-history.txt, 1.277, 1.278
+</A></li>
+	<LI>Next message: <A HREF="000600.html">[pvpgn-dev] pvpgn/Win32-Projects PvPGN.dev,1.9,1.10
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#599">[ date ]</a>
+              <a href="thread.html#599">[ thread ]</a>
+              <a href="subject.html#599">[ subject ]</a>
+              <a href="author.html#599">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

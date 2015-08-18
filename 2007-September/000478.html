@@ -1,0 +1,359 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r396 - in trunk/pvpgn/src: bnetd common
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-September/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r396%20-%20in%20trunk/pvpgn/src%3A%20bnetd%20common&In-Reply-To=%3C200709281349.l8SDnnqY008542%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000477.html">
+   <LINK REL="Next"  HREF="000479.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r396 - in trunk/pvpgn/src: bnetd common</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r396%20-%20in%20trunk/pvpgn/src%3A%20bnetd%20common&In-Reply-To=%3C200709281349.l8SDnnqY008542%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r396 - in trunk/pvpgn/src: bnetd common">svn at svn.berlios.de
+       </A><BR>
+    <I>Fri Sep 28 15:49:49 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000477.html">[pvpgn-dev] r395 - trunk/pvpgn/cmake/Modules
+</A></li>
+        <LI>Next message: <A HREF="000479.html">[pvpgn-dev] r397 - trunk/pvpgn/src/common
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#478">[ date ]</a>
+              <a href="thread.html#478">[ thread ]</a>
+              <a href="subject.html#478">[ subject ]</a>
+              <a href="author.html#478">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pelish
+Date: 2007-09-28 15:49:42 +0200 (Fri, 28 Sep 2007)
+New Revision: 396
+
+Modified:
+   trunk/pvpgn/src/bnetd/handle_irc.cpp
+   trunk/pvpgn/src/bnetd/handle_wol.cpp
+   trunk/pvpgn/src/bnetd/irc.cpp
+   trunk/pvpgn/src/bnetd/irc.h
+   trunk/pvpgn/src/common/irc_protocol.h
+Log:
+move handle_JOIN_command to irc.cpp add JOIN error messages when conn is banned, channel is full
+
+Modified: trunk/pvpgn/src/bnetd/handle_irc.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/handle_irc.cpp	2007-09-27 20:34:10 UTC (rev 395)
++++ trunk/pvpgn/src/bnetd/handle_irc.cpp	2007-09-28 13:49:42 UTC (rev 396)
+@@ -73,7 +73,6 @@
+ 
+ static int _handle_who_command(t_connection * conn, int numparams, char ** params, char * text);
+ static int _handle_list_command(t_connection * conn, int numparams, char ** params, char * text);
+-static int _handle_join_command(t_connection * conn, int numparams, char ** params, char * text);
+ static int _handle_mode_command(t_connection * conn, int numparams, char ** params, char * text);
+ static int _handle_userhost_command(t_connection * conn, int numparams, char ** params, char * text);
+ static int _handle_ison_command(t_connection * conn, int numparams, char ** params, char * text);
+@@ -577,38 +576,6 @@
+ 	return 0;
+ }
+ 
+-static int _handle_join_command(t_connection * conn, int numparams, char ** params, char * text)
+-{
+-	if (numparams&gt;=1) {
+-	    char ** e;
+-
+-	    e = irc_get_listelems(params[0]);
+-	    if ((e)&amp;&amp;(e[0])) {
+-	    		char const * ircname = irc_convert_ircname(e[0]);
+-	   	 	t_channel * old_channel = conn_get_channel(conn);
+-
+-			if ((!(ircname)) || (conn_set_channel(conn,ircname)&lt;0)) {
+-				irc_send(conn,ERR_NOSUCHCHANNEL,&quot;:JOIN failed&quot;); /* FIXME: be more precise; what is the real error code for that? */
+-			}
+-			else {
+-    			char temp[MAX_IRC_MESSAGE_LEN];
+-				t_channel * channel;
+-				channel = conn_get_channel(conn);
+-
+-				if (channel!=old_channel) {
+-				    channel_set_userflags(conn);
+-				}
+-
+-	    		}
+-		}
+-    		if (e)
+-			irc_unget_listelems(e);
+-	}
+-	else
+-	    irc_send(conn,ERR_NEEDMOREPARAMS,&quot;:Too few arguments to JOIN&quot;);
+-	return 0;
+-}
+-
+ static int _handle_mode_command(t_connection * conn, int numparams, char ** params, char * text)
+ {
+ 	/* FIXME: Not yet implemented */
+
+Modified: trunk/pvpgn/src/bnetd/handle_wol.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/handle_wol.cpp	2007-09-27 20:34:10 UTC (rev 395)
++++ trunk/pvpgn/src/bnetd/handle_wol.cpp	2007-09-28 13:49:42 UTC (rev 396)
+@@ -73,7 +73,6 @@
+ static int _handle_quit_command(t_connection * conn, int numparams, char ** params, char * text);
+ 
+ static int _handle_list_command(t_connection * conn, int numparams, char ** params, char * text);
+-static int _handle_join_command(t_connection * conn, int numparams, char ** params, char * text);
+ static int _handle_part_command(t_connection * conn, int numparams, char ** params, char * text);
+ 
+ static int _handle_cvers_command(t_connection * conn, int numparams, char ** params, char * text);
+@@ -375,7 +374,7 @@
+ {
+      /**
+       * Pelish: FIXME delete NICSERV and add support for matchbot.
+-      * ACTION messages is not in WOLv1 and Dune 2000 sended by server (client add this messages automaticaly)
++      * ACTION messages are not in WOLv1 and Dune 2000 sended by server to self (client add this messages automaticaly)
+       */
+ 
+ 	if ((numparams&gt;=1)&amp;&amp;(text))
+@@ -650,33 +649,6 @@
+     	return 0;
+ }
+ 
+-static int _handle_join_command(t_connection * conn, int numparams, char ** params, char * text)
+-{
+-    /* NOTICE: Move this function to IRC Common file!!! */
+-
+-	if (numparams&gt;=1) {
+-	    char ** e;
+-
+-	    e = irc_get_listelems(params[0]);
+-	    if ((e)&amp;&amp;(e[0])) {
+-	    		char const * wolname = irc_convert_ircname(e[0]);
+-	   	 	t_channel * old_channel = conn_get_channel(conn);
+-
+-			if ((!(wolname)) || (conn_set_channel(conn,wolname)&lt;0)) {
+-				irc_send(conn,ERR_NOSUCHCHANNEL,&quot;:JOIN failed&quot;); /* FIXME: be more precise; what is the real error code for that? */
+-			}
+-			else {
+-				channel_set_userflags(conn);
+-			}
+-		}
+-    		if (e)
+-			irc_unget_listelems(e);
+-	}
+-	else
+-	    irc_send(conn,ERR_NEEDMOREPARAMS,&quot;:Too few arguments to JOIN&quot;);
+-	return 0;
+-}
+-
+ static int _handle_quit_command(t_connection * conn, int numparams, char ** params, char * text)
+ {
+     irc_send(conn,RPL_QUIT,&quot;:goodbye&quot;);
+@@ -976,9 +948,10 @@
+             channel = channellist_find_channel_by_name(wolname,NULL,NULL);
+ 
+             if (channel == NULL) {
+-	             irc_send(conn,ERR_NOSUCHCHANNEL,&quot;:No such channel&quot;);
++			     snprintf(_temp, sizeof(_temp), &quot;%s :Game channel has closed&quot;,e[0]);
++			     irc_send(conn,ERR_GAMEHASCLOSED,_temp);
+ 			     if (e)
+-		               irc_unget_listelems(e);
++		             irc_unget_listelems(e);
+      	         return 0;
+             }
+ 
+@@ -986,10 +959,18 @@
+ 	   	 	     snprintf(_temp, sizeof(_temp), &quot;%s :Channel is full&quot;,e[0]);
+                  irc_send(conn,ERR_CHANNELISFULL,_temp);
+ 			     if (e)
+-		            irc_unget_listelems(e);
++		             irc_unget_listelems(e);
+ 			     return 0;
+             }
+ 
++            if (channel_check_banning(channel,conn)) {
++	   	 	     snprintf(_temp, sizeof(_temp), &quot;%s :You are banned from that channel.&quot;,e[0]);
++	   	 	     irc_send(conn,ERR_BANNEDFROMCHAN,_temp);
++	   	 	     if (e)
++	   	 	         irc_unget_listelems(e);
++	   	 	     return 0;
++            }
++
+ 			conn_wol_set_ingame(conn,1);
+ 
+ 			if (old_channel)
+
+Modified: trunk/pvpgn/src/bnetd/irc.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/irc.cpp	2007-09-27 20:34:10 UTC (rev 395)
++++ trunk/pvpgn/src/bnetd/irc.cpp	2007-09-28 13:49:42 UTC (rev 396)
+@@ -1213,7 +1213,66 @@
+ 	return 0;
+ }
+ 
+-int irc_send_topic(t_connection * c, t_channel const * channel){
++extern int _handle_join_command(t_connection * conn, int numparams, char ** params, char * text)
++{
++    if (numparams&gt;=1) {
++        char ** e;
++
++        /* According to RFC2812 - if channelname is &quot;0&quot; we need to PART all channels */
++        if (std::strcmp(params[0], &quot;0&quot;) == 0) {
++            conn_part_channel(conn);
++            return 0;
++        }
++
++        e = irc_get_listelems(params[0]);
++        if ((e)&amp;&amp;(e[0])) {
++            char temp[MAX_IRC_MESSAGE_LEN];
++            char const * ircname = irc_convert_ircname(e[0]);
++            t_channel * old_channel = conn_get_channel(conn);
++            t_channel * channel;
++            t_account * acc = conn_get_account(conn);
++
++            if ((ircname) &amp;&amp; (channel = channellist_find_channel_by_name(ircname,NULL,NULL))) {
++                if (channel_check_banning(channel,conn)) {
++                    snprintf(temp, sizeof(temp), &quot;%s :You are banned from that channel.&quot;,e[0]);
++                    irc_send(conn,ERR_BANNEDFROMCHAN, temp);
++                    if (e)
++                        irc_unget_listelems(e);
++                    return 0;
++                }
++
++                if ((account_get_auth_admin(acc,NULL)!=1) &amp;&amp; (account_get_auth_admin(acc,ircname)!=1) &amp;&amp;
++                    (account_get_auth_operator(acc,NULL)!=1) &amp;&amp; (account_get_auth_operator(acc,ircname)!=1) &amp;&amp;
++                    (channel_get_max(channel) != -1) &amp;&amp; (channel_get_curr(channel)&gt;=channel_get_max(channel))) {
++
++                    snprintf(temp, sizeof(temp), &quot;%s :The channel is currently full.&quot;,e[0]);
++                    irc_send(conn,ERR_CHANNELISFULL, temp);
++                    if (e)
++                        irc_unget_listelems(e);
++                    return 0;
++                }
++            }
++
++            if ((!(ircname)) || (conn_set_channel(conn,ircname)&lt;0)) {
++                snprintf(temp, sizeof(temp), &quot;%s :JOIN failed&quot;,e[0]);
++                irc_send(conn,ERR_NOSUCHCHANNEL,temp); /* Anything is still bad */
++            }
++            else {
++                channel = conn_get_channel(conn);
++
++                if (channel!=old_channel)
++                    channel_set_userflags(conn);
++            }
++        }
++        if (e)
++            irc_unget_listelems(e);
++    }
++    else
++        irc_send(conn,ERR_NEEDMOREPARAMS,&quot;:Too few arguments to JOIN&quot;);
++    return 0;
++}
++
++extern int irc_send_topic(t_connection * c, t_channel const * channel){
+     char * topic;
+     char temp[MAX_IRC_MESSAGE_LEN];
+ 
+@@ -1296,10 +1355,10 @@
+ extern int _handle_kick_command(t_connection * conn, int numparams, char ** params, char * text)
+ {
+     char temp[MAX_IRC_MESSAGE_LEN];
+-
++    char ** e;
+     /**
+- 	*  Heres the imput expected
+-    *  KICK [channel] [kicked_user]
++    *  Heres the imput expected
++    *  KICK [channel] [kicked_user],[kicked_user2]
+     *
+     *  Heres the output expected
+     *  :user!<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">WWOL at hostname</A> KICK [channel] [kicked_user] :[text]
+@@ -1309,17 +1368,22 @@
+ 
+     if ((numparams != 2) || !(params[1])) {
+ 	    irc_send(conn,ERR_NEEDMOREPARAMS,&quot;:Too few arguments to KICK&quot;);
+-	    return -1;
++	    return 0;
+     }
+ 
++    e = irc_get_listelems(params[1]);
++
+     /* Make standart PvPGN KICK from RFC2812 KICK */
+     if (text)
+-        snprintf(temp, sizeof(temp), &quot;/kick %s %s&quot;, params[1], text);
++        snprintf(temp, sizeof(temp), &quot;/kick %s %s&quot;, e[0], text);
+     else
+-        snprintf(temp, sizeof(temp), &quot;/kick %s&quot;, params[1]);
++        snprintf(temp, sizeof(temp), &quot;/kick %s&quot;, e[0]);
+ 
+     handle_command(conn, temp);
+ 
++    if (e)
++        irc_unget_listelems(e);
++
+     return 0;
+ }
+ 
+
+Modified: trunk/pvpgn/src/bnetd/irc.h
+===================================================================
+--- trunk/pvpgn/src/bnetd/irc.h	2007-09-27 20:34:10 UTC (rev 395)
++++ trunk/pvpgn/src/bnetd/irc.h	2007-09-28 13:49:42 UTC (rev 396)
+@@ -51,6 +51,7 @@
+ extern int irc_who(t_connection * c, char const * name);
+ extern int irc_send_motd(t_connection * conn);
+ extern int _handle_nick_command(t_connection * conn, int numparams, char ** params, char * text);
++extern int _handle_join_command(t_connection * conn, int numparams, char ** params, char * text);
+ extern int irc_send_topic(t_connection * c, t_channel const * channel);
+ extern int _handle_topic_command(t_connection * conn, int numparams, char ** params, char * text);
+ extern int _handle_names_command(t_connection * conn, int numparams, char ** params, char * text);
+
+Modified: trunk/pvpgn/src/common/irc_protocol.h
+===================================================================
+--- trunk/pvpgn/src/common/irc_protocol.h	2007-09-27 20:34:10 UTC (rev 395)
++++ trunk/pvpgn/src/common/irc_protocol.h	2007-09-28 13:49:42 UTC (rev 396)
+@@ -367,6 +367,12 @@
+ 
+ #define ERR_IDNOEXIST        439
+ 
++//#define ERR_CHANNELISFULL    471 (used for games too)
++//#define ERR_BANNEDFROMCHAN   474 (used for games too)
++//#define ERR_BADCHANNELKEY    475 (used for game password)
++
++#define ERR_GAMEHASCLOSED   478
++
+ /** error's */
+ /*
+  * Errors are in the range from 400-599 currently and are grouped by what
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000477.html">[pvpgn-dev] r395 - trunk/pvpgn/cmake/Modules
+</A></li>
+	<LI>Next message: <A HREF="000479.html">[pvpgn-dev] r397 - trunk/pvpgn/src/common
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#478">[ date ]</a>
+              <a href="thread.html#478">[ thread ]</a>
+              <a href="subject.html#478">[ subject ]</a>
+              <a href="author.html#478">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,150 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] [Patch #965] Adds some additional infos to the XML	Status file
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-August/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BPatch%20%23965%5D%20Adds%20some%20additional%20infos%20to%20the%20XML%0A%09Status%20file&In-Reply-To=%3C200708161334.l7GDY1gQ009232%40unicorn.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000330.html">
+   <LINK REL="Next"  HREF="000332.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] [Patch #965] Adds some additional infos to the XML	Status file</H1>
+    <B>admin at berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BPatch%20%23965%5D%20Adds%20some%20additional%20infos%20to%20the%20XML%0A%09Status%20file&In-Reply-To=%3C200708161334.l7GDY1gQ009232%40unicorn.berlios.de%3E"
+       TITLE="[pvpgn-dev] [Patch #965] Adds some additional infos to the XML	Status file">admin at berlios.de
+       </A><BR>
+    <I>Thu Aug 16 15:34:01 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000330.html">[pvpgn-dev] [Bug #11671] bnetd on 64bit sends currupt packets to	tracker
+</A></li>
+        <LI>Next message: <A HREF="000332.html">[pvpgn-dev] [Patch #964] Level 255 Diablo ladder patch
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#331">[ date ]</a>
+              <a href="thread.html#331">[ thread ]</a>
+              <a href="subject.html#331">[ subject ]</a>
+              <a href="author.html#331">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Patch #965 has been updated. 
+
+Project: pvpgn
+Category: 1.99.x
+Status: Open
+Submitted by: jebs
+Assigned to : pandaemonium
+Summary: Adds some additional infos to the XML Status file
+
+Follow-Ups:
+
+Date: 2007-Aug-16 15:34
+By: jebs
+
+Comment:
+This should match *pandaemonium's requirement a)
+-------------------------------------------------------
+
+Date: 2006-Nov-11 21:58
+By: pandaemonium
+
+Comment:
+I think this can go into svn when two things happen:
+a) patch is updated to match svn
+b) same data is to be found in both .xml and .dat
+-------------------------------------------------------
+
+Date: 2006-Jun-26 17:05
+By: u-238
+
+Comment:
+If you change the format of server.dat, it is very easy for me to release a new PHP script.  I don't mind at all what you decide to do.
+-------------------------------------------------------
+
+Date: 2006-Jun-25 15:31
+By: d1zzy
+
+Comment:
+Aaron, Creepy ? Should we commit this one ? What about the .dat file ? Should we change the format (changing the XML should be without problems for existent parsers but changing the .dat is not the same thing) of the .dat too ?
+-------------------------------------------------------
+
+Date: 2006-Apr-15 22:24
+By: jebs
+
+Comment:
++&lt;charclass&gt; if exists
+-------------------------------------------------------
+
+Date: 2006-Mar-29 00:32
+By: jebs
+
+Comment:
+Adds some additional info to the Servers XML status file like:
+
+User:
++&lt;country&gt;
++&lt;clientlang&gt; if exists
++&lt;realm&gt; if exists
++&lt;charname&gt; if exists
++&lt;game&gt; if exists
+
+Games:
++&lt;numplayer&gt;
++&lt;realm&gt; if exists
+
+These additional fields should be unproblematic to existing XML solutions/processing.
+
+Haven't changed the .dat format for now.
+I don't require it, but for consistency reasons we might try to fill it with likewise the same content as in the XML.
+
+How would it be to change the current:
+user&lt;usernumber&gt;=&lt;clienttag&gt;,&lt;username&gt;
+
+into the Diablo standard naming scheme like:
+user&lt;usernumber&gt;=&lt;clienttag&gt;,[&lt;charname&gt;*]&lt;username&gt;[@realm[@game]]
+(which wouldn't break any current non-realm/non-D2 solutions)
+
+Games could be enriched from:
+game&lt;gamenumber&gt;=&lt;clienttag&gt;,&lt;gamename&gt;
+
+to:
+game&lt;gamenumber&gt;=&lt;clienttag&gt;,&lt;gamename&gt;[@realm]
+
+-------------------------------------------------------
+
+-------------------------------------------------------
+For more info, visit:
+
+<A HREF="http://developer.berlios.de/patch/?func=detailpatch&amp;patch_id=965&amp;group_id=2291">http://developer.berlios.de/patch/?func=detailpatch&amp;patch_id=965&amp;group_id=2291</A>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000330.html">[pvpgn-dev] [Bug #11671] bnetd on 64bit sends currupt packets to	tracker
+</A></li>
+	<LI>Next message: <A HREF="000332.html">[pvpgn-dev] [Patch #964] Level 255 Diablo ladder patch
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#331">[ date ]</a>
+              <a href="thread.html#331">[ thread ]</a>
+              <a href="subject.html#331">[ subject ]</a>
+              <a href="author.html#331">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

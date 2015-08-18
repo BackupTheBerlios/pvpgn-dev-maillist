@@ -1,0 +1,380 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r287 - trunk/pvpgn/src/bnetd
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-August/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r287%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200708032245.l73MjvLb007518%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000222.html">
+   <LINK REL="Next"  HREF="000225.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r287 - trunk/pvpgn/src/bnetd</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r287%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200708032245.l73MjvLb007518%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r287 - trunk/pvpgn/src/bnetd">svn at svn.berlios.de
+       </A><BR>
+    <I>Sat Aug  4 00:45:57 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000222.html">[pvpgn-dev] r286 - trunk/pvpgn/src/common
+</A></li>
+        <LI>Next message: <A HREF="000225.html">[pvpgn-dev] [Patch #2122] Fix bad message_types on talk between	BNET and WOL, Commands
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#224">[ date ]</a>
+              <a href="thread.html#224">[ thread ]</a>
+              <a href="subject.html#224">[ subject ]</a>
+              <a href="author.html#224">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pandaemonium
+Date: 2007-08-04 00:45:45 +0200 (Sat, 04 Aug 2007)
+New Revision: 287
+
+Modified:
+   trunk/pvpgn/src/bnetd/connection.cpp
+   trunk/pvpgn/src/bnetd/handle_wol.cpp
+   trunk/pvpgn/src/bnetd/irc.cpp
+   trunk/pvpgn/src/bnetd/message.cpp
+   trunk/pvpgn/src/bnetd/message.h
+Log:
+[ Patch #2122 ] Fix bad message_types on talk between BNET and WOL, Commands
+
+Modified: trunk/pvpgn/src/bnetd/connection.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/connection.cpp	2007-08-03 20:13:09 UTC (rev 286)
++++ trunk/pvpgn/src/bnetd/connection.cpp	2007-08-03 22:45:45 UTC (rev 287)
+@@ -394,7 +394,7 @@
+     temp-&gt;protocol.queues.outsizep               = 0;
+     temp-&gt;protocol.queues.inqueue                = NULL;
+     temp-&gt;protocol.queues.insize                 = 0;
+-    temp-&gt;protocol.loggeduser			 = NULL;
++    temp-&gt;protocol.loggeduser                    = NULL;
+     temp-&gt;protocol.d2.realm                      = NULL;
+     rcm_regref_init(&amp;temp-&gt;protocol.d2.realm_regref,&amp;conn_set_realm_cb,temp);
+     temp-&gt;protocol.d2.character                  = NULL;
+@@ -409,8 +409,10 @@
+ 
+     temp-&gt;protocol.wol.ingame			         = 0;
+ 
+-    temp-&gt;protocol.wol.codepage			         = 0;
+-    temp-&gt;protocol.wol.gameType			         = 0;
++    temp-&gt;protocol.wol.codepage	                 = 0;
++    temp-&gt;protocol.wol.gameType                  = 0;
++    temp-&gt;protocol.wol.pageme                    = 33;
++    temp-&gt;protocol.wol.findme                    = 17;
+ 
+     temp-&gt;protocol.wol.apgar			         = NULL;
+     temp-&gt;protocol.wol.gameOptions		         = NULL;
+
+Modified: trunk/pvpgn/src/bnetd/handle_wol.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/handle_wol.cpp	2007-08-03 20:13:09 UTC (rev 286)
++++ trunk/pvpgn/src/bnetd/handle_wol.cpp	2007-08-03 22:45:45 UTC (rev 287)
+@@ -551,8 +551,8 @@
+ static int _handle_privmsg_command(t_connection * conn, int numparams, char ** params, char * text)
+ {
+      /**
+-      * D1zzy: Here will be &quot;/&quot; commands (&quot;/help&quot;...) and NICSERV will be deleted.
+-      * ACTION messages will not be in WOLv1 and Dune 2000 sended by server (client add this message automaticaly)
++      * Pelish: FIXME delete NICSERV and add support for matchbot.
++      * ACTION messages is not in WOLv1 and Dune 2000 sended by server (client add this messages automaticaly)
+       */
+ 
+ 	if ((numparams&gt;=1)&amp;&amp;(text))
+@@ -665,8 +665,14 @@
+ 							channel_message_send(channel,message_type_emote,conn,text);
+ 						}
+ 						else {
+-							channel_message_log(channel, conn, 1, text);
+-							channel_message_send(channel,message_type_talk,conn,text);
++                            if (text[0] == '/') {
++                                /* &quot;/&quot; commands (like &quot;/help...&quot; */
++                                handle_command(conn, text);
++                            }
++                            else {
++                                channel_message_log(channel, conn, 1, text);
++                                channel_message_send(channel,message_type_talk,conn,text);
++                            }
+ 						}
+ 					}
+ 					else {
+@@ -1529,8 +1535,6 @@
+ 	if ((numparams&gt;=1)&amp;&amp;(text)) {
+ 	    t_connection * user;
+ 
+-	    snprintf(_temp, sizeof(_temp), &quot;:%s&quot;, text);
+-
+ 	    if (std::strcmp(params[0], &quot;0&quot;) == 0) {
+             /* PAGE for MY BATTLECLAN */
+             t_clan * clan = account_get_clan(conn_get_account(conn));
+@@ -1543,7 +1547,7 @@
+                    t_clanmember * member = (t_clanmember*)elem_get_data(curr);
+ 
+                    if ((user = clanmember_get_conn(member))&amp;&amp;(conn_wol_get_pageme(user) == 33));
+-                       message_send_text(user,message_wol_page,conn,_temp);
++                       message_send_text(user,message_type_page,conn,text);
+                }
+             }
+             else
+@@ -1551,7 +1555,7 @@
+             return 0;
+         }
+ 	    else if((user = connlist_find_connection_by_accountname(params[0]))&amp;&amp;(conn_wol_get_pageme(user) == 33)) {
+-     		message_send_text(user,message_wol_page,conn,_temp);
++     		message_send_text(user,message_type_page,conn,text);
+      		snprintf(_temp, sizeof(_temp), &quot;0 :&quot;); /* Page was succesfull */
+ 	    }
+ 	    else
+
+Modified: trunk/pvpgn/src/bnetd/irc.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/irc.cpp	2007-08-03 20:13:09 UTC (rev 286)
++++ trunk/pvpgn/src/bnetd/irc.cpp	2007-08-03 22:45:45 UTC (rev 287)
+@@ -700,38 +700,43 @@
+     	    char const * dest;
+ 	    char temp[MAX_IRC_MESSAGE_LEN];
+ 
+-	    if (me)
+-	    {
++	    if (me) {
+     	        from.nick = conn_get_chatname(me);
+     	        from.host = addr_num_to_ip_str(conn_get_addr(me));
+ 	    }
+-	    else
+-	    {
++	    else {
+                 from.nick = server_get_hostname();
+                 from.host = server_get_hostname();
+ 	    }
+-
+         from.user = ctag;
+ 
+         if (type==message_type_talk)
+-    	    	dest = irc_convert_channel(conn_get_channel(me)); /* FIXME: support more channels and choose right one! */
++            dest = irc_convert_channel(conn_get_channel(me)); /* FIXME: support more channels and choose right one! */
+ 	    else
+-	        dest = &quot;&quot;; /* will be replaced with username in postformat */
++            dest = &quot;&quot;; /* will be replaced with username in postformat */
++
+ 	    std::sprintf(temp,&quot;:%s&quot;,text);
+-    	    msg = irc_message_preformat(&amp;from,&quot;PRIVMSG&quot;,dest,temp);
++
++	    if ((conn_get_wol(me) != 1) &amp;&amp; (conn_get_wol(dst) == 1) &amp;&amp; (conn_wol_get_pageme(dst))
++             &amp;&amp; (type==message_type_whisper) &amp;&amp; (conn_get_channel(me)!=(conn_get_channel(dst))))
++            msg = irc_message_preformat(&amp;from,&quot;PAGE&quot;,NULL,temp);
++        else
++            msg = irc_message_preformat(&amp;from,&quot;PRIVMSG&quot;,dest,temp);
++
+ 	    if (me)
+-    	        conn_unget_chatname(me,from.nick);
+-    	}
+-        break;
++    	    conn_unget_chatname(me,from.nick);
++    }
++    break;
+     case message_type_emote:
+     	{
+-    	    char const * dest;
++	    char const * dest;
+ 	    char temp[MAX_IRC_MESSAGE_LEN];
+ 
+-    	    /* &quot;\001ACTION &quot; + text + &quot;\001&quot; + \0 */
++	    /* &quot;\001ACTION &quot; + text + &quot;\001&quot; + \0 */
+ 	    if ((8+std::strlen(text)+1+1)&lt;=MAX_IRC_MESSAGE_LEN) {
+ 		std::sprintf(temp,&quot;:\001ACTION %s\001&quot;,text);
+-	    } else {
++	    }
++        else {
+ 		std::sprintf(temp,&quot;:\001ACTION (maximum message length exceeded)\001&quot;);
+ 	    }
+     	    from.nick = conn_get_chatname(me);
+@@ -749,7 +754,10 @@
+ 	{
+ 	    char temp[MAX_IRC_MESSAGE_LEN];
+ 	    std::sprintf(temp,&quot;:%s&quot;,text);
+-	    msg = irc_message_preformat(NULL,&quot;NOTICE&quot;,NULL,temp);
++        if ((type==message_type_info || type==message_type_error) &amp;&amp; (conn_get_wol(dst) == 1))
++            msg = irc_message_preformat(NULL,&quot;PAGE&quot;,NULL,temp);
++        else
++	        msg = irc_message_preformat(NULL,&quot;NOTICE&quot;,NULL,temp);
+ 	}
+ 	break;
+     case message_type_channel:
+@@ -764,21 +772,17 @@
+     break;
+ 	case message_type_nick:
+ 	{
+-
+         from.nick = conn_get_loggeduser(me);
+         from.host = addr_num_to_ip_str(conn_get_addr(me));
+         from.user = ctag;
+         msg = irc_message_preformat(&amp;from,&quot;NICK&quot;,&quot;\r&quot;,text);
+-
+ 	}
+     break;
+     case message_type_notice:
+ 	{
+-
+    	    char temp[MAX_IRC_MESSAGE_LEN];
+ 	    std::sprintf(temp,&quot;:%s&quot;,text);
+ 
+-
+         if (me &amp;&amp; conn_get_chatname(me))
+ 	    {
+     	        from.nick = conn_get_chatname(me);
+@@ -790,9 +794,6 @@
+ 	    {
+ 	            msg = irc_message_preformat(NULL,&quot;NOTICE&quot;,&quot;&quot;,temp);
+ 	    }
+-
+-
+-
+ 	}
+ 	break;
+ 
+@@ -806,6 +807,17 @@
+ 	    msg = irc_message_preformat(&amp;from,&quot;HOST&quot;,&quot;\r&quot;,text);
+ 	    conn_unget_chatname(me,from.nick);
+     	break;
++   	case message_type_page:
++    {
++   	    char temp[MAX_IRC_MESSAGE_LEN];
++	    from.nick = conn_get_chatname(me);
++	    from.user = ctag;
++	    from.host = addr_num_to_ip_str(conn_get_addr(me));
++	    std::sprintf(temp,&quot;:%s&quot;,text);
++        msg = irc_message_preformat(&amp;from,&quot;PAGE&quot;,NULL,temp);
++	    conn_unget_chatname(me,from.nick);
++    	break;
++    }
+     case message_wol_joingame:
+     	from.nick = conn_get_chatname(me);
+     	from.user = ctag;
+@@ -834,13 +846,6 @@
+     	msg = irc_message_preformat(&amp;from,&quot;STARTG&quot;,&quot;u&quot;,text);
+     	conn_unget_chatname(me,from.nick);
+     	break;
+-    case message_wol_page:
+-    	from.nick = conn_get_chatname(me);
+-    	from.user = ctag;
+-    	from.host = addr_num_to_ip_str(conn_get_addr(me));
+-    	msg = irc_message_preformat(&amp;from,&quot;PAGE&quot;,NULL,text);
+-    	conn_unget_chatname(me,from.nick);
+-    	break;
+     case message_wol_advertr:
+     	msg = irc_message_preformat(NULL,&quot;ADVERTR&quot;,&quot;\r&quot;,text);
+     	break;
+
+Modified: trunk/pvpgn/src/bnetd/message.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/message.cpp	2007-08-03 20:13:09 UTC (rev 286)
++++ trunk/pvpgn/src/bnetd/message.cpp	2007-08-03 22:45:45 UTC (rev 287)
+@@ -101,6 +101,26 @@
+          return &quot;nick&quot;;
+     case message_type_mode:
+          return &quot;mode&quot;;
++    case message_type_host:
++	 return &quot;host&quot;;
++    case message_type_page:
++	 return &quot;page&quot;;
++    case message_wol_joingame:
++	 return &quot;wol_joingame&quot;;
++    case message_wol_gameopt_owner:
++	 return &quot;wol_gameopt_owner&quot;;
++    case message_wol_gameopt_join:
++	 return &quot;wol_gameopt_join&quot;;
++    case message_wol_start_game:
++	 return &quot;wol_start_game&quot;;
++    case message_wol_advertr:
++	 return &quot;wol_advertr&quot;;
++    case message_wol_chanchk:
++	 return &quot;wol_chanchk&quot;;
++    case message_wol_kick:
++	 return &quot;wol_kick&quot;;
++    case message_wol_userip:
++	 return &quot;wol_userip&quot;;
+     case message_type_null:
+         return &quot;null&quot;;
+     default:
+@@ -351,7 +371,8 @@
+ 	}
+ 	break;
+     case message_type_whisper:
+-    case message_type_notice:         
++    case message_type_notice:
++    case message_type_page:
+ 	if (!text)
+ 	{
+ 	    eventlog(eventlog_level_error,__FUNCTION__,&quot;got NULL text for %s&quot;,message_type_get_str(type));
+@@ -727,7 +748,8 @@
+ 	    }
+ 	    break;
+ 	case message_type_whisper:
+-    case message_type_notice:         
++    case message_type_notice:
++    case message_type_page:
+ 	    if (!text)
+ 	    {
+ 		eventlog(eventlog_level_error,__FUNCTION__,&quot;got NULL text for %s&quot;,message_type_get_str(type));
+@@ -1002,7 +1024,8 @@
+ 	}
+ 	break;
+     case message_type_whisper:
+-    case message_type_notice:         
++    case message_type_notice:
++    case message_type_page:
+ 	if (!text)
+ 	{
+ 	    eventlog(eventlog_level_error,__FUNCTION__,&quot;got NULL text for %s&quot;,message_type_get_str(type));
+
+Modified: trunk/pvpgn/src/bnetd/message.h
+===================================================================
+--- trunk/pvpgn/src/bnetd/message.h	2007-08-03 20:13:09 UTC (rev 286)
++++ trunk/pvpgn/src/bnetd/message.h	2007-08-03 22:45:45 UTC (rev 287)
+@@ -69,11 +69,11 @@
+     *  Westwood Online Extensions
+     */
+     message_type_host,
++    message_type_page,
+     message_wol_joingame,
+     message_wol_gameopt_owner,
+     message_wol_gameopt_join,
+     message_wol_start_game,
+-    message_wol_page,
+     message_wol_advertr,
+     message_wol_chanchk,
+     message_wol_kick,
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000222.html">[pvpgn-dev] r286 - trunk/pvpgn/src/common
+</A></li>
+	<LI>Next message: <A HREF="000225.html">[pvpgn-dev] [Patch #2122] Fix bad message_types on talk between	BNET and WOL, Commands
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#224">[ date ]</a>
+              <a href="thread.html#224">[ thread ]</a>
+              <a href="subject.html#224">[ subject ]</a>
+              <a href="author.html#224">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

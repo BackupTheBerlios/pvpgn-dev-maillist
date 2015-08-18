@@ -1,0 +1,117 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] Some idea how to better solve &quot;/commands&quot;
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-November/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20Some%20idea%20how%20to%20better%20solve%20%22/commands%22&In-Reply-To=%3C200711131207.12672.dizone%40gmail.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000532.html">
+   <LINK REL="Next"  HREF="000564.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] Some idea how to better solve &quot;/commands&quot;</H1>
+    <B>Dizzy</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20Some%20idea%20how%20to%20better%20solve%20%22/commands%22&In-Reply-To=%3C200711131207.12672.dizone%40gmail.com%3E"
+       TITLE="[pvpgn-dev] Some idea how to better solve &quot;/commands&quot;">dizone at gmail.com
+       </A><BR>
+    <I>Tue Nov 13 11:07:12 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000532.html">[pvpgn-dev] Some idea how to better solve &quot;/commands&quot;
+</A></li>
+        <LI>Next message: <A HREF="000564.html">[pvpgn-dev] Some idea how to better solve &quot;/commands&quot;
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#562">[ date ]</a>
+              <a href="thread.html#562">[ thread ]</a>
+              <a href="subject.html#562">[ subject ]</a>
+              <a href="author.html#562">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>On Tuesday 06 November 2007 12:26:31 Pelish wrote:
+&gt;<i> Good day all deveopers.
+</I>&gt;<i> I have one idea to (I hope) better way how to solve commands. At the moment
+</I>&gt;<i> are commands codes stored in command.cpp/h. In any command is solved
+</I>&gt;<i> tokenization. My idea is basicaly: Move core of function to any another
+</I>&gt;<i> file (ie command_common.cpp/h) and tokenizations to any another file (or
+</I>&gt;<i> let it as is).
+</I>&gt;<i>
+</I>&gt;<i> There is why I want to do it:
+</I>&gt;<i> 1) in IRC/WOL is KICK command that is in the fact same like in &quot;/kick&quot;
+</I>&gt;<i> command. Now I need to &quot;resend in /kick command sintax. Code will talk
+</I>&gt;<i> bether than me so I do in handle_irc.cpp in func. handle_kick_command()
+</I>&gt;<i> snprintf(temp, sizeof(temp), &quot;/kick %s %s&quot;, e[0], text);
+</I>&gt;<i> handle_command(conn, temp);
+</I>
+You just need to have handle_kick_command that is right now a &quot;static&quot; in 
+command.cpp as an &quot;external&quot;, declared in command.h and that you can call 
+from any code, wouldn't that work?
+
+&gt;<i> 2) BAN command doing in bnetd KICK and than BAN (add person to banlist). In
+</I>&gt;<i> IRC/WOL are this commands diferent.
+</I>
+Yes but I don't think I agree making it as IRC. There is a difference between 
+emulating a protocol as the network data send/received and emulating it's 
+behaviour. We emulate IRC in order to have IRC clients connect and chat to 
+pvpgn but we don't emulate IRC behaviour. It's ok to try to make the protocol 
+as close as possible to the standard IRC protocol network wise so we can have 
+as many as possible IRC clients connect to pvpgn but it's not OK to have the 
+behaviour as close as possible to a normal IRC server. That is because we are 
+not a normal IRC server and some things are different. For one, I remember 
+alot of people asking that /ban should also /kick (some time ago). And I 
+don't see why it should be different on IRC/WOL than on battle.net. Plus then 
+you get into things like:
+
+- what if a battle.net user issues /ban on a IRC/WOL client? do we follow 
+battle.net behaviour (because the operator is battle.net user and expects 
+battle.net behaviour) or do we follow IRC/WOL behaviour because the 
+target/victim is IRC/WOL and we want to have &quot;pure&quot; IRC/WOL behaviour?
+
+- then the reverse, what if a WOL client /bans a battle.net user? what happens 
+then?
+
+In WOL when you issue /ban they don't get kicked? Would it be wrong to also 
+kick them? (it makes sense, when you ban users you want them out of the 
+channel too so it shouldn't hurt if we make common behaviour as this for all 
+protocols)
+
+&gt;<i> 3) in future we can make all other commands (means like normal chat
+</I>&gt;<i> commands) in this common file. I think that than will be much more bether
+</I>&gt;<i> gaming protocol API
+</I>
+This I dont really understand. Maybe you need to be more clear what you mean 
+by &quot;normal chat commands&quot;.
+
+-- 
+Dizzy
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000532.html">[pvpgn-dev] Some idea how to better solve &quot;/commands&quot;
+</A></li>
+	<LI>Next message: <A HREF="000564.html">[pvpgn-dev] Some idea how to better solve &quot;/commands&quot;
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#562">[ date ]</a>
+              <a href="thread.html#562">[ thread ]</a>
+              <a href="subject.html#562">[ subject ]</a>
+              <a href="author.html#562">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

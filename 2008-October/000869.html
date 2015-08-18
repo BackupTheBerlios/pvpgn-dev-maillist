@@ -1,0 +1,87 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r512 - trunk/pvpgn/src/common
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2008-October/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r512%20-%20trunk/pvpgn/src/common&In-Reply-To=%3C200810261839.m9QIdUUM004562%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000868.html">
+   <LINK REL="Next"  HREF="000870.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r512 - trunk/pvpgn/src/common</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r512%20-%20trunk/pvpgn/src/common&In-Reply-To=%3C200810261839.m9QIdUUM004562%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r512 - trunk/pvpgn/src/common">svn at svn.berlios.de
+       </A><BR>
+    <I>Sun Oct 26 19:39:30 CET 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000868.html">[pvpgn-dev] Compiler warnings
+</A></li>
+        <LI>Next message: <A HREF="000870.html">[pvpgn-dev] [Bug #14689] [SVN r508] WOL DoS / Server Crash when WOL	game finishes
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#869">[ date ]</a>
+              <a href="thread.html#869">[ thread ]</a>
+              <a href="subject.html#869">[ subject ]</a>
+              <a href="author.html#869">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pelish
+Date: 2008-10-26 19:39:28 +0100 (Sun, 26 Oct 2008)
+New Revision: 512
+
+Modified:
+   trunk/pvpgn/src/common/packet.cpp
+Log:
+fix for [ Bug #14689 ] Server Crash when WOL game finishes - I have disabled WOL gameres in packet_get_size() until we will have final solution for that.
+
+Modified: trunk/pvpgn/src/common/packet.cpp
+===================================================================
+--- trunk/pvpgn/src/common/packet.cpp	2008-10-19 19:05:05 UTC (rev 511)
++++ trunk/pvpgn/src/common/packet.cpp	2008-10-26 18:39:28 UTC (rev 512)
+@@ -1004,8 +1004,9 @@
+             size = (unsigned int)bn_short_nget(packet-&gt;u.wolgameres.h.size);
+             if (size == 0) /* RNGD sends size on rngd_size */
+                 size = (unsigned int)bn_short_nget(packet-&gt;u.wolgameres.h.rngd_size);
+-            if (size&gt;MAX_WOL_GAMERES_PACKET_SIZE) {
+-                eventlog(eventlog_level_error,__FUNCTION__,&quot;packet has bad size %u&quot;,size);
++//            if (size&gt;MAX_WOL_GAMERES_PACKET_SIZE) { /* PELISH: Fix for bug but also disable WOL gameres */
++            if (size&gt;MAX_PACKET_SIZE) {
++               // eventlog(eventlog_level_error,__FUNCTION__,&quot;packet has bad size %u&quot;,size);
+                 return 0;
+             }
+         }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000868.html">[pvpgn-dev] Compiler warnings
+</A></li>
+	<LI>Next message: <A HREF="000870.html">[pvpgn-dev] [Bug #14689] [SVN r508] WOL DoS / Server Crash when WOL	game finishes
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#869">[ date ]</a>
+              <a href="thread.html#869">[ thread ]</a>
+              <a href="subject.html#869">[ subject ]</a>
+              <a href="author.html#869">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,382 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r273 - in trunk/pvpgn: conf src/bnetd
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-July/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r273%20-%20in%20trunk/pvpgn%3A%20conf%20src/bnetd&In-Reply-To=%3C200707311656.l6VGuLTL018779%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000175.html">
+   <LINK REL="Next"  HREF="000177.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r273 - in trunk/pvpgn: conf src/bnetd</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r273%20-%20in%20trunk/pvpgn%3A%20conf%20src/bnetd&In-Reply-To=%3C200707311656.l6VGuLTL018779%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r273 - in trunk/pvpgn: conf src/bnetd">svn at svn.berlios.de
+       </A><BR>
+    <I>Tue Jul 31 18:56:21 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000175.html">[pvpgn-dev] [Patch #2094] WOL added missing table to SQL layouts,	HOST command fix...
+</A></li>
+        <LI>Next message: <A HREF="000177.html">[pvpgn-dev] r274 - in trunk/pvpgn/src: bnetd common d2dbs
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#176">[ date ]</a>
+              <a href="thread.html#176">[ thread ]</a>
+              <a href="subject.html#176">[ subject ]</a>
+              <a href="author.html#176">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pandaemonium
+Date: 2007-07-31 18:56:17 +0200 (Tue, 31 Jul 2007)
+New Revision: 273
+
+Modified:
+   trunk/pvpgn/conf/sql_DB_layout.conf
+   trunk/pvpgn/conf/sql_DB_layout2.conf
+   trunk/pvpgn/src/bnetd/account_wrap.cpp
+   trunk/pvpgn/src/bnetd/account_wrap.h
+   trunk/pvpgn/src/bnetd/connection.cpp
+   trunk/pvpgn/src/bnetd/connection.h
+   trunk/pvpgn/src/bnetd/handle_wol.cpp
+   trunk/pvpgn/src/bnetd/irc.cpp
+   trunk/pvpgn/src/bnetd/message.h
+Log:
+[ Patch #2094 ] WOL added missing table to SQL layouts, HOST command fix...
+
+Modified: trunk/pvpgn/conf/sql_DB_layout.conf
+===================================================================
+--- trunk/pvpgn/conf/sql_DB_layout.conf	2007-07-30 21:42:01 UTC (rev 272)
++++ trunk/pvpgn/conf/sql_DB_layout.conf	2007-07-31 16:56:17 UTC (rev 273)
+@@ -34,6 +34,10 @@
+ &quot;acct_lastlogin_ip varchar(32)&quot;,&quot;NULL&quot;
+ :&quot;DROP INDEX username&quot;
+ :&quot;CREATE UNIQUE INDEX username2 ON ${prefix}BNET (username)&quot;
++[${prefix}WOL]
++&quot;uid int NOT NULL PRIMARY KEY&quot;,&quot;'0'&quot;
++&quot;auth_apgar varchar(8)&quot;,&quot;NULL&quot;
++&quot;acct_locale int&quot;,&quot;'0'&quot;
+ [${prefix}friend]
+ &quot;uid int NOT NULL PRIMARY KEY&quot;,&quot;'0'&quot;
+ [${prefix}profile]
+
+Modified: trunk/pvpgn/conf/sql_DB_layout2.conf
+===================================================================
+--- trunk/pvpgn/conf/sql_DB_layout2.conf	2007-07-30 21:42:01 UTC (rev 272)
++++ trunk/pvpgn/conf/sql_DB_layout2.conf	2007-07-31 16:56:17 UTC (rev 273)
+@@ -24,6 +24,11 @@
+ :&quot;INSERT INTO ${prefix}BNET (uid, name, value) VALUES ('0', 'auth\changeprofile', 'true')&quot;
+ :&quot;INSERT INTO ${prefix}BNET (uid, name, value) VALUES ('0', 'auth\botlogin', 'true')&quot;
+ :&quot;INSERT INTO ${prefix}BNET (uid, name, value) VALUES ('0', 'auth\command_groups' ,'1')&quot;
++[${prefix}WOL]
++&quot;uid int NOT NULL&quot;,&quot;'0'&quot;
++&quot;name varchar(128) NOT NULL&quot;,&quot;''&quot;
++&quot;value varchar(200) NOT NULL&quot;,&quot;''&quot;
+++:&quot;CREATE UNIQUE INDEX ${prefix}wolusers ON ${prefix}WOL (uid,name)&quot;
+ [${prefix}friend]
+ &quot;uid int NOT NULL&quot;,&quot;'0'&quot;
+ &quot;name varchar(128) NOT NULL&quot;,&quot;''&quot;
+
+Modified: trunk/pvpgn/src/bnetd/account_wrap.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/account_wrap.cpp	2007-07-30 21:42:01 UTC (rev 272)
++++ trunk/pvpgn/src/bnetd/account_wrap.cpp	2007-07-31 16:56:17 UTC (rev 273)
+@@ -2393,15 +2393,54 @@
+ */
+ extern char const * account_get_wol_apgar(t_account * account)
+ {
++	if(!account) {
++		ERROR0(&quot;got NULL account&quot;);
++		return NULL;
++	}
++
+     return account_get_strattr(account,&quot;WOL\\auth\\apgar&quot;);
+ }
+ 
+ extern int account_set_wol_apgar(t_account * account, char const * apgar)
+ {
++	if(!account) {
++		ERROR0(&quot;got NULL account&quot;);
++		return -1;
++	}
++	if(!apgar) {
++		ERROR0(&quot;got NULL apgar&quot;);
++		return -1;
++	}
++
+     eventlog(eventlog_level_debug,__FUNCTION__,&quot;[** WOL **] WOL\\auth\\apgar = %s&quot;,apgar);
+     return account_set_strattr(account,&quot;WOL\\auth\\apgar&quot;,apgar);
+ }
+ 
++extern int account_get_locale(t_account * account)
++{
++	if(!account) {
++		ERROR0(&quot;got NULL account&quot;);
++		return NULL;
++	}
++
++    return account_get_numattr(account,&quot;WOL\\acct\\locale&quot;);
+ }
++ 
++extern int account_set_locale(t_account * account, int locale)
++{
++	if(!account) {
++		ERROR0(&quot;got NULL account&quot;);
++		return -1;
++	}
++	if(!locale) {
++		ERROR0(&quot;got NULL locale&quot;);
++		return -1;
++	}
+ 
++    eventlog(eventlog_level_debug,__FUNCTION__,&quot;[** WOL **] WOL\\acct\\locale = %u&quot;,locale);
++    return account_set_numattr(account,&quot;WOL\\acct\\locale&quot;,locale);
+ }
++
++}
++
++}
+
+Modified: trunk/pvpgn/src/bnetd/account_wrap.h
+===================================================================
+--- trunk/pvpgn/src/bnetd/account_wrap.h	2007-07-30 21:42:01 UTC (rev 272)
++++ trunk/pvpgn/src/bnetd/account_wrap.h	2007-07-31 16:56:17 UTC (rev 273)
+@@ -220,11 +220,11 @@
+ extern int account_set_email(t_account * account, char const * email);
+ extern char const * account_get_email(t_account * account);
+ 
+-/**
+-*  Westwood Online Extensions
+-*/
++/*  Westwood Online Extensions */
+ extern char const * account_get_wol_apgar(t_account * account);
+ extern int account_set_wol_apgar(t_account * account, char const * apgar);
++extern int account_get_locale(t_account * account);
++extern int account_set_locale(t_account * account, int locale);
+ 
+ }
+ 
+
+Modified: trunk/pvpgn/src/bnetd/connection.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/connection.cpp	2007-07-30 21:42:01 UTC (rev 272)
++++ trunk/pvpgn/src/bnetd/connection.cpp	2007-07-31 16:56:17 UTC (rev 273)
+@@ -410,11 +410,9 @@
+     temp-&gt;protocol.wol.ingame			         = 0;
+ 
+     temp-&gt;protocol.wol.codepage			         = 0;
+-    temp-&gt;protocol.wol.locale			         = 0;
+     temp-&gt;protocol.wol.gameType			         = 0;
+ 
+     temp-&gt;protocol.wol.apgar			         = NULL;
+-
+     temp-&gt;protocol.wol.gameOptions		         = NULL;
+ 
+ 
+@@ -3861,29 +3859,6 @@
+     return c-&gt;protocol.wol.codepage;
+ }
+ 
+-extern void conn_wol_set_locale(t_connection * c, int locale)
+-{
+-    if (!c)
+-    {
+-    	eventlog(eventlog_level_error,__FUNCTION__,&quot;got NULL conn&quot;);
+-    	return;
+-    }
+-
+-    if (locale)
+-        c-&gt;protocol.wol.locale = locale;
+-}
+-
+-extern int conn_wol_get_locale(t_connection * c)
+-{
+-    if (!c)
+-    {
+-    	eventlog(eventlog_level_error,__FUNCTION__,&quot;got NULL conn&quot;);
+-    	return -1;
+-    }
+-
+-    return c-&gt;protocol.wol.locale;
+-}
+-
+ extern void conn_wol_set_game_type(t_connection * c, int gameType)
+ {
+     if (!c)
+
+Modified: trunk/pvpgn/src/bnetd/connection.h
+===================================================================
+--- trunk/pvpgn/src/bnetd/connection.h	2007-07-30 21:42:01 UTC (rev 272)
++++ trunk/pvpgn/src/bnetd/connection.h	2007-07-31 16:56:17 UTC (rev 273)
+@@ -195,7 +195,6 @@
+ 	struct {
+ 	    int ingame;				        /* Are we in a game channel? */
+ 	    int codepage;
+-	    int locale;
+ 	    int gameType;
+ 	    int findme;                     /* Allow others to find me? */
+ 	    int pageme;                     /* Allow others to page me? */
+@@ -435,32 +434,20 @@
+ extern t_elist *conn_get_timer(t_connection * c);
+ extern int conn_add_fdwatch(t_connection *c, fdwatch_handler handle);
+ 
+-/**
+-*  Westwood Online Extensions
+-*/
++/* Westwood Online Extensions */
+ extern int conn_get_wol(t_connection * c);
+-
+ extern void conn_wol_set_ingame(t_connection * c, int wol_ingame);
+ extern int conn_wol_get_ingame(t_connection * c);
+-
+ extern void conn_wol_set_apgar(t_connection * c, char const * apgar);
+ extern char const * conn_wol_get_apgar(t_connection * c);
+-
+ extern void conn_wol_set_codepage(t_connection * c, int codepage);
+ extern int conn_wol_get_codepage(t_connection * c);
+-
+-extern void conn_wol_set_locale(t_connection * c, int locale);
+-extern int conn_wol_get_locale(t_connection * c);
+-
+ extern void conn_wol_set_game_type(t_connection * c, int gameType);
+ extern int conn_wol_get_game_type(t_connection * c);
+-
+ extern void conn_wol_set_game_options(t_connection * c, char const * gameOptions);
+ extern char const * conn_wol_get_game_options(t_connection * c);
+-
+ extern void conn_wol_set_findme(t_connection * c, int findme);
+ extern int conn_wol_get_findme(t_connection * c);
+-
+ extern void conn_wol_set_pageme(t_connection * c, int pageme);
+ extern int conn_wol_get_pageme(t_connection * c);
+ 
+
+Modified: trunk/pvpgn/src/bnetd/handle_wol.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/handle_wol.cpp	2007-07-30 21:42:01 UTC (rev 272)
++++ trunk/pvpgn/src/bnetd/handle_wol.cpp	2007-07-31 16:56:17 UTC (rev 273)
+@@ -1159,13 +1159,14 @@
+ 
+ static int _handle_setlocale_command(t_connection * conn, int numparams, char ** params, char * text)
+ {
+-	char * locale = NULL;
++	t_account * account = conn_get_account(conn);
++	int locale;
+ 
+ 	if((numparams&gt;=1)&amp;&amp;params[0]) {
+-	    locale = params[0];
+-	    conn_wol_set_locale(conn,std::atoi(locale));
++       locale = std::atoi(params[0]);
++       account_set_locale(account,locale);
+ 	}
+-	irc_send(conn,RPL_SET_LOCALE,locale);
++	irc_send(conn,RPL_SET_LOCALE,params[0]);
+ 	return 0;
+ }
+ 
+@@ -1210,21 +1211,22 @@
+ 	if((numparams&gt;=1)) {
+ 	    int i;
+ 	    for (i=0; i&lt;numparams; i++) {
+-    		t_connection * user;
++    		t_account * account;
+     		int locale;
+     		char const * name;
+ 
+-    		if((user = connlist_find_connection_by_accountname(params[i]))) {
+-    		    locale = conn_wol_get_locale(user);
+-    		    name = conn_get_chatname(user);
+-
+-    		    snprintf(_temp, sizeof(_temp), &quot;%s`%u&quot;, name, locale);
++    		if(account = accountlist_find_account(params[i])) {
++    		    locale = account_get_locale(account);
++    		    if (!locale)
++    		       locale = 0;
++    		    snprintf(_temp, sizeof(_temp), &quot;%s`%u&quot;, params[i], locale);
+     		    std::strcat(temp,_temp);
+     		    if(i &lt; numparams-1)
+            			std::strcat(temp,&quot;`&quot;);
+     		}
+ 	    }
+-   	    irc_send(conn,RPL_GET_LOCALE,temp);
++	    DEBUG1(&quot;[** WOL **] GETLOCALE %s&quot;,temp);
++	    irc_send(conn,RPL_GET_LOCALE,temp);
+ 	}
+ 	return 0;
+ }
+@@ -1924,8 +1926,8 @@
+    	std::memset(temp,0,sizeof(temp));
+ 
+ 	if ((user = connlist_find_connection_by_accountname(params[0]))) {
+-        snprintf(temp,sizeof(temp),&quot;I am hosting at %s&quot;, text);
+-        message_send_text(user,message_type_whisper,conn,temp);
++        snprintf(temp,sizeof(temp),&quot;: %s&quot;, text);
++        message_send_text(user,message_type_host,conn,temp);
+ 	}
+ 	else {
+ 		irc_send(conn,ERR_NOSUCHNICK,&quot;:No such user&quot;);
+
+Modified: trunk/pvpgn/src/bnetd/irc.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/irc.cpp	2007-07-30 21:42:01 UTC (rev 272)
++++ trunk/pvpgn/src/bnetd/irc.cpp	2007-07-31 16:56:17 UTC (rev 273)
+@@ -799,6 +799,13 @@
+    	/**
+    	*  Westwood Online Extensions
+    	*/
++    case message_type_host:
++	    from.nick = conn_get_chatname(me);
++	    from.user = ctag;
++	    from.host = addr_num_to_ip_str(conn_get_addr(me));
++	    msg = irc_message_preformat(&amp;from,&quot;HOST&quot;,&quot;\r&quot;,text);
++	    conn_unget_chatname(me,from.nick);
++    	break;
+     case message_wol_joingame:
+     	from.nick = conn_get_chatname(me);
+     	from.user = ctag;
+
+Modified: trunk/pvpgn/src/bnetd/message.h
+===================================================================
+--- trunk/pvpgn/src/bnetd/message.h	2007-07-30 21:42:01 UTC (rev 272)
++++ trunk/pvpgn/src/bnetd/message.h	2007-07-31 16:56:17 UTC (rev 273)
+@@ -68,6 +68,7 @@
+     /**
+     *  Westwood Online Extensions
+     */
++    message_type_host,
+     message_wol_joingame,
+     message_wol_gameopt_owner,
+     message_wol_gameopt_join,
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000175.html">[pvpgn-dev] [Patch #2094] WOL added missing table to SQL layouts,	HOST command fix...
+</A></li>
+	<LI>Next message: <A HREF="000177.html">[pvpgn-dev] r274 - in trunk/pvpgn/src: bnetd common d2dbs
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#176">[ date ]</a>
+              <a href="thread.html#176">[ thread ]</a>
+              <a href="subject.html#176">[ subject ]</a>
+              <a href="author.html#176">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

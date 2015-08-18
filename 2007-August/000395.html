@@ -1,0 +1,85 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r345 - trunk/pvpgn/src/bnetd
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-August/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r345%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200708221709.l7MH90U2006954%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000394.html">
+   <LINK REL="Next"  HREF="000396.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r345 - trunk/pvpgn/src/bnetd</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r345%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200708221709.l7MH90U2006954%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r345 - trunk/pvpgn/src/bnetd">svn at svn.berlios.de
+       </A><BR>
+    <I>Wed Aug 22 19:09:00 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000394.html">[pvpgn-dev] r344 - trunk/pvpgn
+</A></li>
+        <LI>Next message: <A HREF="000396.html">[pvpgn-dev] r346 - in trunk/pvpgn/src: bnetd d2cs d2dbs
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#395">[ date ]</a>
+              <a href="thread.html#395">[ thread ]</a>
+              <a href="subject.html#395">[ subject ]</a>
+              <a href="author.html#395">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: d1zzy
+Date: 2007-08-22 19:08:51 +0200 (Wed, 22 Aug 2007)
+New Revision: 345
+
+Modified:
+   trunk/pvpgn/src/bnetd/CMakeLists.txt
+Log:
+Try a fix for a linking issue on mingw with cmake.
+
+
+Modified: trunk/pvpgn/src/bnetd/CMakeLists.txt
+===================================================================
+--- trunk/pvpgn/src/bnetd/CMakeLists.txt	2007-08-22 14:41:01 UTC (rev 344)
++++ trunk/pvpgn/src/bnetd/CMakeLists.txt	2007-08-22 17:08:51 UTC (rev 345)
+@@ -27,7 +27,7 @@
+ 	team.cpp team.h tick.cpp tick.h timer.cpp timer.h topic.cpp topic.h 
+ 	tournament.cpp tournament.h tracker.cpp tracker.h udptest_send.cpp 
+ 	udptest_send.h versioncheck.cpp versioncheck.h watch.cpp watch.h)
+-target_link_libraries(bnetd compat common tinycdb win32 ${NETWORK_LIBRARIES}
++target_link_libraries(bnetd common compat tinycdb win32 ${NETWORK_LIBRARIES}
+ ${ZLIB_LIBRARIES} ${MYSQL_LIBRARIES} ${SQLITE3_LIBRARIES})
+ 
+ install(TARGETS bnetd DESTINATION ${SBINDIR})
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000394.html">[pvpgn-dev] r344 - trunk/pvpgn
+</A></li>
+	<LI>Next message: <A HREF="000396.html">[pvpgn-dev] r346 - in trunk/pvpgn/src: bnetd d2cs d2dbs
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#395">[ date ]</a>
+              <a href="thread.html#395">[ thread ]</a>
+              <a href="subject.html#395">[ subject ]</a>
+              <a href="author.html#395">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

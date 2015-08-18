@@ -1,0 +1,104 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] pvpgn/src/bnetd channel.c,1.52,1.53
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2008-October/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20pvpgn/src/bnetd%20channel.c%2C1.52%2C1.53&In-Reply-To=%3C20081008223349.BDB11148B6D%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000832.html">
+   <LINK REL="Next"  HREF="000834.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] pvpgn/src/bnetd channel.c,1.52,1.53</H1>
+    <B>pelish</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20pvpgn/src/bnetd%20channel.c%2C1.52%2C1.53&In-Reply-To=%3C20081008223349.BDB11148B6D%40mail.berlios.de%3E"
+       TITLE="[pvpgn-dev] pvpgn/src/bnetd channel.c,1.52,1.53">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Thu Oct  9 00:33:49 CEST 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000832.html">[pvpgn-dev] r507 - trunk/pvpgn/src/bnetd
+</A></li>
+        <LI>Next message: <A HREF="000834.html">[pvpgn-dev] pvpgn version-history.txt,1.293,1.294
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#833">[ date ]</a>
+              <a href="thread.html#833">[ thread ]</a>
+              <a href="subject.html#833">[ subject ]</a>
+              <a href="author.html#833">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/pvpgn/pvpgn/src/bnetd
+In directory sheep:/tmp/cvs-serv18349/src/bnetd
+
+Modified Files:
+	channel.c 
+Log Message:
+fix for bug [ #7724 ] VOP don't have permission to chat while channel is moderated
+
+Index: channel.c
+===================================================================
+RCS file: /cvsroot/pvpgn/pvpgn/src/bnetd/channel.c,v
+retrieving revision 1.52
+retrieving revision 1.53
+diff -u -d -r1.52 -r1.53
+--- channel.c	20 Dec 2006 21:10:05 -0000	1.52
++++ channel.c	8 Oct 2008 22:33:46 -0000	1.53
+@@ -667,6 +667,7 @@
+     unsigned int   heard;
+     t_message *    message;
+     char const *   tname;
++    t_account *    acc;
+     
+     if (!channel)
+     {
+@@ -679,6 +680,8 @@
+         return;
+     }
+ 
++    acc = conn_get_account(me);
++
+     if(channel_get_flags(channel) &amp; channel_flags_thevoid) // no talking in the void
+ 	return;
+ 
+@@ -687,7 +690,7 @@
+ 	if (type==message_type_talk || type==message_type_emote)
+ 	{
+ 	    if (!((account_is_operator_or_admin(conn_get_account(me),channel_get_name(channel))) ||
+-		 (channel_conn_has_tmpVOICE(channel,me))))
++		 (channel_conn_has_tmpVOICE(channel,me)) || (account_get_auth_voice(acc,channel_get_name(channel)) == 1)))
+ 	    {
+ 		message_send_text(me,message_type_error,me,&quot;This channel is moderated&quot;);
+ 	        return;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000832.html">[pvpgn-dev] r507 - trunk/pvpgn/src/bnetd
+</A></li>
+	<LI>Next message: <A HREF="000834.html">[pvpgn-dev] pvpgn version-history.txt,1.293,1.294
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#833">[ date ]</a>
+              <a href="thread.html#833">[ thread ]</a>
+              <a href="subject.html#833">[ subject ]</a>
+              <a href="author.html#833">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

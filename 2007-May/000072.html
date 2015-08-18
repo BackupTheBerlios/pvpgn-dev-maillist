@@ -1,0 +1,88 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] sql_mysql.c
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-May/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20sql_mysql.c&In-Reply-To=%3Ccc416a620705111403t137d0301qdab79810152f89a1%40mail.gmail.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000071.html">
+   <LINK REL="Next"  HREF="000073.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] sql_mysql.c</H1>
+    <B>Dizzy</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20sql_mysql.c&In-Reply-To=%3Ccc416a620705111403t137d0301qdab79810152f89a1%40mail.gmail.com%3E"
+       TITLE="[pvpgn-dev] sql_mysql.c">dizone at gmail.com
+       </A><BR>
+    <I>Fri May 11 23:03:25 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000071.html">[pvpgn-dev] sql_mysql.c
+</A></li>
+        <LI>Next message: <A HREF="000073.html">[pvpgn-dev] [Bug #11089] User with access to ipban can crash the	server
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#72">[ date ]</a>
+              <a href="thread.html#72">[ thread ]</a>
+              <a href="subject.html#72">[ subject ]</a>
+              <a href="author.html#72">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>On 5/9/07, Stalker &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">stalker at penzadom.ru</A>&gt; wrote:
+&gt;<i> Stalker &#1087;&#1080;&#1096;&#1077;&#1090;:
+</I>&gt;<i>
+</I>&gt;<i> version of pvpgn is pvpgn-1.8.0.tar.bz2
+</I>&gt;<i> &gt; i have found a little bug in sql_mysql.c
+</I>&gt;<i> &gt; there was an error message in the log:
+</I>&gt;<i> &gt; May 06 14:47:17 [warn ] sql_mysql_init: Your mySQL client lib version
+</I>&gt;<i> &gt; does not support reconnecting after a timeout.
+</I>&gt;<i> &gt; May 06 14:47:17 [warn ] sql_mysql_init: If this causes you any trouble
+</I>&gt;<i> &gt; you are advices to upgrade
+</I>&gt;<i> &gt; May 06 14:47:17 [warn ] sql_mysql_init: your mySQL client libs to at
+</I>&gt;<i> &gt; least mySQL 5.0.13 to resolve this problem.
+</I>&gt;<i> &gt; but current mysql version on the server/client is  5.0.30-3 (debian etch)
+</I>&gt;<i> &gt; In
+</I>&gt;<i> &gt; sql_mysql.c
+</I>&gt;<i> &gt; #if MYSQL_VERSION_ID &gt;= 50003
+</I>&gt;<i> &gt;   #if MYSQL_VERSIOB_ID &gt;= 50013
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; fix  if MYSQL_VERSIOB_ID &gt;= 50013  to
+</I>&gt;<i> &gt; if MYSQL_VERSION_ID &gt;= 50013   fix problem
+</I>
+Yes, this has been fixed 2 days after 1.8.0 release or so in the 1.8.x
+CVS. Not sure if we updated the tarballs on berlios but you could try
+those to double check the bug. If it's still present in the last 1.8.0
+tarball it means 1.8.1 will have it.
+
+-- 
+Dizzy
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000071.html">[pvpgn-dev] sql_mysql.c
+</A></li>
+	<LI>Next message: <A HREF="000073.html">[pvpgn-dev] [Bug #11089] User with access to ipban can crash the	server
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#72">[ date ]</a>
+              <a href="thread.html#72">[ thread ]</a>
+              <a href="subject.html#72">[ subject ]</a>
+              <a href="author.html#72">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

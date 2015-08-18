@@ -1,0 +1,194 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] Im sorry but I still dont understand how to list	games
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-May/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20Im%20sorry%20but%20I%20still%20dont%20understand%20how%20to%20list%0A%09games&In-Reply-To=%3Ceb9d4d380705021303s383415c1kca0ce0c2c94b4dd4%40mail.gmail.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000068.html">
+   <LINK REL="Next"  HREF="000070.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] Im sorry but I still dont understand how to list	games</H1>
+    <B>Pelish</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20Im%20sorry%20but%20I%20still%20dont%20understand%20how%20to%20list%0A%09games&In-Reply-To=%3Ceb9d4d380705021303s383415c1kca0ce0c2c94b4dd4%40mail.gmail.com%3E"
+       TITLE="[pvpgn-dev] Im sorry but I still dont understand how to list	games">pelish at gmail.com
+       </A><BR>
+    <I>Wed May  2 22:03:32 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000068.html">[pvpgn-dev] Im sorry but I still dont understand how to list	games
+</A></li>
+        <LI>Next message: <A HREF="000070.html">[pvpgn-dev] sql_mysql.c
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#69">[ date ]</a>
+              <a href="thread.html#69">[ thread ]</a>
+              <a href="subject.html#69">[ subject ]</a>
+              <a href="author.html#69">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Thank you very much. It is clear now for me. As I can see it is very claver
+coded. I hope that I known all that I need to convert games :)
+
+Thank you for your time D1zzy.
+
+Pelish
+
+2007/5/2, Dizzy &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">dizone at gmail.com</A>&gt;:
+&gt;<i>
+</I>&gt;<i> On 4/26/07, Pelish &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">pelish at gmail.com</A>&gt; wrote:
+</I>&gt;<i> &gt; Good day,
+</I>&gt;<i> &gt; as I have sayd I still dont know how to list games. I have tryed to
+</I>&gt;<i> &gt; understand how it works in hendle_bnet.cpp but here is not as return
+</I>&gt;<i> t_game
+</I>&gt;<i> &gt; but packet. I need to list games but as return I need t_game (that I
+</I>&gt;<i> will
+</I>&gt;<i> &gt; format and send to client). D1zzy tryed to show me this in IRC but I
+</I>&gt;<i> have
+</I>&gt;<i> &gt; lose this conversation and I havent understand everithing.
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; It is possible to send me any part of code by mail?
+</I>&gt;<i>
+</I>&gt;<i> Sure, that's why we have this mailing list.
+</I>&gt;<i>
+</I>&gt;<i> In order to traverse the game list maintained by the game.cpp code you
+</I>&gt;<i> will need to make a function of your own, that will receive a t_game
+</I>&gt;<i> pointer and some &quot;void*&quot; field that you manage yourself.
+</I>&gt;<i>
+</I>&gt;<i> So, say you want in some function to traverse the list of games and
+</I>&gt;<i> print it to screen. So we create a function called print_game like
+</I>&gt;<i> this (this function is called a callback function):
+</I>&gt;<i>
+</I>&gt;<i> int print_game(t_game* game, void* /* ignored */)
+</I>&gt;<i> {
+</I>&gt;<i>   printf(&quot;Game: %s\n&quot;, game_get_name(game));
+</I>&gt;<i>   return 0;
+</I>&gt;<i> }
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> In order to have this function actually be called for each game we
+</I>&gt;<i> need to game gamelist_traverse with it as a parameter, like this:
+</I>&gt;<i> gamelist_traverse(&amp;print_game, 0);
+</I>&gt;<i>
+</I>&gt;<i> Now, gamelist_traverse will traverse over each t_game structure from
+</I>&gt;<i> the game list and will call our callback print_game function giving it
+</I>&gt;<i> as a first parameter the t_game structure and as a second parameter
+</I>&gt;<i> the second parameter given to gamelist_traverse (in our example &quot;0&quot;
+</I>&gt;<i> which is ignored).
+</I>&gt;<i>
+</I>&gt;<i> If you understood so far let's move to a more complex (but more
+</I>&gt;<i> common) example (where we will use the second parameter too).
+</I>&gt;<i>
+</I>&gt;<i> Say you are handling a packet received on a &quot;t_connection* con&quot; and
+</I>&gt;<i> you want for each game of a type to send something over the connection
+</I>&gt;<i> (over &quot;con&quot;). Notice that we need somehow to pass the &quot;con&quot; from the
+</I>&gt;<i> caller of gamelist_traverse to our function that handles each t_game.
+</I>&gt;<i> We use the second parameter &quot;void*&quot; for that.
+</I>&gt;<i>
+</I>&gt;<i> int append_game_info(t_game* game, void* vcon)
+</I>&gt;<i> {
+</I>&gt;<i>
+</I>&gt;<i>   // first convert vcon which is of void* to t_connection* because we
+</I>&gt;<i> know it's just that
+</I>&gt;<i>   t_connection* con = static_cast&lt;t_connection*&gt;(vcon);
+</I>&gt;<i>
+</I>&gt;<i>   if (game_get_type(game) == someType) {
+</I>&gt;<i>     // append data to &quot;con&quot;
+</I>&gt;<i>   }
+</I>&gt;<i>
+</I>&gt;<i>   return 0;
+</I>&gt;<i> }
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> And to call gamelist_traverse for that function just do:
+</I>&gt;<i> gamelist_traverse(&amp;append_game_info, con);
+</I>&gt;<i> // where &quot;con&quot; here is the t_connection variable that I pass to the
+</I>&gt;<i> callback
+</I>&gt;<i>
+</I>&gt;<i> I hope this is clear too. In case you need to pass to the function
+</I>&gt;<i> called on each t_game more data than a single pointer (above we passed
+</I>&gt;<i> only a t_connection* but in practice you may need to pass more than a
+</I>&gt;<i> pointer) just make a &quot;struct&quot; that packs all the information that need
+</I>&gt;<i> to be passed and provide a pointer to it when you call
+</I>&gt;<i>
+</I>&gt;<i> Example, suppose that I need to pass 2 integers and one pointer (one
+</I>&gt;<i> integer is used to count the selected games, one to count the total
+</I>&gt;<i> and the pointer is the t_connection* where we send the data). Then we
+</I>&gt;<i> have this:
+</I>&gt;<i>
+</I>&gt;<i> struct append_game_info_cbdata {
+</I>&gt;<i>   int total, selected;
+</I>&gt;<i>   t_connection* con;
+</I>&gt;<i> };
+</I>&gt;<i>
+</I>&gt;<i> int append_game_info2(t_game* game, void* vdata)
+</I>&gt;<i> {
+</I>&gt;<i>   // just like before convert the void* to our actual structure
+</I>&gt;<i> because we know it's that
+</I>&gt;<i>   append_game_info_cbdata* data =
+</I>&gt;<i> static_cast&lt;append_game_info_cbdata*&gt;(vdata);
+</I>&gt;<i>
+</I>&gt;<i>   if (game_get_type(game) == someType) {
+</I>&gt;<i>      data-&gt;selected++;
+</I>&gt;<i>      // do stuff on data-&gt;con
+</I>&gt;<i>   }
+</I>&gt;<i>
+</I>&gt;<i>   data-&gt;total++;
+</I>&gt;<i>
+</I>&gt;<i>   return 0;
+</I>&gt;<i> }
+</I>&gt;<i>
+</I>&gt;<i> And to call it just use:
+</I>&gt;<i>
+</I>&gt;<i> append_game_info_cbdata data;
+</I>&gt;<i> data.total = data.selected = 0;
+</I>&gt;<i> data.con = con; // where &quot;con&quot; is our local t_connection* that we pass
+</I>&gt;<i> back to the callback
+</I>&gt;<i>
+</I>&gt;<i> gamelist_traverse(&amp;append_game_info2, &amp;data);
+</I>&gt;<i>
+</I>&gt;<i> &gt; Btw I have used &quot;pvpgn-dev mailinglist&quot; now ;)
+</I>&gt;<i>
+</I>&gt;<i> Good :)
+</I>&gt;<i>
+</I>&gt;<i> --
+</I>&gt;<i> Dizzy
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> pvpgn-dev mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">pvpgn-dev at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">https://lists.berlios.de/mailman/listinfo/pvpgn-dev</A>
+</I>&gt;<i>
+</I>-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: &lt;<A HREF="https://lists.berlios.de/pipermail/pvpgn-dev/attachments/20070502/2639c015/attachment.html">https://lists.berlios.de/pipermail/pvpgn-dev/attachments/20070502/2639c015/attachment.html</A>&gt;
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000068.html">[pvpgn-dev] Im sorry but I still dont understand how to list	games
+</A></li>
+	<LI>Next message: <A HREF="000070.html">[pvpgn-dev] sql_mysql.c
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#69">[ date ]</a>
+              <a href="thread.html#69">[ thread ]</a>
+              <a href="subject.html#69">[ subject ]</a>
+              <a href="author.html#69">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

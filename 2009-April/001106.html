@@ -1,0 +1,158 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] [Bug #15482] /clan create function - allow forbiden	chars in clan tag
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2009-April/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BBug%20%2315482%5D%20/clan%20create%20function%20-%20allow%20forbiden%0A%09chars%20in%20clan%20tag&In-Reply-To=%3C200904200830.n3K8UXYq011987%40unicorn.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001105.html">
+   <LINK REL="Next"  HREF="001107.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] [Bug #15482] /clan create function - allow forbiden	chars in clan tag</H1>
+    <B>admin at berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BBug%20%2315482%5D%20/clan%20create%20function%20-%20allow%20forbiden%0A%09chars%20in%20clan%20tag&In-Reply-To=%3C200904200830.n3K8UXYq011987%40unicorn.berlios.de%3E"
+       TITLE="[pvpgn-dev] [Bug #15482] /clan create function - allow forbiden	chars in clan tag">admin at berlios.de
+       </A><BR>
+    <I>Mon Apr 20 10:30:33 CEST 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001105.html">[pvpgn-dev] [Bug #15482] /clan create function - allow forbiden	chars in clan tag
+</A></li>
+        <LI>Next message: <A HREF="001107.html">[pvpgn-dev] [Bug #15482] /clan create function - allow forbiden	chars in clan tag
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1106">[ date ]</a>
+              <a href="thread.html#1106">[ thread ]</a>
+              <a href="subject.html#1106">[ subject ]</a>
+              <a href="author.html#1106">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Bug #15482, was updated on 2009-Apr-04 23:47
+Here is a current snapshot of the bug.
+
+Project: Player vs Player Gaming Network
+Category: Warcraft Series
+Status: Open
+Resolution: None
+Bug Group: bnetd
+Priority: 5
+Submitted by: shakar
+Assigned to : none
+Summary: /clan create function - allow forbiden chars in clan tag
+
+Details: Hi...
+There is a slight problem with the clan create function.
+Clan tag should allow only 'A-Z', 'a-z' and '0-9'
+and sadly clan create doesn't check it, so clan tags having those chars: !@#$%^&amp;*()-_=+ are created too.
+It's a bad thing since it makes problems while trying to read the clan tag from php to view on site.
+
+Follow-Ups:
+
+Date: 2009-Apr-20 10:30
+By: pelish
+
+Comment:
+You can always change minimum alowed users who will be able to create clan trough bnetd.conf.  This command alows WOL users to create clans. I realy dont want to remove this command. I just would like to fix all possible bugs as usual.
+-------------------------------------------------------
+
+Date: 2009-Apr-20 05:24
+By: d1zzy
+
+Comment:
+I'll basically reinforce what pandae has said, pvpgn is an emulation server with additional features as such:
+1. are those characters allowed on battle.net or not? (ie is there any client to allow them?); if not, then we should not allow them either as there is the risk that characters not allowed that have been entered using non clients (like the /clan create command) will break the client when displaying them
+2. if however they are allowed on battle.net then I couldn't care less about whatever tools there are out there that assumed other valid characters, they irrelevant to the decision if they should be allowed by pvpgn
+
+So which is it?
+-------------------------------------------------------
+
+Date: 2009-Apr-10 21:34
+By: shakar
+
+Comment:
+I don't really care any more If this get fixed or not.
+command disabled (for good) on EuroBattle.Net (and I advice to all other server to do this as well)
+The idea that 2 users alone can create a clan is bad anyway. It only makes a mass and a lot of dead clans later.
+
+my recommendation to you is to remove this part code from source - the command is bugged anyway.
+
+you can close this bug If you like, doesn't matter for me anyway.
+
+-------------------------------------------------------
+
+Date: 2009-Apr-10 21:06
+By: shakar
+
+Comment:
+I don't really care any more If this get fixed or not.
+command disabled (for good) on EuroBattle.Net (and I advice to all other server to do this as well)
+The idea that 2 users alone can create a clan is bad anyway. It only makes a mass and a lot of dead clans later.
+
+my recommendation to you is to remove this part code from source - the command is bugged anyway.
+
+you can close this bug If you like, doesn't matter for me anyway.
+
+-------------------------------------------------------
+
+Date: 2009-Apr-05 20:04
+By: pandaemonium
+
+Comment:
+Sorry for being not clear enough - sure the issue should be fixed in PvPGN.
+But still I'd consider this a non-critical issue for PvPGN, as it doesn't break anything (but compability). If any external scripts/applications break cause the made assumptions that aren't guaranteed - then whoever made them should fix them, too.
+
+-------------------------------------------------------
+
+Date: 2009-Apr-05 18:24
+By: shakar
+
+Comment:
+pandaemonium:
+one of the most important programming rules you should have learned by now: you should never ever trust user input!
+
+why are you telling this to me?
+I didn't had any connection in creating that command...
+anyway... doesn't matter what are the reasons (client style or php) it should get fixed as soon as possible.
+-------------------------------------------------------
+
+Date: 2009-Apr-05 13:51
+By: pandaemonium
+
+Comment:
+I do agree that the function should disallow those symbols - but only for the reason to keep things consistent with WAR3 game clients. Honstly I don't care at all about possible issues in handlings the clantag in PHP or any other language - one of the most important programming rules you should have learned by now: you should never ever trust user input!
+-------------------------------------------------------
+
+For detailed info, follow this link:
+<A HREF="http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=15482&amp;group_id=2291">http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=15482&amp;group_id=2291</A>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001105.html">[pvpgn-dev] [Bug #15482] /clan create function - allow forbiden	chars in clan tag
+</A></li>
+	<LI>Next message: <A HREF="001107.html">[pvpgn-dev] [Bug #15482] /clan create function - allow forbiden	chars in clan tag
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1106">[ date ]</a>
+              <a href="thread.html#1106">[ thread ]</a>
+              <a href="subject.html#1106">[ subject ]</a>
+              <a href="author.html#1106">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

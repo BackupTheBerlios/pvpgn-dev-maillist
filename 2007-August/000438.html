@@ -1,0 +1,198 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r382 - trunk/pvpgn
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-August/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r382%20-%20trunk/pvpgn&In-Reply-To=%3C200708310747.l7V7l0Ls028351%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000437.html">
+   <LINK REL="Next"  HREF="000439.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r382 - trunk/pvpgn</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r382%20-%20trunk/pvpgn&In-Reply-To=%3C200708310747.l7V7l0Ls028351%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r382 - trunk/pvpgn">svn at svn.berlios.de
+       </A><BR>
+    <I>Fri Aug 31 09:47:00 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000437.html">[pvpgn-dev] r381 - trunk/pvpgn/src/bnetd
+</A></li>
+        <LI>Next message: <A HREF="000439.html">[pvpgn-dev] r383 - trunk/pvpgn
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#438">[ date ]</a>
+              <a href="thread.html#438">[ thread ]</a>
+              <a href="subject.html#438">[ subject ]</a>
+              <a href="author.html#438">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: d1zzy
+Date: 2007-08-31 09:47:00 +0200 (Fri, 31 Aug 2007)
+New Revision: 382
+
+Added:
+   trunk/pvpgn/README.cmake
+Log:
+Added basic build instructions with cmake. There is still much left to 
+be said, such as how to deal with the various include/libraries on 
+non-UNIX systems.
+
+
+Added: trunk/pvpgn/README.cmake
+===================================================================
+--- trunk/pvpgn/README.cmake	2007-08-28 20:25:55 UTC (rev 381)
++++ trunk/pvpgn/README.cmake	2007-08-31 07:47:00 UTC (rev 382)
+@@ -0,0 +1,119 @@
++                      PvPGN CMake Build Instructions
++                    ===================================
++
++
++
++0. Getting &quot;cmake&quot;
++
++   Before anything you need to make sure you have a cmake (at least version
++2.4.3) installed on the system you wish to compile PvPGN. On Linux/*BSD systems 
++this sould probably be provided by your package system one way or another or 
++you could try to build cmake from source. Follow the &quot;Readme.txt&quot; from cmake 
++sources if you are going over that path.
++
++   Another source of &quot;cmake&quot; may be the binary packages provided by the 
++cmake people on www.cmake.org. This is usually the way to get it on 
++Windows or exotic Unices. For BeOS you could get it from bebits.com.
++
++   Please note that &quot;cmake&quot; is not a build system by itself but rather a 
++&quot;meta&quot; build system. Parsing the cmake input files, cmake will generate 
++the build system files to use with your build system (which may be a 
++classic Unix style &quot;make&quot; or an IDE such as Visual Studio). cmake calls 
++the part of it that generates the project files a &quot;generator&quot; (and is 
++configurable).
++
++
++1. Running &quot;cmake&quot;
++
++   Now that you have cmake (and also you have the pvpgn sources with the 
++cmake support) you should try to run cmake to generate the project files 
++(or makefiles, depending on your generator used with cmake). It is 
++recommended that you do an &quot;out of source&quot; build, this means you should 
++not try to build pvpgn inside the source directory but in a directory 
++specially made for building pvpgn.
++
++   Note: the instructions generally follow how to use the cmake command 
++line version which is more portable (available everywhere cmake is 
++available). For using various cmake GUIs one has to find out himself how 
++they work.
++
++   Create a build directory (preferably have it empty), change current 
++directory there, run cmake as &quot;cmake /path/to/pvpgn-src&quot; where 
++&quot;/path/to/pvpgn-src&quot; is obvioulsy the path to the pvpgn source 
++directory. This will have cmake generate the type of project files that 
++is default for your platform (which is &quot;Unix Makefiles&quot; on Unix/Linux 
++systems or &quot;Visual Studio Project files&quot; on Windows) without any 
++additional storage types (ie. no SQL support) and will install pvpgn on 
++&quot;make install&quot; in the default location (which is &quot;/usr/local&quot; for Unix 
++systems or &quot;&lt;System-Drive&gt;:\\Program Files\\pvpgn&quot; on Windows).
++
++   All these defaults are probably not what you wanted so cmake offers a 
++way to customize this by command line flags setting variables or 
++selecting the project files generator. Here are some useful options:
++
++   -G &quot;Project Type&quot; : tells cmake to use the &quot;Project Type&quot; project 
++files generator; on Unix systems this is by default &quot;Unix Makefiles&quot; and 
++on Windows &quot;Visual Studio project files&quot;; other useful values are 
++&quot;KDevelop3&quot;, &quot;MinGW Makefiles&quot; or &quot;MSYS Makefiles&quot; (the last 2 are 
++obviously valid only on Windows)
++
++   -D CMAKE_INSTALL_PREFIX=&quot;/path/to&quot; : it will tell cmake to set 
++accordingly values so that on &quot;make install&quot; it will install relative to 
++&quot;/path/to&quot;
++
++   -D WITH_MYSQL : it will tell cmake to check for MySQL 
++headers/libraries and if present prepare project files able to compile 
++PvPGN with MySQL
++
++   -D WITH_PGSQL or -D WITH_SQLITE3 are similar to WITH_MYSQL but for 
++PostgreSQL/SQLite3 storage support
++
++   WARNING: in between 2 cmake runs make sure you remove all build files 
++or at least remove the CMakeCache.txt file otherwise you may experience 
++strange problems.
++
++2. Building PvPGN
++
++    After successfully running cmake you are ready to build pvpgn. 
++Depending on your project files generator used with cmake you do this in 
++various ways. Example: when using &quot;Unix Makefiles&quot; you should just issue 
++&quot;make&quot; and it should build your pvpgn binaries. When using some IDE 
++project file types such as KDevelop3 or Visual Studio you should run the 
++&quot;Build&quot; command of that IDE.
++
++3. Installing PvPGN
++
++
++   Again, depending on the type of project files generator you used you 
++can install pvpgn to the CMAKE_INSTALL_DIR prefixed location. When using 
++the &quot;Unix Makefiles&quot; generator you can use &quot;make install&quot; to do so.
++
++
++4. Full examples usage
++
++4.1 Using cmake on a Unix/Linux system installing pvpgn under &quot;~pvpgn&quot; 
++with MySQL support
++
++  $ cd pvpgn-build
++  $ cmake -D CMAKE_INSTALL_DIR=/home/pvpgn -D WITH_MYSQL ../pvpgn-src
++  $ make
++  $ make install
++
++4.2 Using cmake on a Windows (command line prompt) system with mingw32
++  &gt; cd pvpgn-build
++  &gt; cmake ..\pvpgn-src
++  &gt; mingw32-make
++  &gt; mingw32-make install
++
++4. Problems
++
++
++   cmake building in PvPGN is a young feature as such many issues may 
++still arise. If you have problems with cmake please contact us at 
+<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">+pvpgn-dev at berlios.de</A> (after you subscribe to the mailing list at 
++<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">https://lists.berlios.de/mailman/listinfo/pvpgn-dev</A>) or use the bug 
++tracker at <A HREF="http://developer.berlios.de/bugs/?group_id=2291">http://developer.berlios.de/bugs/?group_id=2291</A> .
++
++   When reporting problems please provide all information such as pvpgn 
++version, your platform name/version, exactly what you tried to do (the 
++commands used) and exactly the errors you get.
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000437.html">[pvpgn-dev] r381 - trunk/pvpgn/src/bnetd
+</A></li>
+	<LI>Next message: <A HREF="000439.html">[pvpgn-dev] r383 - trunk/pvpgn
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#438">[ date ]</a>
+              <a href="thread.html#438">[ thread ]</a>
+              <a href="subject.html#438">[ subject ]</a>
+              <a href="author.html#438">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

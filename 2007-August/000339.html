@@ -1,0 +1,127 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] Feature freeze on CVS... Testers needed...
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-August/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20Feature%20freeze%20on%20CVS...%20Testers%20needed...&In-Reply-To=%3C46C46516.6070007%40gmx.net%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000328.html">
+   <LINK REL="Next"  HREF="000320.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] Feature freeze on CVS... Testers needed...</H1>
+    <B>Aaron</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20Feature%20freeze%20on%20CVS...%20Testers%20needed...&In-Reply-To=%3C46C46516.6070007%40gmx.net%3E"
+       TITLE="[pvpgn-dev] Feature freeze on CVS... Testers needed...">aaron667 at gmx.net
+       </A><BR>
+    <I>Thu Aug 16 16:54:14 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000328.html">[pvpgn-dev] Feature freeze on CVS... Testers needed...
+</A></li>
+        <LI>Next message: <A HREF="000320.html">[pvpgn-dev] pvpgn/src Makefile.in,1.115,1.116
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#339">[ date ]</a>
+              <a href="thread.html#339">[ thread ]</a>
+              <a href="subject.html#339">[ subject ]</a>
+              <a href="author.html#339">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+Hi JEBs,
+
+and thanks alot for your valuable feedback.
+We are currently preparing yet another 1.8 branch release,
+so its CVS we need tested this time.
+
+About the missing sha1pass.cpp: It was just a test app to see if
+my implementation does work as intended or not. I first didn't
+even intend to include it anyways... but I just decided that we
+can include it in SVN (now named sha1hash) as it makes it easier
+to test the sha1 implementation on other architectures, too.
+
+So anyone on a 64bit machine (or a machine with byte order differing
+from x86) is welcome to test it and report back if the results are
+wrong.
+
+test = a94a8fe5ccb19ba61c4c0873d391e987982fbbd3
+TEST = 984816fd329622876e14907634264e6f332e9fb3
+
+(I haven't tested 'long' messages yet (especially &gt;53 and &gt;64 bytes),
+so those might be worth an extra test, too...)
+
+Regards
+  aaron
+
+JEBs schrieb:
+&gt;<i> Dear developer,
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;&gt;<i> release. I'd ask everyone to please test CVS version and report back any
+</I>&gt;&gt;<i> encountered issues.
+</I>&gt;<i> CVS ? not SVN ?
+</I>&gt;<i> However, the current SVN drops a &quot;No rule to make target `sha1pass.o'&quot;:
+</I>&gt;<i> 
+</I>&gt;<i> Making all in bnpass
+</I>&gt;<i> make[3]: Entering directory `/usr/src/pvpgn/d2m.20070816/src/bnpass'
+</I>&gt;<i> if g++ -DHAVE_CONFIG_H -I. -I. -I../..  -I../../src
+</I>&gt;<i> -fno-strict-aliasing -I/usr/include/mysql  -g -O2 -MT bnpass.o -MD -MP
+</I>&gt;<i> -MF &quot;.deps/bnpass.Tpo&quot; -c -o bnpass.o bnpass.cpp; \
+</I>&gt;<i>         then mv -f &quot;.deps/bnpass.Tpo&quot; &quot;.deps/bnpass.Po&quot;; else rm -f
+</I>&gt;<i> &quot;.deps/bnpass.Tpo&quot;; exit 1; fi
+</I>&gt;<i> g++  -g -O2   -o bnpass  bnpass.o ../../src/common/libcommon.a
+</I>&gt;<i> ../../src/compat/libcompat.a -lpcap   -lm -lz -lmysqlclient -lnsl -lresolv
+</I>&gt;<i> make[3]: *** No rule to make target `sha1pass.o', needed by
+</I>&gt;<i> `sha1pass'.  Stop.
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> by me.
+</I>
+_______________________________________________
+pvpgn-dev mailing list
+<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">pvpgn-dev at lists.berlios.de</A>
+<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">https://lists.berlios.de/mailman/listinfo/pvpgn-dev</A>
+
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.7 (MingW32)
+Comment: Using GnuPG with Mozilla - <A HREF="http://enigmail.mozdev.org">http://enigmail.mozdev.org</A>
+
+iD8DBQFGxGUWqDhAJomeMkERAnQBAJ9q1Dz8b+TispRBfNgDQ4emBbPixwCcCg+e
+zQf1HTT4+e7UvOEEwwz30w0=
+=z7Ka
+-----END PGP SIGNATURE-----
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000328.html">[pvpgn-dev] Feature freeze on CVS... Testers needed...
+</A></li>
+	<LI>Next message: <A HREF="000320.html">[pvpgn-dev] pvpgn/src Makefile.in,1.115,1.116
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#339">[ date ]</a>
+              <a href="thread.html#339">[ thread ]</a>
+              <a href="subject.html#339">[ subject ]</a>
+              <a href="author.html#339">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

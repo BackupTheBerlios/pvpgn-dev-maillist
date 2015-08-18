@@ -1,0 +1,115 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r564 - trunk/pvpgn/src/bnetd
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2010-January/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r564%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C201001152350.o0FNosOr028844%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001179.html">
+   <LINK REL="Next"  HREF="001181.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r564 - trunk/pvpgn/src/bnetd</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r564%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C201001152350.o0FNosOr028844%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r564 - trunk/pvpgn/src/bnetd">svn at svn.berlios.de
+       </A><BR>
+    <I>Sat Jan 16 00:50:54 CET 2010</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001179.html">[pvpgn-dev] [Bug #16451] SVN: Server crash upon login on Linux	x86_64 build
+</A></li>
+        <LI>Next message: <A HREF="001181.html">[pvpgn-dev] [Bug #16451] SVN: Server crash upon login on Linux	x86_64 build
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1180">[ date ]</a>
+              <a href="thread.html#1180">[ thread ]</a>
+              <a href="subject.html#1180">[ subject ]</a>
+              <a href="author.html#1180">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pelish
+Date: 2010-01-16 00:50:52 +0100 (Sat, 16 Jan 2010)
+New Revision: 564
+
+Modified:
+   trunk/pvpgn/src/bnetd/connection.cpp
+Log:
+fix for some of bugs introduced by multilingual motd's
+
+
+Modified: trunk/pvpgn/src/bnetd/connection.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/connection.cpp	2009-10-17 16:20:17 UTC (rev 563)
++++ trunk/pvpgn/src/bnetd/connection.cpp	2010-01-15 23:50:52 UTC (rev 564)
+@@ -123,7 +123,7 @@
+     }
+     if (filename = prefs_get_motdfile()) {
+         t_tag gamelang = conn_get_gamelang(c);
+-        char lang_str[5];
++        char lang_str[sizeof(t_tag)+1];
+         char * lang_filename;
+         char * tempmotdfile;
+         char * def_langtag;
+@@ -136,7 +136,7 @@
+         def_langtag = std::strrchr(tempmotdfile,'-');
+         if (!def_langtag) {
+             extention = std::strrchr(tempmotdfile,'.');
+-            lang_filename = (char*)xmalloc(std::strlen(tempmotdfile)+6);
++            lang_filename = (char*)xmalloc(std::strlen(tempmotdfile)+7);
+         }
+         else {
+             *def_langtag = '\0';
+@@ -144,11 +144,17 @@
+             extention = std::strrchr(def_langtag,'.');
+             lang_filename = (char*)xmalloc(std::strlen(tempmotdfile));
+         }
+-        *extention = '\0';
+-        extention++;        
++        
++        if (extention) {
++            *extention = '\0';
++            extention++;
++        }
+ 
+         if ((gamelang) &amp;&amp; (lang_str))
+-            std::sprintf(lang_filename, &quot;%s-%s.%s&quot;, tempmotdfile, lang_str, extention);
++            if (extention)
++                std::sprintf(lang_filename, &quot;%s-%s.%s&quot;, tempmotdfile, lang_str, extention);
++            else
++                std::sprintf(lang_filename, &quot;%s-%s&quot;, tempmotdfile, lang_str);
+         else {
+             INFO0(&quot;client does not specifed proper gamelang, sending default motd&quot;);
+             std::sprintf(lang_filename, &quot;%s&quot;, filename);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001179.html">[pvpgn-dev] [Bug #16451] SVN: Server crash upon login on Linux	x86_64 build
+</A></li>
+	<LI>Next message: <A HREF="001181.html">[pvpgn-dev] [Bug #16451] SVN: Server crash upon login on Linux	x86_64 build
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1180">[ date ]</a>
+              <a href="thread.html#1180">[ thread ]</a>
+              <a href="subject.html#1180">[ subject ]</a>
+              <a href="author.html#1180">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

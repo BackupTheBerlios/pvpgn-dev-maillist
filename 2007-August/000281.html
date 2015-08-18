@@ -1,0 +1,300 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r306 - trunk/pvpgn/src/common
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-August/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r306%20-%20trunk/pvpgn/src/common&In-Reply-To=%3C200708121832.l7CIWqqB029073%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000280.html">
+   <LINK REL="Next"  HREF="000282.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r306 - trunk/pvpgn/src/common</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r306%20-%20trunk/pvpgn/src/common&In-Reply-To=%3C200708121832.l7CIWqqB029073%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r306 - trunk/pvpgn/src/common">svn at svn.berlios.de
+       </A><BR>
+    <I>Sun Aug 12 20:32:52 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000280.html">[pvpgn-dev] r305 - trunk/pvpgn/src/bnetd
+</A></li>
+        <LI>Next message: <A HREF="000282.html">[pvpgn-dev] r307 - in trunk/pvpgn: Win32-Projects src/bnetd
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#281">[ date ]</a>
+              <a href="thread.html#281">[ thread ]</a>
+              <a href="subject.html#281">[ subject ]</a>
+              <a href="author.html#281">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pandaemonium
+Date: 2007-08-12 20:32:52 +0200 (Sun, 12 Aug 2007)
+New Revision: 306
+
+Modified:
+   trunk/pvpgn/src/common/bnethash.cpp
+   trunk/pvpgn/src/common/bnethash.h
+Log:
+add basic standard compliant sha1 implementation
+
+Modified: trunk/pvpgn/src/common/bnethash.cpp
+===================================================================
+--- trunk/pvpgn/src/common/bnethash.cpp	2007-08-12 13:14:51 UTC (rev 305)
++++ trunk/pvpgn/src/common/bnethash.cpp	2007-08-12 18:32:52 UTC (rev 306)
+@@ -31,9 +31,14 @@
+ namespace pvpgn
+ {
+ 
++typedef enum {
++    do_blizzard_hash,
++    do_sha1_hash
++} t_hash_variant;
++
+ static void hash_init(t_hash * hash);
+ static void do_hash(t_hash * hash, t_uint32 * tmp);
+-static void hash_set_16(t_uint32 * dst, unsigned char const * src, unsigned int count);
++static void hash_set_16(t_uint32 * dst, unsigned char const * src, unsigned int count, t_hash_variant hash_variant);
+ 
+ 
+ static void hash_init(t_hash * hash)
+@@ -46,13 +51,16 @@
+ }
+ 
+ 
+-static void do_hash(t_hash * hash, t_uint32 * tmp)
++static void do_hash(t_hash * hash, t_uint32 * tmp, t_hash_variant hash_variant)
+ {
+     unsigned int i;
+     t_uint32     a,b,c,d,e,g;
+ 
+     for (i=0; i&lt;64; i++)
+-	tmp[i+16] = ROTL32(1,tmp[i] ^ tmp[i+8] ^ tmp[i+2] ^ tmp[i+13]);
++        if (hash_variant == do_blizzard_hash)
++            tmp[i+16] = ROTL32(1,tmp[i] ^ tmp[i+8] ^ tmp[i+2] ^ tmp[i+13]);
++	else
++            tmp[i+16] = ROTL32(tmp[i] ^ tmp[i+8] ^ tmp[i+2] ^ tmp[i+13],1);
+ 
+     a = (*hash)[0];
+     b = (*hash)[1];
+@@ -110,28 +118,66 @@
+ 
+ /*
+  * Fill 16 elements of the array of 32 bit values with the bytes from
+- * dst up to count in little endian order. Fill left over space with
+- * zeros
++ * dst up to count in little endian order. Fill left over space with 
++ * zeros. In case of SHA1 hash variant a binary 1 is appended after
++ * the actual data.
+  */
+-static void hash_set_16(t_uint32 * dst, unsigned char const * src, unsigned int count)
++static void hash_set_16(t_uint32 * dst, unsigned char const * src, unsigned int count, 
++                             t_hash_variant hash_variant)
+ {
+     unsigned int i;
+     unsigned int pos;
+ 
+     for (pos=0,i=0; i&lt;16; i++)
+     {
+-	dst[i] = 0;
+-        if (pos&lt;count)
+-	    dst[i] |= ((t_uint32)src[pos]);
++        dst[i] = 0;
++
++        if (hash_variant == do_blizzard_hash) {
++            if (pos&lt;count)
++	        dst[i] |= ((t_uint32)src[pos]);
++	}
++	else {
++            if (pos&lt;count)
++	        dst[i] |= ((t_uint32)src[pos])&lt;&lt;24;
++	    else if (pos==count)
++	        dst[i] |= ((t_uint32)0x80000000);
++	}
+ 	pos++;
+-        if (pos&lt;count)
+-	    dst[i] |= ((t_uint32)src[pos])&lt;&lt;8;
++
++        if (hash_variant == do_blizzard_hash) {
++            if (pos&lt;count)
++	        dst[i] |= ((t_uint32)src[pos])&lt;&lt;8;
++	}
++	else {
++            if (pos&lt;count)
++	        dst[i] |= ((t_uint32)src[pos])&lt;&lt;16;
++	    else if (pos==count)
++	        dst[i] |= ((t_uint32)0x800000);
++	}
+ 	pos++;
+-        if (pos&lt;count)
+-	    dst[i] |= ((t_uint32)src[pos])&lt;&lt;16;
++
++        if (hash_variant == do_blizzard_hash) {
++            if (pos&lt;count)
++	        dst[i] |= ((t_uint32)src[pos])&lt;&lt;16;
++	}
++	else {
++            if (pos&lt;count)
++	        dst[i] |= ((t_uint32)src[pos])&lt;&lt;8;
++	    else if (pos==count)
++	        dst[i] |= ((t_uint32)0x8000);
++	}
+ 	pos++;
+-        if (pos&lt;count)
+-	    dst[i] |= ((t_uint32)src[pos])&lt;&lt;24;
++
++        if (hash_variant == do_blizzard_hash) {
++            if (pos&lt;count)
++	        dst[i] |= ((t_uint32)src[pos])&lt;&lt;24;
++	}
++	else {
++            if (pos&lt;count)
++	        dst[i] |= ((t_uint32)src[pos]);
++	    else if (pos==count)
++	        dst[i] |= ((t_uint32)0x80);
++	}
+ 	pos++;
+     }
+ }
+@@ -164,8 +210,8 @@
+ 	else
+ 	    inc = size;
+ 
+-	hash_set_16(tmp,data,inc);
+-	do_hash(hashout,tmp);
++	hash_set_16(tmp,data,inc,do_blizzard_hash);
++	do_hash(hashout,tmp,do_blizzard_hash);
+ 
+ 	data += inc;
+ 	size -= inc;
+@@ -174,7 +220,85 @@
+     return 0;
+ }
+ 
++static void hash_set_length(t_uint32 * dst, unsigned int size){
++  t_uint32 size_high = 0;
++  t_uint32 size_low  = 0;
++  unsigned int counter;
++  for (counter=0; counter&lt;size; counter++){
++      size_low += 8;
++      if (size_low==0)
++        size_high++;
++  }
+ 
++  dst[14] |= ((size_high &gt;&gt; 24) &amp; 0xff) &lt;&lt;24;
++  dst[14] |= ((size_high &gt;&gt; 16) &amp; 0xff) &lt;&lt;16;
++  dst[14] |= ((size_high &gt;&gt; 8) &amp; 0xff) &lt;&lt;8;
++  dst[14] |= ((size_high ) &amp; 0xff);
++
++  dst[15] |= ((size_low &gt;&gt; 24) &amp; 0xff) &lt;&lt;24;
++  dst[15] |= ((size_low &gt;&gt; 16) &amp; 0xff) &lt;&lt;16;
++  dst[15] |= ((size_low &gt;&gt; 8) &amp; 0xff) &lt;&lt;8;
++  dst[15] |= ((size_low ) &amp; 0xff);
++}
++
++
++extern int sha1_hash(t_hash * hashout, unsigned int size, void const * datain)
++{
++    t_uint32              tmp[64+16];
++    unsigned char const * data;
++    unsigned int          inc;
++    unsigned int          orgSize;
++
++    if (!hashout || !*hashout)
++    {
++	eventlog(eventlog_level_error,__FUNCTION__,&quot;got NULL hashout&quot;);
++	return -1;
++    }
++    if (size&gt;0 &amp;&amp; !datain)
++    {
++	eventlog(eventlog_level_error,__FUNCTION__,&quot;got NULL datain with size=%u&quot;,size);
++	return -1;
++    }
++
++    hash_init(hashout);
++    orgSize = size;
++
++    data = (const unsigned char*)datain;
++    while (size&gt;0)
++    {
++	if (size&gt;=64)
++	    inc = 64;
++	else
++	    inc = size;
++
++	if (size&gt;=64)
++	{
++	    hash_set_16(tmp,data,inc, do_sha1_hash);
++	    do_hash(hashout,tmp, do_sha1_hash);
++	}
++	else if (size&gt;55){
++
++            hash_set_16(tmp,data,inc, do_sha1_hash);
++	    do_hash(hashout,tmp, do_sha1_hash);
++
++            // now use blizz variant as we only wanna fill in zeros
++	    hash_set_16(tmp,data,0, do_blizzard_hash);
++	    hash_set_length(tmp,orgSize);
++	    do_hash(hashout,tmp, do_sha1_hash);
++	}
++	else{
++	    hash_set_16(tmp,data,inc, do_sha1_hash);
++            hash_set_length(tmp,orgSize);
++	    do_hash(hashout,tmp, do_sha1_hash);
++	}
++
++	data += inc;
++	size -= inc;
++    }
++
++    return 0;
++}
++
+ extern int hash_eq(t_hash const h1, t_hash const h2)
+ {
+     unsigned int i;
+
+Modified: trunk/pvpgn/src/common/bnethash.h
+===================================================================
+--- trunk/pvpgn/src/common/bnethash.h	2007-08-12 13:14:51 UTC (rev 305)
++++ trunk/pvpgn/src/common/bnethash.h	2007-08-12 18:32:52 UTC (rev 306)
+@@ -45,6 +45,7 @@
+ {
+ 
+ extern int bnet_hash(t_hash * hashout, unsigned int size, void const * data);
++extern int sha1_hash(t_hash * hashout, unsigned int size, void const * data);
+ extern int hash_eq(t_hash const h1, t_hash const h2) ;
+ extern char const * hash_get_str(t_hash const hash);
+ extern int hash_set_str(t_hash * hash, char const * str);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000280.html">[pvpgn-dev] r305 - trunk/pvpgn/src/bnetd
+</A></li>
+	<LI>Next message: <A HREF="000282.html">[pvpgn-dev] r307 - in trunk/pvpgn: Win32-Projects src/bnetd
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#281">[ date ]</a>
+              <a href="thread.html#281">[ thread ]</a>
+              <a href="subject.html#281">[ subject ]</a>
+              <a href="author.html#281">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,160 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r267 - in trunk/pvpgn: . src/bnetd
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-July/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r267%20-%20in%20trunk/pvpgn%3A%20.%20src/bnetd&In-Reply-To=%3C200707301957.l6UJvD25011786%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000164.html">
+   <LINK REL="Next"  HREF="000166.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r267 - in trunk/pvpgn: . src/bnetd</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r267%20-%20in%20trunk/pvpgn%3A%20.%20src/bnetd&In-Reply-To=%3C200707301957.l6UJvD25011786%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r267 - in trunk/pvpgn: . src/bnetd">svn at svn.berlios.de
+       </A><BR>
+    <I>Mon Jul 30 21:57:13 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000164.html">[pvpgn-dev] [Patch #2094] WOL added missing table to SQL layouts,	HOST command fix...
+</A></li>
+        <LI>Next message: <A HREF="000166.html">[pvpgn-dev] [Patch #2117] Feature reqest 2436 add (clan whisper)
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#165">[ date ]</a>
+              <a href="thread.html#165">[ thread ]</a>
+              <a href="subject.html#165">[ subject ]</a>
+              <a href="author.html#165">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pandaemonium
+Date: 2007-07-30 21:57:09 +0200 (Mon, 30 Jul 2007)
+New Revision: 267
+
+Modified:
+   trunk/pvpgn/src/bnetd/command.cpp
+   trunk/pvpgn/version-history.txt
+Log:
+[ Patch #2117 ] Feature reqest 2436 add (clan whisper). If anything breaks - its all pelish's fault ;-)
+
+Modified: trunk/pvpgn/src/bnetd/command.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/command.cpp	2007-07-30 19:33:47 UTC (rev 266)
++++ trunk/pvpgn/src/bnetd/command.cpp	2007-07-30 19:57:09 UTC (rev 267)
+@@ -536,22 +536,54 @@
+   t_clanmember * member;
+   t_clan * clan;
+ 
+-  text = skip_command(text);
++  if((acc = conn_get_account(c)) &amp;&amp; (member = account_get_clanmember(acc)) &amp;&amp; (clan = clanmember_get_clan(member))) {
++    text = skip_command(text);
++    if ( text[0] == '\0' ) {
++         message_send_text(c,message_type_info,c,&quot;usage:&quot;);
++         message_send_text(c,message_type_info,c,&quot;/clan msg MESSAGE&quot;);
++         message_send_text(c,message_type_info,c,&quot;Whispers a message to all your fellow clan members.&quot;);
++         if (clanmember_get_status(member)&gt;=CLAN_SHAMAN) {
++           message_send_text(c,message_type_info,c,&quot;/clan public  /clan pub&quot;);
++           message_send_text(c,message_type_info,c,&quot;Opens the clan channel up to the public so that anyone may enter.&quot;);
++           message_send_text(c,message_type_info,c,&quot;/clan private  /clan priv&quot;);
++           message_send_text(c,message_type_info,c,&quot;Closes the clan channel such that only members of the clan may enter.&quot;);
++           message_send_text(c,message_type_info,c,&quot;/clan motd MESSAGE&quot;);
++           message_send_text(c,message_type_info,c,&quot;Update the clan message of the day to MESSAGE.&quot;);
++        }
++        return 0;
++    }
++    if (strstart(text,&quot;msg&quot;)==0 || strstart(text,&quot;m&quot;)==0 || strstart(text,&quot;w&quot;)==0 || strstart(text,&quot;whisper&quot;)==0) {
++        char const *msg = skip_command(text);
++        if(msg[0]=='\0') {
++          message_send_text(c,message_type_info,c,&quot;usage:&quot;);
++          message_send_text(c,message_type_info,c,&quot;/clan msg MESSAGE&quot;);
++          message_send_text(c,message_type_info,c,&quot;Whispers a message to all your fellow clan members.&quot;);
++        }
++        else {
++          int counter = 0;
++          t_list * cl_member_list = clan_get_members(clan);
++          t_elem * curr;
++          t_connection * dest_conn;
++          t_clanmember * dest_member;
+ 
+-  if ( text[0] == '\0' )
+-    {
+-      message_send_text(c,message_type_info,c,&quot;usage:&quot;);
+-      message_send_text(c,message_type_info,c,&quot;/clan public  /clan pub&quot;);
+-      message_send_text(c,message_type_info,c,&quot;Opens the clan channel up to the public so that anyone may enter.&quot;);
+-      message_send_text(c,message_type_info,c,&quot;/clan private  /clan priv&quot;);
+-      message_send_text(c,message_type_info,c,&quot;Closes the clan channel such that only members of the clan may enter.&quot;);
+-      message_send_text(c,message_type_info,c,&quot;/clan motd MESSAGE&quot;);
+-      message_send_text(c,message_type_info,c,&quot;Update the clan message of the day to MESSAGE.&quot;);
+-      return 0;
++          LIST_TRAVERSE(cl_member_list,curr) {
++    	        if (!(dest_member = (t_clanmember*)elem_get_data(curr))) {
++    	           eventlog(eventlog_level_error,__FUNCTION__,&quot;found NULL entry in list&quot;);
++    	           continue;
++    	        }
++
++                if ((dest_conn = clanmember_get_conn(dest_member)) &amp;&amp; (dest_conn != c)) {
++                   message_send_text(dest_conn,message_type_whisper,c,msg);
++                   counter++;
++                }
++          }
++          if(counter)
++             message_send_text(c,message_type_info,c,&quot;Message was sent to all currently available clan members.&quot;);
++          else
++             message_send_text(c,message_type_info,c,&quot;All fellow members of your clan are currently offline.&quot;);
++        }
+     }
+-
+-  if((acc = conn_get_account(c)) &amp;&amp; (member = account_get_clanmember(acc)) &amp;&amp; (clan = clanmember_get_clan(member)))
+-  {
++    else
+     if(clanmember_get_status(member)&gt;=CLAN_SHAMAN)
+     {
+       if (strstart(text,&quot;public&quot;)==0 || strstart(text,&quot;pub&quot;)==0) {
+
+Modified: trunk/pvpgn/version-history.txt
+===================================================================
+--- trunk/pvpgn/version-history.txt	2007-07-30 19:33:47 UTC (rev 266)
++++ trunk/pvpgn/version-history.txt	2007-07-30 19:57:09 UTC (rev 267)
+@@ -12,6 +12,9 @@
+   -- Added support for battle clans
+   -- Added various protocol related fixes
+ 
++[MISC]
++  -- Added /clan whisper subcommand
++
+  ChangeLog for 1.8.1 (since 1.8.0)
+ =========================================
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000164.html">[pvpgn-dev] [Patch #2094] WOL added missing table to SQL layouts,	HOST command fix...
+</A></li>
+	<LI>Next message: <A HREF="000166.html">[pvpgn-dev] [Patch #2117] Feature reqest 2436 add (clan whisper)
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#165">[ date ]</a>
+              <a href="thread.html#165">[ thread ]</a>
+              <a href="subject.html#165">[ subject ]</a>
+              <a href="author.html#165">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

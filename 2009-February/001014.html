@@ -1,0 +1,88 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] pvpgn/src/client bnchat.c,1.23,1.24
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2009-February/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20pvpgn/src/client%20bnchat.c%2C1.23%2C1.24&In-Reply-To=%3C20090225221902.3FAB2172CDF%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001013.html">
+   <LINK REL="Next"  HREF="001015.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] pvpgn/src/client bnchat.c,1.23,1.24</H1>
+    <B>pandaemonium</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20pvpgn/src/client%20bnchat.c%2C1.23%2C1.24&In-Reply-To=%3C20090225221902.3FAB2172CDF%40mail.berlios.de%3E"
+       TITLE="[pvpgn-dev] pvpgn/src/client bnchat.c,1.23,1.24">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Wed Feb 25 23:19:02 CET 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001013.html">[pvpgn-dev] pvpgn/conf sql_DB_layout.conf, 1.10,	1.11 sql_DB_layout2.conf, 1.6, 1.7
+</A></li>
+        <LI>Next message: <A HREF="001015.html">[pvpgn-dev] pvpgn/src/common field_sizes.h,1.7,1.8
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1014">[ date ]</a>
+              <a href="thread.html#1014">[ thread ]</a>
+              <a href="subject.html#1014">[ subject ]</a>
+              <a href="author.html#1014">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/pvpgn/pvpgn/src/client
+In directory sheep:/tmp/cvs-serv506/src/client
+
+Modified Files:
+	bnchat.c 
+Log Message:
+fix potential SQL injection via clan MOTD
+
+
+Index: bnchat.c
+===================================================================
+RCS file: /cvsroot/pvpgn/pvpgn/src/client/bnchat.c,v
+retrieving revision 1.23
+retrieving revision 1.24
+diff -u -d -r1.23 -r1.24
+--- bnchat.c	15 Aug 2007 10:48:49 -0000	1.23
++++ bnchat.c	25 Feb 2009 22:19:00 -0000	1.24
+@@ -1781,7 +1781,7 @@
+ 			    int offset;
+ 			    
+ 			    offset = sizeof(t_server_w3xp_clan_invitereq);
+-			    if (!(clan = packet_get_str_const(rpacket,offset,MAX_CLANNAME_LEN)))
++			    if (!(clan = packet_get_str_const(rpacket,offset,CLAN_NAME_MAX)))
+ 			    {
+ 				munge(&amp;client);
+ 				printf(&quot;Got SERVER_W3XP_CLAN_INVITEREQ with bad or missing clanname\n&quot;);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001013.html">[pvpgn-dev] pvpgn/conf sql_DB_layout.conf, 1.10,	1.11 sql_DB_layout2.conf, 1.6, 1.7
+</A></li>
+	<LI>Next message: <A HREF="001015.html">[pvpgn-dev] pvpgn/src/common field_sizes.h,1.7,1.8
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1014">[ date ]</a>
+              <a href="thread.html#1014">[ thread ]</a>
+              <a href="subject.html#1014">[ subject ]</a>
+              <a href="author.html#1014">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

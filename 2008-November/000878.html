@@ -1,0 +1,465 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r513 - trunk/pvpgn/src/bnetd
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2008-November/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r513%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200811122304.mACN4Qu7026404%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000877.html">
+   <LINK REL="Next"  HREF="000879.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r513 - trunk/pvpgn/src/bnetd</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r513%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200811122304.mACN4Qu7026404%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r513 - trunk/pvpgn/src/bnetd">svn at svn.berlios.de
+       </A><BR>
+    <I>Thu Nov 13 00:04:26 CET 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000877.html">[pvpgn-dev] Hi all! New guy...
+</A></li>
+        <LI>Next message: <A HREF="000879.html">[pvpgn-dev] pvpgn/src/bnetd game.c, 1.64, 1.65 game.h, 1.20,	1.21 handle_bnet.c, 1.252, 1.253
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#878">[ date ]</a>
+              <a href="thread.html#878">[ thread ]</a>
+              <a href="subject.html#878">[ subject ]</a>
+              <a href="author.html#878">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pelish
+Date: 2008-11-13 00:04:23 +0100 (Thu, 13 Nov 2008)
+New Revision: 513
+
+Modified:
+   trunk/pvpgn/src/bnetd/channel.cpp
+   trunk/pvpgn/src/bnetd/channel.h
+   trunk/pvpgn/src/bnetd/handle_irc_common.cpp
+   trunk/pvpgn/src/bnetd/handle_wol.cpp
+   trunk/pvpgn/src/bnetd/irc.cpp
+   trunk/pvpgn/src/bnetd/message.cpp
+   trunk/pvpgn/src/bnetd/message.h
+Log:
+some fixes for WOL - add channel_set_min() for minimum users in gamechannel; revised JOINGAME acknowledgment; changed gameopt message type to message_type_gameopt_talk and message_type_gameopt_whisper (because much more better fallows gameopt usage); rewrited _handle_gameopt() to be general for both WOL protocol versions
+
+Modified: trunk/pvpgn/src/bnetd/channel.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/channel.cpp	2008-10-26 18:39:28 UTC (rev 512)
++++ trunk/pvpgn/src/bnetd/channel.cpp	2008-11-12 23:04:23 UTC (rev 513)
+@@ -706,7 +706,7 @@
+     tname = conn_get_chatname(me);
+     for (c=channel_get_first(channel); c; c=channel_get_next())
+     {
+-	if (c==me &amp;&amp; (type==message_type_talk || type==message_wol_gameopt_owner))
++	if (c==me &amp;&amp; (type==message_type_talk || type==message_type_gameopt_talk))
+ 	    continue; /* ignore ourself */
+ 	if (c==me &amp;&amp; (!conn_is_irc_variant(c)) &amp;&amp; type==message_type_part)
+             continue; /* only on irc we need to inform ourself about leaving the channel */
+@@ -1597,6 +1597,28 @@
+ /**
+ *  Westwood Online Extensions
+ */
++extern int channel_get_min(t_channel const * channel)
++{
++    if (!channel) {
++        eventlog(eventlog_level_error,__FUNCTION__,&quot;got NULL channel&quot;);
++        return 0;
++    }
++
++    return channel-&gt;minmembers;
++}
++
++extern int channel_set_min(t_channel * channel, int minmembers)
++{
++    if (!channel) {
++        eventlog(eventlog_level_error,__FUNCTION__,&quot;got NULL channel&quot;);
++        return 0;
++    }
++
++    if (minmembers)
++        channel-&gt;minmembers = minmembers;
++    return 1;
++}
++
+ extern char const * channel_wol_get_game_owner(t_channel const * channel)
+ {
+ 	if (!channel)
+
+Modified: trunk/pvpgn/src/bnetd/channel.h
+===================================================================
+--- trunk/pvpgn/src/bnetd/channel.h	2008-10-26 18:39:28 UTC (rev 512)
++++ trunk/pvpgn/src/bnetd/channel.h	2008-11-12 23:04:23 UTC (rev 513)
+@@ -97,6 +97,7 @@
+     /**
+     *  Westwood Online Extensions
+     */
++    int               minmembers;
+     char *            gameOwner;
+     int               gameOwnerIP;
+ 
+@@ -176,6 +177,9 @@
+ /**
+ *  Westwood Online Extensions
+ */
++extern int channel_get_min(t_channel const * channel);
++extern int channel_set_min(t_channel * channel, int minmembers);
++
+ extern char const * channel_wol_get_game_owner(t_channel const * channel);
+ extern int channel_wol_set_game_owner(t_channel * channel, char const * gameOwner);
+ 
+
+Modified: trunk/pvpgn/src/bnetd/handle_irc_common.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/handle_irc_common.cpp	2008-10-26 18:39:28 UTC (rev 512)
++++ trunk/pvpgn/src/bnetd/handle_irc_common.cpp	2008-11-12 23:04:23 UTC (rev 513)
+@@ -308,7 +308,6 @@
+         (conn_get_class(conn) != conn_class_irc) &amp;&amp;
+         (conn_get_class(conn) != conn_class_wol) &amp;&amp;
+         (conn_get_class(conn) != conn_class_wserv) &amp;&amp;
+-        (conn_get_class(conn) != conn_class_wgameres) &amp;&amp;
+         (conn_get_class(conn) != conn_class_wladder)) {
+ 	eventlog(eventlog_level_error,__FUNCTION__,&quot;FIXME: handle_irc_packet without any reason (conn-&gt;class != conn_class_irc/ircinit/wol/wserv...)&quot;);
+ 	return -1;
+
+Modified: trunk/pvpgn/src/bnetd/handle_wol.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/handle_wol.cpp	2008-10-26 18:39:28 UTC (rev 512)
++++ trunk/pvpgn/src/bnetd/handle_wol.cpp	2008-11-12 23:04:23 UTC (rev 513)
+@@ -547,32 +547,34 @@
+          */
+ 
+         LIST_TRAVERSE_CONST(channellist(),curr) {
+-   	         t_channel const * channel = (const t_channel*)elem_get_data(curr);
+-             char const * tempname;
++            t_channel const * channel = (const t_channel*)elem_get_data(curr);
++            char const * tempname;
+ 
+-             tempname = irc_convert_channel(channel,conn);
++            tempname = irc_convert_channel(channel,conn);
+ 
+-             if ((tag_check_wolv1(conn_get_clienttag(conn))) &amp;&amp; (std::strlen(tempname) &gt; MAX_WOLV1_CHANNELNAME_LEN))
+-                 continue;
++            if ((tag_check_wolv1(conn_get_clienttag(conn))) &amp;&amp; (std::strlen(tempname) &gt; MAX_WOLV1_CHANNELNAME_LEN))
++                continue;
+ 
+-             if (std::strstr(tempname,&quot;_game&quot;) == NULL) { /* FIXME: Delete this if games are not in channels */
+-                sprintf(temp,&quot;%s %u &quot;,tempname,channel_get_length(channel));
++            /* FIXME: Delete this if games are not in channels */
++            if ((channel_wol_get_game_type(channel) != 0))
++                continue;
+ 
+-	        	if (channel_get_flags(channel) &amp; channel_flags_permanent)
+-                    std::strcat(temp,&quot;1&quot;);  /* Official channel */
+-                else
+-                    std::strcat(temp,&quot;0&quot;);  /* User channel */
++            sprintf(temp,&quot;%s %u &quot;,tempname,channel_get_length(channel));
+ 
+-                if (tag_check_wolv1(conn_get_clienttag(conn)))
+-                    std::strcat(temp,&quot;:&quot;);     /* WOLv1 ends by &quot;:&quot; */
+-                else
+-                    std::strcat(temp,&quot; 388&quot;);  /* WOLv2 ends by &quot;388&quot; */
++            if (channel_get_flags(channel) &amp; channel_flags_permanent)
++                std::strcat(temp,&quot;1&quot;);  /* Official channel */
++            else
++                std::strcat(temp,&quot;0&quot;);  /* User channel */
+ 
+-                if (std::strlen(temp)&gt;MAX_IRC_MESSAGE_LEN)
+-                    WARN0(&quot;LISTREPLY length exceeded&quot;);
++            if (tag_check_wolv1(conn_get_clienttag(conn)))
++                std::strcat(temp,&quot;:&quot;);     /* WOLv1 ends by &quot;:&quot; */
++            else
++                std::strcat(temp,&quot; 388&quot;);  /* WOLv2 ends by &quot;388&quot; */
+ 
+-                irc_send(conn,RPL_CHANNEL,temp);
+-             }
++            if (std::strlen(temp)&gt;MAX_IRC_MESSAGE_LEN)
++                WARN0(&quot;LISTREPLY length exceeded&quot;);
++
++            irc_send(conn,RPL_CHANNEL,temp);
+         }
+     }
+     /**
+@@ -985,7 +987,7 @@
+ 			    if (channel!=old_channel) {
+                     if (tag_check_wolv1(conn_get_clienttag(conn))) {
+                         /* WOLv1 JOINGAME message */
+-                        std::sprintf(_temp,&quot;2 %u %u 1 1 %u :%s&quot;, channel_get_length(channel), channel_wol_get_game_type(channel),
++                        std::sprintf(_temp,&quot;%u %u %u 1 1 %u :%s&quot;, channel_get_min(channel), channel_get_max(channel), channel_wol_get_game_type(channel),
+                                     channel_wol_get_game_tournament(channel), irc_convert_channel(channel,conn));
+                     }
+                     else {
+@@ -996,7 +998,7 @@
+                         if (clan)
+                             clanid = clan_get_clanid(clan);
+ 
+-                        std::sprintf(_temp,&quot;1 %u %u 1 %u %u %u :%s&quot;, channel_get_length(channel), channel_wol_get_game_type(channel),
++                        std::sprintf(_temp,&quot;%u %u %u 1 %u %u %u :%s&quot;, channel_get_min(channel), channel_get_max(channel), channel_wol_get_game_type(channel),
+                                      clanid, conn_get_addr(conn), channel_wol_get_game_tournament(channel), irc_convert_channel(channel,conn));
+                     }
+ 
+@@ -1075,6 +1077,7 @@
+ 					channel_set_userflags(conn);
+ 					channel_wol_set_game_owner(channel,conn_get_chatname(conn));
+ 					channel_wol_set_game_ownerip(channel,conn_get_addr(conn));
++					channel_set_min(channel,std::atoi(params[1]));
+ 					channel_set_max(channel,std::atoi(params[2]));
+ 				    /* HACK: Currently, this is the best way to set the channel game type... */
+ 					channel_wol_set_game_type(channel,std::atoi(params[3]));
+@@ -1107,14 +1110,14 @@
+     char temp[MAX_IRC_MESSAGE_LEN];
+ 
+     /**
+-    *  Basically this has 2 modes, Game Owner Change and Game Joinee Change what the output
+-    *  on this does is pretty much unknown, we just dump this to the client to deal with...
++    *  Basically this has 2 modes as like in PRIVMSG - whisper and talk. What is in
++    *  text is pretty much unknown, we just dump this to the client to deal with...
+     *
+-    *	Heres the output expected (from game owner):
++    *	Heres the output expected (when gameopt is channel talk):
+     *	user!<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">WWOL at hostname</A> GAMEOPT #game_channel_name :gameOptions
+     *
+-    *	Heres the output expected (from game joinee):
+-    *	user!<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">WWOL at hostname</A> GAMEOPT game_owner_name :gameOptions
++    *	Heres the output expected (when gameopt is whispered):
++    *	user!<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">WWOL at hostname</A> GAMEOPT sender_nick_name :gameOptions
+     */
+ 
+     if ((numparams&gt;=1)&amp;&amp;(params[0])&amp;&amp;(text)) {
+@@ -1123,53 +1126,37 @@
+         t_connection * user;
+         t_channel * channel;
+ 
+-        if (tag_check_wolv1(conn_get_clienttag(conn))) {
+-            /* we only send text to another client */
++        e = irc_get_listelems(params[0]);
++        /* FIXME: support wildcards! */
+ 
+-            channel = conn_get_channel(conn);
+-
+-            for (user = channel_get_first(channel);user;user = channel_get_next()) {
+-                char const * name = conn_get_chatname(user);
+-                if (std::strcmp(conn_get_chatname(conn),name) != 0) {
+-                    snprintf(temp, sizeof(temp), &quot;:%s&quot;, text);
+-                    message_send_text(user,message_wol_gameopt_join,conn,temp);
++        for (i=0;((e)&amp;&amp;(e[i]));i++) {
++            if (e[i][0]=='#') {
++                /* channel gameopt */
++                if ((channel = channellist_find_channel_by_name(irc_convert_ircname(params[0]),NULL,NULL))) {
++                    channel_message_send(channel,message_type_gameopt_talk,conn,text);
+                 }
++                else {
++                    snprintf(temp,sizeof(temp),&quot;%s :No such channel&quot;, params[0]);
++                    irc_send(conn,ERR_NOSUCHCHANNEL,temp);
++                }
+             }
+-        }
+-        else {
+-            e = irc_get_listelems(params[0]);
+-            /* FIXME: support wildcards! */
+-
+-            for (i=0;((e)&amp;&amp;(e[i]));i++) {
+-                if (e[i][0]=='#') {
+-                    /* game owner change */
+-                    if ((channel = channellist_find_channel_by_name(irc_convert_ircname(params[0]),NULL,NULL))) {
+-                        snprintf(temp, sizeof(temp), &quot;:%s&quot;, text);
+-                        channel_message_send(channel,message_wol_gameopt_owner,conn,temp);
+-                    }
+-                    else {
+-                        snprintf(temp,sizeof(temp),&quot;%s :No such channel&quot;, params[0]);
+-                        irc_send(conn,ERR_NOSUCHCHANNEL,temp);
+-                    }
++            else {
++                /* user gameopt */
++                if ((user = connlist_find_connection_by_accountname(e[i]))) {
++                    message_send_text(user,message_type_gameopt_whisper,conn,text);
+                 }
+                 else {
+-                    /* user change */
+-                    if ((user = connlist_find_connection_by_accountname(e[i]))) {
+-                        snprintf(temp, sizeof(temp), &quot;:%s&quot;, text);
+-                        message_send_text(user,message_wol_gameopt_join,conn,temp);
+-                    }
+-                    else {
+-                        irc_send(conn,ERR_NOSUCHNICK,&quot;:No such user&quot;);
+-                    }
++                    snprintf(temp,sizeof(temp),&quot;%s :No such nick&quot;, e[i]);
++                    irc_send(conn,ERR_NOSUCHNICK,temp);
+                 }
+             }
+-            if (e)
+-                irc_unget_listelems(e);
+         }
+-	}
++        if (e)
++           irc_unget_listelems(e);
++    }
+     else
+         irc_send(conn,ERR_NEEDMOREPARAMS,&quot;GAMEOPT :Not enough parameters&quot;);
+-	return 0;
++    return 0;
+ }
+ 
+ static int _handle_finduser_command(t_connection * conn, int numparams, char ** params, char * text)
+
+Modified: trunk/pvpgn/src/bnetd/irc.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/irc.cpp	2008-10-26 18:39:28 UTC (rev 512)
++++ trunk/pvpgn/src/bnetd/irc.cpp	2008-11-12 23:04:23 UTC (rev 513)
+@@ -738,18 +738,10 @@
+         char temp_[MAX_IRC_MESSAGE_LEN];
+         std::sprintf(temp,&quot;:%s&quot;,text);
+         if (conn_get_wol(dst) == 1) {
+-           if ((tag_check_wolv2(conn_get_clienttag(dst))) &amp;&amp; (type == message_type_broadcast)) {
+-               /* Pelish: WOLv2 have special announce message code */
+-               std::sprintf(temp,&quot;:- %s&quot;,text);
+-               std::sprintf(temp_,&quot;%u&quot;,RPL_ANNOUNCE,NULL);
+-               msg = irc_message_preformat(NULL,temp_,NULL,temp);
+-           }
+-           else {
+                if ((type == message_type_info) || (type == message_type_error))
+                    msg = irc_message_preformat(NULL,&quot;PAGE&quot;,NULL,temp);
+                else
+                    msg = irc_message_preformat(NULL,&quot;NOTICE&quot;,NULL,temp);
+-           }
+         }
+         else
+             msg = irc_message_preformat(NULL,&quot;NOTICE&quot;,NULL,temp);
+@@ -876,20 +868,35 @@
+         msg = irc_message_preformat(&amp;from,&quot;JOINGAME&quot;,&quot;\r&quot;,text);
+         conn_unget_chatname(me,from.nick);
+         break;
+-    case message_wol_gameopt_owner:
+-        from.nick = conn_get_chatname(me);
+-        from.user = ctag;
+-        from.host = addr_num_to_ip_str(conn_get_addr(me));
+-        msg = irc_message_preformat(&amp;from,&quot;GAMEOPT&quot;,irc_convert_channel(conn_get_channel(me),dst),text);
+-        conn_unget_chatname(me,from.nick);
++    case message_type_gameopt_talk:
++    case message_type_gameopt_whisper:
++        {
++            char const * dest;
++            char temp[MAX_IRC_MESSAGE_LEN];
++
++            if (me) {
++                from.nick = conn_get_chatname(me);
++                from.host = addr_num_to_ip_str(conn_get_addr(me));
++            }
++            else {
++                from.nick = server_get_hostname();
++                from.host = server_get_hostname();
++            }
++            from.user = ctag;
++
++            if (type == message_type_gameopt_talk)
++                dest = irc_convert_channel(conn_get_channel(me),dst); /* FIXME: support more channels and choose right one! */
++            else
++                dest = &quot;&quot;; /* will be replaced with username in postformat */
++
++            std::sprintf(temp,&quot;:%s&quot;,text);
++
++            msg = irc_message_preformat(&amp;from,&quot;GAMEOPT&quot;,dest,temp);
++
++            if (me)
++                conn_unget_chatname(me,from.nick);
++        }
+         break;
+-    case message_wol_gameopt_join:
+-        from.nick = conn_get_chatname(me);
+-        from.user = ctag;
+-        from.host = addr_num_to_ip_str(conn_get_addr(me));
+-        msg = irc_message_preformat(&amp;from,&quot;GAMEOPT&quot;,channel_wol_get_game_owner(conn_get_channel(me)),text);
+-        conn_unget_chatname(me,from.nick);
+-        break;
+     case message_wol_start_game:
+         from.nick = conn_get_chatname(me);
+         from.user = ctag;
+@@ -900,10 +907,10 @@
+     case message_wol_advertr:
+         msg = irc_message_preformat(NULL,&quot;ADVERTR&quot;,&quot;\r&quot;,text);
+         break;
+-   case message_wol_chanchk:
++    case message_wol_chanchk:
+         msg = irc_message_preformat(NULL,&quot;CHANCHK&quot;,&quot;\r&quot;,text);
+         break;
+-   case message_wol_userip:
++    case message_wol_userip:
+         from.nick = conn_get_chatname(me);
+         from.user = ctag;
+         from.host = addr_num_to_ip_str(conn_get_addr(me));
+@@ -948,7 +955,6 @@
+ 	return -1;
+     }
+ 
+-    /* FIXME: Add per user flags (@(op) and +(voice))*/
+     if (!(channel_get_flags(channel) &amp; channel_flags_thevoid))
+     for (m = channel_get_first(channel);m;m = channel_get_next()) {
+ 	char const * name = conn_get_chatname(m);
+
+Modified: trunk/pvpgn/src/bnetd/message.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/message.cpp	2008-10-26 18:39:28 UTC (rev 512)
++++ trunk/pvpgn/src/bnetd/message.cpp	2008-11-12 23:04:23 UTC (rev 513)
+@@ -117,10 +117,10 @@
+         return &quot;quit&quot;;
+     case message_wol_joingame:
+         return &quot;wol_joingame&quot;;
+-    case message_wol_gameopt_owner:
+-        return &quot;wol_gameopt_owner&quot;;
+-    case message_wol_gameopt_join:
+-        return &quot;wol_gameopt_join&quot;;
++    case message_type_gameopt_talk:
++        return &quot;gameopt_talk&quot;;
++    case message_type_gameopt_whisper:
++        return &quot;gameopt_whisper&quot;;
+     case message_wol_start_game:
+         return &quot;wol_start_game&quot;;
+     case message_wol_advertr:
+
+Modified: trunk/pvpgn/src/bnetd/message.h
+===================================================================
+--- trunk/pvpgn/src/bnetd/message.h	2008-10-26 18:39:28 UTC (rev 512)
++++ trunk/pvpgn/src/bnetd/message.h	2008-11-12 23:04:23 UTC (rev 513)
+@@ -76,8 +76,8 @@
+     message_type_invmsg,
+     message_type_page,
+     message_wol_joingame,
+-    message_wol_gameopt_owner,
+-    message_wol_gameopt_join,
++    message_type_gameopt_talk,
++    message_type_gameopt_whisper,
+     message_wol_start_game,
+     message_wol_advertr,
+     message_wol_chanchk,
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000877.html">[pvpgn-dev] Hi all! New guy...
+</A></li>
+	<LI>Next message: <A HREF="000879.html">[pvpgn-dev] pvpgn/src/bnetd game.c, 1.64, 1.65 game.h, 1.20,	1.21 handle_bnet.c, 1.252, 1.253
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#878">[ date ]</a>
+              <a href="thread.html#878">[ thread ]</a>
+              <a href="subject.html#878">[ subject ]</a>
+              <a href="author.html#878">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

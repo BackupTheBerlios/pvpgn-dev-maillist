@@ -1,0 +1,127 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] pvpgn UPDATE, 1.63, 1.64 version-history.txt, 1.284,	1.285
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2008-July/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20pvpgn%20UPDATE%2C%201.63%2C%201.64%20version-history.txt%2C%201.284%2C%0A%091.285&In-Reply-To=%3C20080717220700.18B0A14686B%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000747.html">
+   <LINK REL="Next"  HREF="000749.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] pvpgn UPDATE, 1.63, 1.64 version-history.txt, 1.284,	1.285</H1>
+    <B>pandaemonium</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20pvpgn%20UPDATE%2C%201.63%2C%201.64%20version-history.txt%2C%201.284%2C%0A%091.285&In-Reply-To=%3C20080717220700.18B0A14686B%40mail.berlios.de%3E"
+       TITLE="[pvpgn-dev] pvpgn UPDATE, 1.63, 1.64 version-history.txt, 1.284,	1.285">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Fri Jul 18 00:07:00 CEST 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000747.html">[pvpgn-dev] r473 - trunk/pvpgn/conf
+</A></li>
+        <LI>Next message: <A HREF="000749.html">[pvpgn-dev] pvpgn/conf bnmaps.conf, 1.4, 1.5 versioncheck.conf, 1.35,	1.36
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#748">[ date ]</a>
+              <a href="thread.html#748">[ thread ]</a>
+              <a href="subject.html#748">[ subject ]</a>
+              <a href="author.html#748">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/pvpgn/pvpgn
+In directory sheep:/tmp/cvs-serv28321
+
+Modified Files:
+	UPDATE version-history.txt 
+Log Message:
+updates related to  WAR3 1.22 client
+
+Index: UPDATE
+===================================================================
+RCS file: /cvsroot/pvpgn/pvpgn/UPDATE,v
+retrieving revision 1.63
+retrieving revision 1.64
+diff -u -d -r1.63 -r1.64
+--- UPDATE	5 Jun 2008 20:29:03 -0000	1.63
++++ UPDATE	17 Jul 2008 22:06:57 -0000	1.64
+@@ -19,8 +19,9 @@
+ Configuration files changed:
+ - conf/channels.conf : added channels needed by DUNE2000 clients
+ - conf/versioncheck.conf : added WAR3/W3XP IX86 entries and
+-  rewrited all STAR/SEXP/W2BN/DRTL IX86 vcheck entries
++  rewritten all STAR/SEXP/W2BN/DRTL IX86 vcheck entries
+ - conf/supportfile.conf : added needed ver-ix86-1.mpq support file
++- conf/bnmaps.conf : updated ladder map lineup to be equal to battle.net 
+ 
+  Updating from 1.8.1 to 1.8.2
+ ===================================
+
+Index: version-history.txt
+===================================================================
+RCS file: /cvsroot/pvpgn/pvpgn/version-history.txt,v
+retrieving revision 1.284
+retrieving revision 1.285
+diff -u -d -r1.284 -r1.285
+--- version-history.txt	13 Jul 2008 23:35:12 -0000	1.284
++++ version-history.txt	17 Jul 2008 22:06:57 -0000	1.285
+@@ -8,23 +8,23 @@
+   -- fixed possible steal account throught hardcoded password
+   -- fixed malformed time format in startgame message
+   -- fixed log warnings/errors rising in login process
+-  -- fixed RA2/YURI bug when host of game culd not
++  -- fixed RA2/YURI bug when host of game could not
+      change max players
+ 
+ [IRC]
+   -- added some missing channel modes
+-  -- added proper messages when client was baned form channel
++  -- added proper messages when client was baned from channel
+      or when channel is full
+ 
+ [MISC]
+   -- fixed malformed output by /cg list command
+ 
+ [VCHECK]
+-  -- added WAR3/W3XP IX86 1.19a/1.19b/1.21b vcheck entries
++  -- added WAR3/W3XP IX86 1.19a/1.19b/1.21b/1.22a vcheck entries
+   -- added STAR/SEXP IX86 1.15.2 vcheck entries
+   -- added D2XP IX86 1.12a vcheck entries
+-  -- rewrited all STAR/SEXP/W2BN/DRTL IX86 vcheck entries
+-     to match new ver-ix86-1.mpq file (this fixes connecting
++  -- rewritten all STAR/SEXP/W2BN/DRTL IX86 vcheck entries
++     to match new ver-ix86-1.mpq file (this fixes connection
+      problems on Windows Vista systems)
+ 
+  ChangeLog for 1.8.2 (since 1.8.1)
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000747.html">[pvpgn-dev] r473 - trunk/pvpgn/conf
+</A></li>
+	<LI>Next message: <A HREF="000749.html">[pvpgn-dev] pvpgn/conf bnmaps.conf, 1.4, 1.5 versioncheck.conf, 1.35,	1.36
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#748">[ date ]</a>
+              <a href="thread.html#748">[ thread ]</a>
+              <a href="subject.html#748">[ subject ]</a>
+              <a href="author.html#748">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

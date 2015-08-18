@@ -1,0 +1,85 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r489 - trunk/pvpgn/cmake/Modules
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2008-August/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r489%20-%20trunk/pvpgn/cmake/Modules&In-Reply-To=%3C200808161537.m7GFbNrl015086%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000780.html">
+   <LINK REL="Next"  HREF="000782.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r489 - trunk/pvpgn/cmake/Modules</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r489%20-%20trunk/pvpgn/cmake/Modules&In-Reply-To=%3C200808161537.m7GFbNrl015086%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r489 - trunk/pvpgn/cmake/Modules">svn at svn.berlios.de
+       </A><BR>
+    <I>Sat Aug 16 17:37:23 CEST 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000780.html">[pvpgn-dev] r488 - in trunk/pvpgn/src: bnetd common
+</A></li>
+        <LI>Next message: <A HREF="000782.html">[pvpgn-dev] r490 - trunk/pvpgn/src/bnetd
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#781">[ date ]</a>
+              <a href="thread.html#781">[ thread ]</a>
+              <a href="subject.html#781">[ subject ]</a>
+              <a href="author.html#781">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: d1zzy
+Date: 2008-08-16 17:37:22 +0200 (Sat, 16 Aug 2008)
+New Revision: 489
+
+Modified:
+   trunk/pvpgn/cmake/Modules/FindMySQL.cmake
+Log:
+Added yet another library directory for mysql, for yet another broken 
+system that creates per package directory in &quot;lib&quot;.
+
+
+Modified: trunk/pvpgn/cmake/Modules/FindMySQL.cmake
+===================================================================
+--- trunk/pvpgn/cmake/Modules/FindMySQL.cmake	2008-08-15 22:35:01 UTC (rev 488)
++++ trunk/pvpgn/cmake/Modules/FindMySQL.cmake	2008-08-16 15:37:22 UTC (rev 489)
+@@ -34,6 +34,7 @@
+   /usr/local/mysql/lib
+   /usr/local/lib/mysql
+   /usr/local/lib
++  /usr/lib/mysql
+   /usr/lib
+ )
+ FIND_LIBRARY(MYSQL_LIBRARY
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000780.html">[pvpgn-dev] r488 - in trunk/pvpgn/src: bnetd common
+</A></li>
+	<LI>Next message: <A HREF="000782.html">[pvpgn-dev] r490 - trunk/pvpgn/src/bnetd
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#781">[ date ]</a>
+              <a href="thread.html#781">[ thread ]</a>
+              <a href="subject.html#781">[ subject ]</a>
+              <a href="author.html#781">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,101 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] [Bug #12149] Can't connect to server
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-October/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BBug%20%2312149%5D%20Can%27t%20connect%20to%20server&In-Reply-To=%3C200710100826.l9A8QUaJ007158%40unicorn.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000506.html">
+   <LINK REL="Next"  HREF="000508.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] [Bug #12149] Can't connect to server</H1>
+    <B>admin at berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BBug%20%2312149%5D%20Can%27t%20connect%20to%20server&In-Reply-To=%3C200710100826.l9A8QUaJ007158%40unicorn.berlios.de%3E"
+       TITLE="[pvpgn-dev] [Bug #12149] Can't connect to server">admin at berlios.de
+       </A><BR>
+    <I>Wed Oct 10 10:26:30 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000506.html">[pvpgn-dev] r404 - trunk/pvpgn/src/common
+</A></li>
+        <LI>Next message: <A HREF="000508.html">[pvpgn-dev] [Bug #12149] Can't connect to server
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#507">[ date ]</a>
+              <a href="thread.html#507">[ thread ]</a>
+              <a href="subject.html#507">[ subject ]</a>
+              <a href="author.html#507">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Bug #12149, was updated on 2007-Oct-10 00:26
+Here is a current snapshot of the bug.
+
+Project: Player vs Player Gaming Network
+Category: Warcraft Series
+Status: Open
+Resolution: None
+Bug Group: bnetd
+Priority: 5
+Submitted by: cyyuan
+Assigned to : none
+Summary: Can't connect to server
+
+Details: I installed pvpgn on a linux server, and when i try to connet to the server the game showed can't connect to battle.net. when i use the bneteditor the connection time is 40ms, the following text is relayed logs
+-------------------------------
+Oct 10 17:43:37 [debug] ipbanlist_check: lastcheck: 1192009352, now: 1192009417, now-lc: 65.
+Oct 10 17:43:37 [debug] ipbanlist_check: checking 172.16.15.206
+Oct 10 17:43:37 [info ] sd_accept: [5] accepted connection from 172.16.15.206:3377 on 0.0.0.0:6112
+Oct 10 17:43:37 [info ] conn_create: [5][3] sessionkey=0x6de422e3 sessionnum=0x00000003
+Oct 10 17:43:37 [debug] sd_accept: [5] client connected to a bnet listening address
+Oct 10 17:43:37 [info ] handle_init_packet: [5] client initiated bnet connection
+Oct 10 17:43:37 [trace] conn_shutdown: [5] connection allready closed
+Oct 10 17:43:37 [debug] conn_set_class: added latency check timer
+Oct 10 17:43:37 [debug] _client_countryinfo109: [5] COUNTRYINFO_109 packet tzbias=0xfffffe20(-480) lcid=2052 langid=2052 arch=&quot;IX86&quot; client=&quot;W3XP&quot; versionid=0x00000015 gamelang=&quot;enUS&quot;
+Oct 10 17:43:37 [debug] _client_countryinfo109: [5] COUNTRYINFO_109 packet from &quot;People's Republic of China&quot; &quot;CHN&quot;
+Oct 10 17:43:37 [info ] conn_set_archtag: [5] setting client arch to &quot;IX86&quot;
+Oct 10 17:43:37 [info ] conn_set_clienttag: [5] setting client type to &quot;W3XP&quot;
+Oct 10 17:43:37 [info ] conn_set_gamelang: [5] setting client gamelang to &quot;enUS&quot;
+Oct 10 17:43:37 [debug] _client_countryinfo109: [5] selecting version check
+Oct 10 17:43:37 [debug] versioncheck_create: version check entry archtag=IX86, clienttag=W3XP
+Oct 10 17:43:37 [debug] _client_countryinfo109: [5] selected &quot;IX86ver1.mpq&quot; &quot;A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B&quot;
+Oct 10 17:43:37 [debug] sd_tcpinput: [5] read returned -1 (closing connection)
+Oct 10 17:43:37 [info ] conn_destroy: [5] closed bnet connection
+
+
+how can i deal with this problem?
+
+
+For detailed info, follow this link:
+<A HREF="http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=12149&amp;group_id=2291">http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=12149&amp;group_id=2291</A>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000506.html">[pvpgn-dev] r404 - trunk/pvpgn/src/common
+</A></li>
+	<LI>Next message: <A HREF="000508.html">[pvpgn-dev] [Bug #12149] Can't connect to server
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#507">[ date ]</a>
+              <a href="thread.html#507">[ thread ]</a>
+              <a href="subject.html#507">[ subject ]</a>
+              <a href="author.html#507">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

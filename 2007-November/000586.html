@@ -1,0 +1,496 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r421 - trunk/pvpgn/src/bnetd
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-November/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r421%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200711252310.lAPNAqgP007365%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000585.html">
+   <LINK REL="Next"  HREF="000587.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r421 - trunk/pvpgn/src/bnetd</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r421%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200711252310.lAPNAqgP007365%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r421 - trunk/pvpgn/src/bnetd">svn at svn.berlios.de
+       </A><BR>
+    <I>Mon Nov 26 00:10:52 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000585.html">[pvpgn-dev] r420 - trunk/pvpgn/src/bnetd
+</A></li>
+        <LI>Next message: <A HREF="000587.html">[pvpgn-dev] r422 - in trunk/pvpgn: conf src/bnetd
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#586">[ date ]</a>
+              <a href="thread.html#586">[ thread ]</a>
+              <a href="subject.html#586">[ subject ]</a>
+              <a href="author.html#586">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pelish
+Date: 2007-11-26 00:10:48 +0100 (Mon, 26 Nov 2007)
+New Revision: 421
+
+Modified:
+   trunk/pvpgn/src/bnetd/connection.cpp
+   trunk/pvpgn/src/bnetd/connection.h
+   trunk/pvpgn/src/bnetd/handle_irc.cpp
+   trunk/pvpgn/src/bnetd/handle_irc_common.cpp
+   trunk/pvpgn/src/bnetd/handle_wol.cpp
+   trunk/pvpgn/src/bnetd/irc.cpp
+   trunk/pvpgn/src/bnetd/irc.h
+   trunk/pvpgn/src/bnetd/server.cpp
+Log:
+add conn_class_wladder for internal ladder/wol packet spliting, PING/PONG moved to irc.cpp, cleaned up not needed checks in connection.* (probably form my juvenile coding age)
+
+Modified: trunk/pvpgn/src/bnetd/connection.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/connection.cpp	2007-11-25 13:12:54 UTC (rev 420)
++++ trunk/pvpgn/src/bnetd/connection.cpp	2007-11-25 23:10:48 UTC (rev 421)
+@@ -114,7 +114,7 @@
+ 
+     if (c-&gt;protocol.cflags &amp; conn_flags_welcomed)
+ 	return;
+-    if ((conn_get_class(c)==conn_class_irc)||(conn_get_class(c)==conn_class_wol)||(conn_get_class(c)==conn_class_wserv)||(conn_get_class(c)==conn_class_wgameres))
++    if ((conn_get_class(c)==conn_class_irc)||(conn_get_class(c)==conn_class_wol))
+     {
+ 	c-&gt;protocol.cflags|= conn_flags_welcomed;
+ 	return;
+@@ -196,7 +196,7 @@
+     	return;					// state_destroy: do nothing
+ 
+ 
+-    if ((conn_get_class(c)==conn_class_irc)||(conn_get_class(c)==conn_class_wol)||(conn_get_class(c)==conn_class_wserv)||(conn_get_class(c)==conn_class_wgameres)) {
++    if ((conn_get_class(c)==conn_class_irc)||(conn_get_class(c)==conn_class_wol)) {
+     	/* We should start pinging the client after we received the first line ... */
+     	/* NOTE: RFC2812 only suggests that PINGs are being sent
+     	 * if no other activity is detected. However it explecitly
+@@ -265,19 +265,19 @@
+     switch (cclass)
+     {
+     case conn_class_init:
+-	return &quot;init&quot;;
++        return &quot;init&quot;;
+     case conn_class_bnet:
+-	return &quot;bnet&quot;;
++        return &quot;bnet&quot;;
+     case conn_class_file:
+-	return &quot;file&quot;;
++        return &quot;file&quot;;
+     case conn_class_bot:
+-	return &quot;bot&quot;;
++        return &quot;bot&quot;;
+     case conn_class_d2cs_bnetd:
+-	return &quot;d2cs_bnetd&quot;;
++        return &quot;d2cs_bnetd&quot;;
+     case conn_class_telnet:
+-	return &quot;telnet&quot;;
++        return &quot;telnet&quot;;
+     case conn_class_irc:
+-	return &quot;irc&quot;;
++        return &quot;irc&quot;;
+     case conn_class_wol:
+         return &quot;wol&quot;;
+     case conn_class_wserv:
+@@ -286,6 +286,8 @@
+         return &quot;apireg&quot;;
+     case conn_class_wgameres:
+         return &quot;wgameres&quot;;
++    case conn_class_wladder:
++        return &quot;wladder&quot;;
+     case conn_class_none:
+         return &quot;none&quot;;
+     case conn_class_w3route:
+@@ -3548,8 +3550,7 @@
+ 	c = (const t_connection*)elem_get_data(curr);
+ 	if ((c-&gt;protocol.state==conn_state_loggedin)&amp;&amp;
+ 	    ((c-&gt;protocol.cclass==conn_class_bnet)||(c-&gt;protocol.cclass==conn_class_bot)||(c-&gt;protocol.cclass==conn_class_telnet)
+-          ||(c-&gt;protocol.cclass==conn_class_irc)||(c-&gt;protocol.cclass==conn_class_wol)||(c-&gt;protocol.cclass==conn_class_wserv)
+-          ||(c-&gt;protocol.cclass==conn_class_wgameres)))
++          ||(c-&gt;protocol.cclass==conn_class_irc)||(c-&gt;protocol.cclass==conn_class_wol)))
+ 	    count++;
+     }
+ 
+@@ -3826,7 +3827,7 @@
+ 	if ( (c-&gt;protocol.cclass==conn_class_irc) ||
+              (c-&gt;protocol.cclass==conn_class_wol) ||
+              (c-&gt;protocol.cclass==conn_class_wserv) ||
+-             (c-&gt;protocol.cclass==conn_class_wgameres)
++             (c-&gt;protocol.cclass==conn_class_wladder)
+ 	   )
+ 	   return 1;
+ 
+
+Modified: trunk/pvpgn/src/bnetd/connection.h
+===================================================================
+--- trunk/pvpgn/src/bnetd/connection.h	2007-11-25 13:12:54 UTC (rev 420)
++++ trunk/pvpgn/src/bnetd/connection.h	2007-11-25 23:10:48 UTC (rev 421)
+@@ -72,9 +72,10 @@
+     conn_class_telnet,
+     conn_class_ircinit,    /* IRC based protocol INIT*/
+     conn_class_irc,        /* Internet Relay Chat */
+-    conn_class_wol,        /* Westwood IRC */
+-    conn_class_wserv,      /* Westwood servserv */
+-    conn_class_wgameres,   /* Westwood gameres */
++    conn_class_wol,        /* Westwood Chat and Game protocol (IRC based) */
++    conn_class_wserv,      /* Westwood servserv (IRC based) */
++    conn_class_wgameres,   /* Westwood Gameresolution */
++    conn_class_wladder,    /* Westwood Ladder server */
+     conn_class_apireg,     /* Westwood API Register */
+     conn_class_d2cs_bnetd,
+     conn_class_w3route,
+
+Modified: trunk/pvpgn/src/bnetd/handle_irc.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/handle_irc.cpp	2007-11-25 13:12:54 UTC (rev 420)
++++ trunk/pvpgn/src/bnetd/handle_irc.cpp	2007-11-25 23:10:48 UTC (rev 421)
+@@ -63,8 +63,6 @@
+ } t_irc_command_table_row;
+ 
+ static int _handle_user_command(t_connection * conn, int numparams, char ** params, char * text);
+-static int _handle_ping_command(t_connection * conn, int numparams, char ** params, char * text);
+-static int _handle_pong_command(t_connection * conn, int numparams, char ** params, char * text);
+ static int _handle_pass_command(t_connection * conn, int numparams, char ** params, char * text);
+ static int _handle_privmsg_command(t_connection * conn, int numparams, char ** params, char * text);
+ static int _handle_notice_command(t_connection * conn, int numparams, char ** params, char * text);
+@@ -242,54 +240,6 @@
+ 	return 0;
+ }
+ 
+-static int _handle_ping_command(t_connection * conn, int numparams, char ** params, char * text)
+-{
+-	/* Dizzy: just ignore this because RFC says we should not reply client PINGs
+-	 * NOTE: RFC2812 doesn't seem to be very expressive about this ... */
+-	if (numparams)
+-	    irc_send_pong(conn,params[0]);
+-	else
+-	    irc_send_pong(conn,text);
+-	return 0;
+-}
+-
+-static int _handle_pong_command(t_connection * conn, int numparams, char ** params, char * text)
+-{
+-	/* NOTE: RFC2812 doesn't seem to be very expressive about this ... */
+-	if (conn_get_ircping(conn)==0) {
+-	    eventlog(eventlog_level_warn,__FUNCTION__,&quot;[%d] PONG without PING&quot;,conn_get_socket(conn));
+-	}
+-	else {
+-	    unsigned int val = 0;
+-	    char * sname;
+-
+-	    if (numparams&gt;=1) {
+-	        val =  std::strtoul(params[0],NULL,10);
+-		sname = params[0];
+-	    }
+-	    else if (text) {
+-	    	val = std::strtoul(text,NULL,10);
+-		sname = text;
+-	    }
+-	    else {
+-		val = 0;
+-		sname = 0;
+-	    }
+-
+-	    if (conn_get_ircping(conn) != val) {
+-	    	if ((!(sname)) || (std::strcmp(sname,server_get_hostname())!=0)) {
+-			/* Actually the servername should not be always accepted but we aren't that pedantic :) */
+-			eventlog(eventlog_level_warn,__FUNCTION__,&quot;[%d] got bad PONG (%u!=%u &amp;&amp; %s!=%s)&quot;,conn_get_socket(conn),val,conn_get_ircping(conn),sname,server_get_hostname());
+-			return -1;
+-		}
+-	    }
+-	    conn_set_latency(conn,get_ticks()-conn_get_ircping(conn));
+-	    eventlog(eventlog_level_debug,__FUNCTION__,&quot;[%d] latency is now %d (%u-%u)&quot;,conn_get_socket(conn),get_ticks()-conn_get_ircping(conn),get_ticks(),conn_get_ircping(conn));
+-	    conn_set_ircping(conn,0);
+-	}
+-	return 0;
+-}
+-
+ static int _handle_pass_command(t_connection * conn, int numparams, char ** params, char * text)
+ {
+ 	if ((!conn_get_ircpass(conn))&amp;&amp;(conn_get_state(conn)==conn_state_bot_username)) {
+
+Modified: trunk/pvpgn/src/bnetd/handle_irc_common.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/handle_irc_common.cpp	2007-11-25 13:12:54 UTC (rev 420)
++++ trunk/pvpgn/src/bnetd/handle_irc_common.cpp	2007-11-25 23:10:48 UTC (rev 421)
+@@ -59,6 +59,7 @@
+        case conn_class_wserv:
+             return handle_wserv_con_command(conn, command, numparams, params, text);
+        case conn_class_wol:
++       case conn_class_wladder:
+        case conn_class_wgameres:
+             return handle_wol_con_command(conn, command, numparams, params, text);
+        default:
+@@ -117,7 +118,7 @@
+                 (std::strcmp(command, &quot;HIGHSCORE&quot;) == 0)) {
+             DEBUG0(&quot;Got WOL Ladder packet&quot;);
+             if (std::strcmp(prefs_get_wol_addrs(),&quot;&quot;) != 0)
+-                conn_set_class(conn,conn_class_wol); /* is handled in handle_wol.* now */
++                conn_set_class(conn,conn_class_wladder); /* is handled in handle_wol.* now */
+             else
+                 conn_set_state(conn,conn_state_destroy);
+             return 0;
+@@ -292,11 +293,12 @@
+ 	eventlog(eventlog_level_error,__FUNCTION__,&quot;got NULL packet&quot;);
+ 	return -1;
+     }
+-    if (conn_get_class(conn) != conn_class_ircinit &amp;&amp;
+-        conn_get_class(conn) != conn_class_irc &amp;&amp; 
+-        conn_get_class(conn) != conn_class_wol &amp;&amp;
+-        conn_get_class(conn) != conn_class_wserv &amp;&amp;
+-        conn_get_class(conn) != conn_class_wgameres) {
++    if ((conn_get_class(conn) != conn_class_ircinit) &amp;&amp;
++        (conn_get_class(conn) != conn_class_irc) &amp;&amp;
++        (conn_get_class(conn) != conn_class_wol) &amp;&amp;
++        (conn_get_class(conn) != conn_class_wserv) &amp;&amp;
++        (conn_get_class(conn) != conn_class_wgameres) &amp;&amp;
++        (conn_get_class(conn) != conn_class_wladder)) {
+ 	eventlog(eventlog_level_error,__FUNCTION__,&quot;FIXME: handle_irc_packet without any reason (conn-&gt;class != conn_class_irc/ircinit/wol/wserv...)&quot;);
+ 	return -1;
+     }
+
+Modified: trunk/pvpgn/src/bnetd/handle_wol.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/handle_wol.cpp	2007-11-25 13:12:54 UTC (rev 420)
++++ trunk/pvpgn/src/bnetd/handle_wol.cpp	2007-11-25 23:10:48 UTC (rev 421)
+@@ -66,8 +66,6 @@
+ } t_wol_command_table_row;
+ 
+ static int _handle_user_command(t_connection * conn, int numparams, char ** params, char * text);
+-static int _handle_ping_command(t_connection * conn, int numparams, char ** params, char * text);
+-static int _handle_pong_command(t_connection * conn, int numparams, char ** params, char * text);
+ static int _handle_pass_command(t_connection * conn, int numparams, char ** params, char * text);
+ static int _handle_privmsg_command(t_connection * conn, int numparams, char ** params, char * text);
+ static int _handle_quit_command(t_connection * conn, int numparams, char ** params, char * text);
+@@ -293,59 +291,6 @@
+ 	return 0;
+ }
+ 
+-static int _handle_ping_command(t_connection * conn, int numparams, char ** params, char * text)
+-{
+-	if (conn_get_clienttag(conn) == CLIENTTAG_WCHAT_UINT) {
+-       /* WCHAT need ping */
+-	   if (numparams)
+-	       irc_send_pong(conn,params[0]);
+-       else
+-	       irc_send_pong(conn,text);
+-       return 0;
+-    }
+-    return 0;
+-}
+-
+-static int _handle_pong_command(t_connection * conn, int numparams, char ** params, char * text)
+-{
+-	/* NOTE: RFC2812 doesn't seem to be very expressive about this ... */
+-	if (conn_get_clienttag(conn) == CLIENTTAG_WCHAT_UINT) {
+-	    if (conn_get_ircping(conn)==0) {
+-            eventlog(eventlog_level_warn,__FUNCTION__,&quot;[%d] PONG without PING&quot;,conn_get_socket(conn));
+-        }
+-	    else {
+-	         unsigned int val = 0;
+-	         char * sname;
+-
+-	         if (numparams&gt;=1) {
+-	             val =  std::strtoul(params[0],NULL,10);
+-		         sname = params[0];
+-             }
+-	         else if (text) {
+-	    	     val = std::strtoul(text,NULL,10);
+-	             sname = text;
+-             }
+-	         else {
+-		        val = 0;
+-		        sname = 0;
+-             }
+-
+-	         if (conn_get_ircping(conn) != val) {
+-                 if ((!(sname)) || (std::strcmp(sname,server_get_hostname())!=0)) {
+-			        /* Actually the servername should not be always accepted but we aren't that pedantic :) */
+-			        eventlog(eventlog_level_warn,__FUNCTION__,&quot;[%d] got bad PONG (%u!=%u &amp;&amp; %s!=%s)&quot;,conn_get_socket(conn),val,conn_get_ircping(conn),sname,server_get_hostname());
+-			        return -1;
+-		         }
+-             }
+-	         conn_set_latency(conn,get_ticks()-conn_get_ircping(conn));
+-	         eventlog(eventlog_level_debug,__FUNCTION__,&quot;[%d] latency is now %d (%u-%u)&quot;,conn_get_socket(conn),get_ticks()-conn_get_ircping(conn),get_ticks(),conn_get_ircping(conn));
+-	         conn_set_ircping(conn,0);
+-        }
+-	    return 0;
+-    }
+-    return 0;
+-}
+-
+ static int _handle_pass_command(t_connection * conn, int numparams, char ** params, char * text)
+ {
+     /**
+
+Modified: trunk/pvpgn/src/bnetd/irc.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/irc.cpp	2007-11-25 13:12:54 UTC (rev 420)
++++ trunk/pvpgn/src/bnetd/irc.cpp	2007-11-25 23:10:48 UTC (rev 421)
+@@ -152,8 +152,9 @@
+ 	return -1;
+     }
+ 
+-    if ((conn_get_clienttag(conn) != CLIENTTAG_WCHAT_UINT) &amp;&amp;
+-        (conn_get_clienttag(conn) != CLIENTTAG_IIRC_UINT))
++    if ((conn_get_class(conn) == conn_class_wserv) ||
++        (conn_get_class(conn) == conn_class_wgameres) ||
++        (conn_get_class(conn) == conn_class_wladder))
+         return 0;
+ 
+     if (!(p = packet_create(packet_class_raw))) {
+@@ -163,12 +164,13 @@
+ 
+     conn_set_ircping(conn,get_ticks());
+     if (conn_get_state(conn)==conn_state_bot_username)
+-    	std::sprintf(data,&quot;PING :%u\r\n&quot;,conn_get_ircping(conn)); /* Undernet doesn't reveal the servername yet ... neither do we */
++    	std::sprintf(data,&quot;PING :%u&quot;,conn_get_ircping(conn)); /* Undernet doesn't reveal the servername yet ... neither do we */
+     else if ((6+std::strlen(server_get_hostname())+2+1)&lt;=MAX_IRC_MESSAGE_LEN)
+-    	std::sprintf(data,&quot;PING :%s\r\n&quot;,server_get_hostname());
++    	std::sprintf(data,&quot;PING :%s&quot;,server_get_hostname());
+     else
+     	eventlog(eventlog_level_error,__FUNCTION__,&quot;maximum message length exceeded&quot;);
+     eventlog(eventlog_level_debug,__FUNCTION__,&quot;[%d] sent \&quot;%s\&quot;&quot;,conn_get_socket(conn),data);
++	std::strcat(data,&quot;\r\n&quot;);
+     packet_set_size(p,0);
+     packet_append_data(p,data,std::strlen(data));
+     conn_push_outqueue(conn,p);
+@@ -195,10 +197,11 @@
+     }
+ 
+     if (params)
+-    	std::sprintf(data,&quot;:%s PONG %s :%s\r\n&quot;,server_get_hostname(),server_get_hostname(),params);
++    	std::sprintf(data,&quot;:%s PONG %s :%s&quot;,server_get_hostname(),server_get_hostname(),params);
+     else
+-    	std::sprintf(data,&quot;:%s PONG %s\r\n&quot;,server_get_hostname(),server_get_hostname());
++    	std::sprintf(data,&quot;:%s PONG %s&quot;,server_get_hostname(),server_get_hostname());
+     eventlog(eventlog_level_debug,__FUNCTION__,&quot;[%d] sent \&quot;%s\&quot;&quot;,conn_get_socket(conn),data);
++	std::strcat(data,&quot;\r\n&quot;);
+     packet_set_size(p,0);
+     packet_append_data(p,data,std::strlen(data));
+     conn_push_outqueue(conn,p);
+@@ -1223,6 +1226,54 @@
+ 	return 0;
+ }
+ 
++extern int _handle_ping_command(t_connection * conn, int numparams, char ** params, char * text)
++{
++    /* Dizzy: just ignore this because RFC says we should not reply client PINGs
++     * NOTE: RFC2812 doesn't seem to be very expressive about this ... */
++    if (numparams)
++        irc_send_pong(conn,params[0]);
++    else
++        irc_send_pong(conn,text);
++    return 0;
++}
++
++extern int _handle_pong_command(t_connection * conn, int numparams, char ** params, char * text)
++{
++    /* NOTE: RFC2812 doesn't seem to be very expressive about this ... */
++    if (conn_get_ircping(conn)==0) {
++        eventlog(eventlog_level_warn,__FUNCTION__,&quot;[%d] PONG without PING&quot;,conn_get_socket(conn));
++    }
++    else {
++        unsigned int val = 0;
++        char * sname;
++
++        if (numparams&gt;=1) {
++            val =  std::strtoul(params[0],NULL,10);
++        sname = params[0];
++        }
++        else if (text) {
++            val = std::strtoul(text,NULL,10);
++        sname = text;
++        }
++        else {
++        val = 0;
++        sname = 0;
++        }
++
++        if (conn_get_ircping(conn) != val) {
++       	    if ((!(sname)) || (std::strcmp(sname,server_get_hostname())!=0)) {
++                /* Actually the servername should not be always accepted but we aren't that pedantic :) */
++                eventlog(eventlog_level_warn,__FUNCTION__,&quot;[%d] got bad PONG (%u!=%u &amp;&amp; %s!=%s)&quot;,conn_get_socket(conn),val,conn_get_ircping(conn),sname,server_get_hostname());
++                return -1;
++            }
++        }
++        conn_set_latency(conn,get_ticks()-conn_get_ircping(conn));
++        eventlog(eventlog_level_debug,__FUNCTION__,&quot;[%d] latency is now %d (%u-%u)&quot;,conn_get_socket(conn),get_ticks()-conn_get_ircping(conn),get_ticks(),conn_get_ircping(conn));
++        conn_set_ircping(conn,0);
++    }
++    return 0;
++}
++
+ extern int _handle_join_command(t_connection * conn, int numparams, char ** params, char * text)
+ {
+     if (numparams&gt;=1) {
+
+Modified: trunk/pvpgn/src/bnetd/irc.h
+===================================================================
+--- trunk/pvpgn/src/bnetd/irc.h	2007-11-25 13:12:54 UTC (rev 420)
++++ trunk/pvpgn/src/bnetd/irc.h	2007-11-25 23:10:48 UTC (rev 421)
+@@ -51,6 +51,8 @@
+ extern int irc_who(t_connection * c, char const * name);
+ extern int irc_send_motd(t_connection * conn);
+ extern int _handle_nick_command(t_connection * conn, int numparams, char ** params, char * text);
++extern int _handle_ping_command(t_connection * conn, int numparams, char ** params, char * text);
++extern int _handle_pong_command(t_connection * conn, int numparams, char ** params, char * text);
+ extern int _handle_join_command(t_connection * conn, int numparams, char ** params, char * text);
+ extern int irc_send_topic(t_connection * c, t_channel const * channel);
+ extern int _handle_topic_command(t_connection * conn, int numparams, char ** params, char * text);
+
+Modified: trunk/pvpgn/src/bnetd/server.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/server.cpp	2007-11-25 13:12:54 UTC (rev 420)
++++ trunk/pvpgn/src/bnetd/server.cpp	2007-11-25 23:10:48 UTC (rev 421)
+@@ -531,6 +531,7 @@
+ 	case conn_class_wserv:
+  	case conn_class_apireg:
+ 	case conn_class_wgameres:
++	case conn_class_wladder:
+ 	case conn_class_telnet:
+ 	    if (!(packet = packet_create(packet_class_raw)))
+ 	    {
+@@ -646,7 +647,8 @@
+ 		case conn_class_irc:
+ 		case conn_class_wserv:
+ 		case conn_class_wol:
+-		case conn_class_wgameres: /* NOTICE: Will be handled in other file */
++		case conn_class_wladder:
++		case conn_class_wgameres: /* NOTICE: Will be handled in another file */
+ 		    ret = handle_irc_common_packet(c,packet);
+ 		    break;
+ 		case conn_class_apireg:
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000585.html">[pvpgn-dev] r420 - trunk/pvpgn/src/bnetd
+</A></li>
+	<LI>Next message: <A HREF="000587.html">[pvpgn-dev] r422 - in trunk/pvpgn: conf src/bnetd
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#586">[ date ]</a>
+              <a href="thread.html#586">[ thread ]</a>
+              <a href="subject.html#586">[ subject ]</a>
+              <a href="author.html#586">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,158 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r350 - in trunk/pvpgn: . src src/bnetd src/d2cs	src/d2dbs
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-August/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r350%20-%20in%20trunk/pvpgn%3A%20.%20src%20src/bnetd%20src/d2cs%0A%09src/d2dbs&In-Reply-To=%3C200708230744.l7N7iLPF028489%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000399.html">
+   <LINK REL="Next"  HREF="000401.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r350 - in trunk/pvpgn: . src src/bnetd src/d2cs	src/d2dbs</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r350%20-%20in%20trunk/pvpgn%3A%20.%20src%20src/bnetd%20src/d2cs%0A%09src/d2dbs&In-Reply-To=%3C200708230744.l7N7iLPF028489%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r350 - in trunk/pvpgn: . src src/bnetd src/d2cs	src/d2dbs">svn at svn.berlios.de
+       </A><BR>
+    <I>Thu Aug 23 09:44:21 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000399.html">[pvpgn-dev] r349 - trunk/pvpgn/src/common
+</A></li>
+        <LI>Next message: <A HREF="000401.html">[pvpgn-dev] r351 - in trunk/pvpgn: . src/bnetd src/bntrackd	src/compat src/d2cs src/d2dbs
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#400">[ date ]</a>
+              <a href="thread.html#400">[ thread ]</a>
+              <a href="subject.html#400">[ subject ]</a>
+              <a href="author.html#400">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: d1zzy
+Date: 2007-08-23 09:44:18 +0200 (Thu, 23 Aug 2007)
+New Revision: 350
+
+Modified:
+   trunk/pvpgn/ConfigureChecks.cmake
+   trunk/pvpgn/config.h.cmake
+   trunk/pvpgn/src/CMakeLists.txt
+   trunk/pvpgn/src/bnetd/CMakeLists.txt
+   trunk/pvpgn/src/d2cs/CMakeLists.txt
+   trunk/pvpgn/src/d2dbs/CMakeLists.txt
+Log:
+Second try for the hardcoded configs default path, this time putting 
+them in config.h where having spaces in path shouldnt matter. Removed 
+the old solution. Also removed the base source dir from searched 
+included paths because it's not needed (we only need base binary dir for 
+&quot;config.h&quot;) and it was &quot;hiding&quot; the config.h from the out of source 
+build because #include saw a config.h (generated from an autotools 
+build) in the source dir first.
+
+
+Modified: trunk/pvpgn/ConfigureChecks.cmake
+===================================================================
+--- trunk/pvpgn/ConfigureChecks.cmake	2007-08-22 18:52:10 UTC (rev 349)
++++ trunk/pvpgn/ConfigureChecks.cmake	2007-08-23 07:44:18 UTC (rev 350)
+@@ -31,6 +31,11 @@
+ check_library_exists(resolv inet_aton &quot;&quot; HAVE_LIBRESOLV)
+ check_library_exists(bind __inet_aton &quot;&quot; HAVE_LIBBIND)
+ 
++# set default hardcoded config paths
++set(BNETD_DEFAULT_CONF_FILE &quot;${SYSCONFDIR}/bnetd.conf&quot;)
++set(D2CS_DEFAULT_CONF_FILE &quot;${SYSCONFDIR}/d2cs.conf&quot;)
++set(D2DBS_DEFAULT_CONF_FILE &quot;${SYSCONFDIR}/d2dbs.conf&quot;)
++
+ # storage module checks
+ if(WITH_MYSQL)
+     find_package(MySQL REQUIRED)
+
+Modified: trunk/pvpgn/config.h.cmake
+===================================================================
+--- trunk/pvpgn/config.h.cmake	2007-08-22 18:52:10 UTC (rev 349)
++++ trunk/pvpgn/config.h.cmake	2007-08-23 07:44:18 UTC (rev 350)
+@@ -112,4 +112,8 @@
+ #cmakedefine HAVE__SNPRINTF
+ #cmakedefine HAVE_SETPGRP
+ 
++#cmakedefine BNETD_DEFAULT_CONF_FILE &quot;${BNETD_DEFAULT_CONF_FILE}&quot;
++#cmakedefine D2CS_DEFAULT_CONF_FILE &quot;${D2CS_DEFAULT_CONF_FILE}&quot;
++#cmakedefine D2DBS_DEFAULT_CONF_FILE &quot;${D2DBS_DEFAULT_CONF_FILE}&quot;
++
+ #endif
+
+Modified: trunk/pvpgn/src/CMakeLists.txt
+===================================================================
+--- trunk/pvpgn/src/CMakeLists.txt	2007-08-22 18:52:10 UTC (rev 349)
++++ trunk/pvpgn/src/CMakeLists.txt	2007-08-23 07:44:18 UTC (rev 350)
+@@ -1,5 +1,5 @@
+ #first setup the includes and link paths
+-include_directories(${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR} 
++include_directories(${CMAKE_BINARY_DIR} 
+ 	${CMAKE_SOURCE_DIR}/src ${ZLIB_INCLUDE_DIR} ${MYSQL_INCLUDE_DIR}
+ 	${SQLITE3_INCLUDE_DIR})
+ 
+
+Modified: trunk/pvpgn/src/bnetd/CMakeLists.txt
+===================================================================
+--- trunk/pvpgn/src/bnetd/CMakeLists.txt	2007-08-22 18:52:10 UTC (rev 349)
++++ trunk/pvpgn/src/bnetd/CMakeLists.txt	2007-08-23 07:44:18 UTC (rev 350)
+@@ -1,5 +1,3 @@
+-add_definitions(&quot;-DBNETD_DEFAULT_CONF_FILE=\\\&quot;${SYSCONFDIR}/bnetd.conf\\\&quot;&quot;)
+-
+ add_executable(bnetd
+ 	account.cpp account.h account_wrap.cpp account_wrap.h adbanner.cpp
+ 	adbanner.h alias_command.cpp alias_command.h anongame.cpp
+
+Modified: trunk/pvpgn/src/d2cs/CMakeLists.txt
+===================================================================
+--- trunk/pvpgn/src/d2cs/CMakeLists.txt	2007-08-22 18:52:10 UTC (rev 349)
++++ trunk/pvpgn/src/d2cs/CMakeLists.txt	2007-08-23 07:44:18 UTC (rev 350)
+@@ -1,5 +1,3 @@
+-add_definitions(&quot;-DD2CS_DEFAULT_CONF_FILE=\\\&quot;${SYSCONFDIR}/d2cs.conf\\\&quot;&quot;)
+-
+ add_executable(d2cs 
+ 	bit.h bnetd.cpp bnetd.h cmdline.cpp cmdline.h connection.cpp 
+ 	connection.h d2charfile.cpp d2charfile.h d2charlist.cpp d2charlist.h 
+
+Modified: trunk/pvpgn/src/d2dbs/CMakeLists.txt
+===================================================================
+--- trunk/pvpgn/src/d2dbs/CMakeLists.txt	2007-08-22 18:52:10 UTC (rev 349)
++++ trunk/pvpgn/src/d2dbs/CMakeLists.txt	2007-08-23 07:44:18 UTC (rev 350)
+@@ -1,5 +1,3 @@
+-add_definitions(&quot;-DD2DBS_DEFAULT_CONF_FILE=\\\&quot;${SYSCONFDIR}/d2dbs.conf\\\&quot;&quot;)
+-
+ add_executable(d2dbs 
+ 	charlock.cpp charlock.h cmdline.cpp cmdline.h d2ladder.cpp d2ladder.h 
+ 	dbsdupecheck.cpp dbsdupecheck.h dbserver.cpp dbserver.h dbspacket.cpp 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000399.html">[pvpgn-dev] r349 - trunk/pvpgn/src/common
+</A></li>
+	<LI>Next message: <A HREF="000401.html">[pvpgn-dev] r351 - in trunk/pvpgn: . src/bnetd src/bntrackd	src/compat src/d2cs src/d2dbs
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#400">[ date ]</a>
+              <a href="thread.html#400">[ thread ]</a>
+              <a href="subject.html#400">[ subject ]</a>
+              <a href="author.html#400">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

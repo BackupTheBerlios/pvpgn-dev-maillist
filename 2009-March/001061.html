@@ -1,0 +1,158 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r554 - trunk/pvpgn/src/bnetd
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2009-March/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r554%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200903042001.n24K197Q002963%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001060.html">
+   <LINK REL="Next"  HREF="001062.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r554 - trunk/pvpgn/src/bnetd</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r554%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200903042001.n24K197Q002963%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r554 - trunk/pvpgn/src/bnetd">svn at svn.berlios.de
+       </A><BR>
+    <I>Wed Mar  4 21:01:09 CET 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001060.html">[pvpgn-dev] [Bug #14973] Segmentation Fault at pvpgn init when chat	logging is on
+</A></li>
+        <LI>Next message: <A HREF="001062.html">[pvpgn-dev] [Bug #15325] Clan using the same short name can be	registered
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1061">[ date ]</a>
+              <a href="thread.html#1061">[ thread ]</a>
+              <a href="subject.html#1061">[ subject ]</a>
+              <a href="author.html#1061">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pandaemonium
+Date: 2009-03-04 21:01:08 +0100 (Wed, 04 Mar 2009)
+New Revision: 554
+
+Modified:
+   trunk/pvpgn/src/bnetd/handle_irc_common.cpp
+   trunk/pvpgn/src/bnetd/server.cpp
+Log:
+slightly improve IRC message handling (makes hexdumping of IRC connections actaully usefull\!)
+
+Modified: trunk/pvpgn/src/bnetd/handle_irc_common.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/handle_irc_common.cpp	2009-02-25 22:06:18 UTC (rev 553)
++++ trunk/pvpgn/src/bnetd/handle_irc_common.cpp	2009-03-04 20:01:08 UTC (rev 554)
+@@ -322,10 +322,7 @@
+     data = (const char *)packet_get_raw_data_const(packet,0);
+ 
+     for (i=0; i &lt; packet_get_size(packet); i++) {
+-	if ((data[i] == '\r')||(data[i] == '\0')) {
+-	    /* kindly ignore \r and NUL ... */
+-	}
+-    else if (data[i] == '\n') {
++    if (data[i] == '\n') {
+ 	    /* end of line */
+ 	    handle_irc_common_line(conn,ircline);
+ 	    std::memset(ircline,0,sizeof(ircline));
+
+Modified: trunk/pvpgn/src/bnetd/server.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/server.cpp	2009-02-25 22:06:18 UTC (rev 553)
++++ trunk/pvpgn/src/bnetd/server.cpp	2009-03-04 20:01:08 UTC (rev 554)
+@@ -478,6 +478,7 @@
+     unsigned int currsize;
+     t_packet *   packet;
+     int		 csocket = conn_get_socket(c);
++    bool	 skip;
+ 
+     currsize = conn_get_in_size(c);
+ 
+@@ -591,6 +592,7 @@
+ 		     * some bots even send them after login (eg. UltimateBot)
+ 		     */
+ 		    currsize--;
++		    skip = true;
+ 		    break;
+ 		}
+ 
+@@ -598,12 +600,47 @@
+ 		{
+ 		    conn_set_in_size(c,currsize);
+ 		    packet_set_size(packet,currsize+1);
++		    skip = true;
+ 		    break; /* no end of line, get another char */
+ 		}
+ 	    }
+-	    /* got a complete line or overflow... fall through */
++	    skip = false;
++	    break;
+ 
++	case conn_class_ircinit:
++	case conn_class_irc:
++	case conn_class_wol:
++	case conn_class_wserv:
++	case conn_class_wladder:
++	    if (currsize&lt;MAX_PACKET_SIZE)
++				/* if we overflow, we can't wait for the end of the line.
++					     handle_*_packet() should take care of it */
++	    {
++		char const * const temp=(char const * const)packet_get_raw_data_const(packet,0);
++
++		if ((temp[currsize-1]=='\r')||(temp[currsize-1]=='\0')) {
++			/* kindly ignore \r and NUL ... */
++		    currsize--;
++		    skip = true;
++		    break;
++		}
++
++		if (temp[currsize-1]!='\n')
++		{
++		    conn_set_in_size(c,currsize);
++		    packet_set_size(packet,currsize+1);
++		    skip = true;
++		    break; /* no end of line, get another char */
++		}
++	    }
++	    skip = false;
++	    break;
++
+ 	default:
++		skip = false;
++	}
++
++	if (!skip) {
+ 	    conn_put_in_queue(c,NULL);
+ 
+ 	    if (hexstrm)
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001060.html">[pvpgn-dev] [Bug #14973] Segmentation Fault at pvpgn init when chat	logging is on
+</A></li>
+	<LI>Next message: <A HREF="001062.html">[pvpgn-dev] [Bug #15325] Clan using the same short name can be	registered
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1061">[ date ]</a>
+              <a href="thread.html#1061">[ thread ]</a>
+              <a href="subject.html#1061">[ subject ]</a>
+              <a href="author.html#1061">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

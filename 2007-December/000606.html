@@ -1,0 +1,121 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] Changing PvPGN license from &quot;GPLv2 and later&quot; to	GPLv3/AGPLv3
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-December/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20Changing%20PvPGN%20license%20from%20%22GPLv2%20and%20later%22%20to%0A%09GPLv3/AGPLv3&In-Reply-To=%3C200712041029.53642.dizone%40gmail.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000621.html">
+   <LINK REL="Next"  HREF="000612.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] Changing PvPGN license from &quot;GPLv2 and later&quot; to	GPLv3/AGPLv3</H1>
+    <B>dizzy</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20Changing%20PvPGN%20license%20from%20%22GPLv2%20and%20later%22%20to%0A%09GPLv3/AGPLv3&In-Reply-To=%3C200712041029.53642.dizone%40gmail.com%3E"
+       TITLE="[pvpgn-dev] Changing PvPGN license from &quot;GPLv2 and later&quot; to	GPLv3/AGPLv3">dizone at gmail.com
+       </A><BR>
+    <I>Tue Dec  4 09:29:53 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000621.html">[pvpgn-dev] Changing PvPGN license from &quot;GPLv2 and later&quot; to	GPLv3/AGPLv3
+</A></li>
+        <LI>Next message: <A HREF="000612.html">[pvpgn-dev] r424 - trunk/pvpgn/src/bnetd
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#606">[ date ]</a>
+              <a href="thread.html#606">[ thread ]</a>
+              <a href="subject.html#606">[ subject ]</a>
+              <a href="author.html#606">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>On Monday 03 December 2007 20:45:19 Aaron wrote:
+&gt;<i> Hi d1zzy,
+</I>&gt;<i>
+</I>&gt;<i> I like the idea alot! Even though I'm quite sure we won't recieve a
+</I>&gt;<i> single line of extra code from the &quot;thieves&quot;. I doubt any of us
+</I>&gt;<i> developers would feel like really suing a random server admin - even one
+</I>&gt;<i> that added some really cool killer features (tm). The reason is simply:
+</I>&gt;<i> the chances are 99.9% they live in a country that gives a fuck about
+</I>&gt;<i> copyrights and contracts anyways-  so even trying it won't even be worth
+</I>&gt;<i> the fees for a lawyer.
+</I>
+Sure, but not doing it because of that is like not using any license of your 
+code and use public domain assuming nobody gives a shit about any copyright 
+and lincese.
+
+&gt;<i> I think we can relicense some really important core parts of PvPGN to
+</I>&gt;<i> AGPLv3 - like the storage, network and config backend. Same should be
+</I>&gt;<i> true for most parts of ladder code and a majority of the IRC/WOL code.
+</I>&gt;<i> It might even be a good reason to continue some C++ porting work - as
+</I>&gt;<i> the rewritten code can be under a new license. (A core component like
+</I>&gt;<i> connection or account would be a real cool thing to have under AGPLv3.)
+</I>&gt;<i>
+</I>&gt;<i> I think the 1.8.x codebase isn't that easy to handle as too much stuff
+</I>&gt;<i> still has its origins back in bnetd. But even for that code GPLv3 would
+</I>&gt;<i> at least be a good start.
+</I>
+Yes, sorry to not have specified, I ment 1.99.x strictly (ofc, future 
+revisions, people can take and do whatever &quot;GPLv2 and later&quot; allows them with 
+the current code).
+
+&gt;<i> But there is one thing I don't know and don't really understand:
+</I>&gt;<i>    what license is an unified diff to code written under (A)GPLv3 under?
+</I>
+Should be exactly under the license that the code author released that code 
+with. It does not matter under which form the code is presented (unified diff 
+or directly patched in files) what it matters is that it is code copyrighted 
+by some author and that the author wants to release it with some specific 
+license. The users cannot take AGPLv3 code and combine it with &quot;GPLv2 or 
+later&quot; code without being bound to both &quot;GPLv2 or later&quot; and AGPLv3 (that is 
+actually what we will do, we will convert our own written code to AGPLv3, 
+redistribute &quot;GPLv2 or later&quot; under GPLv3 and the whole combination will be 
+bound by both AGPLv3 and GPLv3).
+
+&gt;<i> The reason I'm asking this is simple: could people simply rip off any
+</I>&gt;<i> future changes under the new license by simply applying the same patches
+</I>&gt;<i> to a GPLv2 codebase?
+</I>
+As I exaplained I don't think they can do that. What they can do is to remove 
+AGPLv3 code from code base and implement thair own (possibly reusing 
+old &quot;GPLv2 or later&quot; code for that) or just fork/use the latest &quot;GPLv2 or 
+later&quot; codebase.
+
+So from your perspective, doing this license change wouldn't make you 
+contribute less code to pvpgn and you don't see any other problems with it 
+that might affect pvpgn? (this question is valid for the other people on this 
+list too, especially people who contributed code back to pvpgn I am 
+interested of hearing their oppinion on this)
+
+-- 
+Dizzy
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000621.html">[pvpgn-dev] Changing PvPGN license from &quot;GPLv2 and later&quot; to	GPLv3/AGPLv3
+</A></li>
+	<LI>Next message: <A HREF="000612.html">[pvpgn-dev] r424 - trunk/pvpgn/src/bnetd
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#606">[ date ]</a>
+              <a href="thread.html#606">[ thread ]</a>
+              <a href="subject.html#606">[ subject ]</a>
+              <a href="author.html#606">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

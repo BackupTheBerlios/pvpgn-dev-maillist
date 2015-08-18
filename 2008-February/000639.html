@@ -1,0 +1,100 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] [Patch #2371] clan management mysql account deleting	and from hash table, 
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2008-February/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BPatch%20%232371%5D%20clan%20management%20mysql%20account%20deleting%0A%09and%20from%20hash%20table%2C%20&In-Reply-To=%3C200802121611.m1CGBRn7003866%40unicorn.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000638.html">
+   <LINK REL="Next"  HREF="000640.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] [Patch #2371] clan management mysql account deleting	and from hash table, </H1>
+    <B>admin at berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BPatch%20%232371%5D%20clan%20management%20mysql%20account%20deleting%0A%09and%20from%20hash%20table%2C%20&In-Reply-To=%3C200802121611.m1CGBRn7003866%40unicorn.berlios.de%3E"
+       TITLE="[pvpgn-dev] [Patch #2371] clan management mysql account deleting	and from hash table, ">admin at berlios.de
+       </A><BR>
+    <I>Tue Feb 12 17:11:27 CET 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000638.html">[pvpgn-dev] [Patch #2371] clan management mysql account deleting	and from hash table, 
+</A></li>
+        <LI>Next message: <A HREF="000640.html">[pvpgn-dev] [Patch #2371] clan management mysql account deleting	and from hash table, 
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#639">[ date ]</a>
+              <a href="thread.html#639">[ thread ]</a>
+              <a href="subject.html#639">[ subject ]</a>
+              <a href="author.html#639">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Patch #2371 has been updated. 
+
+Project: pvpgn
+Category: 1.99.x
+Status: Open
+Submitted by: ile
+Assigned to : none
+Summary: clan management mysql account deleting and from hash table, 
+
+Follow-Ups:
+
+Date: 2008-Feb-12 07:11
+By: ile
+
+Comment:
+/clanadd -&gt; add clan
+/clandel -&gt; remove clan
+/clanaddu -&gt; add user to clan
+/clandelu -&gt; remove user from clan
+/delacct -&gt;  delete account from hash ( use it before delacctsql )
+/delacctsql -&gt; deletes acct from sql
+/flushacct -&gt; load account and account's friend list
+-----------
+account renaming sql conf modify:
+&quot;acct_username varchar(32)&quot;,&quot;NULL&quot; 
+&quot;username varchar(32)&quot;,&quot;NULL&quot;
+//
+modify with set command the username and acct_username of the user
+ex /set xy BNET_username zx
+user /delacct to delete it from hash table
+use /flushacct to reload the renamed account
+
+------
+-------------------------------------------------------
+
+-------------------------------------------------------
+For more info, visit:
+
+<A HREF="http://developer.berlios.de/patch/?func=detailpatch&amp;patch_id=2371&amp;group_id=2291">http://developer.berlios.de/patch/?func=detailpatch&amp;patch_id=2371&amp;group_id=2291</A>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000638.html">[pvpgn-dev] [Patch #2371] clan management mysql account deleting	and from hash table, 
+</A></li>
+	<LI>Next message: <A HREF="000640.html">[pvpgn-dev] [Patch #2371] clan management mysql account deleting	and from hash table, 
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#639">[ date ]</a>
+              <a href="thread.html#639">[ thread ]</a>
+              <a href="subject.html#639">[ subject ]</a>
+              <a href="author.html#639">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

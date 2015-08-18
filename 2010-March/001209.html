@@ -1,0 +1,146 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] [Patch #2933] Implemented W3GS probe on host and	/canihost command
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2010-March/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BPatch%20%232933%5D%20Implemented%20W3GS%20probe%20on%20host%20and%0A%09/canihost%20command&In-Reply-To=%3C201003102026.o2AKQq7Q009038%40unicorn.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001208.html">
+   <LINK REL="Next"  HREF="001210.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] [Patch #2933] Implemented W3GS probe on host and	/canihost command</H1>
+    <B>admin at berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BPatch%20%232933%5D%20Implemented%20W3GS%20probe%20on%20host%20and%0A%09/canihost%20command&In-Reply-To=%3C201003102026.o2AKQq7Q009038%40unicorn.berlios.de%3E"
+       TITLE="[pvpgn-dev] [Patch #2933] Implemented W3GS probe on host and	/canihost command">admin at berlios.de
+       </A><BR>
+    <I>Wed Mar 10 21:26:52 CET 2010</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001208.html">[pvpgn-dev] [Patch #2947] Added message_send_text std:string	overload
+</A></li>
+        <LI>Next message: <A HREF="001210.html">[pvpgn-dev] [Patch #2950] PvPGPN Password hash fix for 64-bit PHP
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1209">[ date ]</a>
+              <a href="thread.html#1209">[ thread ]</a>
+              <a href="subject.html#1209">[ subject ]</a>
+              <a href="author.html#1209">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Patch #2933 has been updated. 
+
+Project: pvpgn
+Category: None
+Status: Open
+Submitted by: defirence
+Assigned to : none
+Summary: Implemented W3GS probe on host and /canihost command
+
+Follow-Ups:
+
+Date: 2010-Mar-10 22:26
+By: defirence
+
+Comment:
+- removed message.h and message.cpp changes
+
+Please note: Patch now dependant on std:string message_send_text overload patch located at <A HREF="http://developer.berlios.de/patch/index.php?func=detailpatch&amp;patch_id=2947&amp;group_id=2291">http://developer.berlios.de/patch/index.php?func=detailpatch&amp;patch_id=2947&amp;group_id=2291</A>
+-------------------------------------------------------
+
+Date: 2010-Mar-10 18:52
+By: defirence
+
+Comment:
+Thank you for making the time to look through the code d1zzy.
+
+Updated patch changes are as follows: 
+- added missing packet header size error checking
+- changed game_set_isvalid()'s return type to int
+- changed &lt;sstream&gt; import to &lt;string&gt;
+- changed 'not listing' log message slightly
+- disabled game probe by default
+- removed forgotten &quot;added to game list&quot; debug message on host
+- removed redundant if statement
+- added whitespace and removed unnecessary comments
+-------------------------------------------------------
+
+Date: 2010-Mar-10 10:17
+By: d1zzy
+
+Comment:
+First, thanks for your work.
+
+I spent some time and reviewed about half of the patch, still have to review the most important bits (connection.cpp and handle_w3gs.h/cpp), so far I have these comments/suggestions:
+- bnetd.conf.in: I wouldn't enable the probe by default, if in time this proves both stable and useful to enable all the time we will do so, right now it's a new feature and it should be disabled by default
+- I would drop all those comments with your name, date and the reason like: /* DeFirence | 2010/02/08 | W3GS Probe - added support for W3GS protocol */. We can track why a line in the code was added through the source control system, if we are to add those kind of comments everywhere pvpgn would be full of one of those for every line added :)
+- packet.cpp: you have checked the size (to be at least of a header) in packet_get_type_str() in the initial modification but not in the second, also drop the commented eventlog line
+- prefs.cpp: drop the /* DeFirence | 2010/02/13 | Game Probe */ comment
+- message.h: what's with the &lt;sstream&gt; include? it's not used in that header anywhere, might want to include &lt;string&gt; instead (oh and congrats on using std::string, rules)
+- message.h/message.cpp: you might want to move the addition of that helper std::string const&amp; taking function into a separate patch to reduce the total size of the patch and have changes separated logically as much as possible
+- game.h: I love the bool!
+- game.cpp: (again) drop the /* DeFirence | 2010/02/14 | W3GS Probe | marked war3 games as invalid */ comment. Put spaces around operators (around == and ||)
+- game.cpp: possible bug, you're returning -1 and 0 to a function returning bool, you probably mean to return true/false. But.... you have to decide on the meaning, with int return code we used to signal that if it evaluated to true it was error and otherwise success, with bool the same convention would be akward, people generally use bool return codes to signal error on false and success on true but then someone reading pvpgn code calling your function would have trouble understanding if you check for an error or success (unless they read the conn_set_isvalid() definition) since they would assume the same semantics as with the other functions that return -1 so I think that even tho I love using bool, you will have to change conn_set_isvalid to return int status (you can still live isvalid to be bool of course)
+- handle_bnet.cpp: drop the comment again and spaces around operators; also you probably want to fix the log message's English to something like &quot;not listing because game did not pass W3GS probing&quot;
+- command.cpp: drop those &quot;name - date - added for w3gs probing&quot; style comments
+- in command.cpp _handle_canihost_command: you don't need the second if (game) check, you already check earlier and never reach that point in the code if game were to be NULL; you don't need to set isvalid to false only if it's true, set it always to false (if it was false it stays false); you don't give any message to the user that the probing succeeded
+- connection.h: drop the name/date comments
+
+-------------------------------------------------------
+
+Date: 2010-Feb-18 13:59
+By: defirence
+
+Comment:
+added updated command_groups.conf file
+-------------------------------------------------------
+
+Date: 2010-Feb-17 16:45
+By: defirence
+
+Comment:
+changed enabled_w3gs_probe config variable to more generic enable_game_probe
+-------------------------------------------------------
+
+Date: 2010-Feb-14 17:23
+By: defirence
+
+Comment:
+skip probe if address translation is detection
+-------------------------------------------------------
+
+-------------------------------------------------------
+For more info, visit:
+
+<A HREF="http://developer.berlios.de/patch/?func=detailpatch&amp;patch_id=2933&amp;group_id=2291">http://developer.berlios.de/patch/?func=detailpatch&amp;patch_id=2933&amp;group_id=2291</A>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001208.html">[pvpgn-dev] [Patch #2947] Added message_send_text std:string	overload
+</A></li>
+	<LI>Next message: <A HREF="001210.html">[pvpgn-dev] [Patch #2950] PvPGPN Password hash fix for 64-bit PHP
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1209">[ date ]</a>
+              <a href="thread.html#1209">[ thread ]</a>
+              <a href="subject.html#1209">[ subject ]</a>
+              <a href="author.html#1209">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

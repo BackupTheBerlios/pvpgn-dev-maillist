@@ -1,0 +1,276 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] [Bug #12534] ra2 can created games but cannot start	games
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-November/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BBug%20%2312534%5D%20ra2%20can%20created%20games%20but%20cannot%20start%0A%09games&In-Reply-To=%3C200711291008.lATA8bgg003626%40unicorn.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000588.html">
+   <LINK REL="Next"  HREF="000590.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] [Bug #12534] ra2 can created games but cannot start	games</H1>
+    <B>admin at berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BBug%20%2312534%5D%20ra2%20can%20created%20games%20but%20cannot%20start%0A%09games&In-Reply-To=%3C200711291008.lATA8bgg003626%40unicorn.berlios.de%3E"
+       TITLE="[pvpgn-dev] [Bug #12534] ra2 can created games but cannot start	games">admin at berlios.de
+       </A><BR>
+    <I>Thu Nov 29 11:08:37 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000588.html">[pvpgn-dev] [Bug #12534] ra2 can created games but cannot start	games
+</A></li>
+        <LI>Next message: <A HREF="000590.html">[pvpgn-dev] [Bug #12534] ra2 can created games but cannot start	games
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#589">[ date ]</a>
+              <a href="thread.html#589">[ thread ]</a>
+              <a href="subject.html#589">[ subject ]</a>
+              <a href="author.html#589">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Bug #12534, was updated on 2007-Nov-24 10:59
+Here is a current snapshot of the bug.
+
+Project: Player vs Player Gaming Network
+Category: Westwood Online
+Status: Open
+Resolution: None
+Bug Group: bnetd
+Priority: 5
+Submitted by: yjfyy
+Assigned to : pelish
+Summary: ra2 can created games but cannot start games
+
+Details: fist forget my english ! :)
+ra2 can created games but cannot start games
+message &quot;the other players have been notified that you want to start game.
+chat server errot:
+Player ccc had a problem connecting&quot;
+
+Nov 24 17:00:24 [info ] _setup_listensock: listening for bnet connections on 0.0.0.0:6112 
+
+TCP
+Nov 24 17:00:24 [info ] _setup_listensock: listening for irc connections on 0.0.0.0:6667 TCP
+Nov 24 17:00:24 [info ] _setup_listensock: listening for wol connections on 0.0.0.0:4005 TCP
+Nov 24 17:00:24 [info ] _setup_listensock: listening for w3route connections on 0.0.0.0:6200 
+
+TCP
+Nov 24 17:00:30 [debug] ipbanlist_check: lastcheck: 0, now: 1195894830, now-lc: 1195894830.
+Nov 24 17:00:30 [debug] ipbanlist_check: checking 192.168.17.208
+Nov 24 17:00:30 [info ] sd_accept: [388] accepted connection from 192.168.17.208:2780 on 
+
+0.0.0.0:4005
+Nov 24 17:00:30 [info ] conn_create: [388][-1] sessionkey=0x4747f7fa sessionnum=0x00000000
+Nov 24 17:00:30 [debug] sd_accept: [388] client connected to a wol listening address
+Nov 24 17:00:30 [debug] handle_irc_line: [388] got &quot;&quot; &quot;verchk&quot; [&quot;32512&quot; &quot;65556&quot;] &quot;&quot;
+Nov 24 17:00:30 [debug] handle_irc_line: [388] got &quot;&quot; &quot;verchk&quot; [&quot;8448&quot; &quot;65542&quot;] &quot;&quot;
+Nov 24 17:00:30 [debug] handle_irc_line: [388] got &quot;&quot; &quot;lobcount&quot; [&quot;8448&quot;] &quot;&quot;
+Nov 24 17:00:30 [debug] handle_irc_line: [388] got &quot;&quot; &quot;whereto&quot; [&quot;TibSun&quot; &quot;TibPass99&quot; &quot;8448&quot; 
+
+&quot;65542&quot; &quot;63768358313331888342&quot;] &quot;&quot;
+Nov 24 17:00:30 [debug] trans_net: checking 192.168.17.1:4005 for client 192.168.17.208 ...
+Nov 24 17:00:30 [debug] trans_net: no match found for 192.168.17.1:4005 (not translated)
+Nov 24 17:00:30 [debug] handle_irc_line: [388] got &quot;&quot; &quot;QUIT&quot; [] &quot;&quot;
+Nov 24 17:00:30 [error] conn_set_channel: got NULL account
+Nov 24 17:00:30 [info ] conn_destroy: [388] closed wol connection
+Nov 24 17:00:38 [debug] ipbanlist_check: lastcheck: 1195894830, now: 1195894838, now-lc: 8.
+Nov 24 17:00:38 [debug] ipbanlist_check: checking 192.168.17.208
+Nov 24 17:00:38 [info ] sd_accept: [388] accepted connection from 192.168.17.208:2781 on 
+
+0.0.0.0:4005
+Nov 24 17:00:38 [info ] conn_create: [388][-1] sessionkey=0x4747ef65 sessionnum=0x00000001
+Nov 24 17:00:38 [debug] sd_accept: [388] client connected to a wol listening address
+Nov 24 17:00:38 [debug] handle_irc_line: [388] got &quot;&quot; &quot;CVERS&quot; [&quot;11020&quot; &quot;8448&quot;] &quot;&quot;
+Nov 24 17:00:38 [debug] handle_irc_line: [388] got &quot;&quot; &quot;PASS&quot; [&quot;supersecret&quot;] &quot;&quot;
+Nov 24 17:00:38 [debug] handle_irc_line: [388] got &quot;&quot; &quot;NICK&quot; [&quot;CCC&quot;] &quot;&quot;
+Nov 24 17:00:38 [debug] handle_irc_line: [388] got &quot;&quot; &quot;apgar&quot; [&quot;aGGGGGGG&quot; &quot;0&quot;] &quot;&quot;
+Nov 24 17:00:38 [debug] handle_irc_line: [388] got &quot;&quot; &quot;SERIAL&quot; [&quot;63768358313331888342&quot;] &quot;&quot;
+Nov 24 17:00:38 [debug] handle_irc_line: [388] got &quot;&quot; &quot;USER&quot; [&quot;UserName&quot; &quot;HostName&quot; 
+
+&quot;irc.westwood.com&quot;] &quot;RealName&quot;
+Nov 24 17:00:38 [debug] _handle_user_command: [388][** WOL **] got USER: user=&quot;CCC&quot;
+Nov 24 17:00:38 [debug] file_read_attrs: loading &quot;var\users/CCC&quot;
+Nov 24 17:00:38 [debug] account_set_wol_apgar: [** WOL **] WOL\auth\apgar = aGGGGGGG
+Nov 24 17:00:38 [info ] conn_set_clienttag: [388] setting client type to &quot;WWOL&quot;
+Nov 24 17:00:38 [debug] handle_irc_line: [388] got &quot;&quot; &quot;verchk&quot; [&quot;32512&quot; &quot;720916&quot;] &quot;&quot;
+Nov 24 17:00:38 [debug] handle_irc_line: [388] got &quot;&quot; &quot;SETOPT&quot; [&quot;17,33&quot;] &quot;&quot;
+Nov 24 17:00:38 [debug] handle_irc_line: [388] got &quot;&quot; &quot;SETCODEPAGE&quot; [&quot;936&quot;] &quot;&quot;
+Nov 24 17:00:38 [debug] handle_irc_line: [388] got &quot;&quot; &quot;GETLOCALE&quot; [&quot;CCC&quot;] &quot;&quot;
+Nov 24 17:00:38 [debug] ipbanlist_check: lastcheck: 1195894830, now: 1195894838, now-lc: 8.
+Nov 24 17:00:38 [debug] ipbanlist_check: checking 192.168.17.208
+Nov 24 17:00:38 [info ] sd_accept: [400] accepted connection from 192.168.17.208:2782 on 
+
+0.0.0.0:4005
+Nov 24 17:00:38 [info ] conn_create: [400][-1] sessionkey=0x4747bd3a sessionnum=0x00000002
+Nov 24 17:00:38 [debug] sd_accept: [400] client connected to a wol listening address
+Nov 24 17:00:39 [debug] handle_irc_line: [388] got &quot;&quot; &quot;SETLOCALE&quot; [&quot;21&quot;] &quot;&quot;
+Nov 24 17:00:39 [debug] handle_irc_line: [388] got &quot;&quot; &quot;GETLOCALE&quot; [&quot;CCC&quot;] &quot;&quot;
+Nov 24 17:00:39 [debug] handle_irc_line: [400] got &quot;&quot; &quot;LISTSEARCH&quot; [&quot;8448&quot; &quot;-1&quot; &quot;0&quot; &quot;0&quot; &quot;0&quot;] 
+
+&quot;ccc:&quot;
+Nov 24 17:00:39 [error] handle_irc_line: got empty ircline
+Nov 24 17:00:44 [debug] handle_irc_line: [388] got &quot;&quot; &quot;SETOPT&quot; [&quot;17,33&quot;] &quot;&quot;
+Nov 24 17:00:44 [debug] handle_irc_line: [388] got &quot;&quot; &quot;SQUADINFO&quot; [&quot;0&quot;] &quot;&quot;
+Nov 24 17:00:44 [debug] handle_irc_line: [388] got &quot;&quot; &quot;LIST&quot; [&quot;0&quot; &quot;33&quot;] &quot;&quot;
+Nov 24 17:00:44 [debug] _handle_list_command: [** WOL **] LIST [Channel]
+Nov 24 17:00:44 [debug] _handle_list_command: [** WOL **] LIST [Channel: &quot;Lob&quot;] (#Lob_18_0)
+Nov 24 17:00:44 [debug] _handle_list_command: [** WOL **] LIST [Channel: &quot;Lob&quot;] (#Lob_18_1)
+Nov 24 17:00:44 [debug] _handle_list_command: [** WOL **] LIST [Channel: &quot;Lob&quot;] (#Lob_18_2)
+Nov 24 17:00:44 [debug] _handle_list_command: [** WOL **] LIST [Channel: &quot;Lob&quot;] (#Lob_33_0)
+Nov 24 17:00:44 [debug] _handle_list_command: [** WOL **] LIST [Channel: &quot;Lob&quot;] (#Lob_33_1)
+Nov 24 17:00:44 [debug] _handle_list_command: [** WOL **] LIST [Channel: &quot;Lob&quot;] (#Lob_41_0)
+Nov 24 17:00:44 [debug] _handle_list_command: [** WOL **] LIST [Channel: &quot;Lob&quot;] (#Lob_41_1)
+Nov 24 17:00:45 [debug] handle_irc_line: [388] got &quot;&quot; &quot;JOIN&quot; [&quot;#Lob_33_0&quot; &quot;zotclot9&quot;] &quot;&quot;
+Nov 24 17:00:45 [info ] conn_set_channel: [388] joined channel &quot;Lob 33 0&quot;
+Nov 24 17:00:45 [warn ] irc_message_format: 7 not yet implemented
+Nov 24 17:00:45 [warn ] irc_message_format: 7 not yet implemented
+Nov 24 17:00:45 [debug] irc_message_postformat: sent &quot;:CCC!<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">WWOL at 192.168.17.208</A> JOIN 
+
+:<i>0,3232240080 #Lob_33_0
+</I>
+&quot;
+Nov 24 17:00:45 [debug] handle_irc_line: [388] got &quot;&quot; &quot;LIST&quot; [&quot;0&quot; &quot;33&quot;] &quot;&quot;
+Nov 24 17:00:45 [debug] _handle_list_command: [** WOL **] LIST [Channel]
+Nov 24 17:00:45 [debug] _handle_list_command: [** WOL **] LIST [Channel: &quot;Lob&quot;] (#Lob_18_0)
+Nov 24 17:00:45 [debug] _handle_list_command: [** WOL **] LIST [Channel: &quot;Lob&quot;] (#Lob_18_1)
+Nov 24 17:00:45 [debug] _handle_list_command: [** WOL **] LIST [Channel: &quot;Lob&quot;] (#Lob_18_2)
+Nov 24 17:00:45 [debug] _handle_list_command: [** WOL **] LIST [Channel: &quot;Lob&quot;] (#Lob_33_0)
+Nov 24 17:00:45 [debug] _handle_list_command: [** WOL **] LIST [Channel: &quot;Lob&quot;] (#Lob_33_1)
+Nov 24 17:00:45 [debug] _handle_list_command: [** WOL **] LIST [Channel: &quot;Lob&quot;] (#Lob_41_0)
+Nov 24 17:00:45 [debug] _handle_list_command: [** WOL **] LIST [Channel: &quot;Lob&quot;] (#Lob_41_1)
+Nov 24 17:00:46 [debug] handle_irc_line: [388] got &quot;&quot; &quot;GETCODEPAGE&quot; [&quot;CCC&quot;] &quot;&quot;
+Nov 24 17:00:46 [debug] handle_irc_line: [388] got &quot;&quot; &quot;LIST&quot; [&quot;33&quot; &quot;33&quot;] &quot;&quot;
+Nov 24 17:00:46 [debug] _handle_list_command: [** WOL **] LIST [Game]
+Nov 24 17:00:49 [debug] handle_irc_line: [388] got &quot;&quot; &quot;PART&quot; [&quot;#Lob_33_0&quot;] &quot;&quot;
+Nov 24 17:00:49 [debug] irc_message_postformat: sent &quot;:CCC!<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">WWOL at 192.168.17.208</A> PART  *
+
+&quot;
+Nov 24 17:00:49 [debug] handle_irc_line: [388] got &quot;&quot; &quot;JOINGAME&quot; [&quot;#CCC's_game&quot; &quot;1&quot; &quot;5&quot; &quot;33&quot; 
+
+&quot;3&quot; &quot;1&quot; &quot;0&quot; &quot;0&quot;] &quot;&quot;
+Nov 24 17:00:49 [debug] _handle_joingame_command: [** WOL **] JOINGAME: * Create * 
+
+(#CCC's_game, 1)
+Nov 24 17:00:49 [debug] _handle_joingame_command: [** WOL **] JOINGAME [Game Options] (1 5 
+
+33 3 0 3232240080 0 :#CCC's_game)
+Nov 24 17:00:49 [debug] channellist_find_channel_by_name: could not find channel &quot;CCC's 
+
+game&quot;
+Nov 24 17:00:49 [debug] channel_create: creating new channel &quot;CCC's game&quot; shortname=&quot;CCC's 
+
+game&quot; clienttag=(none) country=(none) realm=(none)
+Nov 24 17:00:49 [debug] channel_create: channel created successfully
+Nov 24 17:00:49 [debug] irc_message_postformat: sent &quot;:BH-SERVER PAGE CCC :you are now 
+
+tempOP for this channel
+
+&quot;
+Nov 24 17:00:49 [warn ] irc_message_format: 7 not yet implemented
+Nov 24 17:00:49 [info ] conn_set_channel: [388] joined channel &quot;CCC's game&quot;
+Nov 24 17:00:49 [warn ] irc_message_format: 7 not yet implemented
+Nov 24 17:00:49 [warn ] irc_message_format: 7 not yet implemented
+Nov 24 17:00:49 [debug] irc_message_postformat: sent &quot;:CCC!<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">WWOL at 192.168.17.208</A> JOINGAME 1 5 
+
+33 3 0 3232240080 0 :#CCC's_game 
+
+
+&quot;
+Nov 24 17:00:49 [debug] handle_irc_line: [388] got &quot;&quot; &quot;TOPIC&quot; [&quot;#CCC's_game&quot;] 
+
+&quot;g15N39,1878366581,0,0,0,MP02T2.MAP&quot;
+Nov 24 17:00:49 [debug] handle_irc_line: [388] got &quot;&quot; &quot;TOPIC&quot; [&quot;#CCC's_game&quot;] 
+
+&quot;g15N39,1878366581,0,0,0,MP02T2.MAP&quot;
+Nov 24 17:00:50 [debug] handle_irc_line: [388] got &quot;&quot; &quot;GAMEOPT&quot; [&quot;CCC&quot;] &quot;R-2,-
+
+2,d011a8c0,12,555&quot;
+Nov 24 17:00:50 [debug] _handle_gameopt_command: [** WOL **] GAMEOPT: (CCC :R-2,-
+
+2,d011a8c0,12,555)
+Nov 24 17:00:50 [debug] irc_message_postformat: sent &quot;:CCC!<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">WWOL at 192.168.17.208</A> GAMEOPT CCC 
+
+:<i>R-2,-2,d011a8c0,12,555
+</I>
+Follow-Ups:
+
+Date: 2007-Nov-29 11:08
+By: pelish
+
+Comment:
+My idea is that you or your firend have running firewall that breaks UDP packets. Check it and/or specify Port in RedAlert 2 (menu Options-&gt;Network-&gt;Internet Firewall Settings - Port number) and this port manually allow in your Firewall. On your logs is not problem.
+-------------------------------------------------------
+
+Date: 2007-Nov-28 12:02
+By: yjfyy
+
+Comment:
+Still wrong&#161;Amy log file <A HREF="http://tybh.vicp.net/log.zip&#161;C">http://tybh.vicp.net/log.zip&#161;C</A>
+Some pictures  <A HREF="http://picasaweb.google.com/yjfyeyu/Pvpgn">http://picasaweb.google.com/yjfyeyu/Pvpgn</A>
+
+I suspect the problem here &quot;Nov 24 18:34:13 [warn ] handle_irc_line: line to long, truncation...&quot;
+
+I use Chinese windows xp and wlan&#161;AIs this why?
+-------------------------------------------------------
+
+Date: 2007-Nov-24 20:02
+By: pelish
+
+Comment:
+Can you please send to comment only end of your log? Before doing that, stop your PvPGN server or wait to PvPGN write all linest to log. Im asking because WOL games starts games by &quot;STARTG&quot; command sended by gamehost but I have not see that in your log file. Also I hope that you are sure that all your clients accept your game settings by &quot;accept&quot; button.
+-------------------------------------------------------
+
+Date: 2007-Nov-24 12:36
+By: yjfyy
+
+Comment:
+Nov 24 17:35:52 [warn ] handle_irc_line: line to long, truncation...
+Nov 24 17:35:52 [debug] handle_irc_line: [412] got &quot;&quot; &quot;GAMEOPT&quot; [&quot;#bbb's_game&quot;] &quot;109695473,1,0,10000,10,1,1,1,1,1,1,&#34008;&#34372;&#32571;&#176;&#213;&#163;&#225;&#32430;&#192;n&#242;&#186;&#163;&#225;&#196;&#234;&#36549;&#24723;&#163;&#225;&#227;Q&#32430;&#32443;&#210;o&#163;&#225;&#161;&#222;&#163;&#225;&#163;&#225;,2,1,204050,MP02T2.MAP,LdvyXBS7yJM7UaMx08ULkwGzA+0=:bbb,-2,-2,6911a8c0,1,514,CCC,-2,-2,d011a8c0,54,55f:@:0,-1,-1,0,-1,-1,0,-1,-1,0,-1,-1,0,-1,-1,0,-1,-1,0,-1,-1,0&quot;
+Nov 24 17:35:52 [debug] _handle_gameopt_command: [** WOL **] GAMEOPT: (#bbb's_game :109695473,1,0,10000,10,1,1,1,1,1,1,&#34008;&#34372;&#32571;&#176;&#213;&#163;&#225;&#32430;&#192;n&#242;&#186;&#163;&#225;&#196;&#234;&#36549;&#24723;&#163;&#225;&#227;Q&#32430;&#32443;&#210;o&#163;&#225;&#161;&#222;&#163;&#225;&#163;&#225;,2,1,204050,MP02T2.MAP,LdvyXBS7yJM7UaMx08ULkwGzA+0=:bbb,-2,-2,6911a8c0,1,514,CCC,-2,-2,d011a8c0,54,55f:@:0,-1,-1,0,-1,-1,0,-1,-1,0,-1,-1,0,-1,-1,0,-1,-1,0,-1,-1,0)
+Nov 24 17:35:52 [debug] irc_message_postformat: sent &quot;:bbb!<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">WWOL at 192.168.17.105</A> GAMEOPT #bbb's_game :109695473,1,0,10000,10,1,1,1,1,1,1,&#34008;&#34372;&#32571;&#176;&#213;&#163;&#225;&#32430;&#192;n&#242;&#186;&#163;&#225;&#196;&#234;&#36549;&#24723;&#163;&#225;&#227;Q&#32430;&#32443;&#210;o&#163;&#225;&#161;&#222;&#163;&#225;&#163;&#225;,2,1,204050,MP02T2.MAP,LdvyXBS7yJM7UaMx08ULkwGzA+0=:bbb,-2,-2,6911a8c0,1,514,CCC,-2,-2,d011a8c0,54,55f:@:0,-1,-1,0,-1,-1,0,-1,-1,0,-1,-1,0,-1,-1,0,-1,-1,0,-1,-1,0
+
+&quot;
+Nov 24 17:35:52 [debug] handle_irc_line: [412] got &quot;&quot; &quot;TOPIC&quot; [&quot;#bbb's_game&quot;] &quot;g12N39,1878366581,0,0,0,MP02T2.MAP&quot;
+Nov 24 17:35:52 [debug] handle_irc_line: [412] got &quot;&quot; &quot;GAMEOPT&quot; [&quot;#bbb's_game&quot;] &quot;P2,bbb,0,CCC,1&quot;
+Nov 24 17:35:52 [debug] _handle_gameopt_command: [** WOL **] GAMEOPT: (#bbb's_game :P2,bbb,0,CCC,1)
+Nov 24 17:35:52 [debug] irc_message_postformat: sent &quot;:bbb!<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">WWOL at 192.168.17.105</A> GAMEOPT #bbb's_game :P2,bbb,0,CCC,1
+
+&quot;
+Nov 24 17:35:55 [debug] handle_irc_line: [412] got &quot;&quot; &quot;GAMEOPT&quot; [&quot;#bbb's_game&quot;] &quot;<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">Lbbb,CCC, at Open</A>@<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">, at Open</A>@<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">, at Closed</A>@<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">, at Closed</A>@<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">, at Closed</A>@<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">, at Closed</A>@,&quot;
+Nov 24 17:35:55 [debug] _handle_gameopt_command: [** WOL **] GAMEOPT: (#bbb's_game :<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">Lbbb,CCC, at Open</A>@<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">, at Open</A>@<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">, at Closed</A>@<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">, at Closed</A>@<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">, at Closed</A>@<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">, at Closed</A>@,)
+Nov 24 17:35:55 [debug] irc_message_postformat: sent &quot;:bbb!<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">WWOL at 192.168.17.105</A> GAMEOPT #bbb's_game :<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">Lbbb,CCC, at Open</A>@<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">, at Open</A>@<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">, at Closed</A>@<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">, at Closed</A>@<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">, at Closed</A>@<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">, at Closed</A>@,
+-------------------------------------------------------
+
+For detailed info, follow this link:
+<A HREF="http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=12534&amp;group_id=2291">http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=12534&amp;group_id=2291</A>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000588.html">[pvpgn-dev] [Bug #12534] ra2 can created games but cannot start	games
+</A></li>
+	<LI>Next message: <A HREF="000590.html">[pvpgn-dev] [Bug #12534] ra2 can created games but cannot start	games
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#589">[ date ]</a>
+              <a href="thread.html#589">[ thread ]</a>
+              <a href="subject.html#589">[ subject ]</a>
+              <a href="author.html#589">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

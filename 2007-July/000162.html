@@ -1,0 +1,173 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r266 - trunk/pvpgn
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-July/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r266%20-%20trunk/pvpgn&In-Reply-To=%3C200707301933.l6UJXl6I010122%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000161.html">
+   <LINK REL="Next"  HREF="000163.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r266 - trunk/pvpgn</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r266%20-%20trunk/pvpgn&In-Reply-To=%3C200707301933.l6UJXl6I010122%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r266 - trunk/pvpgn">svn at svn.berlios.de
+       </A><BR>
+    <I>Mon Jul 30 21:33:47 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000161.html">[pvpgn-dev] pvpgn version-history.txt,1.261,1.262
+</A></li>
+        <LI>Next message: <A HREF="000163.html">[pvpgn-dev] [Patch #2087] /ipban bug Bug #11089 fixed
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#162">[ date ]</a>
+              <a href="thread.html#162">[ thread ]</a>
+              <a href="subject.html#162">[ subject ]</a>
+              <a href="author.html#162">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pandaemonium
+Date: 2007-07-30 21:33:47 +0200 (Mon, 30 Jul 2007)
+New Revision: 266
+
+Modified:
+   trunk/pvpgn/version-history.txt
+Log:
+update version-history a bit
+
+Modified: trunk/pvpgn/version-history.txt
+===================================================================
+--- trunk/pvpgn/version-history.txt	2007-07-30 18:30:23 UTC (rev 265)
++++ trunk/pvpgn/version-history.txt	2007-07-30 19:33:47 UTC (rev 266)
+@@ -1,10 +1,82 @@
+ PvPGN Version History:
+ 
++ Changelog for SVN TRUNK (since 1.8.1)
++=========================================
++ -- The list of changes mentioned in here is most propably incomplete.
++ For more details also take a peek view into conversion-changelog.
+ 
+- ChangeLog for 1.7.10 (since 1.7.9)
++[WOL]
++  -- Disable account creation via irc/wol when new_accounts=false
++  -- Added address translation for WOL servserv addresses
++  -- Added support to allow/deny WOL clients in bnconf.conf
++  -- Added support for battle clans
++  -- Added various protocol related fixes
++
++ ChangeLog for 1.8.1 (since 1.8.0)
++=========================================
++
++[WOL]
++  -- fixed bug trying to join unexistent games
++  -- fixed bug overflowing the max players game limit
++  -- fixed bug of not showing Yuri's revenge channels
++  -- added address translation support to servserv sent addresses
++
++[WAR3]
++  -- fixed possible server crash on ill-formated clan invitation reply packet
++
++[MISC]
++  -- fixed d2dbs accepting d2gs connections from any ip
++  -- fixed IRC /notice disc bug
++  -- fixed warning and reactivated reconnecting when using mysql&gt;=5.0.13
++  -- fixed SC:BW string representation from &quot;StarCraft: Broodwars&quot;
++  to &quot;StarCraft: Brood War&quot; (to better match battle.net behaviour)
++  -- fixed possible server crash caused by /ipban command
++
++ ChangeLog for 1.8.0 (since 1.8.0rc2)
++=========================================
++[VCHECK]
++  -- added sc/bw 1.13f/1.14 version check entries
++  -- added WAR3/W3XP IX86 1.20d/1.20e vcheck entries
++
++[D2]
++  -- cleaned up some mess about dealing with D2 1.08 auth reply packets which 
++  we don't need to support according to our minimum D2 version required
++  -- fixed joining of D2 channels by non-D2 clients
++
++[WOL]
++  -- fixed a bug where players couldn't join newly created channels
++
++[MISC]
++  -- fixed logging of invalid strings for client tags
++  -- fixed /ladderinfo command, fix usage of uninitilized variables
++  -- fixed corruption of account data when using files storage and when there 
++  where already broken UID accounts
++  -- fixed the clan max members to be 100 not 255
++  -- fixed loading of all accounts in sql2 (ex. when doing a ladder rebuild)
++  -- reverted dynamic SQL lib support that was creating problems
++  -- properly fixed &quot;sql&quot; (&quot;sql2&quot; is not affected) friend list bugs (reverted 
++  the old fix which was creating new problems); might still be problems if
++  using old versions of sqlite3 (that dont support ` quoting) or using ODBC
++  -- fixed connection loss problems with mysql&gt;=5.0.12 (mysql versions starting 
++  with 5.0.3 but lower than 5.0.12 will still have the issue, upgrade mysql!)
++
++
++ Changelog for 1.8.0rc2 (since 1.8.0rc1)
++=========================================
++[SQL]
++  -- fixed friendslist-related (my)SQL problems
++  
++[VERSIONCHECK]
++  -- added W3 1.20c entries
++
++[MISC]
++  -- updated bnmaps.conf with the latest Battle.net maps
++
++ ChangeLog for 1.8.0rc1 (since 1.7.9)
+ =======================================
+ [SQL]
+   -- inserted additional indices for BNET table in sql2 layout
++  -- added runtime loading of shared library files (DLLs)
+ 
+ [SC/BW/W2BNE]
+   -- fixed problem with parsing gameresults with unexpected order of players
+@@ -18,9 +90,11 @@
+ [VERSIONCHECK]
+   -- added SC/BW 1.13e entries (XMAC &amp; PMAC)
+   -- added D2/D2XP 1.11b entries
+-  -- added W3 1.20b entried
+-  
++  -- added W3 1.20b entries
+ 
++[MISC]
++  -- enforce limit for topic message max length
++
+  ChangeLog for 1.7.9 (since 1.7.8)
+ =======================================
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000161.html">[pvpgn-dev] pvpgn version-history.txt,1.261,1.262
+</A></li>
+	<LI>Next message: <A HREF="000163.html">[pvpgn-dev] [Patch #2087] /ipban bug Bug #11089 fixed
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#162">[ date ]</a>
+              <a href="thread.html#162">[ thread ]</a>
+              <a href="subject.html#162">[ subject ]</a>
+              <a href="author.html#162">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

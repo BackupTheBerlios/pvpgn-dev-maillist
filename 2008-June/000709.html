@@ -1,0 +1,200 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r454 - trunk/pvpgn/src/bnetd
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2008-June/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r454%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200806091812.m59ICWsZ011011%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000708.html">
+   <LINK REL="Next"  HREF="000710.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r454 - trunk/pvpgn/src/bnetd</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r454%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200806091812.m59ICWsZ011011%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r454 - trunk/pvpgn/src/bnetd">svn at svn.berlios.de
+       </A><BR>
+    <I>Mon Jun  9 20:12:32 CEST 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000708.html">[pvpgn-dev] r453 - trunk/files
+</A></li>
+        <LI>Next message: <A HREF="000710.html">[pvpgn-dev] r455 - trunk/pvpgn/src/common
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#709">[ date ]</a>
+              <a href="thread.html#709">[ thread ]</a>
+              <a href="subject.html#709">[ subject ]</a>
+              <a href="author.html#709">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pandaemonium
+Date: 2008-06-09 20:12:31 +0200 (Mon, 09 Jun 2008)
+New Revision: 454
+
+Modified:
+   trunk/pvpgn/src/bnetd/connection.cpp
+   trunk/pvpgn/src/bnetd/connection.h
+Log:
+add fields to temorarily store client/server proof
+
+Modified: trunk/pvpgn/src/bnetd/connection.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/connection.cpp	2008-06-06 10:00:20 UTC (rev 453)
++++ trunk/pvpgn/src/bnetd/connection.cpp	2008-06-09 18:12:31 UTC (rev 454)
+@@ -408,6 +408,8 @@
+     temp-&gt;protocol.w3.routeconn                  = NULL;
+     temp-&gt;protocol.w3.anongame                   = NULL;
+     temp-&gt;protocol.w3.anongame_search_starttime  = 0;
++    temp-&gt;protocol.w3.client_proof               = NULL;
++    temp-&gt;protocol.w3.server_proof               = NULL;
+     temp-&gt;protocol.bound                         = NULL;
+     elist_init(&amp;temp-&gt;protocol.timers);
+ 
+@@ -638,6 +640,12 @@
+     if (c-&gt;protocol.w3.w3_playerinfo)
+ 	xfree((void *)c-&gt;protocol.w3.w3_playerinfo); /* avoid warning */
+ 
++    if (c-&gt;protocol.w3.client_proof)
++	xfree((void *)c-&gt;protocol.w3.client_proof); /* avoid warning */
++
++    if (c-&gt;protocol.w3.server_proof)
++	xfree((void *)c-&gt;protocol.w3.server_proof); /* avoid warning */
++
+     if (c-&gt;protocol.bound)
+ 	c-&gt;protocol.bound-&gt;protocol.bound = NULL;
+ 
+@@ -3703,6 +3711,73 @@
+     return 0;
+ }
+ 
++
++extern char const * conn_get_client_proof(t_connection * c)
++{
++	if (!c)
++	{
++	  eventlog(eventlog_level_error,__FUNCTION__,&quot;got NULL conn&quot;);
++	  return NULL;
++	}
++
++        return c-&gt;protocol.w3.client_proof;
++}
++
++extern int conn_set_client_proof(t_connection * c, char const * client_proof)
++{
++	if (!c)
++	{
++	  eventlog(eventlog_level_error,__FUNCTION__,&quot;got NULL conn&quot;);
++	  return -1;
++	}
++
++	if (c-&gt;protocol.w3.client_proof){
++	  xfree((void*)c-&gt;protocol.w3.client_proof);
++	  c-&gt;protocol.w3.client_proof = NULL;
++	}
++
++	if (client_proof != NULL) {
++	  char * proof = (char *)xmalloc(20);
++	  std::memcpy(proof, client_proof, 20);
++	  c-&gt;protocol.w3.client_proof = proof;
++	}
++	return 0;
++}
++
++
++extern char const * conn_get_server_proof(t_connection * c)
++{
++	if (!c)
++	{
++	  eventlog(eventlog_level_error,__FUNCTION__,&quot;got NULL conn&quot;);
++	  return NULL;
++	}
++
++        return c-&gt;protocol.w3.server_proof;
++}
++
++extern int conn_set_server_proof(t_connection * c, char const * server_proof)
++{
++	if (!c)
++	{
++	  eventlog(eventlog_level_error,__FUNCTION__,&quot;got NULL conn&quot;);
++	  return -1;
++	}
++
++	if (c-&gt;protocol.w3.server_proof){
++	  xfree((void*)c-&gt;protocol.w3.server_proof);
++	  c-&gt;protocol.w3.server_proof = NULL;
++	}
++
++	if (server_proof != NULL) {
++	  char * proof = (char *)xmalloc(20);
++	  std::memcpy(proof, server_proof, 20);
++	  c-&gt;protocol.w3.server_proof = proof;
++	}
++	return 0;
++}
++
++
+ extern int conn_set_tmpOP_channel(t_connection * c, char const * tmpOP_channel)
+ {
+ 	if (!c)
+
+Modified: trunk/pvpgn/src/bnetd/connection.h
+===================================================================
+--- trunk/pvpgn/src/bnetd/connection.h	2008-06-06 10:00:20 UTC (rev 453)
++++ trunk/pvpgn/src/bnetd/connection.h	2008-06-09 18:12:31 UTC (rev 454)
+@@ -194,6 +194,9 @@
+    /* FIXME: this &quot;optimization&quot; is so confusing leading to many possible bugs */
+ 	    struct connection *	routeconn;
+ 	    t_anongame *	anongame;
++	    /* those will be filled when recieving 0x53ff and wiped out after 54ff */
++	    char const * client_proof;
++	    char const * server_proof;
+ 	} w3;
+ 	struct {
+ 	    int ingame;				        /* Are we in a game channel? */
+@@ -431,6 +434,12 @@
+ extern int conn_set_passfail_count(t_connection * c, unsigned int failcount);
+ extern int conn_increment_passfail_count (t_connection * c);
+ 
++extern char const * conn_get_client_proof(t_connection * c);
++extern int conn_set_client_proof(t_connection * c, char const * client_proof);
++
++extern char const * conn_get_server_proof(t_connection * c);
++extern int conn_set_server_proof(t_connection * c, char const * server_proof);
++
+ extern int conn_set_tmpOP_channel(t_connection * c, char const * tmpOP_channel);
+ extern char const * conn_get_tmpOP_channel(t_connection * c);
+ extern int conn_set_tmpVOICE_channel(t_connection * c, char const * tmpVOICE_channel);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000708.html">[pvpgn-dev] r453 - trunk/files
+</A></li>
+	<LI>Next message: <A HREF="000710.html">[pvpgn-dev] r455 - trunk/pvpgn/src/common
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#709">[ date ]</a>
+              <a href="thread.html#709">[ thread ]</a>
+              <a href="subject.html#709">[ subject ]</a>
+              <a href="author.html#709">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,1421 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r533 - in branches/clan_refactorings: . src/bnetd	src/common
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2009-February/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r533%20-%20in%20branches/clan_refactorings%3A%20.%20src/bnetd%0A%09src/common&In-Reply-To=%3C200902112018.n1BKIK0L021678%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000980.html">
+   <LINK REL="Next"  HREF="000982.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r533 - in branches/clan_refactorings: . src/bnetd	src/common</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r533%20-%20in%20branches/clan_refactorings%3A%20.%20src/bnetd%0A%09src/common&In-Reply-To=%3C200902112018.n1BKIK0L021678%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r533 - in branches/clan_refactorings: . src/bnetd	src/common">svn at svn.berlios.de
+       </A><BR>
+    <I>Wed Feb 11 21:18:20 CET 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000980.html">[pvpgn-dev] [Bug #15183] Can't join private games
+</A></li>
+        <LI>Next message: <A HREF="000982.html">[pvpgn-dev] r534 - trunk/pvpgn/src/d2dbs
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#981">[ date ]</a>
+              <a href="thread.html#981">[ thread ]</a>
+              <a href="subject.html#981">[ subject ]</a>
+              <a href="author.html#981">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pandaemonium
+Date: 2009-02-11 21:18:18 +0100 (Wed, 11 Feb 2009)
+New Revision: 533
+
+Added:
+   branches/clan_refactorings/src/bnetd/anongame_wol.cpp
+   branches/clan_refactorings/src/bnetd/anongame_wol.h
+Modified:
+   branches/clan_refactorings/README.cmake
+   branches/clan_refactorings/src/bnetd/CMakeLists.txt
+   branches/clan_refactorings/src/bnetd/alias_command.cpp
+   branches/clan_refactorings/src/bnetd/channel.cpp
+   branches/clan_refactorings/src/bnetd/command.cpp
+   branches/clan_refactorings/src/bnetd/connection.cpp
+   branches/clan_refactorings/src/bnetd/connection.h
+   branches/clan_refactorings/src/bnetd/game.cpp
+   branches/clan_refactorings/src/bnetd/game.h
+   branches/clan_refactorings/src/bnetd/handle_bnet.cpp
+   branches/clan_refactorings/src/bnetd/handle_irc_common.cpp
+   branches/clan_refactorings/src/bnetd/handle_wol.cpp
+   branches/clan_refactorings/src/bnetd/irc.cpp
+   branches/clan_refactorings/src/bnetd/main.cpp
+   branches/clan_refactorings/src/common/bnet_protocol.h
+   branches/clan_refactorings/src/common/field_sizes.h
+Log:
+merge in changes from trunk
+
+Modified: branches/clan_refactorings/README.cmake
+===================================================================
+--- branches/clan_refactorings/README.cmake	2009-02-09 21:25:45 UTC (rev 532)
++++ branches/clan_refactorings/README.cmake	2009-02-11 20:18:18 UTC (rev 533)
+@@ -98,7 +98,7 @@
+ with MySQL support
+ 
+   $ cd pvpgn-build
+-  $ cmake -D CMAKE_INSTALL_DIR=/home/pvpgn -D WITH_MYSQL ../pvpgn-src
++  $ cmake -D CMAKE_INSTALL_PREFIX=/home/pvpgn -D WITH_MYSQL ../pvpgn-src
+   $ make
+   $ make install
+ 
+
+Modified: branches/clan_refactorings/src/bnetd/CMakeLists.txt
+===================================================================
+--- branches/clan_refactorings/src/bnetd/CMakeLists.txt	2009-02-09 21:25:45 UTC (rev 532)
++++ branches/clan_refactorings/src/bnetd/CMakeLists.txt	2009-02-11 20:18:18 UTC (rev 533)
+@@ -21,7 +21,7 @@
+ 	handle_irc_common.cpp handle_irc_common.h handle_irc.cpp handle_irc.h 
+ 	handlers.h handle_telnet.cpp handle_telnet.h handle_udp.cpp 
+ 	handle_udp.h handle_wol.cpp handle_wol.h handle_wol_gameres.cpp
+-    handle_wol_gameres.h helpfile.cpp helpfile.h 
++    handle_wol_gameres.h helpfile.cpp helpfile.h
+ 	ipban.cpp ipban.h irc.cpp irc.h ladder_calc.cpp ladder_calc.h ladder.cpp 
+ 	ladder.h mail.cpp mail.h main.cpp message.cpp message.h news.cpp news.h
+ 	output.cpp output.h prefs.cpp prefs.h quota.h realm.cpp realm.h 
+@@ -33,7 +33,8 @@
+ 	team.cpp team.h tick.cpp tick.h timer.cpp timer.h topic.cpp topic.h 
+ 	tournament.cpp tournament.h tracker.cpp tracker.h udptest_send.cpp 
+ 	udptest_send.h versioncheck.cpp versioncheck.h watch.cpp watch.h
+-  handle_wserv.cpp handle_wserv.h ../win32/winmain.cpp ../win32/winmain.h
++	anongame_wol.cpp anongame_wol.h handle_wserv.cpp handle_wserv.h
++	../win32/winmain.cpp ../win32/winmain.h
+ 	)
+ 	
+ set(BNETD_CONSOLE_RESOURCES
+
+Modified: branches/clan_refactorings/src/bnetd/alias_command.cpp
+===================================================================
+--- branches/clan_refactorings/src/bnetd/alias_command.cpp	2009-02-09 21:25:45 UTC (rev 532)
++++ branches/clan_refactorings/src/bnetd/alias_command.cpp	2009-02-11 20:18:18 UTC (rev 533)
+@@ -420,7 +420,7 @@
+ 		min =  1;
+ 		max = -1;
+ 	      }
+-	      else if (std::sscanf(&amp;buff[pos],&quot;[%u&quot;,&amp;min)==1)
++	      else if (std::sscanf(&amp;buff[pos],&quot;[%i&quot;,&amp;min)==1)
+ 	      {
+ 		if (*(dummy-1)=='+')
+ 		  max = -1;
+@@ -475,7 +475,7 @@
+ 		min =  1;
+ 		max = -1;
+ 	      }
+-	      else if (std::sscanf(&amp;buff[pos],&quot;[%u&quot;,&amp;min)==1)
++	      else if (std::sscanf(&amp;buff[pos],&quot;[%i&quot;,&amp;min)==1)
+ 	      {
+ 		if (*(dummy-1)=='+')
+ 		  max = -1;
+
+Added: branches/clan_refactorings/src/bnetd/anongame_wol.cpp
+===================================================================
+--- branches/clan_refactorings/src/bnetd/anongame_wol.cpp	2009-02-09 21:25:45 UTC (rev 532)
++++ branches/clan_refactorings/src/bnetd/anongame_wol.cpp	2009-02-11 20:18:18 UTC (rev 533)
+@@ -0,0 +1,525 @@
++/*
++ * Copyright (C) 2008  Pelish (<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">pelish at gmail.com</A>)
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License
++ * as published by the Free Software Foundation; either version 2
++ * of the License, or (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++ */
++
++#define ANONGAME_WOL_INTERNAL_ACCESS
++#include &quot;common/setup_before.h&quot;
++#include &quot;anongame_wol.h&quot;
++
++#include &lt;cstring&gt;
++#include &lt;cctype&gt;
++#include &lt;cstdlib&gt;
++
++#include &quot;common/irc_protocol.h&quot;
++#include &quot;common/packet.h&quot;
++#include &quot;common/eventlog.h&quot;
++#include &quot;common/tag.h&quot;
++#include &quot;common/list.h&quot;
++
++#include &quot;irc.h&quot;
++#include &quot;handle_wol.h&quot;
++#include &quot;connection.h&quot;
++#include &quot;channel.h&quot;
++#include &quot;common/setup_after.h&quot;
++
++namespace pvpgn
++{
++
++namespace bnetd
++{
++
++typedef int (* t_anong_tag)(t_anongame_wol_player * player, char * param);
++
++typedef struct {
++	const char     * wol_anong_tag_string;
++	t_anong_tag      wol_anong_tag_handler;
++} t_wol_anongame_tag_table_row;
++
++static t_list * anongame_wol_matchlist_head=NULL;
++
++static int _handle_address_tag(t_anongame_wol_player * player, char * param);
++static int _handle_port_tag(t_anongame_wol_player * player, char * param);
++
++static const t_wol_anongame_tag_table_row t_wol_anongame_tag_table[] =
++{
++    { MATCHTAG_ADDRESS   , _handle_address_tag },
++    { MATCHTAG_PORT      , _handle_port_tag },
++
++    { NULL                        , NULL }
++};
++
++static int anongame_wol_set_playersetting(t_anongame_wol_player * player, char const * tag, char * param)
++{
++  t_wol_anongame_tag_table_row const *p;
++
++  for (p = t_wol_anongame_tag_table; p-&gt;wol_anong_tag_string != NULL; p++) {
++    if (strcasecmp(tag, p-&gt;wol_anong_tag_string)==0) {
++	  if (p-&gt;wol_anong_tag_handler != NULL)
++		  return ((p-&gt;wol_anong_tag_handler)(player,param));
++	}
++  }
++  return -1;
++}
++
++/* anongame_wol player functions: */
++
++static t_anongame_wol_player * anongame_wol_player_create(t_connection * conn)
++{
++    t_anongame_wol_player * player;
++
++    player = (t_anongame_wol_player*)xmalloc(sizeof(t_anongame_wol_player));
++
++    player-&gt;conn = conn;
++
++    /* Used only in Red Alert 2 and Yuri's Revenge */
++    player-&gt;address = 0;
++    player-&gt;port = 0;
++
++    conn_wol_set_anongame_player(conn, player);
++
++    list_append_data(anongame_wol_matchlist_head,player);
++
++    DEBUG1(&quot;[** WOL **] annongame player created: %s&quot;,conn_get_chatname(conn));
++
++    return player;
++}
++
++static int anongame_wol_player_destroy(t_anongame_wol_player * player, t_elem ** curr)
++{
++    if (list_remove_data(anongame_wol_matchlist_head,player,curr)&lt;0){
++        ERROR0(&quot;could not remove item from list&quot;);
++        return -1;
++    }
++
++    DEBUG0(&quot;[** WOL **] destroying annongame player&quot;);
++
++    xfree(player);
++    
++    return 0;
++}
++
++static t_connection * anongame_wol_player_get_conn(t_anongame_wol_player const * player)
++{
++	if (!player) {
++        ERROR0(&quot;got NULL player&quot;);
++        return NULL;
++    }
++
++    return player-&gt;conn;
++}
++
++
++static int anongame_wol_player_get_address(t_anongame_wol_player const * player)
++{
++    if (!player) {
++        ERROR0(&quot;got NULL player&quot;);
++        return -1;
++    }
++
++    return player-&gt;address;
++}
++
++static int _handle_address_tag(t_anongame_wol_player * player, char * param)
++{
++    if (!player) {
++        ERROR0(&quot;got NULL player&quot;);
++        return -1;
++    }
++
++	if (param)
++        player-&gt;address = std::atoi(param);
++
++    return 0;
++}
++
++static int anongame_wol_player_get_port(t_anongame_wol_player const * player)
++{
++    if (!player) {
++        ERROR0(&quot;got NULL player&quot;);
++        return -1;
++    }
++
++    return player-&gt;port;
++}
++
++static int _handle_port_tag(t_anongame_wol_player * player, char * param)
++{
++    if (!player) {
++        ERROR0(&quot;got NULL player&quot;);
++        return -1;
++    }
++
++	if (param)
++        player-&gt;port =  std::atoi(param);
++
++	return 0;
++}
++
++/* Matchlist functions:*/
++
++extern int anongame_wol_matchlist_create(void)
++{
++    anongame_wol_matchlist_head = list_create();
++
++    return 0;
++}
++
++extern int anongame_wol_matchlist_destroy(void)
++{
++    t_anongame_wol_player * player;
++    t_elem * curr;
++
++    if (anongame_wol_matchlist_head) {
++	    LIST_TRAVERSE(anongame_wol_matchlist_head,curr) {
++	       if (!(player = (t_anongame_wol_player*)elem_get_data(curr))) { /* should not happen */
++		       ERROR0(&quot;wol_matchlist contains NULL item&quot;);
++		       continue;
++	       }
++	       anongame_wol_player_destroy(player,&amp;curr);
++	    }
++
++	    if (list_destroy(anongame_wol_matchlist_head)&lt;0)
++            return -1;
++        anongame_wol_matchlist_head = NULL;
++    }
++
++    return 0;
++}
++
++extern t_list * anongame_wol_matchlist(void)
++{
++    return anongame_wol_matchlist_head;
++}
++
++static t_anongame_wol_player * anongame_wol_matchlist_find_player_by_conn(t_connection * conn)
++{
++    t_anongame_wol_player * player;
++    t_elem * curr;
++
++    if (!conn) {
++        ERROR0(&quot;got NULL conn&quot;);
++        return NULL;
++    }
++
++    LIST_TRAVERSE(anongame_wol_matchlist(),curr) {
++   	    t_anongame_wol_player * player = (t_anongame_wol_player *)elem_get_data(curr);
++   	    if (conn == anongame_wol_player_get_conn(player)) {
++            return player;
++        }
++    }
++
++  return NULL;
++}
++
++static int anongame_wol_matchlist_get_length(void)
++{
++    return list_get_length(anongame_wol_matchlist_head);
++}
++
++/* support functions */
++
++static int _send_msg(t_connection * conn, char const * command, char const * text)
++{
++    t_packet * p;
++    char data[MAX_IRC_MESSAGE_LEN+1];
++    unsigned len;
++    char const * nick;
++
++    if (!conn) {
++        eventlog(eventlog_level_error,__FUNCTION__,&quot;got NULL connection&quot;);
++        return -1;
++    }
++    if (!command) {
++        eventlog(eventlog_level_error,__FUNCTION__,&quot;got NULL command&quot;);
++        return -1;
++    }
++    if (!text) {
++        eventlog(eventlog_level_error,__FUNCTION__,&quot;got NULL text&quot;);
++        return -1;
++    }
++    if (!(p = packet_create(packet_class_raw))) {
++        eventlog(eventlog_level_error,__FUNCTION__,&quot;could not create packet&quot;);
++        return -1;
++    }
++
++    nick = conn_get_loggeduser(conn);
++    if (!nick)
++        nick = &quot;UserName&quot;;
++
++    /* snprintf isn't portable -&gt; check message length first */
++    len = 1+12+1+std::strlen(command)+1+std::strlen(nick)+1+std::strlen(text)+2;
++    if (len &gt; MAX_IRC_MESSAGE_LEN) {
++       eventlog(eventlog_level_error,__FUNCTION__,&quot;message to send is too large (%u bytes)&quot;,len);
++       return -1;
++    }
++    else
++       std::sprintf(data,&quot;:matchbot!<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">u at h</A> %s %s %s&quot;, command, nick, text);
++
++    DEBUG2(&quot;[%d] sent \&quot;%s\&quot;&quot;,conn_get_socket(conn),data);
++    std::strcat(data,&quot;\r\n&quot;);
++    packet_set_size(p,0);
++    packet_append_data(p,data,len);
++    conn_push_outqueue(conn,p);
++    packet_del_ref(p);
++    return 0;
++}
++
++static int anongame_wol_trystart(t_anongame_wol_player const * player1)
++{
++    t_elem * curr;
++    char temp[MAX_IRC_MESSAGE_LEN];
++    char _temp[MAX_IRC_MESSAGE_LEN];
++    int random;
++
++    t_anongame_wol_player * player2;
++    t_connection * conn_pl1;
++    t_connection * conn_pl2;
++    char const * channelname;
++    t_clienttag ctag;
++    
++    std::memset(temp,0,sizeof(temp));
++    std::memset(_temp,0,sizeof(_temp));
++
++   /**
++    * Expected start message is
++    *
++    * Red Alert 2:
++    * :Start [rand_num],0,0,[credits],0,1,0,1,1,0,1,x,2,1,[mapsize_kilobytes],[mapname],1:
++    *     [nick1_name],[nick1_loc],[nick1_rat],[nick1_addr_hex],[nick1_nat],[nick1_prt_hex],
++    *     [nick2_name],[nick2_loc],[nick2_rat],[nick2_addr_hex],[nick2_nat],[nick2_prt_hex]
++    *
++    * Yuris Revenge Quick game:
++    * 
++    * Yuris Revenge Quick Coop:
++    *
++    */
++
++    if (!player1) {
++        ERROR0(&quot;got NULL player&quot;);
++        return -1;
++    }
++
++    conn_pl1 = anongame_wol_player_get_conn(player1);
++    ctag = conn_get_clienttag(conn_pl1);
++    channelname = channel_get_name(conn_get_channel(conn_pl1));
++
++    LIST_TRAVERSE(anongame_wol_matchlist(),curr) {
++   	    player2 = (t_anongame_wol_player *)elem_get_data(curr);
++   	    conn_pl2 = anongame_wol_player_get_conn(player2);
++
++   	    if ((player1 != player2) &amp;&amp; ((conn_get_channel(conn_pl1)) == (conn_get_channel(conn_pl2)))) {
++            switch (ctag) {
++                case CLIENTTAG_REDALERT2_UINT:
++                    random = rand();
++                    if (std::strcmp(channelname , RAL2_CHANNEL_FFA) == 0) {
++                        DEBUG0(&quot;Generating FFA game for Red Alert 2&quot;);
++
++                         /* We have madatory of game */
++                        snprintf(_temp, sizeof(_temp), &quot;:Start %u,0,0,10000,0,1,0,1,1,0,1,x,2,1,165368,eb3.map,1:&quot;,random);
++                        std::strcat(temp,_temp);
++
++                        /* GameHost informations */
++                        snprintf(_temp, sizeof(_temp),&quot;%s,8,4,%x,1,%x,&quot;,conn_get_chatname(conn_pl1),anongame_wol_player_get_address(player1),anongame_wol_player_get_port(player1));
++                        std::strcat(temp,_temp);
++                        
++                         /* GameJoinie informations */
++                        snprintf(_temp, sizeof(_temp),&quot;%s,5,2,%x,1,%x&quot;,conn_get_chatname(conn_pl2),anongame_wol_player_get_address(player2),anongame_wol_player_get_port(player2));
++                        std::strcat(temp,_temp);
++
++                        _send_msg(conn_pl1,&quot;PRIVMSG&quot;,temp);
++                        _send_msg(conn_pl2,&quot;PRIVMSG&quot;,temp);
++                    }
++                    else
++                        ERROR1(&quot;undefined channel type for %s channel&quot;, channelname);
++                    return 0;
++                case CLIENTTAG_YURISREV_UINT:
++                    random = rand();
++                    
++                    if (std::strcmp(channelname , YURI_CHANNEL_FFA) == 0) {
++                        DEBUG0(&quot;Generating FFA game for Yuri's Revenge&quot;);
++
++                        /* We have madatory of game */
++                        snprintf(_temp, sizeof(_temp), &quot;:Start %u,0,0,10000,0,0,1,1,1,0,3,0,x,2,1,163770,xgrinder.map,1:&quot;,random);
++                        std::strcat(temp,_temp);
++
++                        /* GameHost informations */
++                        snprintf(_temp, sizeof(_temp),&quot;%s,1,4,-2,-2,&quot;,conn_get_chatname(conn_pl1));
++                        std::strcat(temp,_temp);
++                        snprintf(_temp, sizeof(_temp),&quot;%x,1,%x,&quot;,anongame_wol_player_get_address(player1),anongame_wol_player_get_port(player1));
++                        std::strcat(temp,_temp);
++
++                        /* GameJoinie informations */
++                        snprintf(_temp, sizeof(_temp),&quot;%s,6,5,-2,-2,&quot;,conn_get_chatname(anongame_wol_player_get_conn(player2)));
++                        std::strcat(temp,_temp);
++                        snprintf(_temp, sizeof(_temp),&quot;%x,1,%x&quot;,anongame_wol_player_get_address(player2),anongame_wol_player_get_port(player2));
++                        std::strcat(temp,_temp);
++
++                        _send_msg(conn_pl1,&quot;PRIVMSG&quot;,temp);
++                        _send_msg(conn_pl2,&quot;PRIVMSG&quot;,temp);
++                    }
++                    else if (std::strcmp(channelname , YURI_CHANNEL_COOP) == 0) {
++                        DEBUG0(&quot;Generating COOP game for Yuri's Revenge&quot;);
++
++                        /* We have madatory of game */
++                        snprintf(_temp, sizeof(_temp), &quot;:Start %u,0,0,10000,10,0,1,1,0,1,3,0,x,2,1,163770,C1A01MD.MAP,1:&quot;,random);
++                        std::strcat(temp,_temp);
++
++                         /* GameHost informations */
++                        snprintf(_temp, sizeof(_temp),&quot;%s,0,4,0,-2,&quot;,conn_get_chatname(conn_pl1));
++                        std::strcat(temp,_temp);
++                        snprintf(_temp, sizeof(_temp),&quot;%x,1,%x,&quot;,anongame_wol_player_get_address(player1),anongame_wol_player_get_port(player1));
++                        std::strcat(temp,_temp);
++
++                        /* GameJoinie informations */
++                        snprintf(_temp, sizeof(_temp),&quot;%s,0,5,1,-2,&quot;,conn_get_chatname(anongame_wol_player_get_conn(player2)));
++                        std::strcat(temp,_temp);
++                        snprintf(_temp, sizeof(_temp),&quot;%x,1,%x&quot;,anongame_wol_player_get_address(player2),anongame_wol_player_get_port(player2));
++                        std::strcat(temp,_temp);
++
++                        /* Some computers for coop games */
++                        snprintf(_temp, sizeof(_temp),&quot;:@:0,-1,-1,-2,-2,0,-1,-1,-2,-2,1,8,1,-2,-2,1,8,2,-2,-2,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,&quot;);
++                        std::strcat(temp,_temp);
++
++                        _send_msg(conn_pl1,&quot;PRIVMSG&quot;,temp);
++                        _send_msg(conn_pl2,&quot;PRIVMSG&quot;,temp);
++                    }
++                    else
++                        ERROR1(&quot;undefined channel type for %s channel&quot;, channelname);
++                    return 0;
++                default:
++                    DEBUG0(&quot;unsupported client for WOL Matchgame&quot;);
++                    return 0;
++            }
++        }
++    }
++
++    return 0;
++}
++
++static int anongame_wol_tokenize_line(t_connection * conn, char const * text)
++{
++    t_anongame_wol_player * player;
++    t_tag ctag;
++    char const * channelname;
++    char * command;     /* Match, CINFO, SINFO, Pings */
++    char * tag;         /* ADR, COL, COU... */
++    char * param;       /* value of paramtag */
++    char * line;        /* Copy of text */
++    char * temp;
++    char * p;
++
++    if (!conn) {
++        ERROR0(&quot;got NULL conn&quot;);
++        return -1;
++    }
++
++    if (!text) {
++        ERROR0(&quot;got NULL text&quot;);
++        return -1;
++    }
++
++    if (!(player = anongame_wol_player_create(conn))) {
++        ERROR0(&quot;player was not created&quot;);
++        return -1;
++    }
++
++    /**
++     * Here are expected privmsgs:
++     * :user!<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">EMPR at host</A> PRIVMSG matchbot :Match COU=-1,COL=-1,SHA=-1,SHB=-1,LOC=2,RAT=0
++     * :user!<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">RAL2 at host</A> PRIVMSG matchbot :Match COU=-2, COL=-2, LOC=1, RAT=3, RES=640, ADR=202680512, NAT=1, PRT=1295
++     * :user!<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">RAL2 at host</A> PRIVMSG matchbot :Match COU=-2, COL=-2, LOC=1, RAT=3, RES=640, ADR=202680512, NAT=1, PRT=1340
++     * :user!<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">RAL2 at host</A> PRIVMSG matchbot :Match COU=-2, COL=-2, LOC=25, RAT=1, RES=640, ADR=-501962560, NAT=1, PRT=1320
++     * :user!<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">YURI at host</A> PRIVMSG matchbot :Match COU=-2, COL=-2, MBR=1, LOC=5, RAT=2, RES=800, ADR=202680512, NAT=1, PRT=1390
++     * :user!<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">RNGD at host</A> PRIVMSG matchbot :CINFO VER=1329937315 CPU=2981 MEM=1023 TPOINTS=0 PLAYED=0 PINGS=00FFFFFFFFFFFFFF
++     * :user!<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">RNGD at host</A> PRIVMSG matchbot :SINFO 4F453BA3DBAE41CB00000000000000002d# 9Dedicated Renegade Server-C&amp;C_Field.mix07FF0656FFFF1C2D|090000000000 
++     * :user!<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">YURI at host</A> PRIVMSG matchbot :Pings nickname,2;
++     */
++
++    line = xstrdup(text);
++
++    command = line;
++	if (!(temp = strchr(command,' '))) {
++	    WARN0(&quot;got malformed line (missing command)&quot;);
++	    xfree(line);
++	    return -1;
++	}
++	*temp++ = '\0';
++	
++	if ((std::strcmp(command, &quot;Match&quot;) == 0)) {
++        strcat(temp,&quot;,&quot;); /* FIXME: This is DUMB - without that we lost the last tag/param */
++
++        for(p = temp; *p &amp;&amp; (*p != '\0'); p++) {
++            if ((*p == ',') || (*p == ' ')) {
++                *p++ = '\0';
++                if (temp[0] == ' ') /* Pelish: Emperor sends line without spaces but RA2/Yuri do */
++                   *temp++;
++                tag = temp;
++                param = strchr(tag,'=');
++                if (param)
++                    *param++ = '\0';
++                if (anongame_wol_set_playersetting(player, tag, param)==-1)
++                    WARN2(&quot;[** WOL **] got unknown tag %s param %s&quot;, tag, param);
++                temp = p;
++            }
++        }
++        _send_msg(conn,&quot;PRIVMSG&quot;,&quot;:Working&quot;);
++        anongame_wol_trystart(player);
++    }
++    else {
++        DEBUG1(&quot;[** WOL **] got line /%s/&quot;,text);
++    }
++
++    if (line)
++        xfree(line);
++
++    return 0;
++}
++
++/* Functions for getting/sending player informations */
++
++extern int anongame_wol_destroy(t_connection * conn)
++{
++    t_elem *curr;
++
++    /* Player destroying */
++
++    LIST_TRAVERSE(anongame_wol_matchlist_head,curr) {
++        t_anongame_wol_player * player = (t_anongame_wol_player*)elem_get_data(curr);
++
++        if (conn == anongame_wol_player_get_conn(player))
++            anongame_wol_player_destroy(player, &amp;curr);
++    }
++
++    return 0;
++}
++
++extern int anongame_wol_privmsg(t_connection * conn, int numparams, char ** params, char * text)
++{
++
++    if (!conn) {
++        ERROR0(&quot;got NULL conn&quot;);
++        return -1;
++    }
++
++    anongame_wol_tokenize_line(conn, text);
++
++    return 0;
++}
++
++}
++
++}
+
+Added: branches/clan_refactorings/src/bnetd/anongame_wol.h
+===================================================================
+--- branches/clan_refactorings/src/bnetd/anongame_wol.h	2009-02-09 21:25:45 UTC (rev 532)
++++ branches/clan_refactorings/src/bnetd/anongame_wol.h	2009-02-11 20:18:18 UTC (rev 533)
+@@ -0,0 +1,95 @@
++/*
++ * Copyright (C) 2008  Pelish (<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">pelish at gmail.com</A>)
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License
++ * as published by the Free Software Foundation; either version 2
++ * of the License, or (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++ */
++
++#ifndef INCLUDED_ANONGAME_WOL_TYPES
++#define INCLUDED_ANONGAME_WOL_TYPES
++
++#ifdef ANONGAME_WOL_INTERNAL_ACCESS
++
++#ifndef JUST_NEED_TYPES
++# define JUST_NEED_TYPES
++# include &quot;connection.h&quot;
++# undef JUST_NEED_TYPES
++#endif
++
++#define MATCHTAG_ADDRESS           &quot;ADR&quot;
++#define MATCHTAG_PORT              &quot;PRT&quot;
++#define MATCHTAG_COUNTRY           &quot;COU&quot;
++#define MATCHTAG_COLOR             &quot;COL&quot;
++#define MATCHTAG_MATCHRESOLUTION   &quot;MBR&quot;
++#define MATCHTAG_LOCATION          &quot;LOC&quot;
++#define MATCHTAG_SCREENRESOLUTION  &quot;RES&quot;
++
++#define RAL2_CHANNEL_FFA      &quot;Lob 38 0&quot;
++#define YURI_CHANNEL_FFA      &quot;Lob 40 0&quot;
++#define YURI_CHANNEL_COOP     &quot;Lob 39 0&quot;
++
++#endif
++
++namespace pvpgn
++{
++
++namespace bnetd
++{
++
++typedef struct anongame_wol_player
++#ifdef ANONGAME_WOL_INTERNAL_ACCESS
++{
++    t_connection       * conn;
++
++    /* Red Alert 2 and Yuri's Revnenge */
++    int                  address;
++    int                  port;
++}
++#endif
++t_anongame_wol_player;
++
++}
++
++}
++
++#endif
++
++/*******/
++#ifndef JUST_NEED_TYPES
++#ifndef INCLUDED_ANONGAME_WOL_PROTOS
++#define INCLUDED_ANONGAME_WOL_PROTOS
++
++#define JUST_NEED_TYPES
++# include &quot;connection.h&quot;
++#undef JUST_NEED_TYPES
++
++namespace pvpgn
++{
++
++namespace bnetd
++{
++
++extern int anongame_wol_matchlist_create(void);
++extern int anongame_wol_matchlist_destroy(void);
++
++extern int anongame_wol_destroy(t_connection * conn);
++extern int anongame_wol_privmsg(t_connection * conn, int numparams, char ** params, char * text);
++
++}
++
++}
++
++#endif
++#endif
++
+
+Modified: branches/clan_refactorings/src/bnetd/channel.cpp
+===================================================================
+--- branches/clan_refactorings/src/bnetd/channel.cpp	2009-02-09 21:25:45 UTC (rev 532)
++++ branches/clan_refactorings/src/bnetd/channel.cpp	2009-02-11 20:18:18 UTC (rev 533)
+@@ -206,7 +206,7 @@
+ 	    std::fprintf(channel-&gt;log,&quot;allowbotse=\&quot;%s\&quot;\n&quot;,(channel-&gt;flags &amp; channel_flags_allowbots)?&quot;true&quot;:&quot;false&quot;);
+ 	    std::fprintf(channel-&gt;log,&quot;allowopers=\&quot;%s\&quot;\n&quot;,(channel-&gt;flags &amp; channel_flags_allowopers)?&quot;true&quot;:&quot;false&quot;);
+ 	    if (channel-&gt;clienttag)
+-		std::fprintf(channel-&gt;log,&quot;clienttag=\&quot;%s\&quot;\n&quot;,channel-&gt;clienttag);
++		std::fprintf(channel-&gt;log,&quot;clienttag=\&quot;%s\&quot;\n&quot;,clienttag_uint_to_str(channel-&gt;clienttag));
+ 	    else
+ 		std::fprintf(channel-&gt;log,&quot;clienttag=none\n&quot;);
+ 
+
+Modified: branches/clan_refactorings/src/bnetd/command.cpp
+===================================================================
+--- branches/clan_refactorings/src/bnetd/command.cpp	2009-02-09 21:25:45 UTC (rev 532)
++++ branches/clan_refactorings/src/bnetd/command.cpp	2009-02-11 20:18:18 UTC (rev 533)
+@@ -638,12 +638,8 @@
+                   message_send_text(c,message_type_error,c,msgtemp);
+               }
+           }
+-      }
+-    }
+-    else
+-        message_send_text(c,message_type_error,c,&quot;You are not the chieftain or shaman of clan!&quot;);
+-    if (clanmember_get_status(member) == CLAN_CHIEFTAIN) {
+-        if (strstart(text,&quot;disband&quot;)==0) {
++      } 
++      else if (strstart(text,&quot;disband&quot;)==0) {
+           const char * ack = skip_command(text);
+           if (ack[0]=='\0') {
+               message_send_text(c,message_type_info,c,&quot;This is one-way action! If you really want&quot;);
+@@ -658,10 +654,8 @@
+                   message_send_text(c,message_type_info,c,&quot;Your clan was disbanded.&quot;);
+               }
+           }
+-        }    
++      }
+     }
+-    else 
+-        message_send_text(c,message_type_error,c,&quot;You are not the chieftain of clan!&quot;);
+   }
+   else
+   if ((member = account_get_clanmember_forced(acc)) &amp;&amp; (clan = clanmember_get_clan(member)) &amp;&amp; (clanmember_get_fullmember(member) == 0)) {
+@@ -3688,7 +3682,7 @@
+ 	}
+     }
+   else
+-    if (!(game = gamelist_find_game(&amp;text[i],conn_get_clienttag(c),game_type_all)))
++    if (!(game = gamelist_find_game_available(&amp;text[i],conn_get_clienttag(c),game_type_all)))
+       {
+ 	message_send_text(c,message_type_error,c,&quot;That game does not exist.&quot;);
+ 	return 0;
+
+Modified: branches/clan_refactorings/src/bnetd/connection.cpp
+===================================================================
+--- branches/clan_refactorings/src/bnetd/connection.cpp	2009-02-09 21:25:45 UTC (rev 532)
++++ branches/clan_refactorings/src/bnetd/connection.cpp	2009-02-11 20:18:18 UTC (rev 533)
+@@ -72,6 +72,7 @@
+ #include &quot;handle_d2cs.h&quot;
+ #include &quot;command_groups.h&quot;
+ #include &quot;attrlayer.h&quot;
++#include &quot;anongame_wol.h&quot;
+ #include &quot;common/setup_after.h&quot;
+ 
+ namespace pvpgn
+@@ -421,6 +422,7 @@
+     temp-&gt;protocol.wol.findme                    = 17;
+ 
+     temp-&gt;protocol.wol.apgar			         = NULL;
++    temp-&gt;protocol.wol.anongame_player           = NULL;
+ 
+ 
+     temp-&gt;protocol.cr_time                       = now;
+@@ -637,6 +639,9 @@
+     if (c-&gt;protocol.wol.apgar)
+ 		xfree((void *)c-&gt;protocol.wol.apgar); /* avoid warning */
+ 
++    if(c-&gt;protocol.wol.anongame_player)
++		anongame_wol_destroy(c);
++
+     /* ADDED BY UNDYING SOULZZ 4/8/02 */
+     if (c-&gt;protocol.w3.w3_playerinfo)
+ 	xfree((void *)c-&gt;protocol.w3.w3_playerinfo); /* avoid warning */
+@@ -2115,9 +2120,9 @@
+     }
+ 
+     if (gamename) {
+-	if (!(c-&gt;protocol.game = gamelist_find_game(gamename,c-&gt;protocol.client.clienttag,type))
+-	    /* do not allow creation of games with same name of same clienttag (yet) */
+-	    &amp;&amp; !gamelist_find_game(gamename,c-&gt;protocol.client.clienttag,game_type_all)) {
++	if (!(c-&gt;protocol.game = gamelist_find_game_available(gamename,c-&gt;protocol.client.clienttag,type))
++	    &amp;&amp; !gamelist_find_game_available(gamename,c-&gt;protocol.client.clienttag,game_type_all)) {
++        /* do not allow creation of games with same name of same clienttag when game is not started or done */
+ 	    c-&gt;protocol.game = game_create(gamename,gamepass,gameinfo,type,version,c-&gt;protocol.client.clienttag,conn_get_gameversion(c));
+ 
+ 	    if (c-&gt;protocol.game &amp;&amp; conn_get_realm(c) &amp;&amp; conn_get_charname(c)) {
+@@ -4064,6 +4069,34 @@
+     return c-&gt;protocol.wol.pageme;
+ }
+ 
++extern void conn_wol_set_anongame_player(t_connection * c, t_anongame_wol_player * anongame_player)
++{
++    if (!c)
++    {
++    	eventlog(eventlog_level_error,__FUNCTION__,&quot;got NULL conn&quot;);
++    	return;
++    }
++
++    if (!anongame_player)
++    {
++    	eventlog(eventlog_level_error,__FUNCTION__,&quot;got NULL anongame_player&quot;);
++    	return;
++    }
++
++    c-&gt;protocol.wol.anongame_player = anongame_player;
+ }
+ 
++extern t_anongame_wol_player * conn_wol_get_anongame_player(t_connection * c)
++{
++    if (!c)
++    {
++    	eventlog(eventlog_level_error,__FUNCTION__,&quot;got NULL conn&quot;);
++    	return NULL;
++    }
++
++    return c-&gt;protocol.wol.anongame_player;
+ }
++
++}
++
++}
+
+Modified: branches/clan_refactorings/src/bnetd/connection.h
+===================================================================
+--- branches/clan_refactorings/src/bnetd/connection.h	2009-02-09 21:25:45 UTC (rev 532)
++++ branches/clan_refactorings/src/bnetd/connection.h	2009-02-11 20:18:18 UTC (rev 533)
+@@ -31,6 +31,7 @@
+ # include &quot;character.h&quot;
+ # include &quot;versioncheck.h&quot;
+ # include &quot;anongame.h&quot;
++# include &quot;anongame_wol.h&quot;
+ # include &quot;realm.h&quot;
+ # include &quot;common/queue.h&quot;
+ # include &quot;common/tag.h&quot;
+@@ -46,6 +47,7 @@
+ # include &quot;character.h&quot;
+ # include &quot;versioncheck.h&quot;
+ # include &quot;anongame.h&quot;
++# include &quot;anongame_wol.h&quot;
+ # include &quot;realm.h&quot;
+ # include &quot;common/queue.h&quot;
+ # include &quot;common/tag.h&quot;
+@@ -204,6 +206,7 @@
+ 	    int findme;                     /* Allow others to find me? */
+ 	    int pageme;                     /* Allow others to page me? */
+ 	    char const * apgar;			    /* WOL User Password (encrypted) */
++	    t_anongame_wol_player * anongame_player;
+ 	} wol;
+ 	int			cr_time;
+ 	/* Pass fail count for bruteforce protection */
+@@ -240,7 +243,8 @@
+ #include &quot;versioncheck.h&quot;
+ #include &quot;timer.h&quot;
+ #include &quot;anongame.h&quot;
+-# include &quot;realm.h&quot;
++#include &quot;anongame_wol.h&quot;
++#include &quot;realm.h&quot;
+ #include &quot;message.h&quot;
+ #include &quot;common/tag.h&quot;
+ #include &quot;common/fdwatch.h&quot;
+@@ -460,6 +464,8 @@
+ extern int conn_wol_get_findme(t_connection * c);
+ extern void conn_wol_set_pageme(t_connection * c, int pageme);
+ extern int conn_wol_get_pageme(t_connection * c);
++extern void conn_wol_set_anongame_player(t_connection * c, t_anongame_wol_player * anongame_player);
++extern t_anongame_wol_player * conn_wol_get_anongame_player(t_connection * c);
+ 
+ }
+ 
+
+Modified: branches/clan_refactorings/src/bnetd/game.cpp
+===================================================================
+--- branches/clan_refactorings/src/bnetd/game.cpp	2009-02-09 21:25:45 UTC (rev 532)
++++ branches/clan_refactorings/src/bnetd/game.cpp	2009-02-11 20:18:18 UTC (rev 533)
+@@ -157,19 +157,22 @@
+     switch (status)
+     {
+     case game_status_started:
+-	return &quot;started&quot;;
++        return &quot;started&quot;;
+ 
+     case game_status_full:
+-	return &quot;full&quot;;
++        return &quot;full&quot;;
+ 
+     case game_status_open:
+-	return &quot;open&quot;;
++        return &quot;open&quot;;
+ 
+     case game_status_done:
+-	return &quot;done&quot;;
++        return &quot;done&quot;;
+ 
++    case game_status_loaded:
++        return &quot;loaded&quot;;
++
+     default:
+-	return &quot;UNKNOWN&quot;;
++        return &quot;UNKNOWN&quot;;
+     }
+ }
+ 
+@@ -393,7 +396,7 @@
+ 	return NULL;
+     }
+ 
+-    if (gamelist_find_game(name, clienttag, game_type_all))
++    if (gamelist_find_game_available(name, clienttag, game_type_all))
+     {
+ 	eventlog(eventlog_level_info,__FUNCTION__,&quot;game \&quot;%s\&quot; not created because it already exists&quot;,name);
+ 	return NULL; /* already have a game by that name */
+@@ -1372,7 +1375,7 @@
+ 	// [quetzal] 20020829 - this should prevent invalid status changes
+ 	// its like started game cant become open and so on
+ 	if (game-&gt;status == game_status_started &amp;&amp;
+-		(status == game_status_open || status == game_status_full)) {
++		(status == game_status_open || status == game_status_full || status == game_status_loaded)) {
+ 		eventlog(eventlog_level_error, &quot;game_set_status&quot;,
+ 		&quot;attempting to set status '%s' (%d) to started game&quot;, game_status_get_str(status), status);
+ 		return;
+@@ -2076,6 +2079,26 @@
+ }
+ 
+ 
++extern t_game * gamelist_find_game_available(char const * name, t_clienttag ctag, t_game_type type)
++{
++    t_elist *curr;
++    t_game *game;
++    t_game_status status;
++
++    elist_for_each(curr,&amp;gamelist_head)
++    {
++        game = elist_entry(curr,t_game,glist_link);
++        status = game-&gt;status;
++
++        if ((type==game_type_all || game-&gt;type==type) &amp;&amp; (ctag == game-&gt;clienttag) &amp;&amp; (game-&gt;name)
++            &amp;&amp; (!strcasecmp(name,game-&gt;name)) &amp;&amp; (game-&gt;status != game_status_started) &amp;&amp;
++             (game-&gt;status != game_status_done))
++            return game;
++    }
++
++    return NULL;
++}
++
+ extern t_game * gamelist_find_game_byid(unsigned int id)
+ {
+     t_elist *curr;
+@@ -2091,7 +2114,6 @@
+     return NULL;
+ }
+ 
+-
+ extern void gamelist_traverse(t_glist_func cb, void *data)
+ {
+     t_elist *curr;
+
+Modified: branches/clan_refactorings/src/bnetd/game.h
+===================================================================
+--- branches/clan_refactorings/src/bnetd/game.h	2009-02-09 21:25:45 UTC (rev 532)
++++ branches/clan_refactorings/src/bnetd/game.h	2009-02-11 20:18:18 UTC (rev 533)
+@@ -73,6 +73,7 @@
+     game_status_started,
+     game_status_full,
+     game_status_open,
++    game_status_loaded,
+     game_status_done
+ } t_game_status;
+ 
+@@ -315,6 +316,7 @@
+ extern int gamelist_destroy(void);
+ extern int gamelist_get_length(void);
+ extern t_game * gamelist_find_game(char const * name, t_clienttag ctag, t_game_type type);
++extern t_game * gamelist_find_game_available(char const * name, t_clienttag ctag, t_game_type type);
+ extern t_game * gamelist_find_game_byid(unsigned int id);
+ extern void gamelist_traverse(t_glist_func cb, void *data);
+ extern int gamelist_total_games(void);
+
+Modified: branches/clan_refactorings/src/bnetd/handle_bnet.cpp
+===================================================================
+--- branches/clan_refactorings/src/bnetd/handle_bnet.cpp	2009-02-09 21:25:45 UTC (rev 532)
++++ branches/clan_refactorings/src/bnetd/handle_bnet.cpp	2009-02-11 20:18:18 UTC (rev 533)
+@@ -3585,12 +3585,18 @@
+ 		    eventlog(eventlog_level_debug, __FUNCTION__, &quot;[%d] GAMELISTREPLY found but done&quot;, conn_get_socket(c));
+ 		    break;
+ 		case game_status_open:
++		case game_status_loaded:
+ 		    if (std::strcmp(gamepass, game_get_pass(game))) {	/* passworded game must match password in request */
+ 			bn_int_set(&amp;rpacket-&gt;u.server_gamelistreply.sstatus, SERVER_GAMELISTREPLY_GAME_SSTATUS_PASS);
+ 			eventlog(eventlog_level_debug, __FUNCTION__, &quot;[%d] GAMELISTREPLY found but is password protected and wrong password given&quot;, conn_get_socket(c));
+ 			break;
+ 		    }
+ 
++		    if (game_get_status(game) == game_status_loaded) {
++			bn_int_set(&amp;rpacket-&gt;u.server_gamelistreply.sstatus, SERVER_GAMELISTREPLY_GAME_SSTATUS_LOADED);
++			eventlog(eventlog_level_debug, __FUNCTION__, &quot;[%d] GAMELISTREPLY found loaded game&quot;, conn_get_socket(c));
++		    }
++
+ 		    /* everything seems fine, lets reply with the found game */
+ 		    bn_int_set(&amp;glgame.status, SERVER_GAMELISTREPLY_GAME_STATUS_OPEN);
+ 		    bn_short_set(&amp;glgame.gametype, gtype_to_bngtype(game_get_type(game)));
+@@ -3682,7 +3688,7 @@
+ 	gamename = NULL;
+ 	return 0;		/* tmp: do not record any anongames as yet */
+     } else {
+-	if (!(game = gamelist_find_game(gamename, conn_get_clienttag(c), game_type_all))) {
++	if (!(game = gamelist_find_game_available(gamename, conn_get_clienttag(c), game_type_all))) {
+ 	    eventlog(eventlog_level_info, __FUNCTION__, &quot;[%d] unable to find game \&quot;%s\&quot; for user to join&quot;, conn_get_socket(c), gamename);
+ 	    return 0;
+ 	}
+@@ -3938,18 +3944,27 @@
+ 	       0x00, 0x01, 0x02, 0x03, 0x10, 0x11, 0x12, 0x13, 0x80, 0x81, 0x82, 0x83 */
+ 
+ 	    t_game_type gtype;
++	    bool allow_create_custom = false;
++	    t_game *game;
+ 
+ 	    gtype = bngtype_to_gtype(conn_get_clienttag(c), bngtype);
+ 	    if ((gtype == game_type_ladder &amp;&amp; account_get_auth_createladdergame(conn_get_account(c)) == 0) || (gtype != game_type_ladder &amp;&amp; account_get_auth_createnormalgame(conn_get_account(c)) == 0))
+-		eventlog(eventlog_level_info, __FUNCTION__, &quot;[%d] game start for \&quot;%s\&quot; refused (no authority)&quot;, conn_get_socket(c), conn_get_username(c));
+-	    else if (conn_set_game(c, gamename, gamepass, gameinfo, gtype, STARTVER_GW4) == 0) {
+-		game_set_option(conn_get_game(c), bngoption_to_goption(conn_get_clienttag(c), gtype, option));
+-		if (status &amp; CLIENT_STARTGAME4_STATUS_PRIVATE)
+-		    game_set_flag(conn_get_game(c), game_flag_private);
+-		if (status &amp; CLIENT_STARTGAME4_STATUS_FULL)
+-		    game_set_status(conn_get_game(c), game_status_full);
+-		//FIXME: still need special handling for status disc-is-loss and replay
+-	    }
++		    eventlog(eventlog_level_info, __FUNCTION__, &quot;[%d] game start for \&quot;%s\&quot; refused (no authority)&quot;, conn_get_socket(c), conn_get_username(c));
++		else {
++		    //find is there any existing game with same name and allow the host to create game
++		    // with same name only when another game is already started or already done
++		    if ((!(game = gamelist_find_game_available(gamename, conn_get_clienttag(c), game_type_all))) &amp;&amp;
++                (conn_set_game(c, gamename, gamepass, gameinfo, gtype, STARTVER_GW4) == 0)) {
++		        game_set_option(conn_get_game(c), bngoption_to_goption(conn_get_clienttag(c), gtype, option));
++		        if (status &amp; CLIENT_STARTGAME4_STATUS_PRIVATE)
++		            game_set_flag(conn_get_game(c), game_flag_private);
++		        if (status &amp; CLIENT_STARTGAME4_STATUS_FULL)
++		            game_set_status(conn_get_game(c), game_status_full);
++		        if (bngtype == CLIENT_GAMELISTREQ_LOADED) /* PELISH: seems strange but it is really needed for loaded games */
++		            game_set_status(conn_get_game(c), game_status_loaded);
++    		    //FIXME: still need special handling for status disc-is-loss and replay
++	        }
++        }
+ 	} else
+ 	    eventlog(eventlog_level_info, __FUNCTION__, &quot;[%d] client tried to set game status 0x%x to unexistent game (clienttag: %s)&quot;, conn_get_socket(c), status, clienttag_uint_to_str(conn_get_clienttag(c)));
+     }
+
+Modified: branches/clan_refactorings/src/bnetd/handle_irc_common.cpp
+===================================================================
+--- branches/clan_refactorings/src/bnetd/handle_irc_common.cpp	2009-02-09 21:25:45 UTC (rev 532)
++++ branches/clan_refactorings/src/bnetd/handle_irc_common.cpp	2009-02-11 20:18:18 UTC (rev 533)
+@@ -250,7 +250,6 @@
+ 	    conn_set_state(conn,conn_state_bot_username); /* PELISH: What is this for? */
+ 
+         if ((conn_get_class(conn) != conn_class_wserv) &amp;&amp;
+-            (conn_get_class(conn) != conn_class_wgameres) &amp;&amp;
+             (conn_get_class(conn) != conn_class_wladder)) {
+ 
+ 	        t_timer_data temp;
+
+Modified: branches/clan_refactorings/src/bnetd/handle_wol.cpp
+===================================================================
+--- branches/clan_refactorings/src/bnetd/handle_wol.cpp	2009-02-09 21:25:45 UTC (rev 532)
++++ branches/clan_refactorings/src/bnetd/handle_wol.cpp	2009-02-11 20:18:18 UTC (rev 533)
+@@ -50,6 +50,7 @@
+ #include &quot;server.h&quot;
+ #include &quot;friends.h&quot;
+ #include &quot;clan.h&quot;
++#include &quot;anongame_wol.h&quot;
+ #include &quot;common/setup_after.h&quot;
+ 
+ namespace pvpgn
+@@ -393,91 +394,10 @@
+ 		/* start amadeo: code was sent by some unkown fellow of pvpgn (maybe u wanna give us your name
+ 		   for any credits), it adds nick-registration, i changed some things here and there... */
+ 	    for (i=0;((e)&amp;&amp;(e[i]));i++) {
+-    		if (strcasecmp(e[i],&quot;NICKSERV&quot;)==0) {
+- 				char * pass;
+-				char * p;
+-
+- 				pass = std::strchr(text,' ');
+- 				if (pass)
+- 		    		*pass++ = '\0';
+-
+-				if (strcasecmp(text,&quot;identify&quot;)==0) {
+-				    switch (conn_get_state(conn)) {
+-					case conn_state_bot_password:
+-					{
+-							if (pass) {
+- 		    				t_hash h;
+-
+-						for (p = pass; *p; p++)
+-						    if (std::isupper((int)*p)) *p = std::tolower(*p);
+- 		    				bnet_hash(&amp;h,std::strlen(pass),pass);
+- 		    				irc_authenticate(conn,hash_get_str(h));
+- 					    }
+-							else {
+-                                 message_send_text(conn,message_type_notice,NULL,&quot;Syntax: IDENTIFY &lt;password&gt; (max 16 characters)&quot;);
+-					    }
+-					    break;
+-					}
+-					case conn_state_loggedin:
+-					{
+-					    message_send_text(conn,message_type_notice,NULL,&quot;You don't need to IDENTIFY&quot;);
+-					    break;
+-					}
+-					default: ;
+-					    eventlog(eventlog_level_trace,__FUNCTION__,&quot;got /msg in unexpected connection state (%s)&quot;,conn_state_get_str(conn_get_state(conn)));
+-				    }
+-				}
+-				else if (strcasecmp(text,&quot;register&quot;)==0) {
+-					unsigned int j;
+-					t_hash       passhash;
+-					t_account  * temp;
+-					char         msgtemp[MAX_IRC_MESSAGE_LEN];
+-					char       * username=(char *)conn_get_loggeduser(conn);
+-
+-					if (account_check_name(username)&lt;0) {
+-						message_send_text(conn,message_type_error,conn,&quot;Account name contains invalid symbol!&quot;);
+-						break;
+-					}
+-
+-					if(!prefs_get_allow_new_accounts()){
+-						message_send_text(conn,message_type_error,conn,&quot;Account creation is not allowed&quot;);
+-						break;
+-					}
+-
+-					if (!pass || pass[0]=='\0' || (std::strlen(pass)&gt;16) ) {
+-						message_send_text(conn,message_type_error,conn,&quot;:Syntax: REGISTER &lt;password&gt; (max 16 characters)&quot;);
+-						break;
+-					}
+-
+-					for (j=0; j&lt;std::strlen(pass); j++)
+-						if (std::isupper((int)pass[j])) pass[j] = std::tolower((int)pass[j]);
+-
+-					bnet_hash(&amp;passhash,std::strlen(pass),pass);
+-
+-					snprintf(msgtemp, sizeof(msgtemp), &quot;Trying to create account \&quot;%s\&quot; with password \&quot;%s\&quot;&quot;,username,pass);
+-					message_send_text(conn,message_type_info,conn,msgtemp);
+-
+-					temp = accountlist_create_account(username,hash_get_str(passhash));
+-					if (!temp) {
+-						message_send_text(conn,message_type_error,conn,&quot;Failed to create account!&quot;);
+-						eventlog(eventlog_level_debug,__FUNCTION__,&quot;[%d] account \&quot;%s\&quot; not created (failed)&quot;,conn_get_socket(conn),username);
+-						conn_unget_chatname(conn,username);
+-						break;
+-					}
+-
+-					snprintf(msgtemp, sizeof(msgtemp), &quot;Account &quot;UID_FORMAT&quot; created.&quot;,account_get_uid(temp));
+-					message_send_text(conn,message_type_info,conn,msgtemp);
+-					eventlog(eventlog_level_debug,__FUNCTION__,&quot;[%d] account \&quot;%s\&quot; created&quot;,conn_get_socket(conn),username);
+-					conn_unget_chatname(conn,username);
+-				}
+-				else {
+-					char tmp[MAX_IRC_MESSAGE_LEN+1];
+-
+- 					message_send_text(conn,message_type_notice,NULL,&quot;Invalid arguments for NICKSERV&quot;);
+-					snprintf(tmp, sizeof(tmp), &quot;:Unrecognized command \&quot;%s\&quot;&quot;, text);
+-					message_send_text(conn,message_type_notice,NULL,tmp);
+- 				}
+- 	        }
++	        if (strcasecmp(e[i],&quot;matchbot&quot;) == 0) {
++                /* Anongames WOL support */
++                anongame_wol_privmsg(conn, numparams, params, text);
++	        }
+ 			else if (conn_get_state(conn)==conn_state_loggedin) {
+ 				if (e[i][0]=='#') {
+ 					/* channel message */
+@@ -654,6 +574,7 @@
+     if ((conn_wol_get_ingame(conn) == 1)) {
+         conn_wol_set_ingame(conn,0);
+     }
++
+     conn_part_channel(conn);
+     return 0;
+ }
+@@ -825,7 +746,7 @@
+ 	    int i;
+ 	    for (i=0; i&lt;numparams; i++) {
+     		t_connection * user;
+-            int codepage;
++            int codepage = 0;
+ 
+     		if (user = connlist_find_connection_by_accountname(params[i]))
+     		    codepage = conn_wol_get_codepage(user);
+@@ -872,7 +793,7 @@
+         int i;
+         for (i=0; i&lt;numparams; i++) {
+             t_account * account;
+-            int locale;
++            int locale = 0;
+ 
+     		if (account = accountlist_find_account(params[i]))
+     		    locale = account_get_locale(account);
+@@ -1293,12 +1214,10 @@
+ 	            }
+    		        snprintf(_temp_a, sizeof(_temp_a), &quot;%s %s &quot;, e[i], addr);
+    		        std::strcat(temp,_temp_a);
++   		        std::strcat(temp,&quot;:&quot;);
+             }
+         }
+ 
+-        if (tag_check_wolv2(conn_get_clienttag(conn)))
+-            std::strcat(temp,&quot;:&quot;);
+-
+         std::strcat(temp,&quot;1337&quot;); /* yes, ha ha funny, i just don't generate game numbers yet */
+         std::strcat(temp,&quot; &quot;);
+ 
+
+Modified: branches/clan_refactorings/src/bnetd/irc.cpp
+===================================================================
+--- branches/clan_refactorings/src/bnetd/irc.cpp	2009-02-09 21:25:45 UTC (rev 532)
++++ branches/clan_refactorings/src/bnetd/irc.cpp	2009-02-11 20:18:18 UTC (rev 533)
+@@ -54,6 +54,7 @@
+ #include &quot;topic.h&quot;
+ #include &quot;clan.h&quot;
+ #include &quot;command.h&quot;
++#include &quot;anongame_wol.h&quot;
+ #include &quot;common/setup_after.h&quot;
+ 
+ namespace pvpgn
+@@ -973,6 +974,17 @@
+ 	if ((std::strlen(temp)+((!first)?(1):(0))+std::strlen(flg)+std::strlen(name)+1)&lt;=sizeof(temp)) {
+ 	    if (!first) std::strcat(temp,&quot; &quot;);
+             if (conn_get_wol(c) == 1) {
++                char _temp[MAX_IRC_MESSAGE_LEN];
++                if ((first) &amp;&amp; ((std::strcmp(ircname, &quot;#Lob_38_0&quot;) == 0) ||
++                    (std::strcmp(ircname, &quot;#Lob_39_0&quot;) == 0) ||
++                    (std::strcmp(ircname, &quot;#Lob_40_0&quot;) == 0))) {
++
++                    std::sprintf(_temp,&quot;@matchbot,0,0 &quot;);
++                    std::strcat(temp,_temp);
++                    first = 0;
++
++                }               
++
+                 if ((channel_wol_get_game_owner(channel) != NULL) &amp;&amp; (std::strcmp(channel_wol_get_game_owner(channel),name) == 0)) {
+                     /* PELISH: Only game owners will have OP flag (this prevent official OP to be normal player) */
+                     std::strcat(temp,&quot;@&quot;);
+@@ -984,7 +996,6 @@
+                 }
+                 if (tag_check_wolv2(conn_get_clienttag(c))) {
+                     /* BATTLECLAN Support */
+-                    char _temp[MAX_IRC_MESSAGE_LEN];
+                     std::memset(_temp,0,sizeof(_temp));
+                     t_clan * clan = account_get_clan(conn_get_account(m));
+                     unsigned int clanid = 0;
+
+Modified: branches/clan_refactorings/src/bnetd/main.cpp
+===================================================================
+--- branches/clan_refactorings/src/bnetd/main.cpp	2009-02-09 21:25:45 UTC (rev 532)
++++ branches/clan_refactorings/src/bnetd/main.cpp	2009-02-11 20:18:18 UTC (rev 533)
+@@ -82,6 +82,7 @@
+ #include &quot;alias_command.h&quot;
+ #include &quot;tournament.h&quot;
+ #include &quot;anongame_infos.h&quot;
++#include &quot;anongame_wol.h&quot;
+ #include &quot;clan.h&quot;
+ #include &quot;team.h&quot;
+ #include &quot;realm.h&quot;
+@@ -362,6 +363,7 @@
+ 	eventlog(eventlog_level_error,__FUNCTION__,&quot;could not load trans list&quot;);
+     tournament_init(prefs_get_tournament_file());
+     anongame_infos_load(prefs_get_anongame_infos_file());
++    anongame_wol_matchlist_create();
+     clanlist_load();
+     teamlist_load();
+     if (realmlist_create(prefs_get_realmfile())&lt;0)
+@@ -381,6 +383,7 @@
+             clanlist_unload();
+ 	    tournament_destroy();
+ 	    anongame_infos_unload();
++	    anongame_wol_matchlist_destroy();
+ 	    trans_unload();
+ 	    aliasfile_unload();
+ 	    command_groups_unload();
+
+Modified: branches/clan_refactorings/src/common/bnet_protocol.h
+===================================================================
+--- branches/clan_refactorings/src/common/bnet_protocol.h	2009-02-09 21:25:45 UTC (rev 532)
++++ branches/clan_refactorings/src/common/bnet_protocol.h	2009-02-11 20:18:18 UTC (rev 533)
+@@ -2662,6 +2662,7 @@
+ #define CLIENT_GAMELISTREQ_PGL       0x000e
+ #define CLIENT_GAMELISTREQ_TOPVBOT   0x000f
+ #define CLIENT_GAMELISTREQ_DIABLO    0x0409 /* FIXME: this should be the langid */
++#define CLIENT_GAMELISTREQ_LOADED    0x0a00
+ /* FIXME: Diablo reports differently than it is listed in GAMELIST */
+ #define CLIENT_GAMETYPE_DIABLO_0     0x00000000 /* Level 1 Char */
+ #define CLIENT_GAMETYPE_DIABLO_1     0x00000001 /* Level 2 Char */
+@@ -2757,6 +2758,7 @@
+ #define SERVER_GAMELISTREPLY_GAME_SSTATUS_FULL		0x3 /* game full */
+ #define SERVER_GAMELISTREPLY_GAME_SSTATUS_STARTED	0x4 /* game started */
+ #define SERVER_GAMELISTREPLY_GAME_SSTATUS_NOSPAWNCDKEY	0x5 /* trying to use a spawn install join invalid cdkey creator game */
++#define SERVER_GAMELISTREPLY_GAME_SSTATUS_LOADED        0x0a00 /* Loaded game */
+ 
+ typedef struct
+ {
+@@ -3934,13 +3936,13 @@
+  */
+ 
+ #define CLAN_RESPONSE_SUCCESS 		0x00
+-#define CLAN_RESPONSE_FAIL		0x01
++#define CLAN_RESPONSE_FAIL			0x01
+ #define CLAN_RESPONSE_TOO_SOON 		0x02
+ #define CLAN_RESPONSE_TOO_SMALL 	0x03
+ #define CLAN_RESPONSE_DECLINED 		0x04
+ #define CLAN_RESPONSE_DECLINE 		0x05
+ #define CLAN_RESPONSE_ACCEPT 		0x06
+-#define CLAN_RESPONSE_NOT_AUTHORIZED	0x07
++#define CLAN_RESPONSE_NOT_AUTHORIZED 0x07
+ #define CLAN_RESPONSE_NOT_FOUND 	0x08
+ #define CLAN_RESPONSE_CLAN_FULL 	0x09
+ #define CLAN_RESPONSE_BAD_TAG		0x0a
+
+Modified: branches/clan_refactorings/src/common/field_sizes.h
+===================================================================
+--- branches/clan_refactorings/src/common/field_sizes.h	2009-02-09 21:25:45 UTC (rev 532)
++++ branches/clan_refactorings/src/common/field_sizes.h	2009-02-11 20:18:18 UTC (rev 533)
+@@ -40,7 +40,7 @@
+ const unsigned MIN_CHARNAME_LEN = 2;
+ const int MAX_GAMENAME_LEN = 32;
+ const int MAX_GAMEPASS_LEN = 32;
+-const int MAX_GAMEINFO_LEN = 256;
++const int MAX_GAMEINFO_LEN = 128;
+ const int MAX_GAMEDESC_LEN = 32;
+ const int MAP_NAME_LEN = 64;
+ const int BNETHASH_LEN = 20; /* uint32*5, see bnethash.h */
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000980.html">[pvpgn-dev] [Bug #15183] Can't join private games
+</A></li>
+	<LI>Next message: <A HREF="000982.html">[pvpgn-dev] r534 - trunk/pvpgn/src/d2dbs
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#981">[ date ]</a>
+              <a href="thread.html#981">[ thread ]</a>
+              <a href="subject.html#981">[ subject ]</a>
+              <a href="author.html#981">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

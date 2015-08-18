@@ -1,0 +1,106 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r439 - trunk/pvpgn/src/common
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2008-April/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r439%20-%20trunk/pvpgn/src/common&In-Reply-To=%3C200804031609.m33G9gI1011843%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="000657.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r439 - trunk/pvpgn/src/common</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r439%20-%20trunk/pvpgn/src/common&In-Reply-To=%3C200804031609.m33G9gI1011843%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r439 - trunk/pvpgn/src/common">svn at svn.berlios.de
+       </A><BR>
+    <I>Thu Apr  3 18:09:42 CEST 2008</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="000657.html">[pvpgn-dev] r440 - trunk/pvpgn/src/common
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#656">[ date ]</a>
+              <a href="thread.html#656">[ thread ]</a>
+              <a href="subject.html#656">[ subject ]</a>
+              <a href="author.html#656">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pandaemonium
+Date: 2008-04-03 18:09:40 +0200 (Thu, 03 Apr 2008)
+New Revision: 439
+
+Modified:
+   trunk/pvpgn/src/common/util.cpp
+   trunk/pvpgn/src/common/util.h
+Log:
+change str_to_hex method to insert fewer (userless) whitespaces
+
+Modified: trunk/pvpgn/src/common/util.cpp
+===================================================================
+--- trunk/pvpgn/src/common/util.cpp	2008-03-26 09:56:15 UTC (rev 438)
++++ trunk/pvpgn/src/common/util.cpp	2008-04-03 16:09:40 UTC (rev 439)
+@@ -523,7 +523,7 @@
+ }
+ 
+ 
+-extern void str_to_hex(char * target, char * data, int datalen)
++extern void str_to_hex(char * target, char const * data, int datalen)
+ {
+     unsigned char c;
+     int  i;
+@@ -531,7 +531,7 @@
+     {
+         c = (data[i]) &amp; 0xff;
+ 
+-	std::sprintf(target + i*3, &quot;%02X    &quot;, c);
++	std::sprintf(target + i*3, &quot;%02X &quot;, c);
+ 	target[i*3+3] = '\0';
+ 
+ 	/* std::fprintf(stderr, &quot;str_to_hex %d | '%02x' '%s'\n&quot;, i, c, target); */
+
+Modified: trunk/pvpgn/src/common/util.h
+===================================================================
+--- trunk/pvpgn/src/common/util.h	2008-03-26 09:56:15 UTC (rev 438)
++++ trunk/pvpgn/src/common/util.h	2008-04-03 16:09:40 UTC (rev 439)
+@@ -40,7 +40,7 @@
+ extern char * escape_fs_chars(char const * in, unsigned int len) ;
+ extern char * escape_chars(char const * in, unsigned int len) ;
+ extern char * unescape_chars(char const * in) ;
+-extern void str_to_hex(char * target, char * data, int datalen);
++extern void str_to_hex(char * target, char const * data, int datalen);
+ extern int hex_to_str(char const * source, char * data, int datalen);
+ extern char * buildpath(char const *root, const char *suffix);
+ extern int timestr_to_time(char const * timestr, std::time_t* ptime);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="000657.html">[pvpgn-dev] r440 - trunk/pvpgn/src/common
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#656">[ date ]</a>
+              <a href="thread.html#656">[ thread ]</a>
+              <a href="subject.html#656">[ subject ]</a>
+              <a href="author.html#656">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

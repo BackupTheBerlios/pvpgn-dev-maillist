@@ -1,0 +1,154 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] pvpgn/src/bnetd connection.c, 1.157, 1.158 handle_irc.c,	1.62, 1.63 irc.c, 1.52, 1.53 sql_mysql.c, 1.20, 1.21
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2009-February/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20pvpgn/src/bnetd%20connection.c%2C%201.157%2C%201.158%20handle_irc.c%2C%0A%091.62%2C%201.63%20irc.c%2C%201.52%2C%201.53%20sql_mysql.c%2C%201.20%2C%201.21&In-Reply-To=%3C20090226231624.ED31316FE58%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001027.html">
+   <LINK REL="Next"  HREF="001029.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] pvpgn/src/bnetd connection.c, 1.157, 1.158 handle_irc.c,	1.62, 1.63 irc.c, 1.52, 1.53 sql_mysql.c, 1.20, 1.21</H1>
+    <B>pandaemonium</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20pvpgn/src/bnetd%20connection.c%2C%201.157%2C%201.158%20handle_irc.c%2C%0A%091.62%2C%201.63%20irc.c%2C%201.52%2C%201.53%20sql_mysql.c%2C%201.20%2C%201.21&In-Reply-To=%3C20090226231624.ED31316FE58%40mail.berlios.de%3E"
+       TITLE="[pvpgn-dev] pvpgn/src/bnetd connection.c, 1.157, 1.158 handle_irc.c,	1.62, 1.63 irc.c, 1.52, 1.53 sql_mysql.c, 1.20, 1.21">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Fri Feb 27 00:16:24 CET 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001027.html">[pvpgn-dev] pvpgn/src/common version.h,1.48,1.49
+</A></li>
+        <LI>Next message: <A HREF="001029.html">[pvpgn-dev] [Bug #15325] Clan using the same short name can be	registered
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1028">[ date ]</a>
+              <a href="thread.html#1028">[ thread ]</a>
+              <a href="subject.html#1028">[ subject ]</a>
+              <a href="author.html#1028">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/pvpgn/pvpgn/src/bnetd
+In directory sheep:/tmp/cvs-serv13662
+
+Modified Files:
+	connection.c handle_irc.c irc.c sql_mysql.c 
+Log Message:
+fix some compilation issues discovered with visual studio
+
+Index: connection.c
+===================================================================
+RCS file: /cvsroot/pvpgn/pvpgn/src/bnetd/connection.c,v
+retrieving revision 1.157
+retrieving revision 1.158
+diff -u -d -r1.157 -r1.158
+--- connection.c	12 Oct 2008 10:35:15 -0000	1.157
++++ connection.c	26 Feb 2009 23:16:21 -0000	1.158
+@@ -52,6 +52,7 @@
+ #include &quot;compat/strchr.h&quot;
+ #include &quot;compat/strrchr.h&quot;
+ #include &quot;compat/strdup.h&quot;
++#include &quot;compat/snprintf.h&quot;
+ #include &quot;compat/strcasecmp.h&quot;
+ #include &quot;compat/strncasecmp.h&quot;
+ #include &lt;errno.h&gt;
+
+Index: handle_irc.c
+===================================================================
+RCS file: /cvsroot/pvpgn/pvpgn/src/bnetd/handle_irc.c,v
+retrieving revision 1.62
+retrieving revision 1.63
+diff -u -d -r1.62 -r1.63
+--- handle_irc.c	2 Jul 2008 22:25:09 -0000	1.62
++++ handle_irc.c	26 Feb 2009 23:16:21 -0000	1.63
+@@ -40,6 +40,7 @@
+ #endif
+ #include &quot;compat/strdup.h&quot;
+ #include &quot;compat/strcasecmp.h&quot;
++#include &quot;compat/snprintf.h&quot;
+ #include &lt;errno.h&gt;
+ #include &quot;compat/strerror.h&quot;
+ #include &quot;common/irc_protocol.h&quot;
+
+Index: irc.c
+===================================================================
+RCS file: /cvsroot/pvpgn/pvpgn/src/bnetd/irc.c,v
+retrieving revision 1.52
+retrieving revision 1.53
+diff -u -d -r1.52 -r1.53
+--- irc.c	15 Dec 2008 17:23:06 -0000	1.52
++++ irc.c	26 Feb 2009 23:16:21 -0000	1.53
+@@ -36,6 +36,7 @@
+ # endif
+ #endif
+ #include &quot;compat/strdup.h&quot;
++#include &quot;compat/snprintf.h&quot;
+ #include &lt;errno.h&gt;
+ #include &quot;compat/strerror.h&quot;
+ #ifdef TIME_WITH_SYS_TIME
+
+Index: sql_mysql.c
+===================================================================
+RCS file: /cvsroot/pvpgn/pvpgn/src/bnetd/sql_mysql.c,v
+retrieving revision 1.20
+retrieving revision 1.21
+diff -u -d -r1.20 -r1.21
+--- sql_mysql.c	7 Sep 2008 10:55:45 -0000	1.20
++++ sql_mysql.c	26 Feb 2009 23:16:21 -0000	1.21
+@@ -64,6 +64,8 @@
+ 
+ static int sql_mysql_init(const char *host, const char *port, const char *socket, const char *name, const char *user, const char *pass)
+ {
++    my_bool my_true = (my_bool)1;
++
+     if (name == NULL || user == NULL) {
+         eventlog(eventlog_level_error, __FUNCTION__, &quot;got NULL parameter&quot;);
+         return -1;
+@@ -82,7 +84,6 @@
+     // mysql-&gt;reconnect = 1;
+   #endif
+   #if MYSQL_VERSION_ID &gt;= 50019
+-    my_bool my_true = (my_bool)1;
+     if (mysql_options(mysql, MYSQL_OPT_RECONNECT, &amp;my_true)){
+       eventlog(eventlog_level_warn,__FUNCTION__,&quot;Failed to turn on MYSQL_OPT_RECONNECT.&quot;);
+     }else{
+@@ -100,7 +101,6 @@
+ 
+ #if MYSQL_VERSION_ID &gt;= 50013
+   #if MYSQL_VERSION_ID &lt; 50019
+-    my_bool my_true = (my_bool)1;
+     if (mysql_options(mysql, MYSQL_OPT_RECONNECT, &amp;my_true)){
+       eventlog(eventlog_level_warn,__FUNCTION__,&quot;Failed to turn on MYSQL_OPT_RECONNECT.&quot;);
+     }else{
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001027.html">[pvpgn-dev] pvpgn/src/common version.h,1.48,1.49
+</A></li>
+	<LI>Next message: <A HREF="001029.html">[pvpgn-dev] [Bug #15325] Clan using the same short name can be	registered
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1028">[ date ]</a>
+              <a href="thread.html#1028">[ thread ]</a>
+              <a href="subject.html#1028">[ subject ]</a>
+              <a href="author.html#1028">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

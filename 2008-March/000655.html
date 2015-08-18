@@ -1,0 +1,142 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r438 - in trunk/pvpgn: . src/bnetd
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2008-March/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r438%20-%20in%20trunk/pvpgn%3A%20.%20src/bnetd&In-Reply-To=%3C200803260956.m2Q9uGRb032127%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000654.html">
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r438 - in trunk/pvpgn: . src/bnetd</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r438%20-%20in%20trunk/pvpgn%3A%20.%20src/bnetd&In-Reply-To=%3C200803260956.m2Q9uGRb032127%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r438 - in trunk/pvpgn: . src/bnetd">svn at svn.berlios.de
+       </A><BR>
+    <I>Wed Mar 26 10:56:16 CET 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000654.html">[pvpgn-dev] r437 - in trunk/pvpgn: conf src/bnetd src/common
+</A></li>
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#655">[ date ]</a>
+              <a href="thread.html#655">[ thread ]</a>
+              <a href="subject.html#655">[ subject ]</a>
+              <a href="author.html#655">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pelish
+Date: 2008-03-26 10:56:15 +0100 (Wed, 26 Mar 2008)
+New Revision: 438
+
+Modified:
+   trunk/pvpgn/src/bnetd/handle_wserv.cpp
+   trunk/pvpgn/version-history.txt
+Log:
+fix in handle_wserv.cpp
+
+Modified: trunk/pvpgn/src/bnetd/handle_wserv.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/handle_wserv.cpp	2008-03-26 09:44:33 UTC (rev 437)
++++ trunk/pvpgn/src/bnetd/handle_wserv.cpp	2008-03-26 09:56:15 UTC (rev 438)
+@@ -101,22 +101,24 @@
+     *  :[servername] 602 [username] :Update record non-existant
+     *  2) Update existant:
+     *  :[servername] 606 [username] :[ftpserveraddr] [ftpusername] [ftppaswd] [path] [file.rtp] [newversion] [SKU] REQ
+-    *  :[servername] 603 [username] :You must update before connecting!
+     */
+ 
+-    clienttag = tag_sku_to_uint(std::atoi(params[0]));
++	if (numparams&gt;=2) {
++        clienttag = tag_sku_to_uint(std::atoi(params[0]));
+ 
+-    if (clienttag != CLIENTTAG_WWOL_UINT)
+-        conn_set_clienttag(conn,clienttag);
++        if (clienttag != CLIENTTAG_WWOL_UINT)
++            conn_set_clienttag(conn,clienttag);
+ 
+-    if (filestring = autoupdate_check(ARCHTAG_WINX86_UINT, clienttag, TAG_UNKNOWN_UINT, params[1], params[0])) {
+-        //:westwood-patch.ea.com update world96 lore3/1.003 65539_65536_6400.rtp 65539 6400 REQ
+-        snprintf(temp, sizeof(temp), &quot;:westwood-patch.ea.com update world96 %s 131075 %s REQ&quot;, filestring, params[0]);
+-        irc_send(conn,RPL_UPDATE_FTP,temp);
++        if (filestring = autoupdate_check(ARCHTAG_WINX86_UINT, clienttag, TAG_UNKNOWN_UINT, params[1], params[0])) {
++            //:westwood-patch.ea.com update world96 lore3/1.003 65539_65536_6400.rtp 65539 6400 REQ
++            snprintf(temp, sizeof(temp), &quot;:westwood-patch.ea.com update world96 %s 131075 %s REQ&quot;, filestring, params[0]);
++            irc_send(conn,RPL_UPDATE_FTP,temp);
++        }
++        else
++            irc_send(conn,RPL_UPDATE_NONEX,&quot;:Update record non-existant&quot;);
+     }
+-    else
+-        irc_send(conn,RPL_UPDATE_NONEX,&quot;:Update record non-existant&quot;);
+-
++   	else
++        irc_send(conn,ERR_NEEDMOREPARAMS,&quot;VERCHK :Not enough parameters&quot;);
+     return 0;
+ }
+ 
+@@ -148,7 +150,7 @@
+         wolip = addr_num_to_ip_str(addr);
+     }
+ 
+-   irc_send(conn,RPL_UPDATE_EXIST,&quot;:Unsapported game client&quot;);
++    //irc_send(conn,RPL_UPDATE_EXIST,&quot;:You must update before connecting!&quot;);
+ 
+     // Check if it's an allowed client type
+     if (!tag_check_in_list(conn_get_clienttag(conn), prefs_get_allowed_clients())) {
+
+Modified: trunk/pvpgn/version-history.txt
+===================================================================
+--- trunk/pvpgn/version-history.txt	2008-03-26 09:44:33 UTC (rev 437)
++++ trunk/pvpgn/version-history.txt	2008-03-26 09:56:15 UTC (rev 438)
+@@ -14,13 +14,14 @@
+   -- added support to allow/deny WOL clients in bnconf.conf
+   -- added support for battle clans
+   -- added various protocol related fixes
+-  -- added apireg support
++  -- added apiregister support
++  -- added autoupdate support for WOLv2 games
+ 
+ [MISC]
+   -- added /clan whisper subcommand
+   -- added /clan create/invite/disband subcommands
+-  -- added clan_min_invites for miminum accepted invitations need
+-     in clan-creating process (default is 2)
++  -- added clan_min_invites to bnetd.conf for miminum accepted
++     invitations need in clan-creating process (default is 2)
+ 
+  ChangeLog for 1.8.3 (since 1.8.2)
+ =========================================
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000654.html">[pvpgn-dev] r437 - in trunk/pvpgn: conf src/bnetd src/common
+</A></li>
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#655">[ date ]</a>
+              <a href="thread.html#655">[ thread ]</a>
+              <a href="subject.html#655">[ subject ]</a>
+              <a href="author.html#655">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

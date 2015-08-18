@@ -1,0 +1,142 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] pvpgn/src/bnetd connection.c,1.156,1.157
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2008-October/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20pvpgn/src/bnetd%20connection.c%2C1.156%2C1.157&In-Reply-To=%3C20081012103518.9B301B5D6E%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000840.html">
+   <LINK REL="Next"  HREF="000841.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] pvpgn/src/bnetd connection.c,1.156,1.157</H1>
+    <B>pelish</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20pvpgn/src/bnetd%20connection.c%2C1.156%2C1.157&In-Reply-To=%3C20081012103518.9B301B5D6E%40mail.berlios.de%3E"
+       TITLE="[pvpgn-dev] pvpgn/src/bnetd connection.c,1.156,1.157">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sun Oct 12 12:35:18 CEST 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000840.html">[pvpgn-dev] [Patch #2572] Fixed Same Game Name Get Merged
+</A></li>
+        <LI>Next message: <A HREF="000841.html">[pvpgn-dev] pvpgn version-history.txt,1.294,1.295
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#842">[ date ]</a>
+              <a href="thread.html#842">[ thread ]</a>
+              <a href="subject.html#842">[ subject ]</a>
+              <a href="author.html#842">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/pvpgn/pvpgn/src/bnetd
+In directory sheep:/tmp/cvs-serv3855/src/bnetd
+
+Modified Files:
+	connection.c 
+Log Message:
+fix for [ Bug #7380 ] Admins cant join private clan channels and [ Bug #5919 ] Clan leaders are not channel ops in their clan channel
+
+Index: connection.c
+===================================================================
+RCS file: /cvsroot/pvpgn/pvpgn/src/bnetd/connection.c,v
+retrieving revision 1.156
+retrieving revision 1.157
+diff -u -d -r1.156 -r1.157
+--- connection.c	11 Oct 2007 16:57:21 -0000	1.156
++++ connection.c	12 Oct 2008 10:35:15 -0000	1.157
+@@ -1884,6 +1884,7 @@
+     t_elem * curr;
+     int clantag=0;
+     t_clan * clan = NULL;
++    t_clanmember * member = NULL;
+ 
+     if (!c)
+     {
+@@ -1913,22 +1914,40 @@
+ 	if((strncasecmp(channelname, &quot;clan &quot;, 5)==0)&amp;&amp;(strlen(channelname)&lt;10))
+ 		clantag = str_to_clantag(&amp;channelname[5]);
+ 
+-    if(clantag &amp;&amp; ((!(clan = account_get_clan(acc))) || (clan_get_clantag(clan) != clantag)))
+-    {
+-        if (!channel)
+-        {
+-            char msgtemp[MAX_MESSAGE_LEN];
+-            sprintf(msgtemp, &quot;Unable to join channel %s, there is no member of that clan in the channel!&quot;, channelname);
+-            message_send_text(c, message_type_error, c, msgtemp);
+-            return 0;
+-        }
+-        else
+-        {
+-            t_clan * ch_clan;
+-            if((ch_clan=clanlist_find_clan_by_clantag(clantag))&amp;&amp;(clan_get_channel_type(ch_clan)==1))
++    if ((clantag) &amp;&amp; !((account_get_auth_admin(acc,channelname) == 1) || (account_get_auth_admin(acc,NULL) == 1))) {
++        /* PELISH: Admins should be possible to join any channel */
++        clan = account_get_clan(acc);
++        if ((!clan) || (clan_get_clantag(clan) != clantag)) {
++            if (!channel)
+             {
+-                message_send_text(c, message_type_error, c, &quot;This is a private clan channel, unable to join!&quot;);
+-                return 0;
++                char msgtemp[MAX_MESSAGE_LEN];
++                snprintf(msgtemp, sizeof(msgtemp), &quot;Unable to join channel %s, there is no member of that clan in the channel!&quot;, channelname);
++                message_send_text(c, message_type_error, c, msgtemp);
++
++                if (conn_get_game(c) || c-&gt;protocol.chat.channel==NULL) {
++                    // FIXME: This is not tested to be according to battle.net!!
++                    // This is fix for empty clan channels with preventing to join CHANNEL_NAME_BANNED when is used _handle_join_command
++                    snprintf(msgtemp, sizeof(msgtemp), &quot;You have been redirected to %s.&quot;, CHANNEL_NAME_BANNED);
++                    message_send_text(c, message_type_error, c, msgtemp);
++                    channel = channellist_find_channel_by_name(CHANNEL_NAME_BANNED,conn_get_country(c),realm_get_name(conn_get_realm(c)));
++                } else
++                    return 0;
++            }
++            else
++            {
++                t_clan * ch_clan;
++                if((ch_clan=clanlist_find_clan_by_clantag(clantag))&amp;&amp;(clan_get_channel_type(ch_clan)==1))
++                {
++                    message_send_text(c, message_type_error, c, &quot;This is a private clan channel, unable to join!&quot;);
++                    return 0;
++                }
++            }
++        }
++        else {
++            if ((clan) &amp;&amp; (clan_get_clantag(clan) == clantag) &amp;&amp; (member = account_get_clanmember(acc))) {
++                if (clanmember_get_status(member) &gt;= CLAN_SHAMAN)
++                    /* PELISH: Giving tmpOP to SHAMAN and CHIEFTAIN on clanchannel */
++                    conn_set_tmpOP_channel(c,channelname);
+             }
+         }
+     }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000840.html">[pvpgn-dev] [Patch #2572] Fixed Same Game Name Get Merged
+</A></li>
+	<LI>Next message: <A HREF="000841.html">[pvpgn-dev] pvpgn version-history.txt,1.294,1.295
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#842">[ date ]</a>
+              <a href="thread.html#842">[ thread ]</a>
+              <a href="subject.html#842">[ subject ]</a>
+              <a href="author.html#842">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

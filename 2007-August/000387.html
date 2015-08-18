@@ -1,0 +1,92 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] pvpgn/src/common bnet_protocol.h,1.56,1.57
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-August/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20pvpgn/src/common%20bnet_protocol.h%2C1.56%2C1.57&In-Reply-To=%3C20070820191519.23B6AFF47B%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000386.html">
+   <LINK REL="Next"  HREF="000388.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] pvpgn/src/common bnet_protocol.h,1.56,1.57</H1>
+    <B>pandaemonium</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20pvpgn/src/common%20bnet_protocol.h%2C1.56%2C1.57&In-Reply-To=%3C20070820191519.23B6AFF47B%40mail.berlios.de%3E"
+       TITLE="[pvpgn-dev] pvpgn/src/common bnet_protocol.h,1.56,1.57">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Mon Aug 20 21:15:19 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000386.html">[pvpgn-dev] pvpgn/src/bnetd handle_bnet.c,1.248,1.249
+</A></li>
+        <LI>Next message: <A HREF="000388.html">[pvpgn-dev] r338 - in trunk/pvpgn/src: bniutils client common	compat d2cs d2dbs tinycdb win32
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#387">[ date ]</a>
+              <a href="thread.html#387">[ thread ]</a>
+              <a href="subject.html#387">[ subject ]</a>
+              <a href="author.html#387">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/pvpgn/pvpgn/src/common
+In directory sheep:/tmp/cvs-serv29662/src/common
+
+Modified Files:
+	bnet_protocol.h 
+Log Message:
+fix reply codes for LOGINREPLY2
+
+Index: bnet_protocol.h
+===================================================================
+RCS file: /cvsroot/pvpgn/pvpgn/src/common/bnet_protocol.h,v
+retrieving revision 1.56
+retrieving revision 1.57
+diff -u -d -r1.56 -r1.57
+--- bnet_protocol.h	15 Aug 2007 09:17:30 -0000	1.56
++++ bnet_protocol.h	20 Aug 2007 19:14:54 -0000	1.57
+@@ -1779,9 +1779,10 @@
+     t_bnet_header h;
+     bn_int        message;
+ } PACKED_ATTR() t_server_loginreply2;
+-#define SERVER_LOGINREPLY2_MESSAGE_SUCCESS 0x00000000
+-#define SERVER_LOGINREPLY2_MESSAGE_ALREADY 0x00000001 /* Account already exists */
+-#define SERVER_LOGINREPLY2_MESSAGE_BADPASS 0x00000002 /* Bad password */
++#define SERVER_LOGINREPLY2_MESSAGE_SUCCESS  0x00000000
++#define SERVER_LOGINREPLY2_MESSAGE_NONEXIST 0x00000001 /* Account does not exists */
++#define SERVER_LOGINREPLY2_MESSAGE_BADPASS  0x00000002 /* Bad password */
++#define SERVER_LOGINREPLY2_MESSAGE_LOCKED   0x00000006 /* Account is locked */
+ /******************************************************/
+ 
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000386.html">[pvpgn-dev] pvpgn/src/bnetd handle_bnet.c,1.248,1.249
+</A></li>
+	<LI>Next message: <A HREF="000388.html">[pvpgn-dev] r338 - in trunk/pvpgn/src: bniutils client common	compat d2cs d2dbs tinycdb win32
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#387">[ date ]</a>
+              <a href="thread.html#387">[ thread ]</a>
+              <a href="subject.html#387">[ subject ]</a>
+              <a href="author.html#387">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

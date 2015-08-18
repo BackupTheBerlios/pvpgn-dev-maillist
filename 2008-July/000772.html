@@ -1,0 +1,156 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r480 - trunk/pvpgn/src/bnetd
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2008-July/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r480%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200807271901.m6RJ1Ilk030121%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000771.html">
+   <LINK REL="Next"  HREF="000773.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r480 - trunk/pvpgn/src/bnetd</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r480%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200807271901.m6RJ1Ilk030121%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r480 - trunk/pvpgn/src/bnetd">svn at svn.berlios.de
+       </A><BR>
+    <I>Sun Jul 27 21:01:18 CEST 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000771.html">[pvpgn-dev] r479 - in trunk/pvpgn/src: bnetd client common
+</A></li>
+        <LI>Next message: <A HREF="000773.html">[pvpgn-dev] r481 - trunk/pvpgn/src/bnetd
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#772">[ date ]</a>
+              <a href="thread.html#772">[ thread ]</a>
+              <a href="subject.html#772">[ subject ]</a>
+              <a href="author.html#772">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pandaemonium
+Date: 2008-07-27 21:01:17 +0200 (Sun, 27 Jul 2008)
+New Revision: 480
+
+Modified:
+   trunk/pvpgn/src/bnetd/handle_bnet.cpp
+Log:
+harmonize clan related packet names, add missing packet identification data
+
+Modified: trunk/pvpgn/src/bnetd/handle_bnet.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/handle_bnet.cpp	2008-07-27 18:54:07 UTC (rev 479)
++++ trunk/pvpgn/src/bnetd/handle_bnet.cpp	2008-07-27 19:01:17 UTC (rev 480)
+@@ -4327,7 +4327,7 @@
+ static int _client_clanmemberlistreq(t_connection * c, t_packet const *const packet)
+ {
+     if (packet_get_size(packet) &lt; sizeof(t_client_clanmemberlist_req)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad W3XP_CLANMEMBERLIST_REQ packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_clanmemberlist_req), packet_get_size(packet));
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad CLANMEMBERLIST_REQ packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_clanmemberlist_req), packet_get_size(packet));
+ 	return -1;
+     }
+ 
+@@ -4338,7 +4338,7 @@
+ static int _client_clan_motdreq(t_connection * c, t_packet const *const packet)
+ {
+     if (packet_get_size(packet) &lt; sizeof(t_client_clan_motdreq)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad W3XP_CLAN_MOTDREQ packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_clan_motdreq), packet_get_size(packet));
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad CLAN_MOTDREQ packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_clan_motdreq), packet_get_size(packet));
+ 	return -1;
+     }
+ 
+@@ -4349,7 +4349,7 @@
+ static int _client_clan_motdchg(t_connection * c, t_packet const *const packet)
+ {
+     if (packet_get_size(packet) &lt; sizeof(t_client_clan_motdreq)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad W3XP_CLAN_MOTDCHGREQ packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_clan_motdreq), packet_get_size(packet));
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad CLAN_MOTDCHGREQ packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_clan_motdreq), packet_get_size(packet));
+ 	return -1;
+     }
+ 
+@@ -4362,7 +4362,7 @@
+     t_packet *rpacket;
+ 
+     if (packet_get_size(packet) &lt; sizeof(t_client_clan_disbandreq)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad W3XP_CLAN_DISBANDREQ packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_clan_disbandreq), packet_get_size(packet));
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad CLAN_DISBANDREQ packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_clan_disbandreq), packet_get_size(packet));
+ 	return -1;
+     }
+ 
+@@ -4393,7 +4393,7 @@
+ static int _client_clan_createreq(t_connection * c, t_packet const *const packet)
+ {
+     if (packet_get_size(packet) &lt; sizeof(t_client_clan_createreq)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad W3XP_CLAN_INFOREQ packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_clan_createreq), packet_get_size(packet));
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad CLAN_INFOREQ packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_clan_createreq), packet_get_size(packet));
+ 	return -1;
+     }
+ 
+@@ -4489,7 +4489,7 @@
+     char status;
+ 
+     if (packet_get_size(packet) &lt; sizeof(t_client_clan_createinvitereply)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad W3XP_CLAN_CREATEINVITEREPLY packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_clan_createinvitereq), packet_get_size(packet));
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad CLAN_CREATEINVITEREPLY packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_clan_createinvitereq), packet_get_size(packet));
+ 	return -1;
+     }
+     offset = sizeof(t_client_clan_createinvitereply);
+@@ -4542,7 +4542,7 @@
+     t_packet *rpacket;
+ 
+     if (packet_get_size(packet) &lt; sizeof(t_client_clanmember_rankupdate_req)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad W3XP_CLANMEMBER_RANKUPDATE_REQ packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_clanmember_rankupdate_req), packet_get_size(packet));
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad CLANMEMBER_RANKUPDATE_REQ packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_clanmember_rankupdate_req), packet_get_size(packet));
+ 	return -1;
+     }
+ 
+@@ -4586,7 +4586,7 @@
+     t_packet *rpacket;
+ 
+     if (packet_get_size(packet) &lt; sizeof(t_client_clanmember_remove_req)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad W3XP_CLANMEMBER_REMOVE_REQ packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_clanmember_remove_req), packet_get_size(packet));
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad CLANMEMBER_REMOVE_REQ packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_clanmember_remove_req), packet_get_size(packet));
+ 	return -1;
+     }
+ 
+@@ -4636,7 +4636,7 @@
+     t_packet *rpacket;
+ 
+     if (packet_get_size(packet) &lt; sizeof(t_client_clan_membernewchiefreq)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad W3XP_CLAN_MEMBERNEWCHIEFREQ packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_clan_createreq), packet_get_size(packet));
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad CLIENT_CLAN_MEMBERNEWCHIEFREQ packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_clan_createreq), packet_get_size(packet));
+ 	return -1;
+     }
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000771.html">[pvpgn-dev] r479 - in trunk/pvpgn/src: bnetd client common
+</A></li>
+	<LI>Next message: <A HREF="000773.html">[pvpgn-dev] r481 - trunk/pvpgn/src/bnetd
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#772">[ date ]</a>
+              <a href="thread.html#772">[ thread ]</a>
+              <a href="subject.html#772">[ subject ]</a>
+              <a href="author.html#772">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

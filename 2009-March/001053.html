@@ -1,0 +1,197 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] [Bug #14973] Segmentation Fault at pvpgn init when chat	logging is on
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2009-March/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BBug%20%2314973%5D%20Segmentation%20Fault%20at%20pvpgn%20init%20when%20chat%0A%09logging%20is%20on&In-Reply-To=%3C200903021625.n22GP93Z027390%40unicorn.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001052.html">
+   <LINK REL="Next"  HREF="001054.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] [Bug #14973] Segmentation Fault at pvpgn init when chat	logging is on</H1>
+    <B>admin at berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BBug%20%2314973%5D%20Segmentation%20Fault%20at%20pvpgn%20init%20when%20chat%0A%09logging%20is%20on&In-Reply-To=%3C200903021625.n22GP93Z027390%40unicorn.berlios.de%3E"
+       TITLE="[pvpgn-dev] [Bug #14973] Segmentation Fault at pvpgn init when chat	logging is on">admin at berlios.de
+       </A><BR>
+    <I>Mon Mar  2 17:25:09 CET 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001052.html">[pvpgn-dev] [Bug #15149] clan whisper doesn't return
+</A></li>
+        <LI>Next message: <A HREF="001054.html">[pvpgn-dev] [Bug #14821] Compiler warnings
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1053">[ date ]</a>
+              <a href="thread.html#1053">[ thread ]</a>
+              <a href="subject.html#1053">[ subject ]</a>
+              <a href="author.html#1053">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Bug #14973, was updated on 2008-Dec-29 09:55
+Here is a current snapshot of the bug.
+
+Project: Player vs Player Gaming Network
+Category: General
+Status: Open
+Resolution: None
+Bug Group: bnetd
+Priority: 5
+Submitted by: justabaka
+Assigned to : pandaemonium
+Summary: Segmentation Fault at pvpgn init when chat logging is on
+
+Details: PvPGN: SVN r522
+
+Dec 29 14:52:44 [info ] eventlog_startup: logging event levels: fatal,error,warn,info,debug,trace
+Dec 29 14:52:44 [debug] give_up_root_privileges: about to give up root privileges
+Dec 29 14:52:44 [info ] pvpgn_greeting: PvPGN version 1.99.0-SVN process 21459
+Dec 29 14:52:44 [info ] pvpgn_greeting: running on Linux #1 SMP Fri Aug 22 18:34:24 NOVST 2008 2.6.18-028stab053-tm (x86_64)
+Dec 29 14:52:44 [info ] storage_init: initializing storage layer (available drivers: file, sql, sql2)
+Dec 29 14:52:44 [info ] sql_mysql_init: Successfully turned on MYSQL_OPT_RECONNECT.
+Dec 29 14:52:44 [info ] sql_dbcreator: Creating missing tables and columns (if any)
+Dec 29 14:52:45 [info ] sql_dbcreator: finished adding missing tables and columns
+Dec 29 14:52:45 [info ] storage_init: using sql storage driver
+Dec 29 14:52:45 [info ] FDWEpollBackend: fdwatch epoll() based layer initialized (max 960 sockets)
+Dec 29 14:52:45 [info ] server_set_hostname: set hostname to &quot;&quot;
+Dec 29 14:52:45 [debug] channel_create: creating new channel &quot;The Void&quot; shortname=&quot;The Void&quot; clienttag=(none) country=(none) realm=(none)
+Dec 29 14:52:45 [debug] channel_create: channel created successfully
+Dec 29 14:52:45 [debug] channel_create: creating new channel &quot;Starcraft-1&quot; shortname=&quot;Starcraft&quot; clienttag=&quot;STAR&quot; country=(none) realm=(none)
+Dec 29 14:52:45 [debug] channel_create: channel created successfully
+Dec 29 14:52:45 [debug] channel_create: creating new channel &quot;Brood War-1&quot; shortname=&quot;Brood War&quot; clienttag=&quot;SEXP&quot; country=(none) realm=(none)
+Dec 29 14:52:45 [debug] channel_create: channel created successfully
+Dec 29 14:52:45 [debug] channel_create: creating new channel &quot;Starcraft Shareware-1&quot; shortname=&quot;Starcraft Shareware&quot; clienttag=&quot;SSHR&quot; country=(none) realm=(none)
+Dec 29 14:52:45 [debug] channel_create: channel created successfully
+Dec 29 14:52:45 [debug] channel_create: creating new channel &quot;Diablo Retail-1&quot; shortname=&quot;Diablo Retail&quot; clienttag=&quot;DRTL&quot; country=(none) realm=(none)
+Dec 29 14:52:45 [debug] channel_create: channel created successfully
+Dec 29 14:52:45 [debug] channel_create: creating new channel &quot;War2BNE-1&quot; shortname=&quot;War2BNE&quot; clienttag=&quot;W2BN&quot; country=(none) realm=(none)
+Dec 29 14:52:45 [debug] channel_create: channel created successfully
+Dec 29 14:52:45 [debug] channel_create: creating new channel &quot;Diablo II-1&quot; shortname=&quot;Diablo II&quot; clienttag=&quot;D2DV&quot; country=(none) realm=(none)
+Dec 29 14:52:45 [debug] channel_create: channel created successfully
+Dec 29 14:52:45 [debug] channel_create: creating new channel &quot;Diablo II-1&quot; shortname=&quot;Diablo II&quot; clienttag=&quot;D2XP&quot; country=(none) realm=(none)
+Dec 29 14:52:45 [debug] channel_create: channel created successfully
+Dec 29 14:52:45 [debug] channel_create: creating new channel &quot;DotA AllstarS&quot; shortname=&quot;DotA AllstarS&quot; clienttag=&quot;W3XP&quot; country=(none) realm=(none)
+
+21459 Segmentation fault      ./bnetd -D
+
+Follow-Ups:
+
+Date: 2009-Mar-02 17:25
+By: pandaemonium
+
+Comment:
+reminder to self: test again and this time turn on chat logging like the bug reporter wrote... ;-)
+-------------------------------------------------------
+
+Date: 2009-Jan-03 18:18
+By: pandaemonium
+
+Comment:
+A simle copy&amp;paste of those channel.conf entries doesn't seem to trigger the issue for me. I'd ask you to either attack your complete channels.conf file to this post or upload it someplace so I could get the complete file. Thanks in advance.
+-------------------------------------------------------
+
+Date: 2009-Jan-02 20:21
+By: justabaka
+
+Comment:
+The rest is commented out:
+
+&quot;The Void&quot;                  &quot;The Void&quot;              NULL  true  false false  NULL NULL -1   true
+NONE                        &quot;Starcraft&quot;             STAR  true  false false  NULL NULL -1   false
+NONE                        &quot;Brood War&quot;             SEXP  true  false false  NULL NULL -1   false
+NONE                        &quot;Starcraft Shareware&quot;   SSHR  true  false false  NULL NULL -1   false
+NONE                        &quot;Diablo Retail&quot;         DRTL  true  false false  NULL NULL -1   false
+NONE                        &quot;War2BNE&quot;               W2BN  true  false false  NULL NULL -1   false
+NONE                        &quot;Diablo II&quot;             D2DV  true  false false  NULL NULL -1   false
+NONE                        &quot;Diablo II&quot;             D2XP  true  false false  NULL NULL -1   false
+&quot;DotA AllstarS&quot;             &quot;DotA AllstarS&quot;         W3XP  true  false false  NULL NULL -1   false
+&quot;Warcraft 3 Frozen Throne&quot;  &quot;Warcraft 3 Frozen Throne&quot; W3XP  true  false false  NULL NULL -1   false
+
+&quot;Command n Conqr&quot;           &quot;Command n Conqr&quot;       WCHT  true  false false  NULL NULL -1   false
+&quot;Monopoly&quot;                  &quot;Monopoly&quot;              WCHT  true  false false  NULL NULL -1   false
+&quot;Red Alert&quot;                 &quot;Red Alert&quot;             WCHT  true  false false  NULL NULL -1   false
+&quot;Renegade-1&quot;                &quot;Lob 12 0&quot;              RNGD  true  false false  NULL NULL -1   false
+&quot;Dune 2000-1&quot;               &quot;Lob 14 0&quot;              DN2K  true  false false  NULL NULL -1   false
+&quot;Nox-1&quot;                     &quot;Lob 16 0&quot;              NOXX  true  false false  NULL NULL -1   false
+&quot;Nox-2&quot;                     &quot;Lob 16 1&quot;              NOXX  true  false false  NULL NULL -1   false
+&quot;Tiberian Sun-1&quot;            &quot;Lob 18 0&quot;              TSUN  true  false false  NULL NULL -1   false
+&quot;Tiberian Sun-2&quot;            &quot;Lob 18 1&quot;              TSUN  true  false false  NULL NULL -1   false
+&quot;Tiberian Sun-3&quot;            &quot;Lob 18 2&quot;              TSUN  true  false false  NULL NULL -1   false
+&quot;Red Alert-1&quot;               &quot;Lob 21 0&quot;              RALT  true  false false  NULL NULL -1   false
+&quot;Emperor-1&quot;                 &quot;Lob 31 0&quot;              EMPR  true  false false  NULL NULL -1   false
+&quot;Emperor-2&quot;                 &quot;Lob 31 1&quot;              EMPR  true  false false  NULL NULL -1   false
+&quot;Red Alert 2-1&quot;             &quot;Lob 33 0&quot;              RAL2  true  false false  NULL NULL -1   false
+&quot;Red Alert 2-2&quot;             &quot;Lob 33 1&quot;              RAL2  true  false false  NULL NULL -1   false
+&quot;Nox Quest-1&quot;               &quot;Lob 37 0&quot;              NOXQ  true  false false  NULL NULL -1   false
+&quot;Yuri's Revenge-1&quot;          &quot;Lob 41 0&quot;              YURI  true  false false  NULL NULL -1   false
+&quot;Yuri's Revenge-2&quot;          &quot;Lob 41 1&quot;              YURI  true  false false  NULL NULL -1   false
+-------------------------------------------------------
+
+Date: 2009-Jan-02 17:21
+By: pandaemonium
+
+Comment:
+As this issue seems to be caused by problems in your config files, it might help to provide is with your config files.
+
+I think providing your channels.conf as an attachment to this bug should be sufficient.
+-------------------------------------------------------
+
+Date: 2009-Jan-01 14:09
+By: justabaka
+
+Comment:
+ITT: Hsppy new year, dear PvPGN Devs :)
+-------------------------------------------------------
+
+Date: 2008-Dec-30 17:20
+By: justabaka
+
+Comment:
+Hrm, sure. I think that this problem came with 500+ revisions. I'd love to test more, but seems like I don't know what to do except compiling few older revisions. But maybe it's also a good idea to compile pvpgn with debug support and try catching the bug with gdb or something.
+
+P.S. I've also tried updating the OS packages, but this solution has failed.
+P.P.S. Maybe there's some limitation in channel names/shortnames I do not know about?
+-------------------------------------------------------
+
+Date: 2008-Dec-30 13:05
+By: pelish
+
+Comment:
+Can you make more testing? How works previous repository versions? Will be very usefull if you will find when bug came.
+
+Thank you
+-------------------------------------------------------
+
+For detailed info, follow this link:
+<A HREF="http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=14973&amp;group_id=2291">http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=14973&amp;group_id=2291</A>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001052.html">[pvpgn-dev] [Bug #15149] clan whisper doesn't return
+</A></li>
+	<LI>Next message: <A HREF="001054.html">[pvpgn-dev] [Bug #14821] Compiler warnings
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1053">[ date ]</a>
+              <a href="thread.html#1053">[ thread ]</a>
+              <a href="subject.html#1053">[ subject ]</a>
+              <a href="author.html#1053">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

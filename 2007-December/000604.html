@@ -1,0 +1,134 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] Changing PvPGN license from &quot;GPLv2 and later&quot; to GPLv3/AGPLv3
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-December/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20Changing%20PvPGN%20license%20from%20%22GPLv2%20and%20later%22%20to%0A%20GPLv3/AGPLv3&In-Reply-To=%3C47544EBF.5050108%40gmx.net%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000603.html">
+   <LINK REL="Next"  HREF="000605.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] Changing PvPGN license from &quot;GPLv2 and later&quot; to GPLv3/AGPLv3</H1>
+    <B>Aaron</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20Changing%20PvPGN%20license%20from%20%22GPLv2%20and%20later%22%20to%0A%20GPLv3/AGPLv3&In-Reply-To=%3C47544EBF.5050108%40gmx.net%3E"
+       TITLE="[pvpgn-dev] Changing PvPGN license from &quot;GPLv2 and later&quot; to GPLv3/AGPLv3">aaron667 at gmx.net
+       </A><BR>
+    <I>Mon Dec  3 19:45:19 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000603.html">[pvpgn-dev] Changing PvPGN license from &quot;GPLv2 and later&quot; to	GPLv3/AGPLv3
+</A></li>
+        <LI>Next message: <A HREF="000605.html">[pvpgn-dev] Changing PvPGN license from &quot;GPLv2 and later&quot; to	GPLv3/AGPLv3
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#604">[ date ]</a>
+              <a href="thread.html#604">[ thread ]</a>
+              <a href="subject.html#604">[ subject ]</a>
+              <a href="author.html#604">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hi d1zzy,
+
+I like the idea alot! Even though I'm quite sure we won't recieve a 
+single line of extra code from the &quot;thieves&quot;. I doubt any of us 
+developers would feel like really suing a random server admin - even one 
+that added some really cool killer features (tm). The reason is simply: 
+the chances are 99.9% they live in a country that gives a fuck about 
+copyrights and contracts anyways-  so even trying it won't even be worth 
+the fees for a lawyer.
+I think we can relicense some really important core parts of PvPGN to 
+AGPLv3 - like the storage, network and config backend. Same should be 
+true for most parts of ladder code and a majority of the IRC/WOL code.
+It might even be a good reason to continue some C++ porting work - as 
+the rewritten code can be under a new license. (A core component like 
+connection or account would be a real cool thing to have under AGPLv3.)
+
+I think the 1.8.x codebase isn't that easy to handle as too much stuff 
+still has its origins back in bnetd. But even for that code GPLv3 would 
+at least be a good start.
+
+But there is one thing I don't know and don't really understand:
+   what license is an unified diff to code written under (A)GPLv3 under?
+The reason I'm asking this is simple: could people simply rip off any 
+future changes under the new license by simply applying the same patches 
+to a GPLv2 codebase?
+
+Best regards
+   Aaron
+
+dizzy schrieb:
+&gt;<i> Hi
+</I>&gt;<i> 
+</I>&gt;<i> Lately I have noticed there is alot of servers out there that perform 
+</I>&gt;<i> customizations on the PvPGN source code and do not give us any patches or do 
+</I>&gt;<i> not provide the source. This is (according to GPLv2, the current PvPGN 
+</I>&gt;<i> license) absolutely legal (tho not very much in the spirit of the license). 
+</I>&gt;<i> The FSF (which makes these licenses) also made a licensed called Affero GPL 
+</I>&gt;<i> (AGPL) which is now at version 3. It is the same identical text as GPLv3 with 
+</I>&gt;<i> the addition that you do need to distribute source code to your network users 
+</I>&gt;<i> (just as with GPL you needed to do that to the people you distributed binary 
+</I>&gt;<i> code). So I was thinking maybe we should switch PvPGN license from &quot;GPLv2 and 
+</I>&gt;<i> later&quot; to AGPLv3 (and GPLv3, see bellow).
+</I>&gt;<i> 
+</I>&gt;<i> We cannot change it completely to AGPLv3 because it is impossible to contact 
+</I>&gt;<i> and get agreement to switch to AGPLv3 for every person who contributed enough 
+</I>&gt;<i> code in PvPGN to be protected by copyright (think about all those old bnetd 
+</I>&gt;<i> contributers). But, from what I have discussed with fsf.org people, we can 
+</I>&gt;<i> change all the code we have written (or for which we get permission from the 
+</I>&gt;<i> author) to AGPLv3 and we can distribute this along with the code we cannot 
+</I>&gt;<i> change, because that code is still under &quot;GPLv2 or later&quot;, meaning it can be 
+</I>&gt;<i> distributed under GPLv3 and GPLv3 is compatible with AGPLv3 (ie you can 
+</I>&gt;<i> combine code of GPLv3 and AGPLv3 in the same project).
+</I>&gt;<i> 
+</I>&gt;<i> If we do this then any person who receives our combined GPLv3/AGPLv3 code has 
+</I>&gt;<i> to obey both licenses (because it contains code both with GPLv3 and with 
+</I>&gt;<i> AGPLv3). Which means that they will have to provide source code of their 
+</I>&gt;<i> modifications to pvpgn (they can avoid this if they remove every AGPL code 
+</I>&gt;<i> part from the project, possibly reimplementing those features themselves but 
+</I>&gt;<i> this is very unlikely because if we change to AGPLv3 at least the code that 
+</I>&gt;<i> aaron, Pelish and I have written then it is enough of code to make it very 
+</I>&gt;<i> hard to remove it and rewrite it to avoid AGPL constraints).
+</I>&gt;<i> 
+</I>&gt;<i> Of course, there is also the issue that they can just ignore the license 
+</I>&gt;<i> alltogether and act illegal about it, that is their choice but then they risk 
+</I>&gt;<i> to be made fun of, appear in slashdot.org or even be sued by FSF lawyers :)
+</I>&gt;<i> 
+</I>&gt;<i> What do you think? (I would expect people who perform modifications and do not 
+</I>&gt;<i> release to oppose this but I really do not care, I am interested about 
+</I>&gt;<i> reasons against doing this that would hurt pvpgn and the development process, 
+</I>&gt;<i> not reasons that hurt whatever random people who &quot;steal&quot; the code and don't 
+</I>&gt;<i> give anything back)
+</I>&gt;<i> 
+</I>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000603.html">[pvpgn-dev] Changing PvPGN license from &quot;GPLv2 and later&quot; to	GPLv3/AGPLv3
+</A></li>
+	<LI>Next message: <A HREF="000605.html">[pvpgn-dev] Changing PvPGN license from &quot;GPLv2 and later&quot; to	GPLv3/AGPLv3
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#604">[ date ]</a>
+              <a href="thread.html#604">[ thread ]</a>
+              <a href="subject.html#604">[ subject ]</a>
+              <a href="author.html#604">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

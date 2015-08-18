@@ -1,0 +1,83 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r558 - trunk/pvpgn/src/bnetd
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2009-May/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r558%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200905272136.n4RLa6WQ021982%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001110.html">
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r558 - trunk/pvpgn/src/bnetd</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r558%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200905272136.n4RLa6WQ021982%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r558 - trunk/pvpgn/src/bnetd">svn at svn.berlios.de
+       </A><BR>
+    <I>Wed May 27 23:36:06 CEST 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001110.html">[pvpgn-dev] [Bug #15675] /gameinfo dont work in CHAT clients
+</A></li>
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1111">[ date ]</a>
+              <a href="thread.html#1111">[ thread ]</a>
+              <a href="subject.html#1111">[ subject ]</a>
+              <a href="author.html#1111">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pelish
+Date: 2009-05-27 23:36:04 +0200 (Wed, 27 May 2009)
+New Revision: 558
+
+Modified:
+   trunk/pvpgn/src/bnetd/irc.cpp
+Log:
+fix of &quot;Red Alert 2 can not change maximum ingame players&quot; bug
+
+Modified: trunk/pvpgn/src/bnetd/irc.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/irc.cpp	2009-03-22 21:18:05 UTC (rev 557)
++++ trunk/pvpgn/src/bnetd/irc.cpp	2009-05-27 21:36:04 UTC (rev 558)
+@@ -1529,7 +1529,8 @@
+         t_channel * channel;
+         char const * ircname = irc_convert_ircname(params[0]);
+ 
+-        if (!(channel = channellist_find_channel_by_name(ircname,NULL,NULL))) {
++        /* FIXME: Supports more than one channel in MODE command */
++        if (!(channel = conn_get_channel(conn))) {
+             snprintf(temp,sizeof(temp),&quot;%s :No such channel&quot;, params[0]);
+             irc_send(conn,ERR_NOSUCHCHANNEL,temp);
+      	    return 0;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001110.html">[pvpgn-dev] [Bug #15675] /gameinfo dont work in CHAT clients
+</A></li>
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1111">[ date ]</a>
+              <a href="thread.html#1111">[ thread ]</a>
+              <a href="subject.html#1111">[ subject ]</a>
+              <a href="author.html#1111">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

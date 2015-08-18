@@ -1,0 +1,218 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r340 - in trunk/pvpgn: . cmake/Modules
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-August/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r340%20-%20in%20trunk/pvpgn%3A%20.%20cmake/Modules&In-Reply-To=%3C200708211639.l7LGdDiv023181%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000389.html">
+   <LINK REL="Next"  HREF="000391.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r340 - in trunk/pvpgn: . cmake/Modules</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r340%20-%20in%20trunk/pvpgn%3A%20.%20cmake/Modules&In-Reply-To=%3C200708211639.l7LGdDiv023181%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r340 - in trunk/pvpgn: . cmake/Modules">svn at svn.berlios.de
+       </A><BR>
+    <I>Tue Aug 21 18:39:13 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000389.html">[pvpgn-dev] r339 - trunk/pvpgn/cmake/Modules
+</A></li>
+        <LI>Next message: <A HREF="000391.html">[pvpgn-dev] r341 - in trunk/pvpgn: . conf files man src/bnetd	src/bniutils src/bnpass src/bnpcap src/bntrackd src/client	src/d2cs src/d2dbs src/tinycdb
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#390">[ date ]</a>
+              <a href="thread.html#390">[ thread ]</a>
+              <a href="subject.html#390">[ subject ]</a>
+              <a href="author.html#390">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: d1zzy
+Date: 2007-08-21 18:39:11 +0200 (Tue, 21 Aug 2007)
+New Revision: 340
+
+Added:
+   trunk/pvpgn/cmake/Modules/DefineInstallationPaths.cmake
+Modified:
+   trunk/pvpgn/CMakeLists.txt
+   trunk/pvpgn/ConfigureChecks.cmake
+Log:
+Added minimum version requirement for cmake and setting useful 
+installation variables that will be used with the various install() 
+commands.
+
+
+Modified: trunk/pvpgn/CMakeLists.txt
+===================================================================
+--- trunk/pvpgn/CMakeLists.txt	2007-08-21 10:21:22 UTC (rev 339)
++++ trunk/pvpgn/CMakeLists.txt	2007-08-21 16:39:11 UTC (rev 340)
+@@ -1,3 +1,12 @@
++# Required cmake version
++cmake_minimum_required(VERSION 2.4.3)
++
++# Put the include dirs which are in the source or build tree
++# before all other include dirs, so the headers in the sources
++# are prefered over the already installed ones
++# since cmake 2.4.1
++set(CMAKE_INCLUDE_DIRECTORIES_PROJECT_BEFORE ON)
++
+ project(pvpgn)
+ 
+ option(WITH_BNETD &quot;compile the bnetd target&quot; ON)
+
+Modified: trunk/pvpgn/ConfigureChecks.cmake
+===================================================================
+--- trunk/pvpgn/ConfigureChecks.cmake	2007-08-21 10:21:22 UTC (rev 339)
++++ trunk/pvpgn/ConfigureChecks.cmake	2007-08-21 16:39:11 UTC (rev 340)
+@@ -7,6 +7,7 @@
+ )
+ 
+ # include used modules
++include(DefineInstallationPaths)
+ include(CheckIncludeFileCXX)
+ include(CheckIncludeFilesCXX)
+ include(CheckFunctionExists)
+
+Added: trunk/pvpgn/cmake/Modules/DefineInstallationPaths.cmake
+===================================================================
+--- trunk/pvpgn/cmake/Modules/DefineInstallationPaths.cmake	2007-08-21 10:21:22 UTC (rev 339)
++++ trunk/pvpgn/cmake/Modules/DefineInstallationPaths.cmake	2007-08-21 16:39:11 UTC (rev 340)
+@@ -0,0 +1,105 @@
++IF (NOT APPLICATION_NAME)
++   MESSAGE(STATUS &quot;${PROJECT_NAME} is used as APPLICATION_NAME&quot;)
++   SET(APPLICATION_NAME ${PROJECT_NAME})
++ENDIF (NOT APPLICATION_NAME)
++
++# Suffix for Linux
++SET(LIB_SUFFIX
++  CACHE STRING &quot;Define suffix of directory name (32/64)&quot;
++)
++
++SET(EXEC_INSTALL_PREFIX
++  &quot;${CMAKE_INSTALL_PREFIX}&quot;
++  CACHE PATH  &quot;Base directory for executables and libraries&quot;
++  FORCE
++)
++SET(SHARE_INSTALL_PREFIX
++  &quot;${CMAKE_INSTALL_PREFIX}/share&quot;
++  CACHE PATH &quot;Base directory for files which go to share/&quot;
++  FORCE
++)
++SET(DATA_INSTALL_PREFIX
++  &quot;${SHARE_INSTALL_PREFIX}/${APPLICATION_NAME}&quot;
++  CACHE PATH &quot;The parent directory where applications can install their data&quot; FORCE)
++ # The following are directories where stuff will be installed to
++
++SET(BIN_INSTALL_DIR
++  &quot;${EXEC_INSTALL_PREFIX}/bin&quot;
++  CACHE PATH &quot;The ${APPLICATION_NAME} binary install dir (default prefix/bin)&quot;
++  FORCE
++)
++SET(SBIN_INSTALL_DIR
++  &quot;${EXEC_INSTALL_PREFIX}/sbin&quot;
++  CACHE PATH &quot;The ${APPLICATION_NAME} sbin install dir (default prefix/sbin)&quot;
++  FORCE
++)
++SET(LIB_INSTALL_DIR
++  &quot;${EXEC_INSTALL_PREFIX}/lib${LIB_SUFFIX}&quot;
++  CACHE PATH &quot;The subdirectory relative to the install prefix where libraries will be installed (default is prefix/lib)&quot;
++  FORCE
++)
++SET(LIBEXEC_INSTALL_DIR
++  &quot;${EXEC_INSTALL_PREFIX}/libexec&quot;
++  CACHE PATH &quot;The subdirectory relative to the install prefix where libraries will be installed (default is prefix/libexec)&quot;
++  FORCE
++)
++SET(PLUGIN_INSTALL_DIR
++  &quot;${LIB_INSTALL_DIR}/${APPLICATION_NAME}&quot;
++  CACHE PATH &quot;The subdirectory relative to the install prefix where plugins will be installed (default is prefix/lib/${APPLICATION_NAME})&quot;
++  FORCE
++)
++SET(INCLUDE_INSTALL_DIR
++  &quot;${CMAKE_INSTALL_PREFIX}/include&quot;
++  CACHE PATH &quot;The subdirectory to the header prefix (default prefix/include)&quot;
++  FORCE
++)
++
++SET(DATA_INSTALL_DIR
++  &quot;${DATA_INSTALL_PREFIX}&quot;
++  CACHE PATH &quot;The parent directory where applications can install their data (default prefix/share/${APPLICATION_NAME})&quot;
++  FORCE
++)
++SET(HTML_INSTALL_DIR
++  &quot;${DATA_INSTALL_PREFIX}/doc/HTML&quot;
++  CACHE PATH &quot;The HTML install dir for documentation (default data/doc/html)&quot;
++  FORCE
++)
++SET(ICON_INSTALL_DIR
++  &quot;${DATA_INSTALL_PREFIX}/icons&quot;
++  CACHE PATH &quot;The icon install dir (default data/icons/)&quot;
++  FORCE
++)
++SET(SOUND_INSTALL_DIR
++  &quot;${DATA_INSTALL_PREFIX}/sounds&quot;
++  CACHE PATH &quot;The install dir for sound files (default data/sounds)&quot;
++  FORCE
++)
++
++SET(LOCALE_INSTALL_DIR
++  &quot;${SHARE_INSTALL_PREFIX}/locale&quot;
++  CACHE PATH &quot;The install dir for translations (default prefix/share/locale)&quot;
++  FORCE
++)
++
++
++SET(SYSCONF_INSTALL_DIR
++  &quot;${EXEC_INSTALL_PREFIX}/etc&quot;
++  CACHE PATH &quot;The ${APPLICATION_NAME} sysconfig install dir (default prefix/etc)&quot;
++  FORCE
++)
++SET(MAN_INSTALL_DIR
++  &quot;${SHARE_INSTALL_PREFIX}/man&quot;
++  CACHE PATH &quot;The ${APPLICATION_NAME} man install dir (default prefix/man)&quot;
++  FORCE
++)
++SET(INFO_INSTALL_DIR
++  &quot;${SHARE_INSTALL_PREFIX}/info&quot;
++  CACHE PATH &quot;The ${APPLICATION_NAME} info install dir (default prefix/info)&quot;
++  FORCE
++)
++
++SET(LOCALSTATE_INSTALL_DIR
++  &quot;${CMAKE_INSTALL_PREFIX}/var&quot;
++  CACHE PATH &quot;The ${APPLICATION_NAME} local state install dir (default prefix/var)&quot;
++  FORCE
++)
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000389.html">[pvpgn-dev] r339 - trunk/pvpgn/cmake/Modules
+</A></li>
+	<LI>Next message: <A HREF="000391.html">[pvpgn-dev] r341 - in trunk/pvpgn: . conf files man src/bnetd	src/bniutils src/bnpass src/bnpcap src/bntrackd src/client	src/d2cs src/d2dbs src/tinycdb
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#390">[ date ]</a>
+              <a href="thread.html#390">[ thread ]</a>
+              <a href="subject.html#390">[ subject ]</a>
+              <a href="author.html#390">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

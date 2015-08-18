@@ -1,0 +1,241 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r524 - trunk/pvpgn/src/bnetd
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2009-January/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r524%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200901052223.n05MNQDf024071%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000930.html">
+   <LINK REL="Next"  HREF="000932.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r524 - trunk/pvpgn/src/bnetd</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r524%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200901052223.n05MNQDf024071%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r524 - trunk/pvpgn/src/bnetd">svn at svn.berlios.de
+       </A><BR>
+    <I>Mon Jan  5 23:23:26 CET 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000930.html">[pvpgn-dev] [Patch #2572] Fixed Same Game Name Get Merged
+</A></li>
+        <LI>Next message: <A HREF="000932.html">[pvpgn-dev] [Patch #2572] Fixed Same Game Name Get Merged
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#931">[ date ]</a>
+              <a href="thread.html#931">[ thread ]</a>
+              <a href="subject.html#931">[ subject ]</a>
+              <a href="author.html#931">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pelish
+Date: 2009-01-05 23:23:23 +0100 (Mon, 05 Jan 2009)
+New Revision: 524
+
+Modified:
+   trunk/pvpgn/src/bnetd/command.cpp
+   trunk/pvpgn/src/bnetd/connection.cpp
+   trunk/pvpgn/src/bnetd/game.cpp
+   trunk/pvpgn/src/bnetd/game.h
+   trunk/pvpgn/src/bnetd/handle_bnet.cpp
+   trunk/pvpgn/src/bnetd/handle_wol.cpp
+Log:
+add feature which allow start game with same name when another game is already started or done
+
+Modified: trunk/pvpgn/src/bnetd/command.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/command.cpp	2008-12-31 11:46:34 UTC (rev 523)
++++ trunk/pvpgn/src/bnetd/command.cpp	2009-01-05 22:23:23 UTC (rev 524)
+@@ -3688,7 +3688,7 @@
+ 	}
+     }
+   else
+-    if (!(game = gamelist_find_game(&amp;text[i],conn_get_clienttag(c),game_type_all)))
++    if (!(game = gamelist_find_game_available(&amp;text[i],conn_get_clienttag(c),game_type_all)))
+       {
+ 	message_send_text(c,message_type_error,c,&quot;That game does not exist.&quot;);
+ 	return 0;
+
+Modified: trunk/pvpgn/src/bnetd/connection.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/connection.cpp	2008-12-31 11:46:34 UTC (rev 523)
++++ trunk/pvpgn/src/bnetd/connection.cpp	2009-01-05 22:23:23 UTC (rev 524)
+@@ -2120,9 +2120,9 @@
+     }
+ 
+     if (gamename) {
+-	if (!(c-&gt;protocol.game = gamelist_find_game(gamename,c-&gt;protocol.client.clienttag,type))
+-	    /* do not allow creation of games with same name of same clienttag (yet) */
+-	    &amp;&amp; !gamelist_find_game(gamename,c-&gt;protocol.client.clienttag,game_type_all)) {
++	if (!(c-&gt;protocol.game = gamelist_find_game_available(gamename,c-&gt;protocol.client.clienttag,type))
++	    &amp;&amp; !gamelist_find_game_available(gamename,c-&gt;protocol.client.clienttag,game_type_all)) {
++        /* do not allow creation of games with same name of same clienttag when game is not started or done */
+ 	    c-&gt;protocol.game = game_create(gamename,gamepass,gameinfo,type,version,c-&gt;protocol.client.clienttag,conn_get_gameversion(c));
+ 
+ 	    if (c-&gt;protocol.game &amp;&amp; conn_get_realm(c) &amp;&amp; conn_get_charname(c)) {
+
+Modified: trunk/pvpgn/src/bnetd/game.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/game.cpp	2008-12-31 11:46:34 UTC (rev 523)
++++ trunk/pvpgn/src/bnetd/game.cpp	2009-01-05 22:23:23 UTC (rev 524)
+@@ -396,7 +396,7 @@
+ 	return NULL;
+     }
+ 
+-    if (gamelist_find_game(name, clienttag, game_type_all))
++    if (gamelist_find_game_available(name, clienttag, game_type_all))
+     {
+ 	eventlog(eventlog_level_info,__FUNCTION__,&quot;game \&quot;%s\&quot; not created because it already exists&quot;,name);
+ 	return NULL; /* already have a game by that name */
+@@ -2079,6 +2079,26 @@
+ }
+ 
+ 
++extern t_game * gamelist_find_game_available(char const * name, t_clienttag ctag, t_game_type type)
++{
++    t_elist *curr;
++    t_game *game;
++    t_game_status status;
++
++    elist_for_each(curr,&amp;gamelist_head)
++    {
++        game = elist_entry(curr,t_game,glist_link);
++        status = game-&gt;status;
++
++        if ((type==game_type_all || game-&gt;type==type) &amp;&amp; (ctag == game-&gt;clienttag) &amp;&amp; (game-&gt;name)
++            &amp;&amp; (!strcasecmp(name,game-&gt;name)) &amp;&amp; (game-&gt;status != game_status_started) &amp;&amp;
++             (game-&gt;status != game_status_done))
++            return game;
++    }
++
++    return NULL;
++}
++
+ extern t_game * gamelist_find_game_byid(unsigned int id)
+ {
+     t_elist *curr;
+@@ -2094,7 +2114,6 @@
+     return NULL;
+ }
+ 
+-
+ extern void gamelist_traverse(t_glist_func cb, void *data)
+ {
+     t_elist *curr;
+
+Modified: trunk/pvpgn/src/bnetd/game.h
+===================================================================
+--- trunk/pvpgn/src/bnetd/game.h	2008-12-31 11:46:34 UTC (rev 523)
++++ trunk/pvpgn/src/bnetd/game.h	2009-01-05 22:23:23 UTC (rev 524)
+@@ -316,6 +316,7 @@
+ extern int gamelist_destroy(void);
+ extern int gamelist_get_length(void);
+ extern t_game * gamelist_find_game(char const * name, t_clienttag ctag, t_game_type type);
++extern t_game * gamelist_find_game_available(char const * name, t_clienttag ctag, t_game_type type);
+ extern t_game * gamelist_find_game_byid(unsigned int id);
+ extern void gamelist_traverse(t_glist_func cb, void *data);
+ extern int gamelist_total_games(void);
+
+Modified: trunk/pvpgn/src/bnetd/handle_bnet.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/handle_bnet.cpp	2008-12-31 11:46:34 UTC (rev 523)
++++ trunk/pvpgn/src/bnetd/handle_bnet.cpp	2009-01-05 22:23:23 UTC (rev 524)
+@@ -3688,7 +3688,7 @@
+ 	gamename = NULL;
+ 	return 0;		/* tmp: do not record any anongames as yet */
+     } else {
+-	if (!(game = gamelist_find_game(gamename, conn_get_clienttag(c), game_type_all))) {
++	if (!(game = gamelist_find_game_available(gamename, conn_get_clienttag(c), game_type_all))) {
+ 	    eventlog(eventlog_level_info, __FUNCTION__, &quot;[%d] unable to find game \&quot;%s\&quot; for user to join&quot;, conn_get_socket(c), gamename);
+ 	    return 0;
+ 	}
+@@ -3944,20 +3944,27 @@
+ 	       0x00, 0x01, 0x02, 0x03, 0x10, 0x11, 0x12, 0x13, 0x80, 0x81, 0x82, 0x83 */
+ 
+ 	    t_game_type gtype;
++	    bool allow_create_custom = false;
++	    t_game *game;
+ 
+ 	    gtype = bngtype_to_gtype(conn_get_clienttag(c), bngtype);
+ 	    if ((gtype == game_type_ladder &amp;&amp; account_get_auth_createladdergame(conn_get_account(c)) == 0) || (gtype != game_type_ladder &amp;&amp; account_get_auth_createnormalgame(conn_get_account(c)) == 0))
+-		eventlog(eventlog_level_info, __FUNCTION__, &quot;[%d] game start for \&quot;%s\&quot; refused (no authority)&quot;, conn_get_socket(c), conn_get_username(c));
+-	    else if (conn_set_game(c, gamename, gamepass, gameinfo, gtype, STARTVER_GW4) == 0) {
+-		game_set_option(conn_get_game(c), bngoption_to_goption(conn_get_clienttag(c), gtype, option));
+-		if (status &amp; CLIENT_STARTGAME4_STATUS_PRIVATE)
+-		    game_set_flag(conn_get_game(c), game_flag_private);
+-		if (status &amp; CLIENT_STARTGAME4_STATUS_FULL)
+-		    game_set_status(conn_get_game(c), game_status_full);
+-		if (bngtype &amp; CLIENT_GAMELISTREQ_LOADED) /* PELISH: seems strange but it is really needed for loaded games */
+-		    game_set_status(conn_get_game(c), game_status_loaded);
+-		//FIXME: still need special handling for status disc-is-loss and replay
+-	    }
++		    eventlog(eventlog_level_info, __FUNCTION__, &quot;[%d] game start for \&quot;%s\&quot; refused (no authority)&quot;, conn_get_socket(c), conn_get_username(c));
++		else {
++		    //find is there any existing game with same name and allow the host to create game
++		    // with same name only when another game is already started or already done
++		    if ((!(game = gamelist_find_game_available(gamename, conn_get_clienttag(c), game_type_all))) &amp;&amp;
++                (conn_set_game(c, gamename, gamepass, gameinfo, gtype, STARTVER_GW4) == 0)) {
++		        game_set_option(conn_get_game(c), bngoption_to_goption(conn_get_clienttag(c), gtype, option));
++		        if (status &amp; CLIENT_STARTGAME4_STATUS_PRIVATE)
++		            game_set_flag(conn_get_game(c), game_flag_private);
++		        if (status &amp; CLIENT_STARTGAME4_STATUS_FULL)
++		            game_set_status(conn_get_game(c), game_status_full);
++		        if (bngtype &amp; CLIENT_GAMELISTREQ_LOADED) /* PELISH: seems strange but it is really needed for loaded games */
++		            game_set_status(conn_get_game(c), game_status_loaded);
++    		    //FIXME: still need special handling for status disc-is-loss and replay
++	        }
++        }
+ 	} else
+ 	    eventlog(eventlog_level_info, __FUNCTION__, &quot;[%d] client tried to set game status 0x%x to unexistent game (clienttag: %s)&quot;, conn_get_socket(c), status, clienttag_uint_to_str(conn_get_clienttag(c)));
+     }
+
+Modified: trunk/pvpgn/src/bnetd/handle_wol.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/handle_wol.cpp	2008-12-31 11:46:34 UTC (rev 523)
++++ trunk/pvpgn/src/bnetd/handle_wol.cpp	2009-01-05 22:23:23 UTC (rev 524)
+@@ -1214,12 +1214,10 @@
+ 	            }
+    		        snprintf(_temp_a, sizeof(_temp_a), &quot;%s %s &quot;, e[i], addr);
+    		        std::strcat(temp,_temp_a);
++   		        std::strcat(temp,&quot;:&quot;);
+             }
+         }
+ 
+-        if (tag_check_wolv2(conn_get_clienttag(conn)))
+-            std::strcat(temp,&quot;:&quot;);
+-
+         std::strcat(temp,&quot;1337&quot;); /* yes, ha ha funny, i just don't generate game numbers yet */
+         std::strcat(temp,&quot; &quot;);
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000930.html">[pvpgn-dev] [Patch #2572] Fixed Same Game Name Get Merged
+</A></li>
+	<LI>Next message: <A HREF="000932.html">[pvpgn-dev] [Patch #2572] Fixed Same Game Name Get Merged
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#931">[ date ]</a>
+              <a href="thread.html#931">[ thread ]</a>
+              <a href="subject.html#931">[ subject ]</a>
+              <a href="author.html#931">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

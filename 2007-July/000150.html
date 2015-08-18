@@ -1,0 +1,460 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r262 - in trunk/pvpgn: conf src/bnetd src/common
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-July/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r262%20-%20in%20trunk/pvpgn%3A%20conf%20src/bnetd%20src/common&In-Reply-To=%3C200707301558.l6UFwVHN012339%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000148.html">
+   <LINK REL="Next"  HREF="000151.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r262 - in trunk/pvpgn: conf src/bnetd src/common</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r262%20-%20in%20trunk/pvpgn%3A%20conf%20src/bnetd%20src/common&In-Reply-To=%3C200707301558.l6UFwVHN012339%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r262 - in trunk/pvpgn: conf src/bnetd src/common">svn at svn.berlios.de
+       </A><BR>
+    <I>Mon Jul 30 17:58:31 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000148.html">[pvpgn-dev] pvpgn/src/common tag.c,1.8,1.9
+</A></li>
+        <LI>Next message: <A HREF="000151.html">[pvpgn-dev] [Patch #2050] WOL added allowed_clients,	addres_translation
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#150">[ date ]</a>
+              <a href="thread.html#150">[ thread ]</a>
+              <a href="subject.html#150">[ subject ]</a>
+              <a href="author.html#150">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pandaemonium
+Date: 2007-07-30 17:58:30 +0200 (Mon, 30 Jul 2007)
+New Revision: 262
+
+Modified:
+   trunk/pvpgn/conf/address_translation.conf
+   trunk/pvpgn/conf/bnetd.conf.in
+   trunk/pvpgn/conf/bnetd.conf.win32
+   trunk/pvpgn/src/bnetd/handle_bnet.cpp
+   trunk/pvpgn/src/bnetd/handle_wol.cpp
+   trunk/pvpgn/src/common/irc_protocol.h
+   trunk/pvpgn/src/common/tag.cpp
+   trunk/pvpgn/src/common/tag.h
+Log:
+[ Patch #2050 ] WOL added allowed_clients, addres_translation - thx to pelish
+
+Modified: trunk/pvpgn/conf/address_translation.conf
+===================================================================
+--- trunk/pvpgn/conf/address_translation.conf	2007-07-30 15:49:58 UTC (rev 261)
++++ trunk/pvpgn/conf/address_translation.conf	2007-07-30 15:58:30 UTC (rev 262)
+@@ -130,3 +130,14 @@
+ # d2gs and port 4000 then here put:
+ 
+ #192.168.1.100:4000  1.2.3.4:4000       NONE                    ANY
++
++
++
++################################################################################
++# Westwood Online Game Server Translation (wwol)
++#
++#
++# input (ip:port)    output (ip:port)    exclude (ip/netmask)    include (ip/netmask)
++#-----------------  ------------------  ----------------------  ----------------------
++
++#192.168.1.10:4005   1.2.3.4:4005       192.168.1.0/24          ANY
+
+Modified: trunk/pvpgn/conf/bnetd.conf.in
+===================================================================
+--- trunk/pvpgn/conf/bnetd.conf.in	2007-07-30 15:49:58 UTC (rev 261)
++++ trunk/pvpgn/conf/bnetd.conf.in	2007-07-30 15:58:30 UTC (rev 262)
+@@ -169,8 +169,8 @@
+ #----------------------------------------------------------------------------#
+ 
+ # This option lists the client types allowed to connect (only valid for 
+-# the bnet protocol). The list is a comma separated list of any of the 
+-# following elements: 
++# the bnet and wol protocol). The list is a comma separated list of any of
++# the following elements: 
+ # all  : all client types allowed (default)
+ # chat : client type &quot;CHAT&quot; allowed (used by some bot software)
+ # dshr : client type Diablo 1 Shareware
+@@ -183,6 +183,16 @@
+ # d2xp : client type Diablo 2 LOD
+ # war3 : client type Warcraft III (Reign Of Chaos)
+ # w3xp : client type Warcraft III Frozen Throne
++# tsun : client type Tiberian Sun
++# tsxp : client type Tiberian Sun Firestorm
++# ralt : client type Red Alert (with 4 players internet patche)
++# ral2 : client type Red Alert 2
++# dn2k : client type Dune 2000
++# noxx : client type Nox
++# noxq : client type Nox Quest
++# rngd : client type Renegade
++# yuri : client type Yuri's Revenge
++# empr : client type Emperor: Battle for Dune
+ #
+ # Example: allowed_clients = war3,w3xp
+ allowed_clients = all
+
+Modified: trunk/pvpgn/conf/bnetd.conf.win32
+===================================================================
+--- trunk/pvpgn/conf/bnetd.conf.win32	2007-07-30 15:49:58 UTC (rev 261)
++++ trunk/pvpgn/conf/bnetd.conf.win32	2007-07-30 15:58:30 UTC (rev 262)
+@@ -147,8 +147,8 @@
+ #----------------------------------------------------------------------------#
+ 
+ # This option lists the client types allowed to connect (only valid for 
+-# the bnet protocol). The list is a comma separated list of any of the 
+-# following elements: 
++# the bnet and wol protocol). The list is a comma separated list of any of
++# the following elements: 
+ # all  : all client types allowed (default)
+ # chat : client type &quot;CHAT&quot; allowed (used by some bot software)
+ # dshr : client type Diablo 1 Shareware
+@@ -161,6 +161,16 @@
+ # d2xp : client type Diablo 2 LOD
+ # war3 : client type Warcraft III (Reign Of Chaos)
+ # w3xp : client type Warcraft III Frozen Throne
++# tsun : client type Tiberian Sun
++# tsxp : client type Tiberian Sun Firestorm
++# ralt : client type Red Alert (with 4 players internet patche)
++# ral2 : client type Red Alert 2
++# dn2k : client type Dune 2000
++# noxx : client type Nox
++# noxq : client type Nox Quest
++# rngd : client type Renegade
++# yuri : client type Yuri's Revenge
++# empr : client type Emperor: Battle for Dune
+ #
+ # Example: allowed_clients = war3,w3xp
+ allowed_clients = all
+
+Modified: trunk/pvpgn/src/bnetd/handle_bnet.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/handle_bnet.cpp	2007-07-30 15:49:58 UTC (rev 261)
++++ trunk/pvpgn/src/bnetd/handle_bnet.cpp	2007-07-30 15:58:30 UTC (rev 262)
+@@ -334,48 +334,6 @@
+     return res;
+ }
+ 
+-/* checks if a clienttag is in the allowed_clients list
+- * @ctag : clienttag integer to check
+- * if it's allowed returns 0
+- * if it's not allowed returns -1
+- */
+-static int _check_allowed_client(t_clienttag ctag)
+-{
+-    char *list, *p, *q;
+-
+-    /* by default allow all */
+-    if (!prefs_get_allowed_clients())
+-	return 0;
+-
+-    /* this shortcut check should make server as fast as before if
+-     * the configuration is left in default mode */
+-    if (!strcasecmp(prefs_get_allowed_clients(), &quot;all&quot;))
+-	return 0;
+-
+-    list = xstrdup(prefs_get_allowed_clients());
+-    p = list;
+-    do {
+-	q = std::strchr(p, ',');
+-	if (q)
+-	    *q = '\0';
+-	if (!strcasecmp(p, &quot;all&quot;))
+-	    goto ok;
+-	if (std::strlen(p) != 4)
+-	    continue;
+-	if (ctag == tag_case_str_to_uint(p))
+-	    goto ok;		/* client allowed */
+-	if (q)
+-	    p = q + 1;
+-    } while (q);
+-    xfree((void *) list);
+-
+-    return -1;			/* client NOT allowed */
+-
+-  ok:
+-    xfree((void *) list);
+-    return 0;
+-}
+-
+ /* handlers for bnet packets */
+ static int _client_unknown_1b(t_connection * c, t_packet const *const packet)
+ {
+@@ -565,7 +523,7 @@
+ 	}
+ 
+ 	/* check if it's an allowed client type */
+-	if (_check_allowed_client(bn_int_get(packet-&gt;u.client_countryinfo_109.clienttag))) {
++	if (tag_check_in_list(bn_int_get(packet-&gt;u.client_countryinfo_109.clienttag),prefs_get_allowed_clients())) {
+ 	    conn_set_state(c, conn_state_destroy);
+ 	    return 0;
+ 	}
+@@ -646,7 +604,7 @@
+ 	return -1;
+     }
+ 
+-    if (_check_allowed_client(bn_int_get(packet-&gt;u.client_progident.clienttag))) {
++    if (tag_check_in_list(bn_int_get(packet-&gt;u.client_progident.clienttag),prefs_get_allowed_clients())) {
+ 	conn_set_state(c, conn_state_destroy);
+ 	return 0;
+     }
+@@ -3032,7 +2990,7 @@
+ 
+     /* d2 uses this packet with clienttag = 0 to request the channel list */
+     if (bn_int_get(packet-&gt;u.client_progident2.clienttag)) {
+-	if (_check_allowed_client(bn_int_get(packet-&gt;u.client_progident2.clienttag))) {
++	if (tag_check_in_list(bn_int_get(packet-&gt;u.client_progident2.clienttag),prefs_get_allowed_clients())) {
+ 	    conn_set_state(c, conn_state_destroy);
+ 	    return 0;
+ 	}
+@@ -4218,7 +4176,7 @@
+ 	return -1;
+     }
+ 
+-    if (_check_allowed_client(bn_int_get(packet-&gt;u.client_changeclient.clienttag))) {
++    if (tag_check_in_list(bn_int_get(packet-&gt;u.client_changeclient.clienttag),prefs_get_allowed_clients())) {
+ 	conn_set_state(c, conn_state_destroy);
+ 	return 0;
+     }
+
+Modified: trunk/pvpgn/src/bnetd/handle_wol.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/handle_wol.cpp	2007-07-30 15:49:58 UTC (rev 261)
++++ trunk/pvpgn/src/bnetd/handle_wol.cpp	2007-07-30 15:58:30 UTC (rev 262)
+@@ -33,6 +33,7 @@
+ #include &quot;common/util.h&quot;
+ #include &quot;common/list.h&quot;
+ #include &quot;common/addr.h&quot;
++#include &quot;common/trans.h&quot;
+ 
+ #include &quot;prefs.h&quot;
+ #include &quot;command.h&quot;
+@@ -1095,17 +1096,16 @@
+     *  Heres the imput expected:
+     *  vercheck [SKU] [version]
+     *
+-    *  Here are two standart outputs expected:
++    *  Here are two standart outputs expected - first for WOL second for ServServ server:
+     *
+-    *  Update NON-existant:
+-    *  For WSERVER:
+-    *  :[servername] 602 [username] :Update record non-existant
+-    *  For WOL:
++    *  For WOL server (update non-existant):
+     *  :[servername] 379 [username] :none none none 1 [SKU] NONREQ
+     *
+-    *  Update existant:
+-    *  For WSERVER:
++    *  For ServServ sever (update non-existant):
++    *  :[servername] 602 [username] :Update record non-existant
++    *  For ServServ sever (update existant):
+     *  :[servername] 606 [username] :[ftpserveraddr] [ftpusername] [ftppaswd] [directori] [file.rtp] [newversion] [SKU] REQ
++    *  :[servername] 603 [username] :You must update before connecting!
+     */
+ 
+     if (conn_get_class(conn) == conn_class_wserv) {
+@@ -1123,6 +1123,7 @@
+         irc_send(conn,RPL_VERCHK_NONREQ,temp);
+       	return 0;
+     }
++
+  	return 0;
+ }
+ 
+@@ -1138,37 +1139,49 @@
+ 	char temp[MAX_IRC_MESSAGE_LEN];
+ 
+ 	/* Casted to avoid warnings */
+-	const char * wolip = addr_num_to_ip_str(conn_get_real_local_addr(conn));
++	const char * wolip;
+ 	const char * wolname = prefs_get_servername();
+ 	const char * woltimezone = prefs_get_wol_timezone();
+ 	const char * wollong = prefs_get_wol_longitude();
+ 	const char * wollat = prefs_get_wol_latitude();
++	
++    {			/* trans support */
++       unsigned short port = conn_get_real_local_port(conn);
++       unsigned int addr = conn_get_real_local_addr(conn);
+ 
+-    /* D1zzy: This is good way to disable any game - we dont send available server (RPL_WOLSERV) */
++       trans_net(conn_get_addr(conn), &amp;addr, &amp;port);
+ 
+-    /*  This is for anyone game but not for Emperor */
+-    if (conn_get_clienttag(conn) != CLIENTTAG_EMPERORBD_UINT) {
+-	   snprintf(temp, sizeof(temp), &quot;:%s %d '0:%s' %s %s %s&quot;, wolip, BNETD_WOL_PORT, wolname, woltimezone, wollong, wollat);
+-	   irc_send(conn,RPL_WOLSERV,temp);
++       wolip = addr_num_to_ip_str(addr);
+     }
+ 
+-   /*  Only for Emperor: Battle for Dune */
+-    if (conn_get_clienttag(conn) == CLIENTTAG_EMPERORBD_UINT) {
+-	   snprintf(temp, sizeof(temp), &quot;:%s %d '0:Emperor %s' %s %s %s&quot;, wolip, BNETD_WOL_PORT, wolname, woltimezone, wollong, wollat);
++    /* Check if it's an allowed client type */
++    if (!tag_check_in_list(conn_get_clienttag(conn), prefs_get_allowed_clients())) {
++       /*  This is for anyone game but not for Emperor */
++       if (conn_get_clienttag(conn) != CLIENTTAG_EMPERORBD_UINT) {
++	      snprintf(temp, sizeof(temp), &quot;:%s %d '0:%s' %s %s %s&quot;, wolip, BNETD_WOL_PORT, wolname, woltimezone, wollong, wollat);
++	      irc_send(conn,RPL_WOLSERV,temp);
++       }
++
++       /*  Only for Emperor: Battle for Dune */
++       if (conn_get_clienttag(conn) == CLIENTTAG_EMPERORBD_UINT) {
++	      snprintf(temp, sizeof(temp), &quot;:%s %d '0:Emperor %s' %s %s %s&quot;, wolip, BNETD_WOL_PORT, wolname, woltimezone, wollong, wollat);
++          irc_send(conn,RPL_WOLSERV,temp);
++       }
++
++       /*  Only for CnC Renegade */
++       if (conn_get_clienttag(conn) == CLIENTTAG_RENEGADE_UINT) {
++	      snprintf(temp, sizeof(temp), &quot;:%s 0 'Ping server' %s %s %s&quot;, wolip, woltimezone, wollong, wollat);
++	      irc_send(conn,RPL_PINGSERVER,temp);
++	      //I dont know for what is this server...? (used in renegade and yuri)
++	      //snprintf(temp, sizeof(temp), &quot;:%s 4321 'Port Mangler' %s %s %s&quot;, wolip, woltimezone, wollong, wollat);
++	      //irc_send(conn,RPL_MANGLERSERV,temp);
++       }
++
++       /*  There are servers for anyone game */
++       snprintf(temp, sizeof(temp), &quot;:%s %d 'Live chat server' %s %s %s&quot;, wolip, BNETD_WOL_PORT, woltimezone, wollong, wollat);
+        irc_send(conn,RPL_WOLSERV,temp);
+     }
+-
+-    /*  Only for CnC Renegade */
+-    if (conn_get_clienttag(conn) == CLIENTTAG_RENEGADE_UINT) {
+-	   snprintf(temp, sizeof(temp), &quot;:%s 0 'Ping server' %s %s %s&quot;, wolip, woltimezone, wollong, wollat);
+-	   irc_send(conn,RPL_PINGSERVER,temp);
+-	   //snprintf(temp, sizeof(temp), &quot;:%s 4321 'Port Mangler' %s %s %s&quot;, wolip, woltimezone, wollong, wollat); //I dont know for what is this server...?
+-	   //irc_send(conn,RPL_MANGLERSERV,temp);
+-    }
+-
+-    /*  This will be for anyone game */
+-	snprintf(temp, sizeof(temp), &quot;:%s %d 'Live chat server' %s %s %s&quot;, wolip, BNETD_WOL_PORT, woltimezone, wollong, wollat);
+-	irc_send(conn,RPL_WOLSERV,temp);
++    /* If game is not allowed than we still send this servers */
+ 	snprintf(temp, sizeof(temp), &quot;:%s %d 'Gameres server' %s %s %s&quot;, wolip, BNETD_WGAMERES_PORT, woltimezone, wollong, wollat);
+ 	irc_send(conn,RPL_GAMERESSERV,temp);
+ 	snprintf(temp, sizeof(temp), &quot;:%s %d 'Ladder server' %s %s %s&quot;, wolip, BNETD_WGAMERES_PORT, woltimezone, wollong, wollat);
+
+Modified: trunk/pvpgn/src/common/irc_protocol.h
+===================================================================
+--- trunk/pvpgn/src/common/irc_protocol.h	2007-07-30 15:49:58 UTC (rev 261)
++++ trunk/pvpgn/src/common/irc_protocol.h	2007-07-30 15:58:30 UTC (rev 262)
+@@ -349,10 +349,11 @@
+ #define RPL_FIND_USER_EX     398
+ #define RPL_GET_INSIDER      399
+ 
+-#define RPL_UPDATE_NONEX     602  /* for WOL serv */
++#define RPL_UPDATE_NONEX     602  /* for servserv */
++#define RPL_UPDATE_EXIST     603  /* for servserv */
+ 
+ #define RPL_WOLSERV          605
+-#define RPL_UPDATE_EXIST     606  /* for WOL serv */
++#define RPL_UPDATE_FTP       606  /* for servserv FTP message */
+ #define RPL_QUIT             607
+ #define RPL_GAMERESSERV	     608
+ #define RPL_LADDERSERV	     609
+
+Modified: trunk/pvpgn/src/common/tag.cpp
+===================================================================
+--- trunk/pvpgn/src/common/tag.cpp	2007-07-30 15:49:58 UTC (rev 261)
++++ trunk/pvpgn/src/common/tag.cpp	2007-07-30 15:58:30 UTC (rev 262)
+@@ -23,6 +23,7 @@
+ #include &lt;cctype&gt;
+ 
+ #include &quot;common/eventlog.h&quot;
++#include &quot;common/xalloc.h&quot;
+ #include &quot;common/setup_after.h&quot;
+ 
+ namespace pvpgn
+@@ -305,4 +306,45 @@
+    }
+ }
+ 
++extern int tag_check_in_list(t_clienttag clienttag, char const * list)
++{
++   /* checks if a clienttag is in the list
++    * @clienttag : clienttag integer to check
++    * if it's allowed returns 0
++    * if it's not allowed returns -1
++    */
++    char *p, *q;
++
++    /* by default allow all */
++    if (!list)
++	return 0;
++
++    /* this shortcut check should make server as fast as before if
++     * the configuration is left in default mode */
++    if (!strcasecmp(list, &quot;all&quot;))
++	return 0;
++
++    p =  xstrdup(list);
++    do {
++	q = std::strchr(p, ',');
++	if (q)
++	    *q = '\0';
++	if (!strcasecmp(p, &quot;all&quot;))
++	    goto ok;
++	if (std::strlen(p) != 4)
++	    continue;
++	if (clienttag == tag_case_str_to_uint(p))
++	    goto ok;		/* client is in list */
++	if (q)
++	    p = q + 1;
++    } while (q);
++    xfree((void *) p);
++
++    return -1;			/* client is NOT in list */
++
++  ok:
++    xfree((void *) p);
++    return 0;
+ }
++
++}
+
+Modified: trunk/pvpgn/src/common/tag.h
+===================================================================
+--- trunk/pvpgn/src/common/tag.h	2007-07-30 15:49:58 UTC (rev 261)
++++ trunk/pvpgn/src/common/tag.h	2007-07-30 15:58:30 UTC (rev 262)
+@@ -160,6 +160,7 @@
+ extern int	tag_check_arch(t_tag tag_uint);
+ extern int	tag_check_client(t_tag tag_uint);
+ extern int	tag_check_gamelang(t_tag tag_uint);
++extern int	tag_check_in_list(t_clienttag clienttag,const char * list);
+ 
+ }
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000148.html">[pvpgn-dev] pvpgn/src/common tag.c,1.8,1.9
+</A></li>
+	<LI>Next message: <A HREF="000151.html">[pvpgn-dev] [Patch #2050] WOL added allowed_clients,	addres_translation
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#150">[ date ]</a>
+              <a href="thread.html#150">[ thread ]</a>
+              <a href="subject.html#150">[ subject ]</a>
+              <a href="author.html#150">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

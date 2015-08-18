@@ -1,0 +1,665 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r387 - trunk/pvpgn/src/bnetd
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-September/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r387%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200709180923.l8I9NOIw005904%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000457.html">
+   <LINK REL="Next"  HREF="000459.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r387 - trunk/pvpgn/src/bnetd</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r387%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200709180923.l8I9NOIw005904%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r387 - trunk/pvpgn/src/bnetd">svn at svn.berlios.de
+       </A><BR>
+    <I>Tue Sep 18 11:23:24 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000457.html">[pvpgn-dev] Zlib Problems
+</A></li>
+        <LI>Next message: <A HREF="000459.html">[pvpgn-dev] [Bug #11959] IRC Ban
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#458">[ date ]</a>
+              <a href="thread.html#458">[ thread ]</a>
+              <a href="subject.html#458">[ subject ]</a>
+              <a href="author.html#458">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pelish
+Date: 2007-09-18 11:23:17 +0200 (Tue, 18 Sep 2007)
+New Revision: 387
+
+Modified:
+   trunk/pvpgn/src/bnetd/channel.cpp
+   trunk/pvpgn/src/bnetd/command.cpp
+   trunk/pvpgn/src/bnetd/connection.cpp
+   trunk/pvpgn/src/bnetd/connection.h
+   trunk/pvpgn/src/bnetd/handle_bnet.cpp
+   trunk/pvpgn/src/bnetd/handle_irc.cpp
+   trunk/pvpgn/src/bnetd/handle_wol.cpp
+   trunk/pvpgn/src/bnetd/irc.cpp
+   trunk/pvpgn/src/bnetd/irc.h
+   trunk/pvpgn/src/bnetd/message.cpp
+   trunk/pvpgn/src/bnetd/message.h
+Log:
+add new message_types QUIT and KICK. I Hope that this is a final solution of KICK problems (only some small fix needed but should not break anything)
+
+Modified: trunk/pvpgn/src/bnetd/channel.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/channel.cpp	2007-09-08 17:34:32 UTC (rev 386)
++++ trunk/pvpgn/src/bnetd/channel.cpp	2007-09-18 09:23:17 UTC (rev 387)
+@@ -519,8 +519,6 @@
+ 
+     channel_message_log(channel,connection,0,&quot;PARTED&quot;);
+ 
+-    channel_message_send(channel,message_type_part,connection,NULL);
+-
+     curr = channel-&gt;memberlist;
+     if (curr-&gt;connection==connection)
+     {
+
+Modified: trunk/pvpgn/src/bnetd/command.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/command.cpp	2007-09-08 17:34:32 UTC (rev 386)
++++ trunk/pvpgn/src/bnetd/command.cpp	2007-09-18 09:23:17 UTC (rev 387)
+@@ -2357,7 +2357,9 @@
+       std::sprintf(msgtemp,&quot;%-.20s has been kicked by %-.20s.&quot;,tname1,tname2);
+     channel_message_send(channel,message_type_info,c,msgtemp);
+   }
+-  conn_set_channel(kuc,CHANNEL_NAME_KICKED); /* should not fail */
++  conn_kick_channel(kuc,&quot;Bye&quot;);
++  if (conn_get_class(kuc) == conn_class_bnet)
++      conn_set_channel(kuc,CHANNEL_NAME_KICKED); /* should not fail */
+ 
+   return 0;
+ }
+
+Modified: trunk/pvpgn/src/bnetd/connection.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/connection.cpp	2007-09-08 17:34:32 UTC (rev 386)
++++ trunk/pvpgn/src/bnetd/connection.cpp	2007-09-18 09:23:17 UTC (rev 387)
+@@ -1847,6 +1847,7 @@
+     t_elem * curr;
+     int clantag=0;
+     t_clan * clan = NULL;
++	unsigned int created;
+ 
+     if (!c)
+     {
+@@ -1862,10 +1863,12 @@
+         return -1;
+     }
+ 
+-    if (channelname)
++    if (!channelname)
+     {
+-	unsigned int created;
+-
++        eventlog(eventlog_level_error,__FUNCTION__,&quot;got NULL channelname&quot;);
++        return -1;
++    }
++                
+ 	oldchannel=c-&gt;protocol.chat.channel;
+ 
+ 	channel = channellist_find_channel_by_name(channelname,conn_get_country(c),realm_get_name(conn_get_realm(c)));
+@@ -1897,10 +1900,7 @@
+     }
+ 
+     if (c-&gt;protocol.chat.channel)
+-    {
+-	channel_del_connection(c-&gt;protocol.chat.channel, c);
+-	c-&gt;protocol.chat.channel = NULL;
+-    }
++        conn_part_channel(c);
+ 
+     if (channel)
+ 	{
+@@ -1978,7 +1978,7 @@
+       message_send_text(c,message_type_info,c,msgtemp);
+     }
+ 
+-    if (channel_get_topic(channel_get_name(c-&gt;protocol.chat.channel)) &amp;&amp; ((conn_get_class(c)!=conn_class_irc)))
++    if (channel_get_topic(channel_get_name(c-&gt;protocol.chat.channel)) &amp;&amp; ((conn_is_irc_variant(c)) == 0))
+     {
+       char msgtemp[MAX_MESSAGE_LEN];
+ 
+@@ -1991,20 +1991,71 @@
+ 
+     if(c-&gt;protocol.chat.channel!=oldchannel)
+       clanmember_on_change_status_by_connection(c);
++
++    return 0;
++}
++
++extern int conn_part_channel(t_connection * c)
++{
++    if (!c) {
++        ERROR0(&quot;got NULL connection&quot;);
++        return -1;
+     }
+-    else
+-    {
+-      if (c-&gt;protocol.chat.channel)
+-      {
+-        channel_del_connection(c-&gt;protocol.chat.channel,c);
+-        c-&gt;protocol.chat.channel = NULL;
+-      }
++
++    if (!c-&gt;protocol.chat.channel) {
++        ERROR0(&quot;client want to PART channel but is not in channel! c-&gt;protocol.chat.channel == NULL&quot;);
++        return -1;
+     }
+ 
++    channel_message_send(c-&gt;protocol.chat.channel,message_type_part,c,NULL);
++    channel_del_connection(c-&gt;protocol.chat.channel,c);
++    c-&gt;protocol.chat.channel = NULL;
++
+     return 0;
+ }
+ 
++extern int conn_kick_channel(t_connection * c, char const * text)
++{
++    /* According to RFC2812 in *text is reason, wol sends by text op nickname */
+ 
++    if (!c) {
++        ERROR0(&quot;got NULL connection&quot;);
++        return -1;
++    }
++
++    if (!c-&gt;protocol.chat.channel) {
++        ERROR0(&quot;client want to KICK channel but is not in channel! c-&gt;protocol.chat.channel == NULL&quot;);
++        return -1;
++    }
++   
++    channel_message_send(c-&gt;protocol.chat.channel,message_type_kick,c,text);
++    channel_del_connection(c-&gt;protocol.chat.channel,c);
++    c-&gt;protocol.chat.channel = NULL;
++
++    return 0;
++}
++
++extern int conn_quit_channel(t_connection * c, char const * text)
++{
++    /* According to RFC2812 in *text is user difinable QUIT message i.e.: Gone to have lunch */
++
++    if (!c) {
++        ERROR0(&quot;got NULL connection&quot;);
++        return -1;
++    }
++
++    if (!c-&gt;protocol.chat.channel) {
++        ERROR0(&quot;client want to QUIT channel but is not in channel! c-&gt;protocol.chat.channel == NULL&quot;);
++        return -1;
++    }
++   
++    channel_message_send(c-&gt;protocol.chat.channel,message_type_quit,c,text);
++    channel_del_connection(c-&gt;protocol.chat.channel,c);
++    c-&gt;protocol.chat.channel = NULL;
++
++    return 0;
++}
++
+ extern t_game * conn_get_game(t_connection const * c)
+ {
+     if (!c)
+
+Modified: trunk/pvpgn/src/bnetd/connection.h
+===================================================================
+--- trunk/pvpgn/src/bnetd/connection.h	2007-09-08 17:34:32 UTC (rev 386)
++++ trunk/pvpgn/src/bnetd/connection.h	2007-09-18 09:23:17 UTC (rev 387)
+@@ -328,6 +328,9 @@
+ extern t_channel * conn_get_channel(t_connection const * c) ;
+ extern int conn_set_channel_var(t_connection * c, t_channel * channel);
+ extern int conn_set_channel(t_connection * c, char const * channelname);
++extern int conn_part_channel(t_connection * c);
++extern int conn_kick_channel(t_connection * c, char const * text);
++extern int conn_quit_channel(t_connection * c, char const * text);
+ extern t_game * conn_get_game(t_connection const * c) ;
+ extern int conn_set_game(t_connection * c, char const * gamename, char const * gamepass, char const * gameinfo, t_game_type type, int version);
+ extern unsigned int conn_get_tcpaddr(t_connection * c) ;
+
+Modified: trunk/pvpgn/src/bnetd/handle_bnet.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/handle_bnet.cpp	2007-09-08 17:34:32 UTC (rev 386)
++++ trunk/pvpgn/src/bnetd/handle_bnet.cpp	2007-09-18 09:23:17 UTC (rev 387)
+@@ -25,7 +25,6 @@
+ 
+ #include &lt;sstream&gt;
+ #include &lt;cstring&gt;
+-#include &lt;cstring&gt;
+ #include &lt;cctype&gt;
+ 
+ #include &quot;compat/strcasecmp.h&quot;
+@@ -2204,7 +2203,7 @@
+ 
+ 
+ 	//Create the packet to send to each of the users you wanted to invite
+-	conn_set_channel(c, NULL);
++	conn_part_channel(c);
+ 
+ 	for (i = 0; i &lt; teammemcount; i++) {
+ 
+@@ -3404,7 +3403,7 @@
+     }
+ 
+     if (conn_get_channel(c))
+-	conn_set_channel(c, NULL);
++	conn_part_channel(c);
+ 
+     if (!std::strcmp(gamename, &quot;BNet&quot;) &amp;&amp; !handle_anongame_join(c)) {
+ 	gtype = game_type_anongame;
+@@ -3614,7 +3613,7 @@
+     }
+     // Quick hack to make W3 part channels when creating a game
+     if (conn_get_channel(c))
+-	conn_set_channel(c, NULL);
++	conn_part_channel(c);
+ 
+     {
+ 	char const *gamename;
+@@ -3828,7 +3827,7 @@
+ {
+     /* If this user in a channel, notify everyone that the user has left */
+     if (conn_get_channel(c))
+-	conn_set_channel(c, NULL);
++	conn_part_channel(c);
+     return 0;
+ }
+ 
+
+Modified: trunk/pvpgn/src/bnetd/handle_irc.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/handle_irc.cpp	2007-09-08 17:34:32 UTC (rev 386)
++++ trunk/pvpgn/src/bnetd/handle_irc.cpp	2007-09-18 09:23:17 UTC (rev 387)
+@@ -109,6 +109,7 @@
+ 	{ &quot;ISON&quot;		, _handle_ison_command },
+ 	{ &quot;WHOIS&quot;		, _handle_whois_command },
+ 	{ &quot;PART&quot;		, _handle_part_command },
++	{ &quot;KICK&quot;		, _handle_kick_command },
+ 
+ 	{ NULL			, NULL }
+ };
+@@ -622,7 +623,7 @@
+ 
+ static int _handle_quit_command(t_connection * conn, int numparams, char ** params, char * text)
+ {
+-	conn_set_channel(conn, NULL);
++	conn_quit_channel(conn,text);
+ 	conn_set_state(conn, conn_state_destroy);
+ 	return 0;
+ }
+@@ -707,7 +708,7 @@
+ 
+ static int _handle_part_command(t_connection * conn, int numparams, char ** params, char * text)
+ {
+-    conn_set_channel(conn, NULL);
++    conn_part_channel(conn);
+     return 0;
+ }
+ 
+
+Modified: trunk/pvpgn/src/bnetd/handle_wol.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/handle_wol.cpp	2007-09-08 17:34:32 UTC (rev 386)
++++ trunk/pvpgn/src/bnetd/handle_wol.cpp	2007-09-18 09:23:17 UTC (rev 387)
+@@ -100,7 +100,6 @@
+ static int _handle_addbuddy_command(t_connection * conn, int numparams, char ** params, char * text);
+ static int _handle_delbuddy_command(t_connection * conn, int numparams, char ** params, char * text);
+ static int _handle_time_command(t_connection * conn, int numparams, char ** params, char * text);
+-static int _handle_kick_command(t_connection * conn, int numparams, char ** params, char * text);
+ static int _handle_mode_command(t_connection * conn, int numparams, char ** params, char * text);
+ static int _handle_host_command(t_connection * conn, int numparams, char ** params, char * text);
+ static int _handle_advertc_command(t_connection * conn, int numparams, char ** params, char * text);
+@@ -681,7 +680,7 @@
+ static int _handle_quit_command(t_connection * conn, int numparams, char ** params, char * text)
+ {
+     irc_send(conn,RPL_QUIT,&quot;:goodbye&quot;);
+-    conn_set_channel(conn, NULL);
++    conn_quit_channel(conn, text);
+     conn_set_state(conn, conn_state_destroy);
+ 
+     return 0;
+@@ -692,7 +691,7 @@
+     if ((conn_wol_get_ingame(conn) == 1)) {
+         conn_wol_set_ingame(conn,0);
+     }
+-    conn_set_channel(conn, NULL);
++    conn_part_channel(conn);
+     return 0;
+ }
+ 
+@@ -1537,46 +1536,6 @@
+     return 0;
+ }
+ 
+-static int _handle_kick_command(t_connection * conn, int numparams, char ** params, char * text)
+-{
+-    char temp[MAX_IRC_MESSAGE_LEN];
+-    t_channel * channel;
+-    t_connection * c;
+-    unsigned int flags;
+-
+- 	/**
+- 	*  Heres the imput expected
+-    *  KICK [channel] [kicked_user]
+-    *
+-    *  Heres the output expected
+-    *  :user!<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">WWOL at hostname</A> KICK [channel] [kicked_user] :[user_op]
+-    */
+-
+-	flags = conn_get_flags(conn);
+-
+-	if (!flags &amp; MF_BLIZZARD) {
+-	    snprintf(temp,sizeof(temp),&quot;That command is for Admins/Operators only.&quot;);
+-        message_send_text(conn,message_type_whisper,conn,temp);
+-        return 0;
+-    }
+-
+-    if (params[1])
+-      c = connlist_find_connection_by_name(params[1],NULL);
+-
+-	if ((channel = channellist_find_channel_by_name(irc_convert_ircname(params[0]),NULL,NULL))) {
+-	    snprintf(temp, sizeof(temp), &quot;%s %s :%s&quot;, params[0], params[1], conn_get_loggeduser(conn));
+-   	    channel_message_send(channel,message_wol_kick,conn,temp);
+-	    if ((conn_wol_get_ingame(c) == 1)) {
+-		   conn_wol_set_ingame(c,0);
+-        }
+-        conn_set_channel(c, NULL);
+-	}
+-    else {
+-     	irc_send(conn,ERR_NOSUCHCHANNEL,&quot;:No such channel&quot;);
+-	}
+-    return 0;
+-}
+-
+ static int _handle_mode_command(t_connection * conn, int numparams, char ** params, char * text)
+ {
+     char temp[MAX_IRC_MESSAGE_LEN];
+
+Modified: trunk/pvpgn/src/bnetd/irc.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/irc.cpp	2007-09-08 17:34:32 UTC (rev 386)
++++ trunk/pvpgn/src/bnetd/irc.cpp	2007-09-18 09:23:17 UTC (rev 387)
+@@ -53,6 +53,7 @@
+ #include &quot;command_groups.h&quot;
+ #include &quot;topic.h&quot;
+ #include &quot;clan.h&quot;
++#include &quot;command.h&quot;
+ #include &quot;common/setup_after.h&quot;
+ 
+ namespace pvpgn
+@@ -799,13 +800,39 @@
+     case message_type_topic:
+         {
+             t_channel * channel;
+-
+             channel = conn_get_channel(me);
+-
+             irc_send_topic(dst,channel);
+-	}
++        }
+         break;
++   case message_type_kick:
++        {
++            char temp[MAX_IRC_MESSAGE_LEN];
++            from.nick = conn_get_chatname(me);
++            from.user = ctag;
++            from.host = addr_num_to_ip_str(conn_get_addr(me));
++            if (text)
++                std::sprintf(temp,&quot;%s :%s&quot;,conn_get_chatname(me),text);
++            else
++                std::sprintf(temp,&quot;%s :&quot;);
++            msg = irc_message_preformat(&amp;from,&quot;KICK&quot;,irc_convert_channel(conn_get_channel(me)),temp);
++            conn_unget_chatname(me,from.nick);
++        }
++        break;
++    case message_type_quit:
++        {
++            char temp[MAX_IRC_MESSAGE_LEN];
++            if (text)
++                sprintf(temp,&quot;:%s&quot;,text);
++            else
++                sprintf(temp,&quot;:Bye&quot;);
+ 
++            from.nick = conn_get_chatname(me);
++            from.host = addr_num_to_ip_str(conn_get_addr(me));
++            from.user = ctag;
++            msg = irc_message_preformat(&amp;from,&quot;QUIT&quot;,&quot;\r&quot;,temp);
++        }
++        break;
++
+    	/**
+    	*  Westwood Online Extensions
+    	*/
+@@ -861,13 +888,6 @@
+    case message_wol_chanchk:
+         msg = irc_message_preformat(NULL,&quot;CHANCHK&quot;,&quot;\r&quot;,text);
+         break;
+-   case message_wol_kick:
+-        from.nick = conn_get_chatname(me);
+-        from.user = ctag;
+-        from.host = addr_num_to_ip_str(conn_get_addr(me));
+-        msg = irc_message_preformat(&amp;from,&quot;KICK&quot;,&quot;\r&quot;,text);
+-        conn_unget_chatname(me,from.nick);
+-        break;
+    case message_wol_userip:
+         from.nick = conn_get_chatname(me);
+         from.user = ctag;
+@@ -1273,6 +1293,36 @@
+ 	return 0;
+ }
+ 
++extern int _handle_kick_command(t_connection * conn, int numparams, char ** params, char * text)
++{
++    char temp[MAX_IRC_MESSAGE_LEN];
++
++    /**
++ 	*  Heres the imput expected
++    *  KICK [channel] [kicked_user]
++    *
++    *  Heres the output expected
++    *  :user!<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">WWOL at hostname</A> KICK [channel] [kicked_user] :[text]
++    *
++    *  WOL in [text] sends Admin name
++    */
++
++    if ((numparams != 2) || !(params[1])) {
++	    irc_send(conn,ERR_NEEDMOREPARAMS,&quot;:Too few arguments to KICK&quot;);
++	    return -1;
++    }
++
++    /* Make standart PvPGN KICK from RFC2812 KICK */
++    if (text)
++        snprintf(temp, sizeof(temp), &quot;/kick %s %s&quot;, params[1], text);
++    else
++        snprintf(temp, sizeof(temp), &quot;/kick %s&quot;, params[1]);
++
++    handle_command(conn, temp);
++
++    return 0;
+ }
+ 
+ }
++
++}
+
+Modified: trunk/pvpgn/src/bnetd/irc.h
+===================================================================
+--- trunk/pvpgn/src/bnetd/irc.h	2007-09-08 17:34:32 UTC (rev 386)
++++ trunk/pvpgn/src/bnetd/irc.h	2007-09-18 09:23:17 UTC (rev 387)
+@@ -54,6 +54,7 @@
+ extern int irc_send_topic(t_connection * c, t_channel const * channel);
+ extern int _handle_topic_command(t_connection * conn, int numparams, char ** params, char * text);
+ extern int _handle_names_command(t_connection * conn, int numparams, char ** params, char * text);
++extern int _handle_kick_command(t_connection * conn, int numparams, char ** params, char * text);
+ }
+ 
+ }
+
+Modified: trunk/pvpgn/src/bnetd/message.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/message.cpp	2007-09-08 17:34:32 UTC (rev 386)
++++ trunk/pvpgn/src/bnetd/message.cpp	2007-09-18 09:23:17 UTC (rev 387)
+@@ -98,33 +98,35 @@
+     case message_type_notice:
+         return &quot;notice&quot;;
+     case message_type_nick:
+-         return &quot;nick&quot;;
++        return &quot;nick&quot;;
+     case message_type_namreply:
+-         return &quot;namreply&quot;;
++        return &quot;namreply&quot;;
+     case message_type_topic:
+-         return &quot;topic&quot;;
++        return &quot;topic&quot;;
+     case message_type_mode:
+-         return &quot;mode&quot;;
++        return &quot;mode&quot;;
+     case message_type_host:
+-	 return &quot;host&quot;;
++        return &quot;host&quot;;
+     case message_type_page:
+-	 return &quot;page&quot;;
++        return &quot;page&quot;;
++    case message_type_kick:
++        return &quot;kick&quot;;
++    case message_type_quit:
++        return &quot;quit&quot;;
+     case message_wol_joingame:
+-	 return &quot;wol_joingame&quot;;
++        return &quot;wol_joingame&quot;;
+     case message_wol_gameopt_owner:
+-	 return &quot;wol_gameopt_owner&quot;;
++        return &quot;wol_gameopt_owner&quot;;
+     case message_wol_gameopt_join:
+-	 return &quot;wol_gameopt_join&quot;;
++        return &quot;wol_gameopt_join&quot;;
+     case message_wol_start_game:
+-	 return &quot;wol_start_game&quot;;
++        return &quot;wol_start_game&quot;;
+     case message_wol_advertr:
+-	 return &quot;wol_advertr&quot;;
++        return &quot;wol_advertr&quot;;
+     case message_wol_chanchk:
+-	 return &quot;wol_chanchk&quot;;
+-    case message_wol_kick:
+-	 return &quot;wol_kick&quot;;
++        return &quot;wol_chanchk&quot;;
+     case message_wol_userip:
+-	 return &quot;wol_userip&quot;;
++        return &quot;wol_userip&quot;;
+     case message_type_null:
+         return &quot;null&quot;;
+     default:
+@@ -375,6 +377,36 @@
+ 	    conn_unget_chatcharname(me,tname);
+ 	}
+ 	break;
++    case message_type_kick:
++	if (!me)
++	{
++	    eventlog(eventlog_level_error,__FUNCTION__,&quot;got NULL connection for %s&quot;,message_type_get_str(type));
++	    return -1;
++	}
++	{
++	    char const * tname;
++
++	    tname = conn_get_chatcharname(me, dst);
++	    msgtemp = (char*)xmalloc(std::strlen(tname)+32);
++	    std::sprintf(msgtemp,&quot;[%s has been kicked]\r\n&quot;,tname);
++	    conn_unget_chatcharname(me,tname);
++	}
++	break;
++    case message_type_quit:
++	if (!me)
++	{
++	    eventlog(eventlog_level_error,__FUNCTION__,&quot;got NULL connection for %s&quot;,message_type_get_str(type));
++	    return -1;
++	}
++	{
++	    char const * tname;
++
++	    tname = conn_get_chatcharname(me, dst);
++	    msgtemp = (char*)xmalloc(std::strlen(tname)+32);
++	    std::sprintf(msgtemp,&quot;[%s quit]\r\n&quot;,tname);
++	    conn_unget_chatcharname(me,tname);
++	}
++	break;
+     case message_type_whisper:
+     case message_type_notice:
+     case message_type_page:
+@@ -739,6 +771,8 @@
+ 	    }
+ 	    break;
+ 	case message_type_part:
++	case message_type_kick:
++	case message_type_quit:
+ 	    if (!me)
+ 	    {
+ 		eventlog(eventlog_level_error,__FUNCTION__,&quot;got NULL connection for %s&quot;,message_type_get_str(type));
+@@ -1013,6 +1047,8 @@
+ 	}
+ 	break;
+     case message_type_part:
++    case message_type_kick:
++    case message_type_quit:
+ 	if (!me)
+ 	{
+ 	    eventlog(eventlog_level_error,__FUNCTION__,&quot;got NULL connection for %s&quot;,message_type_get_str(type));
+
+Modified: trunk/pvpgn/src/bnetd/message.h
+===================================================================
+--- trunk/pvpgn/src/bnetd/message.h	2007-09-08 17:34:32 UTC (rev 386)
++++ trunk/pvpgn/src/bnetd/message.h	2007-09-18 09:23:17 UTC (rev 387)
+@@ -58,6 +58,8 @@
+     message_type_emote,
+     message_type_uniqueid,
+     message_type_mode,
++    message_type_kick,
++    message_type_quit,
+     
+     /**
+     *  IRC specific messages
+@@ -78,7 +80,6 @@
+     message_wol_start_game,
+     message_wol_advertr,
+     message_wol_chanchk,
+-    message_wol_kick,
+     message_wol_userip,
+ 
+     message_type_null
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000457.html">[pvpgn-dev] Zlib Problems
+</A></li>
+	<LI>Next message: <A HREF="000459.html">[pvpgn-dev] [Bug #11959] IRC Ban
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#458">[ date ]</a>
+              <a href="thread.html#458">[ thread ]</a>
+              <a href="subject.html#458">[ subject ]</a>
+              <a href="author.html#458">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

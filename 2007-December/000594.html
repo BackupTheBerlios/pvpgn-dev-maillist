@@ -1,0 +1,79 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] [Bug #12591] PostgreSQL tables and columns in lowercase
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-December/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BBug%20%2312591%5D%20PostgreSQL%20tables%20and%20columns%20in%20lowercase&In-Reply-To=%3C200712011826.lB1IQf1H009435%40unicorn.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000593.html">
+   <LINK REL="Next"  HREF="000595.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] [Bug #12591] PostgreSQL tables and columns in lowercase</H1>
+    <B>admin at berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BBug%20%2312591%5D%20PostgreSQL%20tables%20and%20columns%20in%20lowercase&In-Reply-To=%3C200712011826.lB1IQf1H009435%40unicorn.berlios.de%3E"
+       TITLE="[pvpgn-dev] [Bug #12591] PostgreSQL tables and columns in lowercase">admin at berlios.de
+       </A><BR>
+    <I>Sat Dec  1 19:26:41 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000593.html">[pvpgn-dev] web/includes help.htm,1.7,1.8
+</A></li>
+        <LI>Next message: <A HREF="000595.html">[pvpgn-dev] [Bug #12591] PostgreSQL tables and columns in lowercase
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#594">[ date ]</a>
+              <a href="thread.html#594">[ thread ]</a>
+              <a href="subject.html#594">[ subject ]</a>
+              <a href="author.html#594">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Bug #12591, was updated on 2007-Dec-01 19:26
+Here is a current snapshot of the bug.
+
+Project: Player vs Player Gaming Network
+Category: None
+Status: Open
+Resolution: None
+Bug Group: None
+Priority: 5
+Submitted by: oliverhaag
+Assigned to : none
+Summary: PostgreSQL tables and columns in lowercase
+
+Details: The tables and columns in a PostgreSQL-Database are created lowercase, even if they're written in uppercase in sql_DB_layout.conf. When saving data into the tables all columns are created with uppercase-letters again, so every column that contains uppercase-letters (Like SEXP_0_losses and so on) is created twice and only the one with uppercase-letters is used.
+I guess it's cause the SQL-commands to create the tables on first startup are without &quot; around the column-names, you have to use &quot;SEXP_0_losses&quot; instead of SEXP_0_losses for example.
+
+For detailed info, follow this link:
+<A HREF="http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=12591&amp;group_id=2291">http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=12591&amp;group_id=2291</A>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000593.html">[pvpgn-dev] web/includes help.htm,1.7,1.8
+</A></li>
+	<LI>Next message: <A HREF="000595.html">[pvpgn-dev] [Bug #12591] PostgreSQL tables and columns in lowercase
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#594">[ date ]</a>
+              <a href="thread.html#594">[ thread ]</a>
+              <a href="subject.html#594">[ subject ]</a>
+              <a href="author.html#594">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

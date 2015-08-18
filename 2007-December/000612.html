@@ -1,0 +1,174 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r424 - trunk/pvpgn/src/bnetd
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-December/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r424%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200712061637.lB6Gbg4C019183%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000606.html">
+   <LINK REL="Next"  HREF="000613.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r424 - trunk/pvpgn/src/bnetd</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r424%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200712061637.lB6Gbg4C019183%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r424 - trunk/pvpgn/src/bnetd">svn at svn.berlios.de
+       </A><BR>
+    <I>Thu Dec  6 17:37:42 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000606.html">[pvpgn-dev] Changing PvPGN license from &quot;GPLv2 and later&quot; to	GPLv3/AGPLv3
+</A></li>
+        <LI>Next message: <A HREF="000613.html">[pvpgn-dev] pvpgn/src/win32 d2cs_resource.rc, 1.2,	1.3 d2dbs_resource.rc, 1.2, 1.3 resource.rc, 1.1,	1.2 winmain.c, 1.13, 1.14
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#612">[ date ]</a>
+              <a href="thread.html#612">[ thread ]</a>
+              <a href="subject.html#612">[ subject ]</a>
+              <a href="author.html#612">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pelish
+Date: 2007-12-06 17:37:40 +0100 (Thu, 06 Dec 2007)
+New Revision: 424
+
+Modified:
+   trunk/pvpgn/src/bnetd/channel.cpp
+   trunk/pvpgn/src/bnetd/handle_apireg.cpp
+   trunk/pvpgn/src/bnetd/irc.cpp
+Log:
+fix for bug on apireg protocol handling, fixed IRC/WOL bug when admin has been not showed as admin to self when connect to channel
+
+Modified: trunk/pvpgn/src/bnetd/channel.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/channel.cpp	2007-12-02 17:15:25 UTC (rev 423)
++++ trunk/pvpgn/src/bnetd/channel.cpp	2007-12-06 16:37:40 UTC (rev 424)
+@@ -480,6 +480,7 @@
+     }
+ 
+     if (conn_is_irc_variant(connection) &amp;&amp; (!conn_wol_get_ingame(connection))) {
++        channel_set_userflags(connection);
+         message_send_text(connection,message_type_topic,connection,NULL);
+         message_send_text(connection,message_type_namreply,connection,NULL);
+     }
+
+Modified: trunk/pvpgn/src/bnetd/handle_apireg.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/handle_apireg.cpp	2007-12-02 17:15:25 UTC (rev 423)
++++ trunk/pvpgn/src/bnetd/handle_apireg.cpp	2007-12-06 16:37:40 UTC (rev 424)
+@@ -797,6 +797,7 @@
+ 	char const * newnick = apiregmember_get_newnick(apiregmember);
+ 	char const * newpass = apiregmember_get_newpass(apiregmember);
+ 	char const * email = apiregmember_get_email(apiregmember);
++	char const * request = apiregmember_get_request(apiregmember);
+ //    char const * newpass2 = apiregmember_get_newpass2(apiregmember);
+ 	char hresult[12];
+ 	char message[MAX_IRC_MESSAGE_LEN];
+@@ -827,7 +828,7 @@
+ 
+ 	DEBUG3(&quot;APIREG:/%s/%s/%s/&quot;,apiregmember_get_request(apiregmember),apiregmember_get_newnick(apiregmember),apiregmember_get_newpass(apiregmember));
+ 	
+-    if (std::strcmp(apiregmember_get_request(apiregmember), REQUEST_AGEVERIFY) == 0) {
++    if ((request) &amp;&amp; (std::strcmp(apiregmember_get_request(apiregmember), REQUEST_AGEVERIFY) == 0)) {
+         snprintf(data,sizeof(data),&quot;HRESULT=%s\nMessage=%s\nNewNick=((NewNick))\nNewPass=((NewPass))\n&quot;,hresult,message);
+         /* FIXME: Count real age here! */
+    	    snprintf(age,sizeof(age),&quot;28&quot;); /* FIXME: Here must be counted age */
+@@ -836,15 +837,25 @@
+        	apireg_send(apiregmember_get_conn(apiregmember),data);
+        	return 0;
+     }
+-    else if (std::strcmp(apiregmember_get_request(apiregmember), REQUEST_GETNICK) == 0) {
++    else if ((request) &amp;&amp; (std::strcmp(apiregmember_get_request(apiregmember), REQUEST_GETNICK) == 0)) {
+         if(!prefs_get_allow_new_accounts()){
+             snprintf(message,sizeof(message),&quot;Account creation is not allowed&quot;);
+             snprintf(hresult,sizeof(hresult),&quot;-2147221248&quot;);
+         }
+         else {
+-            /* Chceck */
+-            account = accountlist_find_account(newnick);
+-            if (!account) {  /* done, we can create new account */
++            if (!newnick) {
++                snprintf(message,sizeof(message),&quot;Nick must be specifed!&quot;);
++                snprintf(hresult,sizeof(hresult),&quot;-2147221248&quot;);
++            }
++            else if (!newpass) {
++                snprintf(message,sizeof(message),&quot;Pussword must be specifed!&quot;);
++                snprintf(hresult,sizeof(hresult),&quot;-2147221248&quot;);
++            }
++            else if (account = accountlist_find_account(newnick)) {
++                snprintf(message,sizeof(message),&quot;That login is already in use! Please try another NICK name.&quot;);
++                snprintf(hresult,sizeof(hresult),&quot;-2147221248&quot;);
++            }
++            else {  /* done, we can create new account */
+                 t_account * tempacct;
+                 t_hash bnet_pass_hash;
+                 t_wolhash wol_pass_hash;
+@@ -863,16 +874,12 @@
+                 else {
+                     eventlog(eventlog_level_debug,__FUNCTION__,&quot;WOLHASH: %s&quot;,wol_pass_hash);
+                     account_set_wol_apgar(tempacct,wol_pass_hash);
+-                    account_set_email(tempacct,apiregmember_get_email(apiregmember));
++                    if (apiregmember_get_email(apiregmember))
++                        account_set_email(tempacct,apiregmember_get_email(apiregmember));
+                     snprintf(message,sizeof(message),&quot;Welcome in the amazing world of PvPGN! Your login can be used for all PvPGN Supported games!&quot;);
+                     snprintf(hresult,sizeof(hresult),&quot;0&quot;);
+                 }
+             }
+-            else {
+-                /* Account with that login is already in use! */
+-                snprintf(message,sizeof(message),&quot;That login is already in use! Please try another NICK name.&quot;);
+-                snprintf(hresult,sizeof(hresult),&quot;-2147221248&quot;);
+-            }
+         }
+         snprintf(data,sizeof(data),&quot;HRESULT=%s\nMessage=%s\nNewNick=%s\nNewPass=%s\nAge=%s\nConsent=0\nEND\r&quot;,hresult,message,newnick,newpass,age,consent);
+         apireg_send(apiregmember_get_conn(apiregmember),data);
+
+Modified: trunk/pvpgn/src/bnetd/irc.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/irc.cpp	2007-12-02 17:15:25 UTC (rev 423)
++++ trunk/pvpgn/src/bnetd/irc.cpp	2007-12-06 16:37:40 UTC (rev 424)
+@@ -1297,12 +1297,6 @@
+                 snprintf(temp, sizeof(temp), &quot;%s :JOIN failed&quot;,e[0]);
+                 irc_send(conn,ERR_NOSUCHCHANNEL,temp); /* Anything is still bad */
+             }
+-            else {
+-                channel = conn_get_channel(conn);
+-
+-                if (channel!=old_channel)
+-                    channel_set_userflags(conn);
+-            }
+         }
+         if (e)
+             irc_unget_listelems(e);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000606.html">[pvpgn-dev] Changing PvPGN license from &quot;GPLv2 and later&quot; to	GPLv3/AGPLv3
+</A></li>
+	<LI>Next message: <A HREF="000613.html">[pvpgn-dev] pvpgn/src/win32 d2cs_resource.rc, 1.2,	1.3 d2dbs_resource.rc, 1.2, 1.3 resource.rc, 1.1,	1.2 winmain.c, 1.13, 1.14
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#612">[ date ]</a>
+              <a href="thread.html#612">[ thread ]</a>
+              <a href="subject.html#612">[ subject ]</a>
+              <a href="author.html#612">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

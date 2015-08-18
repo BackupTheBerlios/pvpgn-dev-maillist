@@ -1,0 +1,1175 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r432 - in trunk/pvpgn: . conf src/bnetd
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2008-March/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r432%20-%20in%20trunk/pvpgn%3A%20.%20conf%20src/bnetd&In-Reply-To=%3C200803012328.m21NSSCe027590%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="000645.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r432 - in trunk/pvpgn: . conf src/bnetd</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r432%20-%20in%20trunk/pvpgn%3A%20.%20conf%20src/bnetd&In-Reply-To=%3C200803012328.m21NSSCe027590%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r432 - in trunk/pvpgn: . conf src/bnetd">svn at svn.berlios.de
+       </A><BR>
+    <I>Sun Mar  2 00:28:28 CET 2008</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="000645.html">[pvpgn-dev] r433 - trunk/pvpgn/src/bnetd
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#644">[ date ]</a>
+              <a href="thread.html#644">[ thread ]</a>
+              <a href="subject.html#644">[ subject ]</a>
+              <a href="author.html#644">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pelish
+Date: 2008-03-02 00:28:25 +0100 (Sun, 02 Mar 2008)
+New Revision: 432
+
+Modified:
+   trunk/pvpgn/conf/bnhelp.conf.in
+   trunk/pvpgn/src/bnetd/command.cpp
+   trunk/pvpgn/src/bnetd/connection.cpp
+   trunk/pvpgn/src/bnetd/connection.h
+   trunk/pvpgn/src/bnetd/handle_wol.cpp
+   trunk/pvpgn/version-history.txt
+Log:
+many wol optimalisations, fixes for possible bugs/cashes, changes according to RFC2812, connection.* &quot;gameoptions&quot; cleanup.
+
+Modified: trunk/pvpgn/conf/bnhelp.conf.in
+===================================================================
+--- trunk/pvpgn/conf/bnhelp.conf.in	2008-02-24 21:50:35 UTC (rev 431)
++++ trunk/pvpgn/conf/bnhelp.conf.in	2008-03-01 23:28:25 UTC (rev 432)
+@@ -149,12 +149,20 @@
+ %rehash
+ /rehash - forces reload of bnetd.conf
+ %clan
++/clan create &lt;clantag&gt; &lt;clanname&gt;
++Create a new clan
++/clan msg &lt;message&gt;
++Whispers a message to all your fellow clan members
+ /clan public (alias: pub)
+ Opens the clan channel up to the public so that anyone may enter
+ /clan private  (alias: priv)
+ Closes the clan channel such that only members of the clan may enter
+-/clan motd &lt;MESSAGE&gt;
+-Update the clan message of the day to MESSAGE
++/clan motd &lt;message&gt;
++Update the clan message of the day to message
++/clan invite &lt;username&gt;
++Invite &lt;username&gt; to your clan
++/clan disband
++Disband your clan
+ %ping p latency
+ /ping, /p, /latency - returns your latency to the server
+ %command_groups cg
+
+Modified: trunk/pvpgn/src/bnetd/command.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/command.cpp	2008-02-24 21:50:35 UTC (rev 431)
++++ trunk/pvpgn/src/bnetd/command.cpp	2008-03-01 23:28:25 UTC (rev 432)
+@@ -8,6 +8,7 @@
+  * Copyright (C) 2000  Onlyer (<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">onlyer at 263.net</A>)
+  * Copyright (C) 2003,2004  Aaron
+  * Copyright (C) 2004  Donny Redmond (<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">dredmond at linuxmail.org</A>)
++ * Copyright (C) 2008  Pelish (<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">pelish at gmail.com</A>)
+  *
+  * This program is free software; you can redistribute it and/or
+  * modify it under the terms of the GNU General Public License
+
+Modified: trunk/pvpgn/src/bnetd/connection.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/connection.cpp	2008-02-24 21:50:35 UTC (rev 431)
++++ trunk/pvpgn/src/bnetd/connection.cpp	2008-03-01 23:28:25 UTC (rev 432)
+@@ -419,7 +419,6 @@
+     temp-&gt;protocol.wol.findme                    = 17;
+ 
+     temp-&gt;protocol.wol.apgar			         = NULL;
+-    temp-&gt;protocol.wol.gameOptions		         = NULL;
+ 
+ 
+     temp-&gt;protocol.cr_time                       = now;
+@@ -635,8 +634,6 @@
+ 
+     if (c-&gt;protocol.wol.apgar)
+ 		xfree((void *)c-&gt;protocol.wol.apgar); /* avoid warning */
+-    if (c-&gt;protocol.wol.gameOptions)
+-    	xfree((void *)c-&gt;protocol.wol.gameOptions); /* avoid warning */
+ 
+     /* ADDED BY UNDYING SOULZZ 4/8/02 */
+     if (c-&gt;protocol.w3.w3_playerinfo)
+@@ -3946,35 +3943,6 @@
+     return c-&gt;protocol.wol.gameType;
+ }
+ 
+-extern void conn_wol_set_game_options(t_connection * c, char const * gameOptions)
+-{
+-    if (!c)
+-    {
+-        eventlog(eventlog_level_error,__FUNCTION__,&quot;got NULL connection&quot;);
+-        return;
+-    }
+-    if (!gameOptions)
+-    {
+-        eventlog(eventlog_level_error,__FUNCTION__,&quot;got NULL game options&quot;);
+-        return;
+-    }
+-
+-    if (c-&gt;protocol.wol.gameOptions)
+-    	xfree((void *)c-&gt;protocol.wol.gameOptions); /* avoid warning */
+-    c-&gt;protocol.wol.gameOptions = xstrdup(gameOptions);
+-}
+-
+-extern char const * conn_wol_get_game_options(t_connection * c)
+-{
+-    if (!c)
+-    {
+-		eventlog(eventlog_level_error,__FUNCTION__,&quot;got NULL conn&quot;);
+-		return NULL;
+-    }
+-
+-    return c-&gt;protocol.wol.gameOptions;
+-}
+-
+ extern void conn_wol_set_findme(t_connection * c, int findme)
+ {
+     if (!c)
+
+Modified: trunk/pvpgn/src/bnetd/connection.h
+===================================================================
+--- trunk/pvpgn/src/bnetd/connection.h	2008-02-24 21:50:35 UTC (rev 431)
++++ trunk/pvpgn/src/bnetd/connection.h	2008-03-01 23:28:25 UTC (rev 432)
+@@ -202,7 +202,6 @@
+ 	    int findme;                     /* Allow others to find me? */
+ 	    int pageme;                     /* Allow others to page me? */
+ 	    char const * apgar;			    /* WOL User Password (encrypted) */
+-	    char const * gameOptions;		/* Game Options */
+ 	} wol;
+ 	int			cr_time;
+ 	/* Pass fail count for bruteforce protection */
+@@ -451,8 +450,6 @@
+ extern int conn_wol_get_codepage(t_connection * c);
+ extern void conn_wol_set_game_type(t_connection * c, int gameType);
+ extern int conn_wol_get_game_type(t_connection * c);
+-extern void conn_wol_set_game_options(t_connection * c, char const * gameOptions);
+-extern char const * conn_wol_get_game_options(t_connection * c);
+ extern void conn_wol_set_findme(t_connection * c, int findme);
+ extern int conn_wol_get_findme(t_connection * c);
+ extern void conn_wol_set_pageme(t_connection * c, int pageme);
+
+Modified: trunk/pvpgn/src/bnetd/handle_wol.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/handle_wol.cpp	2008-02-24 21:50:35 UTC (rev 431)
++++ trunk/pvpgn/src/bnetd/handle_wol.cpp	2008-03-01 23:28:25 UTC (rev 432)
+@@ -1,7 +1,7 @@
+ /*
+  * Copyright (C) 2001  Marco Ziech (<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">mmz at gmx.net</A>)
+  * Copyright (C) 2005  Bryan Biedenkapp (<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">gatekeep at gmail.com</A>)
+- * Copyright (C) 2006,2007  Pelish (<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">pelish at gmail.com</A>)
++ * Copyright (C) 2006,2007,2008  Pelish (<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">pelish at gmail.com</A>)
+  *
+  * This program is free software; you can redistribute it and/or
+  * modify it under the terms of the GNU General Public License
+@@ -81,8 +81,8 @@
+ 
+ static int _handle_squadinfo_command(t_connection * conn, int numparams, char ** params, char * text);
+ static int _handle_setcodepage_command(t_connection * conn, int numparams, char ** params, char * text);
++static int _handle_getcodepage_command(t_connection * conn, int numparams, char ** params, char * text);
+ static int _handle_setlocale_command(t_connection * conn, int numparams, char ** params, char * text);
+-static int _handle_getcodepage_command(t_connection * conn, int numparams, char ** params, char * text);
+ static int _handle_getlocale_command(t_connection * conn, int numparams, char ** params, char * text);
+ static int _handle_getinsider_command(t_connection * conn, int numparams, char ** params, char * text);
+ static int _handle_joingame_command(t_connection * conn, int numparams, char ** params, char * text);
+@@ -142,6 +142,7 @@
+ 	{ &quot;PART&quot;		, _handle_part_command },
+ 
+ 	{ &quot;SQUADINFO&quot;	, _handle_squadinfo_command },
++	{ &quot;CLANBYNAME&quot;	, _handle_clanbyname_command },
+ 	{ &quot;SETCODEPAGE&quot;	, _handle_setcodepage_command },
+ 	{ &quot;SETLOCALE&quot;	, _handle_setlocale_command },
+ 	{ &quot;GETCODEPAGE&quot;	, _handle_getcodepage_command },
+@@ -154,6 +155,7 @@
+ 	{ &quot;PAGE&quot;		, _handle_page_command },
+ 	{ &quot;STARTG&quot;		, _handle_startg_command },
+     { &quot;ADVERTR&quot;	    , _handle_advertr_command },
++	{ &quot;ADVERTC&quot;		, _handle_advertc_command },
+     { &quot;CHANCHK&quot;	    , _handle_chanchk_command },
+     { &quot;GETBUDDY&quot;    , _handle_getbuddy_command },
+     { &quot;ADDBUDDY&quot;    , _handle_addbuddy_command },
+@@ -162,8 +164,6 @@
+ 	{ &quot;KICK&quot;		, _handle_kick_command },
+ 	{ &quot;MODE&quot;		, _handle_mode_command },
+ 	{ &quot;HOST&quot;		, _handle_host_command },
+-	{ &quot;ADVERTC&quot;		, _handle_advertc_command },
+-	{ &quot;CLANBYNAME&quot;	, _handle_clanbyname_command },
+ 	{ &quot;USERIP&quot;	    , _handle_userip_command },
+ 
+ 	{ NULL			, NULL }
+@@ -273,6 +273,34 @@
+     return 0;
+ }
+ 
++static int handle_wol_send_claninfo(t_connection * conn, t_clan * clan)
++{
++	char _temp[MAX_IRC_MESSAGE_LEN];
++	unsigned int clanid;
++	const char * clantag;
++	const char * clanname;
++
++	std::memset(_temp,0,sizeof(_temp));
++
++    if (!conn) {
++        ERROR0(&quot;got NULL connection&quot;);
++        return -1;
++    }
++  
++    if (clan) {
++        clanid = clan_get_clanid(clan);
++	    clantag = clantag_to_str(clan_get_clantag(clan));
++	    clanname = clan_get_name(clan);
++        snprintf(_temp, sizeof(_temp), &quot;%u`%s`%s`0`0`1`0`0`0`0`0`0`0`x`x`x&quot;,clanid,clanname,clantag);
++        irc_send(conn,RPL_BATTLECLAN,_temp);
++    }
++    else {
++        snprintf(_temp, sizeof(_temp), &quot;ID does not exist&quot;);
++	    irc_send(conn,ERR_IDNOEXIST,_temp);
++    }
++    return 0;
++}
++
+ /* Commands: */
+ 
+ static int _handle_user_command(t_connection * conn, int numparams, char ** params, char * text)
+@@ -451,6 +479,7 @@
+ 				if (e[i][0]=='#') {
+ 					/* channel message */
+ 					t_channel * channel;
++					char msgtemp[MAX_MESSAGE_LEN];
+ 
+ 					if ((channel = channellist_find_channel_by_name(irc_convert_ircname(e[i]),NULL,NULL))) {
+ 						if ((std::strlen(text)&gt;=9)&amp;&amp;(std::strncmp(text,&quot;\001ACTION &quot;,8)==0)&amp;&amp;(text[std::strlen(text)-1]=='\001')) {
+@@ -472,7 +501,8 @@
+ 						}
+ 					}
+ 					else {
+-						irc_send(conn,ERR_NOSUCHCHANNEL,&quot;:No such channel&quot;);
++                        snprintf(msgtemp,sizeof(msgtemp),&quot;%s :No such channel&quot;, e[0]);
++                        irc_send(conn,ERR_NOSUCHCHANNEL,msgtemp);
+ 					}
+ 	    	    }
+ 				else {
+@@ -494,7 +524,7 @@
+ 	         irc_unget_listelems(e);
+ 	}
+ 	else
+-	    irc_send(conn,ERR_NEEDMOREPARAMS,&quot;:Too few arguments to PRIVMSG&quot;);
++        irc_send(conn,ERR_NEEDMOREPARAMS,&quot;PRIVMSG :Not enough parameters&quot;);
+ 	return 0;
+ }
+ 
+@@ -584,8 +614,10 @@
+ 							*  The layout of the game list entry is something like this:
+                             *
+ 							*   #game_channel_name users isofficial gameType gameIsTournment gameExtension longIP locked::topic
+-							*   by isofficial is used always 0 (its backwar compatibility with chat channels)
++							*   by isofficial is used always 0 (its backward compatibility with chat channels)
+ 							*   locked can be 128 = unlocked or 384 = locked
++							*   gameExtension is used for game_sorting, i.e. in RedAlert1v3 or TSUN/TSXP for spliting
++							*   extension pack, also is used for spliting Clan_game or quick_match from normal game
+ 							*/
+ 	        		        if (std::strlen(tempname)+1+20+1+1+std::strlen(topic)&lt;MAX_IRC_MESSAGE_LEN)
+                                    snprintf(temp, sizeof(temp), &quot;%s %u 0 %u %u %s %u 128::%s&quot;,tempname,
+@@ -652,10 +684,10 @@
+         clienttag = tag_sku_to_uint(std::atoi(params[1]));
+         if (clienttag != CLIENTTAG_WWOL_UINT)
+              conn_set_clienttag(conn,clienttag);
+- 	    return 0;
+     }
+-
+-    return -1;
++    else
++        irc_send(conn,ERR_NEEDMOREPARAMS,&quot;CVERS :Not enough parameters&quot;);
++    return 0;
+ }
+ 
+ static int _handle_verchk_command(t_connection * conn, int numparams, char ** params, char * text)
+@@ -675,26 +707,30 @@
+     *  :[servername] 379 [username] :none none none [oldversnum] [SKU] REQ
+     */
+ 
+-    clienttag = tag_sku_to_uint(std::atoi(params[0]));
+-    if (clienttag != CLIENTTAG_WWOL_UINT)
+-        conn_set_clienttag(conn,clienttag);
++    if (numparams == 2) {
++        clienttag = tag_sku_to_uint(std::atoi(params[0]));
++        if (clienttag != CLIENTTAG_WWOL_UINT)
++            conn_set_clienttag(conn,clienttag);
+ 
+-    snprintf(temp, sizeof(temp), &quot;:none none none 1 %s NONREQ&quot;, params[0]);
+-    eventlog(eventlog_level_debug,__FUNCTION__,&quot;[** WOL **] VERCHK %s&quot;,temp);
+-    irc_send(conn,RPL_VERCHK_NONREQ,temp);
+-
+-   	return 0;
++        snprintf(temp, sizeof(temp), &quot;:none none none 1 %s NONREQ&quot;, params[0]);
++        eventlog(eventlog_level_debug,__FUNCTION__,&quot;[** WOL **] VERCHK %s&quot;,temp);
++        irc_send(conn,RPL_VERCHK_NONREQ,temp);
++    }
++    else
++        irc_send(conn,ERR_NEEDMOREPARAMS,&quot;VERCHK :Not enough parameters&quot;);
++    return 0;
+ }
+ 
+ static int _handle_apgar_command(t_connection * conn, int numparams, char ** params, char * text)
+ {
+ 	char * apgar = NULL;
+ 
+-	if((numparams&gt;=1)&amp;&amp;params[0]) {
++	if((numparams&gt;=1)&amp;&amp;(params[0])) {
+ 	    apgar = params[0];
+ 	    conn_wol_set_apgar(conn,apgar);
+ 	}
+-
++    else
++        irc_send(conn,ERR_NEEDMOREPARAMS,&quot;APGAR :Not enough parameters&quot;);
+ 	return 0;
+ }
+ 
+@@ -706,43 +742,42 @@
+ 
+ static int _handle_squadinfo_command(t_connection * conn, int numparams, char ** params, char * text)
+ {
+-	char _temp[MAX_IRC_MESSAGE_LEN];
+ 	t_clan * clan;
+-	unsigned int clanid;
+-	const char * clantag;
+-	const char * clanname;
+ 
+-	std::memset(_temp,0,sizeof(_temp));
+-
+-    if (params[0]) {
++    if ((numparams&gt;=1)&amp;&amp;(params[0])) {
+        if (std::strcmp(params[0], &quot;0&quot;) == 0) {
+-           /* 0 == question for me! */
++           /* 0 == claninfo for itself */
+            clan = account_get_clan(conn_get_account(conn));
++           handle_wol_send_claninfo(conn,clan);
+        }
+        else {
+-           /* question for another one */
++           /* claninfo for clanid (params[0]) */
+            clan = clanlist_find_clan_by_clanid(std::atoi(params[0]));
++           handle_wol_send_claninfo(conn,clan);
+        }
+     }
++    else
++        irc_send(conn,ERR_NEEDMOREPARAMS,&quot;SQUADINFO :Not enough parameters&quot;);
++	return 0;
++}
+ 
+-    if (clan) {
+-        clanid = clan_get_clanid(clan);
+-	    clantag = clantag_to_str(clan_get_clantag(clan));
+-	    clanname = clan_get_name(clan);
+-        snprintf(_temp, sizeof(_temp), &quot;%u`%s`%s`0`0`1`0`0`0`0`0`0`0`x`x`x&quot;,clanid,clanname,clantag);
+-        irc_send(conn,RPL_BATTLECLAN,_temp);
++static int _handle_clanbyname_command(t_connection * conn, int numparams, char ** params, char * text)
++{
++    t_clan * clan;
++
++    if ((numparams&gt;=1)&amp;&amp;(params[0])) {
++        clan = account_get_clan(accountlist_find_account(params[0]));
++        handle_wol_send_claninfo(conn,clan);
+     }
+-    else {
+-        snprintf(_temp, sizeof(_temp), &quot;ID does not exist&quot;);
+-	    irc_send(conn,ERR_IDNOEXIST,_temp);
+-    }
+-    eventlog(eventlog_level_debug,__FUNCTION__,&quot;[** WOL **] SQUADINFO: %s&quot;,_temp);
+-
+-	return 0;
++    else
++        irc_send(conn,ERR_NEEDMOREPARAMS,&quot;CLANBYNAME :Not enough parameters&quot;);
++    return 0;
+ }
+ 
+ static int _handle_setopt_command(t_connection * conn, int numparams, char ** params, char * text)
+ {
++    char ** elems;
++
+     /**
+     *   This is option for enabling/disabling Page and Find user.
+     *
+@@ -753,46 +788,35 @@
+     *   Second parameter: 32 == PageDisabled 33 == PageEnabled
+     */
+ 
+-    char ** elems;
++    if ((numparams&gt;=1)&amp;&amp;(params[0])) {
++        elems = irc_get_listelems(params[0]);
+ 
+-    elems = irc_get_listelems(params[0]);
+-
+-    if ((elems)&amp;&amp;(elems[0])&amp;&amp;(elems[1])) {
+-        conn_wol_set_findme(conn,std::atoi(elems[0]));
+-        conn_wol_set_pageme(conn,std::atoi(elems[1]));
++        if ((elems)&amp;&amp;(elems[0])&amp;&amp;(elems[1])) {
++            conn_wol_set_findme(conn,std::atoi(elems[0]));
++            conn_wol_set_pageme(conn,std::atoi(elems[1]));
++        }
++        if (elems)
++            irc_unget_listelems(elems);
+     }
+-
+-	if (elems)
+-	     irc_unget_listelems(elems);
+-
+-	return 0;
++    else
++        irc_send(conn,ERR_NEEDMOREPARAMS,&quot;SETOPT :Not enough parameters&quot;);
++    return 0;
+ }
+ 
+ static int _handle_setcodepage_command(t_connection * conn, int numparams, char ** params, char * text)
+ {
+-	char * codepage = NULL;
++    char * codepage = NULL;
+ 
+-	if((numparams&gt;=1)&amp;&amp;params[0]) {
+-	    codepage = params[0];
+-	    conn_wol_set_codepage(conn,std::atoi(codepage));
+-	}
+-	irc_send(conn,RPL_SET_CODEPAGE,codepage);
+-	return 0;
++    if((numparams&gt;=1)&amp;&amp;(params[0])) {
++        codepage = params[0];
++        conn_wol_set_codepage(conn,std::atoi(codepage));
++        irc_send(conn,RPL_SET_CODEPAGE,codepage);
++    }
++    else
++        irc_send(conn,ERR_NEEDMOREPARAMS,&quot;SETCODEPAGE :Not enough parameters&quot;);
++    return 0;
+ }
+ 
+-static int _handle_setlocale_command(t_connection * conn, int numparams, char ** params, char * text)
+-{
+-	t_account * account = conn_get_account(conn);
+-	int locale;
+-
+-	if((numparams&gt;=1)&amp;&amp;params[0]) {
+-       locale = std::atoi(params[0]);
+-       account_set_locale(account,locale);
+-	}
+-	irc_send(conn,RPL_SET_LOCALE,params[0]);
+-	return 0;
+-}
+-
+ static int _handle_getcodepage_command(t_connection * conn, int numparams, char ** params, char * text)
+ {
+ 	char temp[MAX_IRC_MESSAGE_LEN];
+@@ -801,7 +825,7 @@
+ 	std::memset(temp,0,sizeof(temp));
+ 	std::memset(_temp,0,sizeof(_temp));
+ 
+-	if((numparams&gt;=1)) {
++	if((numparams&gt;=1)&amp;&amp;(params[0])) {
+ 	    int i;
+ 	    for (i=0; i&lt;numparams; i++) {
+     		t_connection * user;
+@@ -820,9 +844,26 @@
+ 	    }
+    	    irc_send(conn,RPL_GET_CODEPAGE,temp);
+ 	}
++    else
++        irc_send(conn,ERR_NEEDMOREPARAMS,&quot;GETCODEPAGE :Not enough parameters&quot;);
+ 	return 0;
+ }
+ 
++static int _handle_setlocale_command(t_connection * conn, int numparams, char ** params, char * text)
++{
++    t_account * account = conn_get_account(conn);
++    int locale;
++
++    if((numparams&gt;=1)&amp;&amp;(params[0])) {
++       locale = std::atoi(params[0]);
++       account_set_locale(account,locale);
++       irc_send(conn,RPL_SET_LOCALE,params[0]);
++    }
++    else
++        irc_send(conn,ERR_NEEDMOREPARAMS,&quot;SETLOCALE :Not enough parameters&quot;);
++    return 0;
++}
++
+ static int _handle_getlocale_command(t_connection * conn, int numparams, char ** params, char * text)
+ {
+ 	char temp[MAX_IRC_MESSAGE_LEN];
+@@ -831,7 +872,7 @@
+ 	std::memset(temp,0,sizeof(temp));
+ 	std::memset(_temp,0,sizeof(_temp));
+ 
+-	if((numparams&gt;=1)) {
++	if((numparams&gt;=1)&amp;&amp;(params[0])) {
+ 	    int i;
+ 	    for (i=0; i&lt;numparams; i++) {
+     		t_account * account;
+@@ -848,9 +889,10 @@
+            			std::strcat(temp,&quot;`&quot;);
+     		}
+ 	    }
+-	    DEBUG1(&quot;[** WOL **] GETLOCALE %s&quot;,temp);
+ 	    irc_send(conn,RPL_GET_LOCALE,temp);
+ 	}
++    else
++        irc_send(conn,ERR_NEEDMOREPARAMS,&quot;GETLOCALE :Not enough parameters&quot;);
+ 	return 0;
+ }
+ 
+@@ -865,13 +907,13 @@
+      *   GETINSIDER Pelish
+      *    :irc.westwood.com 399 Pelish
+      */
+-    
+-    if (params[0]) {
+-       eventlog(eventlog_level_debug,__FUNCTION__,&quot;[** WOL **] GETINSIDER %s&quot;,params[0]);
+-       irc_send(conn,RPL_GET_INSIDER,params[0]);
+-       return 0;
++
++    if ((numparams&gt;=1)&amp;&amp;(params[0])) {
++        irc_send(conn,RPL_GET_INSIDER,params[0]);
+     }
+-    return -1;
++    else
++        irc_send(conn,ERR_NEEDMOREPARAMS,&quot;GETINSIDER :Not enough parameters&quot;);
++    return 0;
+ }
+ 
+ static int _handle_joingame_command(t_connection * conn, int numparams, char ** params, char * text)
+@@ -1061,84 +1103,78 @@
+ 		if (e)
+ 	       irc_unget_listelems(e);
+ 	}
+-	else
+-	    irc_send(conn,ERR_NEEDMOREPARAMS,&quot;:Too few arguments to JOINGAME&quot;);
++    else
++        irc_send(conn,ERR_NEEDMOREPARAMS,&quot;JOINGAME :Not enough parameters&quot;);
+ 	return 0;
+ }
+ 
+ static int _handle_gameopt_command(t_connection * conn, int numparams, char ** params, char * text)
+ {
+-	char temp[MAX_IRC_MESSAGE_LEN];
++    char temp[MAX_IRC_MESSAGE_LEN];
+ 
+- 	/**
+- 	*  Basically this has 2 modes, Game Owner Change and Game Joinee Change what the output
+- 	*  on this does is pretty much unknown, we just dump this to the client to deal with...
+- 	*
+- 	*	Heres the output expected (from game owner):
+- 	*	user!<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">WWOL at hostname</A> GAMEOPT #game_channel_name :gameOptions
+- 	*
+- 	*	Heres the output expected (from game joinee):
+- 	*	user!<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">WWOL at hostname</A> GAMEOPT game_owner_name :gameOptions
+- 	*/
+- 	if (conn_get_clienttag(conn) == CLIENTTAG_WCHAT_UINT) {
+-  		    /* we only send text to another client */
+-   		    t_connection * user;
+-   		    t_channel * channel;
++    /**
++    *  Basically this has 2 modes, Game Owner Change and Game Joinee Change what the output
++    *  on this does is pretty much unknown, we just dump this to the client to deal with...
++    *
++    *	Heres the output expected (from game owner):
++    *	user!<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">WWOL at hostname</A> GAMEOPT #game_channel_name :gameOptions
++    *
++    *	Heres the output expected (from game joinee):
++    *	user!<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">WWOL at hostname</A> GAMEOPT game_owner_name :gameOptions
++    */
+ 
+-   		    channel = conn_get_channel(conn);
++    if ((numparams&gt;=1)&amp;&amp;(params[0])&amp;&amp;(text)) {
++        int i;
++        char ** e;
++        t_connection * user;
++        t_channel * channel;
+ 
+-   		    for (user = channel_get_first(channel);user;user = channel_get_next()) {
+-	           char const * name = conn_get_chatname(user);
+-	           if (std::strcmp(conn_get_chatname(conn),name) != 0) {
+-	              snprintf(temp, sizeof(temp), &quot;:%s&quot;, text);
+-	              message_send_text(user,message_wol_gameopt_join,conn,temp);
+-               }
+-   		    }
++        if (conn_get_clienttag(conn) == CLIENTTAG_WCHAT_UINT) {
++            /* we only send text to another client */
+ 
+-       return 0;
+-    }
+-	if ((numparams&gt;=1)&amp;&amp;(text)) {
+-	    int i;
+-	    char ** e;
++            channel = conn_get_channel(conn);
+ 
+-	    e = irc_get_listelems(params[0]);
+-	    /* FIXME: support wildcards! */
++            for (user = channel_get_first(channel);user;user = channel_get_next()) {
++                char const * name = conn_get_chatname(user);
++                if (std::strcmp(conn_get_chatname(conn),name) != 0) {
++                    snprintf(temp, sizeof(temp), &quot;:%s&quot;, text);
++                    message_send_text(user,message_wol_gameopt_join,conn,temp);
++                }
++            }
++        }
++        else {
++            e = irc_get_listelems(params[0]);
++            /* FIXME: support wildcards! */
+ 
+-	    eventlog(eventlog_level_debug,__FUNCTION__,&quot;[** WOL **] GAMEOPT: (%s :%s)&quot;,params[0],text);
+-	    conn_wol_set_game_options(conn,text);
+-
+-	    for (i=0;((e)&amp;&amp;(e[i]));i++) {
+-    		if (e[i][0]=='#') {
+-    		    /* game owner change */
+-    		    t_channel * channel;
+-
+-    		    if ((channel = channellist_find_channel_by_name(irc_convert_ircname(params[0]),NULL,NULL))) {
+-        			snprintf(temp, sizeof(temp), &quot;:%s&quot;, text);
+-        			channel_message_send(channel,message_wol_gameopt_owner,conn,temp);
+-    		    }
+-    		    else {
+-        			irc_send(conn,ERR_NOSUCHCHANNEL,&quot;:No such channel&quot;);
+-    		    }
+-    		}
+-    		else
+-    		{
+-    		    /* user change */
+-    		    t_connection * user;
+-
+-    		    if ((user = connlist_find_connection_by_accountname(e[i]))) {
+-        			snprintf(temp, sizeof(temp), &quot;:%s&quot;, text);
+-        			message_send_text(user,message_wol_gameopt_join,conn,temp);
+-    		    }
+-    		    else {
+-          			irc_send(conn,ERR_NOSUCHNICK,&quot;:No such user&quot;);
+-    		    }
+-    		}
+-	    }
+-    	if (e)
+-            irc_unget_listelems(e);
++            for (i=0;((e)&amp;&amp;(e[i]));i++) {
++                if (e[i][0]=='#') {
++                    /* game owner change */
++                    if ((channel = channellist_find_channel_by_name(irc_convert_ircname(params[0]),NULL,NULL))) {
++                        snprintf(temp, sizeof(temp), &quot;:%s&quot;, text);
++                        channel_message_send(channel,message_wol_gameopt_owner,conn,temp);
++                    }
++                    else {
++                        snprintf(temp,sizeof(temp),&quot;%s :No such channel&quot;, params[0]);
++                        irc_send(conn,ERR_NOSUCHCHANNEL,temp);
++                    }
++                }
++                else {
++                    /* user change */
++                    if ((user = connlist_find_connection_by_accountname(e[i]))) {
++                        snprintf(temp, sizeof(temp), &quot;:%s&quot;, text);
++                        message_send_text(user,message_wol_gameopt_join,conn,temp);
++                    }
++                    else {
++                        irc_send(conn,ERR_NOSUCHNICK,&quot;:No such user&quot;);
++                    }
++                }
++            }
++            if (e)
++                irc_unget_listelems(e);
++        }
+ 	}
+-	else
+-	    irc_send(conn,ERR_NEEDMOREPARAMS,&quot;:Too few arguments to GAMEOPT&quot;);
++    else
++        irc_send(conn,ERR_NEEDMOREPARAMS,&quot;GAMEOPT :Not enough parameters&quot;);
+ 	return 0;
+ }
+ 
+@@ -1149,7 +1185,7 @@
+ 
+ 	std::memset(_temp,0,sizeof(_temp));
+ 
+-	if ((numparams&gt;=1)) {
++	if ((numparams&gt;=1)&amp;&amp;(params[0])) {
+ 	    t_connection * user;
+ 
+ 	    if((user = connlist_find_connection_by_accountname(params[0]))&amp;&amp;(conn_wol_get_findme(user) == 17)) {
+@@ -1161,7 +1197,9 @@
+ 
+ 	    irc_send(conn,RPL_FIND_USER,_temp);
+     }
+-	return 0;
++    else
++        irc_send(conn,ERR_NEEDMOREPARAMS,&quot;FINDUSER :Not enough parameters&quot;);
++    return 0;
+ }
+ 
+ static int _handle_finduserex_command(t_connection * conn, int numparams, char ** params, char * text)
+@@ -1171,7 +1209,7 @@
+ 
+ 	std::memset(_temp,0,sizeof(_temp));
+ 
+-	if ((numparams&gt;=1)) {
++	if ((numparams&gt;=1)&amp;&amp;(params[0])) {
+ 	    t_connection * user;
+ 
+ 	    if((user = connlist_find_connection_by_accountname(params[0]))&amp;&amp;(conn_wol_get_findme(user) == 17)) {
+@@ -1183,16 +1221,19 @@
+ 
+ 	    irc_send(conn,RPL_FIND_USER_EX,_temp);
+     }
+-	return 0;
++    else
++        irc_send(conn,ERR_NEEDMOREPARAMS,&quot;FINDUSEREX :Not enough parameters&quot;);
++    return 0;;
+ }
+ 
+ static int _handle_page_command(t_connection * conn, int numparams, char ** params, char * text)
+ {
+ 	char _temp[MAX_IRC_MESSAGE_LEN];
++    bool paged = false;
+ 
+ 	std::memset(_temp,0,sizeof(_temp));
+ 
+-	if ((numparams&gt;=1)&amp;&amp;(text)) {
++	if ((numparams&gt;=1)&amp;&amp;(params[0])&amp;&amp;(text)) {
+ 	    t_connection * user;
+ 
+ 	    if (std::strcmp(params[0], &quot;0&quot;) == 0) {
+@@ -1200,28 +1241,34 @@
+             t_clan * clan = account_get_clan(conn_get_account(conn));
+             t_list * cl_member_list;
+             t_elem * curr;
++
+             if (clan) {
+                cl_member_list = clan_get_members(clan);
+ 
+                LIST_TRAVERSE(cl_member_list,curr) {
+                    t_clanmember * member = (t_clanmember*)elem_get_data(curr);
+ 
+-                   if ((user = clanmember_get_conn(member))&amp;&amp;(conn_wol_get_pageme(user) == 33));
++                   if ((user = clanmember_get_conn(member)) &amp;&amp; (conn_wol_get_pageme(user) == 33) &amp;&amp; (user != conn)) {
+                        message_send_text(user,message_type_page,conn,text);
++                       paged = true;
++                   }
+                }
+             }
+-            else
+-                WARN1(&quot;User %s want to ClanPAGE but is not clanmember!&quot;,conn_get_chatname(conn));
+-            return 0;
+         }
+ 	    else if((user = connlist_find_connection_by_accountname(params[0]))&amp;&amp;(conn_wol_get_pageme(user) == 33)) {
+      		message_send_text(user,message_type_page,conn,text);
+-     		snprintf(_temp, sizeof(_temp), &quot;0 :&quot;); /* Page was succesfull */
++            paged = true;
+ 	    }
+-	    else
+-	        snprintf(_temp, sizeof(_temp), &quot;1 :&quot;); /* User not loged in or have not allowed page */
++
++        if (paged)
++            snprintf(_temp, sizeof(_temp), &quot;0 :&quot;); /* Page was succesfull */
++        else
++            snprintf(_temp, sizeof(_temp), &quot;1 :&quot;); /* User not loged in or have not allowed page */
++
+ 	    irc_send(conn,RPL_PAGE,_temp);
+-	}
++    }
++    else
++        irc_send(conn,ERR_NEEDMOREPARAMS,&quot;PAGE :Not enough parameters&quot;);
+ 	return 0;
+ }
+ 
+@@ -1247,7 +1294,7 @@
+  	*   :user1!<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">WWOL at hostname</A> STARTG u :user1 xxx.xxx.xxx.xxx user2 xxx.xxx.xxx.xxx :gameNumber time_t
+  	*/
+ 
+-	if (numparams&gt;=1) {
++	if ((numparams&gt;=2)&amp;&amp;(params[1])) {
+ 	    int i;
+ 	    char ** e;
+ 
+@@ -1304,7 +1351,9 @@
+ 
+ 	    if (e)
+             irc_unget_listelems(e);
+-	}
++    }
++    else
++        irc_send(conn,ERR_NEEDMOREPARAMS,&quot;STARTG :Not enough parameters&quot;);
+    	return 0;
+ }
+ 
+@@ -1312,24 +1361,31 @@
+ {
+     char temp[MAX_IRC_MESSAGE_LEN];
+ 
+-   	std::memset(temp,0,sizeof(temp));
++    std::memset(temp,0,sizeof(temp));
+ 
+- 	/**
+- 	*  Heres the imput expected
+- 	*  ADVERTR [channel]
+- 	*
+- 	*  Heres the output expected
+- 	*  :[servername] ADVERTR 5 [channel]
+- 	*/
++    /**
++    *  Heres the imput expected
++    *  ADVERTR [channel]
++    *
++    *  Heres the output expected
++    *  :[servername] ADVERTR 5 [channel]
++    */
+ 
+-    // Ignore command but, return 5
++    if ((numparams&gt;=1)&amp;&amp;(params[0])) {
++        snprintf(temp,sizeof(temp),&quot;5 &quot;);
++        std::strcat(temp,params[0]);
+ 
+-    snprintf(temp,sizeof(temp),&quot;5 &quot;);
+- 	std::strcat(temp,params[0]);
++        message_send_text(conn,message_wol_advertr,conn,temp);
++    }
++    else
++   	    irc_send(conn,ERR_NEEDMOREPARAMS,&quot;ADVERTR :Not enough parameters&quot;);	
++    return 0;
++}
+ 
+-	message_send_text(conn,message_wol_advertr,conn,temp);
+-
+-	return 0;
++static int _handle_advertc_command(t_connection * conn, int numparams, char ** params, char * text)
++{
++    /* FIXME: Not implemented yet */
++    return 0;
+ }
+ 
+ static int _handle_chanchk_command(t_connection * conn, int numparams, char ** params, char * text)
+@@ -1339,21 +1395,26 @@
+ 
+    	std::memset(temp,0,sizeof(temp));
+ 
+- 	/**
+- 	*  Heres the imput expected
+- 	*  chanchk [channel]
+- 	*
+- 	*  Heres the output expected
+- 	*  :[servername] CHANCHK [channel]
+- 	*/
++    /**
++    *  Heres the imput expected
++    *  chanchk [channel]
++    *
++    *  Heres the output expected
++    *  :[servername] CHANCHK [channel]
++    */
+ 
+-	if ((channel = channellist_find_channel_by_name(irc_convert_ircname(params[0]),NULL,NULL))) {
+-     	std::strcat(temp,params[0]);
+-     	message_send_text(conn,message_wol_chanchk,conn,temp);
+-	}
+-    else {
+-     	irc_send(conn,ERR_NOSUCHCHANNEL,&quot;:No such channel&quot;);
+-	}
++    if ((numparams&gt;=1)&amp;&amp;(params[0])) {
++        if ((channel = channellist_find_channel_by_name(irc_convert_ircname(params[0]),NULL,NULL))) {
++            std::strcat(temp,params[0]);
++            message_send_text(conn,message_wol_chanchk,conn,temp);
++        }
++        else {
++            snprintf(temp,sizeof(temp),&quot;%s :No such channel&quot;, params[0]);
++            irc_send(conn,ERR_NOSUCHCHANNEL,temp);
++        }
++    }
++    else
++        irc_send(conn,ERR_NEEDMOREPARAMS,&quot;CHANCHK :Not enough parameters&quot;);
+ 	return 0;
+ }
+ 
+@@ -1388,8 +1449,7 @@
+ 
+ 	if(flist!=NULL) {
+         for (i=0; i&lt;num; i++) {
+-    		if ((!(uid = account_get_friend(my_acc,i))) || (!(fr = friendlist_find_uid(flist,uid))))
+-    		{
++    		if ((!(uid = account_get_friend(my_acc,i))) || (!(fr = friendlist_find_uid(flist,uid)))) {
+         	    eventlog(eventlog_level_error,__FUNCTION__,&quot;friend uid in list&quot;);
+         	    continue;
+     		}
+@@ -1407,32 +1467,38 @@
+ static int _handle_addbuddy_command(t_connection * conn, int numparams, char ** params, char * text)
+ {
+     char temp[MAX_IRC_MESSAGE_LEN];
+-    char const * friend_name;
+     t_account * my_acc;
+     t_account * friend_acc;
+ 
+-   	std::memset(temp,0,sizeof(temp));
++    std::memset(temp,0,sizeof(temp));
+ 
+     /**
+- 	*  Heres the imput expected
+- 	*  ADDBUDDY [buddy_name]
+- 	*
+- 	*  Heres the output expected
+- 	*  :[servername] 334 [user] [buddy_name]
+- 	*/
++    *  Heres the imput expected
++    *  ADDBUDDY [buddy_name]
++    *
++    *  Heres the output expected
++    *  :[servername] 334 [user] [buddy_name]
++    */
+ 
+- 	friend_name = params[0];
+-    my_acc = conn_get_account(conn);
++    if ((numparams&gt;=1)&amp;&amp;(params[0])) {
++        my_acc = conn_get_account(conn);
++        if (friend_acc = accountlist_find_account(params[0])) {
++            account_add_friend(my_acc, friend_acc);
++            /* FIXME: Check if add friend is done if not then send right message */
+ 
+-   	friend_acc = accountlist_find_account(friend_name);
+-    account_add_friend(my_acc, friend_acc);
+-
+-   	/* FIXME: Check if add friend is done if not then send right message */
+-
+-    snprintf(temp,sizeof(temp),&quot;%s&quot;, friend_name);
+-	irc_send(conn,RPL_ADD_BUDDY,temp);
+-
+-	return 0;
++            snprintf(temp,sizeof(temp),&quot;%s&quot;, params[0]);
++            irc_send(conn,RPL_ADD_BUDDY,temp);
++        }
++        else {
++            snprintf(temp,sizeof(temp),&quot;%s :No such nick&quot;, params[0]);
++            irc_send(conn,ERR_NOSUCHNICK,temp);
++            /* NOTE: this is not dumped from WOL, this not shows message
++              but in Emperor doesnt gives name to list, in RA2 have no efect */
++        }
++    }
++    else
++        irc_send(conn,ERR_NEEDMOREPARAMS,&quot;ADDBUDDY :Not enough parameters&quot;);
++    return 0;
+ }
+ 
+ static int _handle_delbuddy_command(t_connection * conn, int numparams, char ** params, char * text)
+@@ -1442,33 +1508,38 @@
+     t_account * my_acc;
+     int num;
+ 
+-   	std::memset(temp,0,sizeof(temp));
++    std::memset(temp,0,sizeof(temp));
+ 
+     /**
+- 	*  Heres the imput expected
+- 	*  DELBUDDY [buddy_name]
+- 	*
+- 	*  Heres the output expected
+- 	*  :[servername] 335 [user] [buddy_name]
+- 	*/
++    *  Heres the imput expected
++    *  DELBUDDY [buddy_name]
++    *
++    *  Heres the output expected
++    *  :[servername] 335 [user] [buddy_name]
++    */
+ 
+- 	friend_name = params[0];
+-    my_acc = conn_get_account(conn);
++    if ((numparams&gt;=1)&amp;&amp;(params[0])) {
++        friend_name = params[0];
++        my_acc = conn_get_account(conn);
+ 
+- 	num = account_remove_friend2(my_acc, friend_name);
++        num = account_remove_friend2(my_acc, friend_name);
+ 
+-  	/**
+-    *  FIXME: Check if remove friend is done if not then send right message
+-    *  Btw I dont know another then RPL_DEL_BUDDY message yet lol.
+-    */
++        /**
++        *  FIXME: Check if remove friend is done if not then send right message
++        *  Btw I dont know another then RPL_DEL_BUDDY message yet.
++        */
+ 
+-    snprintf(temp,sizeof(temp),&quot;%s&quot;, friend_name);
+-	irc_send(conn,RPL_DEL_BUDDY,temp);
++        snprintf(temp,sizeof(temp),&quot;%s&quot;, friend_name);
++        irc_send(conn,RPL_DEL_BUDDY,temp);
++    }
++    else
++        irc_send(conn,ERR_NEEDMOREPARAMS,&quot;DELBUDDY :Not enough parameters&quot;);
+ 	return 0;
+ }
+ 
+ static int _handle_time_command(t_connection * conn, int numparams, char ** params, char * text)
+ {
++    /* FIXME: recode and move into irc.cpp */
+     char temp[MAX_IRC_MESSAGE_LEN];
+ 	std::time_t now;
+ 
+@@ -1485,49 +1556,20 @@
+     char temp[MAX_IRC_MESSAGE_LEN];
+     t_connection * user;
+ 
+-   	std::memset(temp,0,sizeof(temp));
++    std::memset(temp,0,sizeof(temp));
+ 
+-	if ((user = connlist_find_connection_by_accountname(params[0]))) {
+-        snprintf(temp,sizeof(temp),&quot;: %s&quot;, text);
+-        message_send_text(user,message_type_host,conn,temp);
+-	}
+-	else {
+-		irc_send(conn,ERR_NOSUCHNICK,&quot;:No such user&quot;);
+-	}
+-    return 0;
+-}
+-
+-static int _handle_advertc_command(t_connection * conn, int numparams, char ** params, char * text)
+-{
+-    /* FIXME: Not implemented yet */
+-    return 0;
+-}
+-
+-static int _handle_clanbyname_command(t_connection * conn, int numparams, char ** params, char * text)
+-{
+-	char temp[MAX_IRC_MESSAGE_LEN];
+-	t_clan * clan;
+-	unsigned int clanid;
+-	const char * clantag;
+-	const char * clanname;
+-
+-	std::memset(temp,0,sizeof(temp));
+-
+-    if (params[0])
+-        clan = account_get_clan(accountlist_find_account(params[0]));
+-
+-    if (clan) {
+-        clanid = clan_get_clanid(clan);
+-	    clantag = clantag_to_str(clan_get_clantag(clan));
+-	    clanname = clan_get_name(clan);
+-        snprintf(temp, sizeof(temp), &quot;%u`%s`%s`0`0`1`0`0`0`0`0`0`0`x`x`x&quot;,clanid,clanname,clantag);
+-        irc_send(conn,RPL_BATTLECLAN,temp);
++    if ((numparams&gt;=1)&amp;&amp;(params[0])) {
++        if ((user = connlist_find_connection_by_accountname(params[0]))) {
++            snprintf(temp,sizeof(temp),&quot;: %s&quot;, text);
++            message_send_text(user,message_type_host,conn,temp);
++        }
++        else {
++            snprintf(temp,sizeof(temp),&quot;%s :No such nick&quot;, params[0]);
++            irc_send(conn,ERR_NOSUCHNICK,temp);
++        }
+     }
+-    else {
+-        snprintf(temp, sizeof(temp), &quot;ID does not exist&quot;);
+-	    irc_send(conn,ERR_IDNOEXIST,temp);
+-    }
+-    eventlog(eventlog_level_debug,__FUNCTION__,&quot;[** WOL **] CLANBYNAME (%s)&quot;,temp);
++    else
++        irc_send(conn,ERR_NEEDMOREPARAMS,&quot;HOST :Not enough parameters&quot;);
+     return 0;
+ }
+ 
+@@ -1539,14 +1581,19 @@
+ 
+    	std::memset(temp,0,sizeof(temp));
+ 
+-    if((user = connlist_find_connection_by_accountname(params[0]))) {
+-        addr = addr_num_to_ip_str(conn_get_addr(user));
+-        snprintf(temp,sizeof(temp),&quot;%s&quot;,addr);
+-	    message_send_text(conn,message_wol_userip,conn,temp);
+-	}
+-	else {
+-		irc_send(conn,ERR_NOSUCHNICK,&quot;:No such user&quot;);
+-	}
++    if ((numparams&gt;=1)&amp;&amp;(params[0])) {
++        if((user = connlist_find_connection_by_accountname(params[0]))) {
++            addr = addr_num_to_ip_str(conn_get_addr(user));
++            snprintf(temp,sizeof(temp),&quot;%s&quot;,addr);
++            message_send_text(conn,message_wol_userip,conn,temp);
++        }
++        else {
++            snprintf(temp,sizeof(temp),&quot;%s :No such nick&quot;, params[0]);
++            irc_send(conn,ERR_NOSUCHNICK,temp);
++        }
++    }
++    else
++        irc_send(conn,ERR_NEEDMOREPARAMS,&quot;USERIP :Not enough parameters&quot;);
+     return 0;
+ }
+ 
+
+Modified: trunk/pvpgn/version-history.txt
+===================================================================
+--- trunk/pvpgn/version-history.txt	2008-02-24 21:50:35 UTC (rev 431)
++++ trunk/pvpgn/version-history.txt	2008-03-01 23:28:25 UTC (rev 432)
+@@ -1,6 +1,6 @@
+ PvPGN Version History:
+ 
+- Changelog for SVN TRUNK (since 1.8.2)
++ Changelog for SVN TRUNK (since 1.8.3)
+ =========================================
+  -- The list of changes mentioned in here is most propably incomplete.
+  For more details also take a peek view into conversion-changelog.
+@@ -18,7 +18,21 @@
+ 
+ [MISC]
+   -- added /clan whisper subcommand
++  -- added /clan create/invite/disband subcommands
++  -- added clan_min_invites for miminum accepted invitations need
++     in clan-creating process (default is 2)
+ 
++ ChangeLog for 1.8.3 (since 1.8.2)
++=========================================
++
++[WOL]
++  -- added Dune 2000 Support
++  -- fixed bad time format in startgame message
++  -- fixed log warnings/errors rising in login process
++
++[MISC]
++  -- fixed bad output by /cg list command
++
+  ChangeLog for 1.8.2 (since 1.8.1)
+ =========================================
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="000645.html">[pvpgn-dev] r433 - trunk/pvpgn/src/bnetd
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#644">[ date ]</a>
+              <a href="thread.html#644">[ thread ]</a>
+              <a href="subject.html#644">[ subject ]</a>
+              <a href="author.html#644">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,340 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r332 - in trunk/pvpgn: . cmake/Modules src src/common	src/tinycdb
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-August/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r332%20-%20in%20trunk/pvpgn%3A%20.%20cmake/Modules%20src%20src/common%0A%09src/tinycdb&In-Reply-To=%3C200708201350.l7KDo7bd017199%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000379.html">
+   <LINK REL="Next"  HREF="000381.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r332 - in trunk/pvpgn: . cmake/Modules src src/common	src/tinycdb</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r332%20-%20in%20trunk/pvpgn%3A%20.%20cmake/Modules%20src%20src/common%0A%09src/tinycdb&In-Reply-To=%3C200708201350.l7KDo7bd017199%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r332 - in trunk/pvpgn: . cmake/Modules src src/common	src/tinycdb">svn at svn.berlios.de
+       </A><BR>
+    <I>Mon Aug 20 15:50:07 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000379.html">[pvpgn-dev] r331 - trunk/pvpgn/src/tinycdb
+</A></li>
+        <LI>Next message: <A HREF="000381.html">[pvpgn-dev] r333 - trunk/pvpgn/src/bntrackd
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#380">[ date ]</a>
+              <a href="thread.html#380">[ thread ]</a>
+              <a href="subject.html#380">[ subject ]</a>
+              <a href="author.html#380">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: d1zzy
+Date: 2007-08-20 15:50:06 +0200 (Mon, 20 Aug 2007)
+New Revision: 332
+
+Modified:
+   trunk/pvpgn/ConfigureChecks.cmake
+   trunk/pvpgn/cmake/Modules/CheckMkdirArgs.cmake
+   trunk/pvpgn/config.h.cmake
+   trunk/pvpgn/src/CMakeLists.txt
+   trunk/pvpgn/src/common/setup_before.h
+   trunk/pvpgn/src/tinycdb/cdb.cpp
+Log:
+Cleaned up some more cmake stuff. Testing is needed on win32 that this 
+doesnt break anything and that now you properly get HAVE_SELECT and 
+friends and code from src/compat could me modified to not assume a lot 
+of stuff when WIN32 is present but just use the general HAVE_&lt;function&gt; 
+checks.
+
+
+Modified: trunk/pvpgn/ConfigureChecks.cmake
+===================================================================
+--- trunk/pvpgn/ConfigureChecks.cmake	2007-08-20 09:51:18 UTC (rev 331)
++++ trunk/pvpgn/ConfigureChecks.cmake	2007-08-20 13:50:06 UTC (rev 332)
+@@ -8,7 +8,7 @@
+ include(CheckLibraryExists)
+ include(CheckTypeSizeCXX)
+ include(CheckCXXCompilerFlag)
+-include(CheckCXXSourceCompiles)
++include(CheckMkdirArgs)
+ 
+ check_include_files_cxx(&quot;cassert;cctype;cerrno;cmath;climits;csignal;cstdarg;cstddef;cstdio;cstdlib;cstring;ctime;deque;exception;fstream;iomanip;iostream;limits;list;map;memory;sstream;stdexcept;string;utility;vector&quot; HAVE_STD_HEADERS)
+ if(NOT HAVE_STD_HEADERS)
+@@ -65,19 +65,10 @@
+ check_type_size_cxx(&quot;signed long long&quot; SIZEOF_SIGNED_LONG_LONG)
+ 
+ check_function_exists(mmap HAVE_MMAP)
+-check_function_exists(gethostname HAVE_GETHOSTNAME)
+ check_function_exists(gettimeofday HAVE_GETTIMEOFDAY)
+-check_function_exists(select HAVE_SELECT)
+-check_function_exists(socket HAVE_SOCKET)
+ check_function_exists(strdup HAVE_STRDUP)
+ check_function_exists(strtoul HAVE_STRTOUL)
+-check_function_exists(inet_aton HAVE_INET_ATON)
+-check_function_exists(inet_ntoa HAVE_INET_NTOA)
+ check_function_exists(uname HAVE_UNAME)
+-check_function_exists(recv HAVE_RECV)
+-check_function_exists(send HAVE_SEND)
+-check_function_exists(recvfrom HAVE_RECVFROM)
+-check_function_exists(sendto HAVE_SENDTO)
+ check_function_exists(uname HAVE_UNAME)
+ check_function_exists(fork HAVE_FORK)
+ check_function_exists(getpid HAVE_GETPID)
+@@ -103,8 +94,6 @@
+ check_function_exists(ioctl HAVE_IOCTL)
+ check_function_exists(setsid HAVE_SETSID)
+ check_function_exists(poll HAVE_POLL)
+-check_function_exists(gethostbyname HAVE_GETHOSTBYNAME)
+-check_function_exists(getservbyname HAVE_GETSERVBYNAME)
+ check_function_exists(getlogin HAVE_GETLOGIN)
+ check_function_exists(getpwnam HAVE_GETPWNAME)
+ check_function_exists(getgrnam HAVE_GETGRNAM)
+@@ -124,17 +113,36 @@
+ check_function_exists(snprintf HAVE_SNPRINTF)
+ check_function_exists(_snprintf HAVE__SNPRINTF)
+ check_function_exists(setpgrp HAVE_SETPGRP)
++check_function_exists(inet_aton HAVE_INET_ATON)
+ 
+-check_cxx_source_compiles(
+- &quot;
+- #include &lt;direct.h&gt;
+- // this declaration will fail when there already exists a non const char** version which returns size_t
+- int main() { mkdir(\&quot;\&quot;); return 0; }
+- &quot;
+-MKDIR_TAKES_ONE_ARG)
++# winsock2.h and ws_32 should provide these
++if(HAVE_WINSOCK2_H)
++	set(HAVE_GETHOSTNAME ON)
++	set(HAVE_SELECT ON)
++	set(HAVE_SOCKET ON)
++	set(HAVE_INET_NTOA ON)
++	set(HAVE_RECV ON)
++	set(HAVE_SEND ON)
++	set(HAVE_RECVFROM ON)
++	set(HAVE_SENDTO ON)
++	set(HAVE_GETHOSTBYNAME ON)
++	set(HAVE_GETSERVBYNAME ON)
++else(HAVE_WINSOCK2_H)
++	check_function_exists(gethostname HAVE_GETHOSTNAME)
++	check_function_exists(select HAVE_SELECT)
++	check_function_exists(socket HAVE_SOCKET)
++	check_function_exists(inet_ntoa HAVE_INET_NTOA)
++	check_function_exists(recv HAVE_RECV)
++	check_function_exists(send HAVE_SEND)
++	check_function_exists(recvfrom HAVE_RECVFROM)
++	check_function_exists(sendto HAVE_SENDTO)
++	check_function_exists(gethostbyname HAVE_GETHOSTBYNAME)
++	check_function_exists(getservbyname HAVE_GETSERVBYNAME)
++endif(HAVE_WINSOCK2_H)
+ 
++check_mkdir_args(MKDIR_TAKES_ONE_ARG)
++
+ find_package(ZLIB REQUIRED)
+-INCLUDE_DIRECTORIES(${ZLIB_INCLUDE_DIR})
+ check_library_exists(pcap pcap_open_offline &quot;&quot; HAVE_LIBPCAP)
+ 
+ #storage module checks
+
+Modified: trunk/pvpgn/cmake/Modules/CheckMkdirArgs.cmake
+===================================================================
+--- trunk/pvpgn/cmake/Modules/CheckMkdirArgs.cmake	2007-08-20 09:51:18 UTC (rev 331)
++++ trunk/pvpgn/cmake/Modules/CheckMkdirArgs.cmake	2007-08-20 13:50:06 UTC (rev 332)
+@@ -11,43 +11,39 @@
+ #  CMAKE_REQUIRED_DEFINITIONS = list of macros to define (-DFOO=bar)
+ #  CMAKE_REQUIRED_INCLUDES = list of include directories
+ 
+-MACRO(CHECK_MKDIR_ARGS INCLUDE VARIABLE)
++MACRO(CHECK_MKDIR_ARGS VARIABLE)
+   IF(&quot;${VARIABLE}&quot; MATCHES &quot;^${VARIABLE}$&quot;)
+     SET(CMAKE_CONFIGURABLE_FILE_CONTENT &quot;/* */\n&quot;)
+     IF(CMAKE_REQUIRED_INCLUDES)
+-      SET(CHECK_INCLUDE_FILES_CXX_INCLUDE_DIRS &quot;-DINCLUDE_DIRECTORIES=${CMAKE_REQUIRED_INCLUDES}&quot;)
++      SET(CHECK_MKDIR_ARGS_INCLUDE_DIRS &quot;-DINCLUDE_DIRECTORIES=${CMAKE_REQUIRED_INCLUDES}&quot;)
+     ELSE(CMAKE_REQUIRED_INCLUDES)
+-      SET(CHECK_INCLUDE_FILES_CXX_INCLUDE_DIRS)
++      SET(CHECK_MKDIR_ARGS_INCLUDE_DIRS)
+     ENDIF(CMAKE_REQUIRED_INCLUDES)
+-    SET(CHECK_INCLUDE_FILES_CXX_CONTENT &quot;/* */\n&quot;)
+-    SET(MACRO_CHECK_INCLUDE_FILES_CXX_FLAGS ${CMAKE_REQUIRED_FLAGS})
+-    FOREACH(FILE ${INCLUDE})
+-      SET(CMAKE_CONFIGURABLE_FILE_CONTENT
+-        &quot;${CMAKE_CONFIGURABLE_FILE_CONTENT}#include &lt;${FILE}&gt;\n&quot;)
+-    ENDFOREACH(FILE)
++    SET(CHECK_MKDIR_ARGS_CONTENT &quot;/* */\n&quot;)
++    SET(MACRO_CHECK_MKDIR_ARGS_FLAGS ${CMAKE_REQUIRED_FLAGS})
+     SET(CMAKE_CONFIGURABLE_FILE_CONTENT
+-      &quot;${CMAKE_CONFIGURABLE_FILE_CONTENT}\n\nint main(){return 0;}\n&quot;)
++      &quot;${CMAKE_CONFIGURABLE_FILE_CONTENT}\n#include&lt;direct.h&gt;\nint main(){mkdir(\&quot;\&quot;);}\n&quot;)
+     CONFIGURE_FILE(&quot;${CMAKE_ROOT}/Modules/CMakeConfigurableFile.in&quot;
+-      &quot;${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeTmp/CheckIncludeFiles.cxx&quot; @ONLY IMMEDIATE)
++      &quot;${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeTmp/CheckMkdirArgs.cxx&quot; @ONLY IMMEDIATE)
+ 
+-    MESSAGE(STATUS &quot;Looking for include files ${VARIABLE}&quot;)
++    MESSAGE(STATUS &quot;Checking for single argument mkdir ${VARIABLE}&quot;)
+     TRY_COMPILE(${VARIABLE}
+       ${CMAKE_BINARY_DIR}
+-      ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeTmp/CheckIncludeFiles.cxx
++      ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeTmp/CheckMkdirArgs.cxx
+       COMPILE_DEFINITIONS ${CMAKE_REQUIRED_DEFINITIONS}
+       CMAKE_FLAGS 
+-      -DCOMPILE_DEFINITIONS:STRING=${MACRO_CHECK_INCLUDE_FILES_CXX_FLAGS}
+-      &quot;${CHECK_INCLUDE_FILES_CXX_INCLUDE_DIRS}&quot;
++      -DCOMPILE_DEFINITIONS:STRING=${MACRO_CHECK_MKDIR_ARGS_FLAGS}
++      &quot;${CHECK_MKDIR_ARGS_INCLUDE_DIRS}&quot;
+       OUTPUT_VARIABLE OUTPUT)
+     IF(${VARIABLE})
+-      MESSAGE(STATUS &quot;Looking for include files ${VARIABLE} - found&quot;)
++      MESSAGE(STATUS &quot;Checking for single argument mkdir ${VARIABLE} - found&quot;)
+       SET(${VARIABLE} 1 CACHE INTERNAL &quot;Have include ${VARIABLE}&quot;)
+       FILE(APPEND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}${CMAKE_FILES_DIRECTORY}/CMakeOutput.log 
+         &quot;Determining if files ${INCLUDE} &quot;
+         &quot;exist passed with the following output:\n&quot;
+         &quot;${OUTPUT}\n\n&quot;)
+     ELSE(${VARIABLE})
+-      MESSAGE(STATUS &quot;Looking for include files ${VARIABLE} - not found.&quot;)
++      MESSAGE(STATUS &quot;Checking for single argument mkdir ${VARIABLE} - not found.&quot;)
+       SET(${VARIABLE} &quot;&quot; CACHE INTERNAL &quot;Have includes ${VARIABLE}&quot;)
+       FILE(APPEND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeError.log 
+         &quot;Determining if files ${INCLUDE} &quot;
+@@ -55,4 +51,4 @@
+         &quot;${OUTPUT}\nSource:\n${CMAKE_CONFIGURABLE_FILE_CONTENT}\n&quot;)
+     ENDIF(${VARIABLE})
+   ENDIF(&quot;${VARIABLE}&quot; MATCHES &quot;^${VARIABLE}$&quot;)
+-ENDMACRO(CHECK_INCLUDE_FILES_CXX)
++ENDMACRO(CHECK_MKDIR_ARGS)
+
+Modified: trunk/pvpgn/config.h.cmake
+===================================================================
+--- trunk/pvpgn/config.h.cmake	2007-08-20 09:51:18 UTC (rev 331)
++++ trunk/pvpgn/config.h.cmake	2007-08-20 13:50:06 UTC (rev 332)
+@@ -1,8 +1,6 @@
+ #ifndef PVPGN_CONFIG_H
+ #define PVPGN_CONFIG_H
+ 
+-#define CMAKE_BUILD
+-
+ #cmakedefine HAVE_FCNTL_H
+ #cmakedefine HAVE_SYS_TIME_H
+ #cmakedefine HAVE_SYS_SELECT_H
+@@ -41,7 +39,6 @@
+ #cmakedefine HAVE_WINDOWS_H
+ #cmakedefine HAVE_WINSOCK2_H
+ 
+-
+ #cmakedefine SIZEOF_UNSIGNED_CHAR ${SIZEOF_UNSIGNED_CHAR}
+ #cmakedefine SIZEOF_UNSIGNED_SHORT ${SIZEOF_UNSIGNED_SHORT}
+ #cmakedefine SIZEOF_UNSIGNED_INT ${SIZEOF_UNSIGNED_INT}
+
+Modified: trunk/pvpgn/src/CMakeLists.txt
+===================================================================
+--- trunk/pvpgn/src/CMakeLists.txt	2007-08-20 09:51:18 UTC (rev 331)
++++ trunk/pvpgn/src/CMakeLists.txt	2007-08-20 13:50:06 UTC (rev 332)
+@@ -1,17 +1,14 @@
+ #first setup the includes and link paths
+-include_directories(${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR} ${CMAKE_SOURCE_DIR}/src)
++include_directories(${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR} 
++	${CMAKE_SOURCE_DIR}/src ${ZLIB_INCLUDE_DIR} ${MYSQL_INCLUDE_DIR}
++	${SQLITE3_INCLUDE_DIR})
+ 
+-if(MYSQL_INCLUDE_DIR)
+-    include_directories(${MYSQL_INCLUDE_DIR})
+-endif(MYSQL_INCLUDE_DIR)
+-if(SQLITE3_INCLUDE_DIR)
+-    include_directories(${SQLITE3_INCLUDE_DIR})
+-endif(SQLITE3_INCLUDE_DIR)
+-
++# the following line makes sure all targets will lookup local libraries
++# when referenced by short names
+ link_directories(${CMAKE_BINARY_DIR}/src/common 
+-${CMAKE_BINARY_DIR}/src/compat
+-${CMAKE_BINARY_DIR}/src/tinycdb
+-${CMAKE_BINARY_DIR}/src/win32)
++	${CMAKE_BINARY_DIR}/src/compat
++	${CMAKE_BINARY_DIR}/src/tinycdb
++	${CMAKE_BINARY_DIR}/src/win32)
+ 
+ #this is needed to be compatible with existent code
+ add_definitions(&quot;-DHAVE_CONFIG_H&quot;)
+@@ -31,14 +28,7 @@
+     add_definitions(&quot;-DWITH_SQL_SQLITE3&quot;)
+ endif(SQLITE3_FOUND)
+ 
+-add_subdirectory(compat)
+-add_subdirectory(common)
+-add_subdirectory(tinycdb)
+-add_subdirectory(win32)
+-add_subdirectory(bntrackd)
+-add_subdirectory(client)
+-add_subdirectory(bniutils)
+-add_subdirectory(bnpass)
++subdirs(compat common tinycdb win32 bntrackd client bniutils bnpass)
+ 
+ if(WITH_BNETD)
+     add_subdirectory(bnetd)
+
+Modified: trunk/pvpgn/src/common/setup_before.h
+===================================================================
+--- trunk/pvpgn/src/common/setup_before.h	2007-08-20 09:51:18 UTC (rev 331)
++++ trunk/pvpgn/src/common/setup_before.h	2007-08-20 13:50:06 UTC (rev 332)
+@@ -25,11 +25,11 @@
+ /* get autoconf defines */
+ #ifdef HAVE_CONFIG_H
+ # include &quot;config.h&quot;
+-#endif
+-
+-#ifndef CMAKE_BULD
++#else
+ # ifdef WIN32
+ #  include &quot;win32/configwin.h&quot;
++# else
++#  error &quot;No config.h but not building on WIN32, how to configure the system?&quot;
+ # endif
+ #endif
+ 
+
+Modified: trunk/pvpgn/src/tinycdb/cdb.cpp
+===================================================================
+--- trunk/pvpgn/src/tinycdb/cdb.cpp	2007-08-20 09:51:18 UTC (rev 331)
++++ trunk/pvpgn/src/tinycdb/cdb.cpp	2007-08-20 13:50:06 UTC (rev 332)
+@@ -11,6 +11,9 @@
+ 
+ #include &quot;common/xalloc.h&quot;
+ #include &quot;cdb.h&quot;
++#ifdef HAVE_UNISTD_H
++ #include &lt;unistd.h&gt;
++#endif
+ #include &quot;common/setup_after.h&quot;
+ 
+ using namespace pvpgn;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000379.html">[pvpgn-dev] r331 - trunk/pvpgn/src/tinycdb
+</A></li>
+	<LI>Next message: <A HREF="000381.html">[pvpgn-dev] r333 - trunk/pvpgn/src/bntrackd
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#380">[ date ]</a>
+              <a href="thread.html#380">[ thread ]</a>
+              <a href="subject.html#380">[ subject ]</a>
+              <a href="author.html#380">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

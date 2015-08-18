@@ -1,0 +1,126 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] pvpgn/src/bnetd sql_mysql.c,1.19,1.20
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2008-September/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20pvpgn/src/bnetd%20sql_mysql.c%2C1.19%2C1.20&In-Reply-To=%3C20080907105548.82194152281%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000788.html">
+   <LINK REL="Next"  HREF="000790.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] pvpgn/src/bnetd sql_mysql.c,1.19,1.20</H1>
+    <B>pandaemonium</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20pvpgn/src/bnetd%20sql_mysql.c%2C1.19%2C1.20&In-Reply-To=%3C20080907105548.82194152281%40mail.berlios.de%3E"
+       TITLE="[pvpgn-dev] pvpgn/src/bnetd sql_mysql.c,1.19,1.20">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sun Sep  7 12:55:48 CEST 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000788.html">[pvpgn-dev] pvpgn version-history.txt,1.290,1.291
+</A></li>
+        <LI>Next message: <A HREF="000790.html">[pvpgn-dev] r494 - trunk/pvpgn/src/bnetd
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#789">[ date ]</a>
+              <a href="thread.html#789">[ thread ]</a>
+              <a href="subject.html#789">[ subject ]</a>
+              <a href="author.html#789">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/pvpgn/pvpgn/src/bnetd
+In directory sheep:/tmp/cvs-serv31912/src/bnetd
+
+Modified Files:
+	sql_mysql.c 
+Log Message:
+fixed MySQL reconnection issues for MySQL &gt;= 5.0.19
+
+Index: sql_mysql.c
+===================================================================
+RCS file: /cvsroot/pvpgn/pvpgn/src/bnetd/sql_mysql.c,v
+retrieving revision 1.19
+retrieving revision 1.20
+diff -u -d -r1.19 -r1.20
+--- sql_mysql.c	21 Dec 2006 19:51:56 -0000	1.19
++++ sql_mysql.c	7 Sep 2008 10:55:45 -0000	1.20
+@@ -73,26 +73,39 @@
+         return -1;
+     }
+ 
++#if MYSQL_VERSION_ID &gt;= 50003
++  #if MYSQL_VERSION_ID &lt; 50013
++    eventlog(eventlog_level_warn,__FUNCTION__,&quot;Your mySQL client lib version does not support reconnecting after a timeout.&quot;);
++    eventlog(eventlog_level_warn,__FUNCTION__,&quot;If this causes you any trouble you are advices to upgrade&quot;);
++    eventlog(eventlog_level_warn,__FUNCTION__,&quot;your mySQL client libs to at least mySQL 5.0.13 to resolve this problem.&quot;);
++    // we might try a dirty hack like the following, but I'm not sure if it will work
++    // mysql-&gt;reconnect = 1;
++  #endif
++  #if MYSQL_VERSION_ID &gt;= 50019
++    my_bool my_true = (my_bool)1;
++    if (mysql_options(mysql, MYSQL_OPT_RECONNECT, &amp;my_true)){
++      eventlog(eventlog_level_warn,__FUNCTION__,&quot;Failed to turn on MYSQL_OPT_RECONNECT.&quot;);
++    }else{
++      eventlog(eventlog_level_info,__FUNCTION__,&quot;Successfully turned on MYSQL_OPT_RECONNECT.&quot;);
++    }
++  #endif
++#endif
++
++
+     if (mysql_real_connect(mysql, host, user, pass, name, port ? atoi(port) : 0, socket, CLIENT_FOUND_ROWS) == NULL) {
+         eventlog(eventlog_level_error, __FUNCTION__, &quot;error connecting to database (db said: '%s')&quot;, mysql_error(mysql));
+ 	mysql_close(mysql);
+         return -1;
+     }
+ 
+-#if MYSQL_VERSION_ID &gt;= 50003
+-  #if MYSQL_VERSION_ID &gt;= 50013
++#if MYSQL_VERSION_ID &gt;= 50013
++  #if MYSQL_VERSION_ID &lt; 50019
+     my_bool my_true = (my_bool)1;
+     if (mysql_options(mysql, MYSQL_OPT_RECONNECT, &amp;my_true)){
+       eventlog(eventlog_level_warn,__FUNCTION__,&quot;Failed to turn on MYSQL_OPT_RECONNECT.&quot;);
+     }else{
+       eventlog(eventlog_level_info,__FUNCTION__,&quot;Successfully turned on MYSQL_OPT_RECONNECT.&quot;);
+     }
+-  #else
+-    eventlog(eventlog_level_warn,__FUNCTION__,&quot;Your mySQL client lib version does not support reconnecting after a timeout.&quot;);
+-    eventlog(eventlog_level_warn,__FUNCTION__,&quot;If this causes you any trouble you are advices to upgrade&quot;);
+-    eventlog(eventlog_level_warn,__FUNCTION__,&quot;your mySQL client libs to at least mySQL 5.0.13 to resolve this problem.&quot;);
+-    // we might try a dirty hack like the following, but I'm not sure if it will work
+-    // mysql-&gt;reconnect = 1;
+   #endif
+ #endif
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000788.html">[pvpgn-dev] pvpgn version-history.txt,1.290,1.291
+</A></li>
+	<LI>Next message: <A HREF="000790.html">[pvpgn-dev] r494 - trunk/pvpgn/src/bnetd
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#789">[ date ]</a>
+              <a href="thread.html#789">[ thread ]</a>
+              <a href="subject.html#789">[ subject ]</a>
+              <a href="author.html#789">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

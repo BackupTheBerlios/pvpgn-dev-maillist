@@ -1,0 +1,84 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r529 - trunk/pvpgn/src/common
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2009-February/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r529%20-%20trunk/pvpgn/src/common&In-Reply-To=%3C200902062042.n16KgorG003250%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000953.html">
+   <LINK REL="Next"  HREF="000955.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r529 - trunk/pvpgn/src/common</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r529%20-%20trunk/pvpgn/src/common&In-Reply-To=%3C200902062042.n16KgorG003250%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r529 - trunk/pvpgn/src/common">svn at svn.berlios.de
+       </A><BR>
+    <I>Fri Feb  6 21:42:50 CET 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000953.html">[pvpgn-dev] [Bug #15183] Can't join private games
+</A></li>
+        <LI>Next message: <A HREF="000955.html">[pvpgn-dev] [Patch #2680] Fix for Bug #15058 hosting bot exploit
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#954">[ date ]</a>
+              <a href="thread.html#954">[ thread ]</a>
+              <a href="subject.html#954">[ subject ]</a>
+              <a href="author.html#954">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pandaemonium
+Date: 2009-02-06 21:42:50 +0100 (Fri, 06 Feb 2009)
+New Revision: 529
+
+Modified:
+   trunk/pvpgn/src/common/field_sizes.h
+Log:
+[ Patch #2680 ] Fix for Bug #15058 hosting bot exploit
+
+Modified: trunk/pvpgn/src/common/field_sizes.h
+===================================================================
+--- trunk/pvpgn/src/common/field_sizes.h	2009-02-06 19:47:08 UTC (rev 528)
++++ trunk/pvpgn/src/common/field_sizes.h	2009-02-06 20:42:50 UTC (rev 529)
+@@ -40,7 +40,7 @@
+ const unsigned MIN_CHARNAME_LEN = 2;
+ const int MAX_GAMENAME_LEN = 32;
+ const int MAX_GAMEPASS_LEN = 32;
+-const int MAX_GAMEINFO_LEN = 256;
++const int MAX_GAMEINFO_LEN = 128;
+ const int MAX_GAMEDESC_LEN = 32;
+ const int MAP_NAME_LEN = 64;
+ const int BNETHASH_LEN = 20; /* uint32*5, see bnethash.h */
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000953.html">[pvpgn-dev] [Bug #15183] Can't join private games
+</A></li>
+	<LI>Next message: <A HREF="000955.html">[pvpgn-dev] [Patch #2680] Fix for Bug #15058 hosting bot exploit
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#954">[ date ]</a>
+              <a href="thread.html#954">[ thread ]</a>
+              <a href="subject.html#954">[ subject ]</a>
+              <a href="author.html#954">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

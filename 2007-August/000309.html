@@ -1,0 +1,206 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] pvpgn/src/bnetd connection.c, 1.154,	1.155 handle_telnet.c, 1.12, 1.13 prefs.c, 1.64, 1.65 prefs.h,	1.49, 1.50
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-August/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20pvpgn/src/bnetd%20connection.c%2C%201.154%2C%0A%091.155%20handle_telnet.c%2C%201.12%2C%201.13%20prefs.c%2C%201.64%2C%201.65%20prefs.h%2C%0A%091.49%2C%201.50&In-Reply-To=%3C20070815114119.CB981102FE0%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000308.html">
+   <LINK REL="Next"  HREF="000310.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] pvpgn/src/bnetd connection.c, 1.154,	1.155 handle_telnet.c, 1.12, 1.13 prefs.c, 1.64, 1.65 prefs.h,	1.49, 1.50</H1>
+    <B>pandaemonium</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20pvpgn/src/bnetd%20connection.c%2C%201.154%2C%0A%091.155%20handle_telnet.c%2C%201.12%2C%201.13%20prefs.c%2C%201.64%2C%201.65%20prefs.h%2C%0A%091.49%2C%201.50&In-Reply-To=%3C20070815114119.CB981102FE0%40mail.berlios.de%3E"
+       TITLE="[pvpgn-dev] pvpgn/src/bnetd connection.c, 1.154,	1.155 handle_telnet.c, 1.12, 1.13 prefs.c, 1.64, 1.65 prefs.h,	1.49, 1.50">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Wed Aug 15 13:41:19 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000308.html">[pvpgn-dev] pvpgn UPDATE, 1.54, 1.55 version-history.txt, 1.267,	1.268
+</A></li>
+        <LI>Next message: <A HREF="000310.html">[pvpgn-dev] pvpgn/conf bnetd.conf.in, 1.80, 1.81 bnetd.conf.win32,	1.74, 1.75
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#309">[ date ]</a>
+              <a href="thread.html#309">[ thread ]</a>
+              <a href="subject.html#309">[ subject ]</a>
+              <a href="author.html#309">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/pvpgn/pvpgn/src/bnetd
+In directory sheep:/tmp/cvs-serv10690/src/bnetd
+
+Modified Files:
+	connection.c handle_telnet.c prefs.c prefs.h 
+Log Message:
+fix for bug [ #11700 ] - oversized login with #uid as username
+
+Index: connection.c
+===================================================================
+RCS file: /cvsroot/pvpgn/pvpgn/src/bnetd/connection.c,v
+retrieving revision 1.154
+retrieving revision 1.155
+diff -u -d -r1.154 -r1.155
+--- connection.c	14 Aug 2007 20:43:12 -0000	1.154
++++ connection.c	15 Aug 2007 11:40:57 -0000	1.155
+@@ -1530,7 +1530,28 @@
+     assert(c != NULL);
+     assert(username != NULL);
+ 
+-    temp = xstrdup(username);
++    if (username[0]!='#')
++        temp = xstrdup(username);
++    else {
++        unsigned int userid=0;
++	str_to_uint(&amp;username[1],&amp;userid);
++	if (userid!=0){
++	    if (prefs_get_account_force_username()){
++	        t_account* account = accountlist_find_account_by_uid(userid);
++	        temp = xstrdup(account_get_name(account));
++	    }
++	    else{
++	        char uid_string[USER_NAME_MAX];
++		sprintf(uid_string,&quot;#%u&quot;,userid);
++		temp = xstrdup(uid_string);
++	    }
++	}
++	else{  //theoretically this should never happen...
++	    eventlog(eventlog_level_error,__FUNCTION__,&quot;got invalid numeric uid \&quot;%s\&quot;&quot;,username);
++	    // set value that would have been set prior to this bugfix...
++            temp = xstrdup(username);
++        }
++    }
+     if (c-&gt;protocol.loggeduser) xfree((void*)c-&gt;protocol.loggeduser);
+ 
+     c-&gt;protocol.loggeduser = temp;
+
+Index: handle_telnet.c
+===================================================================
+RCS file: /cvsroot/pvpgn/pvpgn/src/bnetd/handle_telnet.c,v
+retrieving revision 1.12
+retrieving revision 1.13
+diff -u -d -r1.12 -r1.13
+--- handle_telnet.c	27 Oct 2004 17:32:17 -0000	1.12
++++ handle_telnet.c	15 Aug 2007 11:40:57 -0000	1.13
+@@ -322,7 +322,7 @@
+ 			conn_push_outqueue(c,rpacket);
+ 			packet_del_ref(rpacket);
+ 		    }
+-		    message_send_text(c,message_type_uniqueid,c,account_get_name(account));
++		    message_send_text(c,message_type_uniqueid,c,loggeduser);
+ 
+ 		    conn_login(c,account,loggeduser);
+ 
+
+Index: prefs.c
+===================================================================
+RCS file: /cvsroot/pvpgn/pvpgn/src/bnetd/prefs.c,v
+retrieving revision 1.64
+retrieving revision 1.65
+diff -u -d -r1.64 -r1.65
+--- prefs.c	10 Oct 2006 20:40:53 -0000	1.64
++++ prefs.c	15 Aug 2007 11:40:57 -0000	1.65
+@@ -159,6 +159,7 @@
+     unsigned int XML_output_ladder;
+     unsigned int XML_status_output;
+     char const * account_allowed_symbols;
++    unsigned int account_force_username;
+     char const * command_groups_file;
+     char const * tournament_file;
+     char const * aliasfile;
+@@ -581,6 +582,10 @@
+ static const char *conf_get_account_allowed_symbols(void);
+ static int conf_setdef_account_allowed_symbols(void);
+ 
++static int conf_set_account_force_username(const char *valstr);
++static const char *conf_get_account_force_username(void);
++static int conf_setdef_account_force_username(void);
++
+ static int conf_set_command_groups_file(const char *valstr);
+ static const char *conf_get_command_groups_file(void);
+ static int conf_setdef_command_groups_file(void);
+@@ -772,6 +777,7 @@
+     { &quot;XML_output_ladder&quot;,      conf_set_XML_output_ladder,    conf_get_XML_output_ladder,conf_setdef_XML_output_ladder},
+     { &quot;XML_status_output&quot;,      conf_set_XML_status_output,    conf_get_XML_status_output,conf_setdef_XML_status_output},
+     { &quot;account_allowed_symbols&quot;,conf_set_account_allowed_symbols,conf_get_account_allowed_symbols,conf_setdef_account_allowed_symbols},
++    { &quot;account_force_username&quot;, conf_set_account_force_username,conf_get_account_force_username,conf_setdef_account_force_username},
+     { &quot;command_groups_file&quot;,	conf_set_command_groups_file,  conf_get_command_groups_file,conf_setdef_command_groups_file},
+     { &quot;tournament_file&quot;,	conf_set_tournament_file,      conf_get_tournament_file,conf_setdef_tournament_file},
+     { &quot;aliasfile&quot;          ,    conf_set_aliasfile,            conf_get_aliasfile,    conf_setdef_aliasfile},
+@@ -2922,6 +2928,26 @@
+ 	return prefs_runtime_config.account_allowed_symbols;
+ }
+ 
++
++extern unsigned int prefs_get_account_force_username(void)
++{
++	return prefs_runtime_config.account_force_username;
++}
++
++static int conf_set_account_force_username(const char *valstr)
++{
++    return conf_set_bool(&amp;prefs_runtime_config.account_force_username,valstr,0);
++}
++
++static int conf_setdef_account_force_username(void)
++{
++    return conf_set_bool(&amp;prefs_runtime_config.account_force_username,NULL,0);
++}
++
++static const char* conf_get_account_force_username(void)
++{
++    return conf_get_bool(prefs_runtime_config.account_force_username);
++}
+ 
+ extern char const * prefs_get_command_groups_file(void)
+ {
+
+Index: prefs.h
+===================================================================
+RCS file: /cvsroot/pvpgn/pvpgn/src/bnetd/prefs.h,v
+retrieving revision 1.49
+retrieving revision 1.50
+diff -u -d -r1.49 -r1.50
+--- prefs.h	29 Jun 2005 00:56:20 -0000	1.49
++++ prefs.h	15 Aug 2007 11:40:57 -0000	1.50
+@@ -146,6 +146,7 @@
+ extern int prefs_get_XML_status_output(void) ;
+ 
+ extern char const * prefs_get_account_allowed_symbols(void) ;
++extern unsigned int prefs_get_account_force_username(void);
+ 
+ extern char const * prefs_get_command_groups_file(void) ;
+ extern char const * prefs_get_tournament_file(void) ;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000308.html">[pvpgn-dev] pvpgn UPDATE, 1.54, 1.55 version-history.txt, 1.267,	1.268
+</A></li>
+	<LI>Next message: <A HREF="000310.html">[pvpgn-dev] pvpgn/conf bnetd.conf.in, 1.80, 1.81 bnetd.conf.win32,	1.74, 1.75
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#309">[ date ]</a>
+              <a href="thread.html#309">[ thread ]</a>
+              <a href="subject.html#309">[ subject ]</a>
+              <a href="author.html#309">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

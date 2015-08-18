@@ -1,0 +1,127 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] [Bug #10811] User with cg 6 able to send oversize	message.
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2008-December/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BBug%20%2310811%5D%20User%20with%20cg%206%20able%20to%20send%20oversize%0A%09message.&In-Reply-To=%3C200812142307.mBEN7Yq2016301%40unicorn.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000899.html">
+   <LINK REL="Next"  HREF="000901.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] [Bug #10811] User with cg 6 able to send oversize	message.</H1>
+    <B>admin at berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BBug%20%2310811%5D%20User%20with%20cg%206%20able%20to%20send%20oversize%0A%09message.&In-Reply-To=%3C200812142307.mBEN7Yq2016301%40unicorn.berlios.de%3E"
+       TITLE="[pvpgn-dev] [Bug #10811] User with cg 6 able to send oversize	message.">admin at berlios.de
+       </A><BR>
+    <I>Mon Dec 15 00:07:34 CET 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000899.html">[pvpgn-dev] [Bug #14890] Clan Rank Exploit
+</A></li>
+        <LI>Next message: <A HREF="000901.html">[pvpgn-dev] pvpgn/src/bnetd handle_bnet.c,1.253,1.254
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#900">[ date ]</a>
+              <a href="thread.html#900">[ thread ]</a>
+              <a href="subject.html#900">[ subject ]</a>
+              <a href="author.html#900">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Bug #10811, was updated on 2007-Apr-04 15:36
+Here is a current snapshot of the bug.
+
+Project: Player vs Player Gaming Network
+Category: General
+Status: Open
+Resolution: Later
+Bug Group: bnetd
+Priority: 5
+Submitted by: megablue
+Assigned to : pelish
+Summary: User with cg 6 able to send oversize message.
+
+Details: clients affected: CHAT, (not sure about other yet)
+
+the maximum size(char) of a raw chat message that sent by a chat client supposed to be 256. but when a user with command group 6, he/she can send an oversize message with unlimited chars.
+
+
+Follow-Ups:
+
+Date: 2008-Dec-15 00:07
+By: pelish
+
+Comment:
+This is not a bug. It cant overflow any buffer or anything like that. The problem is just in fact that server does not sends any message that server doing truncation of message. I think that we can live with that. Maybe later we will add some message to aware clients about it.
+-------------------------------------------------------
+
+Date: 2008-Apr-06 12:11
+By: pelish
+
+Comment:
+I have trayed to reproduce this bug many times but with bad luck to doing that. Megablue: Can you send me your client which is possible to send this &quot;oversized&quot; message? I want to fix this bug.
+-------------------------------------------------------
+
+Date: 2007-Nov-10 11:57
+By: d1zzy
+
+Comment:
+Assigning to pelish, please check and fix, thanks
+-------------------------------------------------------
+
+Date: 2007-Sep-14 18:07
+By: tp_moonstar
+
+Comment:
+I guess he meant that users who got CG 6+ can send oversized messages on chat whiout getting the famous red message that block your message if you send an oversized message acording to your quota settings.
+
+however CHAT clients like IRC can send this as if they had CG 6 even if they dont.
+-------------------------------------------------------
+
+Date: 2007-Aug-03 10:47
+By: megablue
+
+Comment:
+any client that uses CHAT protocol and doesn't trim the message to maximum 256 bytes. command group 6 means the default groups. I tried program my own client and it does able to send the a message with more than 256 bytes only when command group 6 applied on the user.
+-------------------------------------------------------
+
+Date: 2007-Aug-03 09:11
+By: pelish
+
+Comment:
+What CHAT client you do you use and what do you mean as Command Group 6?
+-------------------------------------------------------
+
+For detailed info, follow this link:
+<A HREF="http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=10811&amp;group_id=2291">http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=10811&amp;group_id=2291</A>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000899.html">[pvpgn-dev] [Bug #14890] Clan Rank Exploit
+</A></li>
+	<LI>Next message: <A HREF="000901.html">[pvpgn-dev] pvpgn/src/bnetd handle_bnet.c,1.253,1.254
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#900">[ date ]</a>
+              <a href="thread.html#900">[ thread ]</a>
+              <a href="subject.html#900">[ subject ]</a>
+              <a href="author.html#900">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

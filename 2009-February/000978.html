@@ -1,0 +1,101 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r532 - trunk/pvpgn/src/bnetd
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2009-February/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r532%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200902092125.n19LPjKj024566%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000977.html">
+   <LINK REL="Next"  HREF="000979.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r532 - trunk/pvpgn/src/bnetd</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r532%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200902092125.n19LPjKj024566%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r532 - trunk/pvpgn/src/bnetd">svn at svn.berlios.de
+       </A><BR>
+    <I>Mon Feb  9 22:25:45 CET 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000977.html">[pvpgn-dev] [Bug #15150] chieftain removed from clan after creation
+</A></li>
+        <LI>Next message: <A HREF="000979.html">[pvpgn-dev] pvpgn/src/bnetd handle_bnet.c,1.254,1.255
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#978">[ date ]</a>
+              <a href="thread.html#978">[ thread ]</a>
+              <a href="subject.html#978">[ subject ]</a>
+              <a href="author.html#978">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pandaemonium
+Date: 2009-02-09 22:25:45 +0100 (Mon, 09 Feb 2009)
+New Revision: 532
+
+Modified:
+   trunk/pvpgn/src/bnetd/handle_bnet.cpp
+Log:
+try to fix being unable to join private games
+
+Modified: trunk/pvpgn/src/bnetd/handle_bnet.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/handle_bnet.cpp	2009-02-07 16:22:16 UTC (rev 531)
++++ trunk/pvpgn/src/bnetd/handle_bnet.cpp	2009-02-09 21:25:45 UTC (rev 532)
+@@ -3585,14 +3585,14 @@
+ 		    eventlog(eventlog_level_debug, __FUNCTION__, &quot;[%d] GAMELISTREPLY found but done&quot;, conn_get_socket(c));
+ 		    break;
+ 		case game_status_open:
+-        case game_status_loaded:
++		case game_status_loaded:
+ 		    if (std::strcmp(gamepass, game_get_pass(game))) {	/* passworded game must match password in request */
+ 			bn_int_set(&amp;rpacket-&gt;u.server_gamelistreply.sstatus, SERVER_GAMELISTREPLY_GAME_SSTATUS_PASS);
+ 			eventlog(eventlog_level_debug, __FUNCTION__, &quot;[%d] GAMELISTREPLY found but is password protected and wrong password given&quot;, conn_get_socket(c));
+ 			break;
+ 		    }
+ 
+-		    if (game_get_status(game) &amp; game_status_loaded) {
++		    if (game_get_status(game) == game_status_loaded) {
+ 			bn_int_set(&amp;rpacket-&gt;u.server_gamelistreply.sstatus, SERVER_GAMELISTREPLY_GAME_SSTATUS_LOADED);
+ 			eventlog(eventlog_level_debug, __FUNCTION__, &quot;[%d] GAMELISTREPLY found loaded game&quot;, conn_get_socket(c));
+ 		    }
+@@ -3960,7 +3960,7 @@
+ 		            game_set_flag(conn_get_game(c), game_flag_private);
+ 		        if (status &amp; CLIENT_STARTGAME4_STATUS_FULL)
+ 		            game_set_status(conn_get_game(c), game_status_full);
+-		        if (bngtype &amp; CLIENT_GAMELISTREQ_LOADED) /* PELISH: seems strange but it is really needed for loaded games */
++		        if (bngtype == CLIENT_GAMELISTREQ_LOADED) /* PELISH: seems strange but it is really needed for loaded games */
+ 		            game_set_status(conn_get_game(c), game_status_loaded);
+     		    //FIXME: still need special handling for status disc-is-loss and replay
+ 	        }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000977.html">[pvpgn-dev] [Bug #15150] chieftain removed from clan after creation
+</A></li>
+	<LI>Next message: <A HREF="000979.html">[pvpgn-dev] pvpgn/src/bnetd handle_bnet.c,1.254,1.255
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#978">[ date ]</a>
+              <a href="thread.html#978">[ thread ]</a>
+              <a href="subject.html#978">[ subject ]</a>
+              <a href="author.html#978">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

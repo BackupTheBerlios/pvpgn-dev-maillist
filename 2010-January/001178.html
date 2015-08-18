@@ -1,0 +1,103 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] [Bug #15675] /gameinfo dont work in CHAT clients
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2010-January/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BBug%20%2315675%5D%20/gameinfo%20dont%20work%20in%20CHAT%20clients&In-Reply-To=%3C201001150044.o0F0i53Y021111%40unicorn.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001177.html">
+   <LINK REL="Next"  HREF="001179.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] [Bug #15675] /gameinfo dont work in CHAT clients</H1>
+    <B>admin at berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BBug%20%2315675%5D%20/gameinfo%20dont%20work%20in%20CHAT%20clients&In-Reply-To=%3C201001150044.o0F0i53Y021111%40unicorn.berlios.de%3E"
+       TITLE="[pvpgn-dev] [Bug #15675] /gameinfo dont work in CHAT clients">admin at berlios.de
+       </A><BR>
+    <I>Fri Jan 15 01:44:05 CET 2010</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001177.html">[pvpgn-dev] [Bug #16451] SVN: Server crash upon login on Linux	x86_64 build
+</A></li>
+        <LI>Next message: <A HREF="001179.html">[pvpgn-dev] [Bug #16451] SVN: Server crash upon login on Linux	x86_64 build
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1178">[ date ]</a>
+              <a href="thread.html#1178">[ thread ]</a>
+              <a href="subject.html#1178">[ subject ]</a>
+              <a href="author.html#1178">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Bug #15675, was updated on 2009-May-12 23:27
+Here is a current snapshot of the bug.
+
+Project: Player vs Player Gaming Network
+Category: None
+Status: Open
+Resolution: None
+Bug Group: bnetd
+Priority: 5
+Submitted by: xpeh
+Assigned to : none
+Summary: /gameinfo dont work in CHAT clients
+
+Details: /where asdf
+asdf is using Starcraft: Brood War and is currently in  game &quot;SAT CONTROL !!!!!&quot;.
+/gameinfo SAT CONTROL !!!!!
+That game does not exist.
+
+Follow-Ups:
+
+Date: 2010-Jan-15 02:44
+By: saidin
+
+Comment:
+Yeah. Most commands like /games, /gameinfo rely on your clienttag. Since no game exists by that name for your tag (CHAT), what do you expect!
+
+I have a patch which allows you to specify a tag for the game. That is, /gameinfo tag name. Even better, it is able to automatically search other tags if the initial search fails for your tag.
+
+Interested?
+-------------------------------------------------------
+
+Date: 2009-May-13 17:03
+By: xpeh
+
+Comment:
+Btw
+
+You should probably insert additional field to what branch bug concerns.
+-------------------------------------------------------
+
+For detailed info, follow this link:
+<A HREF="http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=15675&amp;group_id=2291">http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=15675&amp;group_id=2291</A>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001177.html">[pvpgn-dev] [Bug #16451] SVN: Server crash upon login on Linux	x86_64 build
+</A></li>
+	<LI>Next message: <A HREF="001179.html">[pvpgn-dev] [Bug #16451] SVN: Server crash upon login on Linux	x86_64 build
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1178">[ date ]</a>
+              <a href="thread.html#1178">[ thread ]</a>
+              <a href="subject.html#1178">[ subject ]</a>
+              <a href="author.html#1178">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

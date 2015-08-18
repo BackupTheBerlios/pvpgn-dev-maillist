@@ -1,0 +1,119 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] [Bug #5919] Clan leaders are not channel ops in their	clan channel
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2008-October/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BBug%20%235919%5D%20Clan%20leaders%20are%20not%20channel%20ops%20in%20their%0A%09clan%20channel&In-Reply-To=%3C200810121036.m9CAaOI6005957%40unicorn.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000843.html">
+   <LINK REL="Next"  HREF="000845.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] [Bug #5919] Clan leaders are not channel ops in their	clan channel</H1>
+    <B>admin at berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BBug%20%235919%5D%20Clan%20leaders%20are%20not%20channel%20ops%20in%20their%0A%09clan%20channel&In-Reply-To=%3C200810121036.m9CAaOI6005957%40unicorn.berlios.de%3E"
+       TITLE="[pvpgn-dev] [Bug #5919] Clan leaders are not channel ops in their	clan channel">admin at berlios.de
+       </A><BR>
+    <I>Sun Oct 12 12:36:24 CEST 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000843.html">[pvpgn-dev] [Bug #7380] Admins cant join private clan channels
+</A></li>
+        <LI>Next message: <A HREF="000845.html">[pvpgn-dev] [Bug #13788] bnchat admin errors
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#844">[ date ]</a>
+              <a href="thread.html#844">[ thread ]</a>
+              <a href="subject.html#844">[ subject ]</a>
+              <a href="author.html#844">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Bug #5919, was updated on 2005-Dec-17 10:25
+Here is a current snapshot of the bug.
+
+Project: Player vs Player Gaming Network
+Category: Warcraft Series
+Status: Closed
+Resolution: Fixed
+Bug Group: bnetd
+Priority: 5
+Submitted by: u-238
+Assigned to : pelish
+Summary: Clan leaders are not channel ops in their clan channel
+
+Details: Chieftains and Shamans should have operator priveleges for their clan channels.
+
+This does not appear to work however.
+
+Follow-Ups:
+
+Date: 2008-Oct-12 12:36
+By: pelish
+
+Comment:
+Fixed on CVS too
+-------------------------------------------------------
+
+Date: 2008-Oct-05 21:07
+By: pelish
+
+Comment:
+Fixed on SVN 503. Give me feedback if everithing is good.
+-------------------------------------------------------
+
+Date: 2008-Oct-01 23:18
+By: tsume
+
+Comment:
+On official servers, all members in a WAR3/W3XP clan with the rank Cheiftain or Shaman are given OPs in their clan channel automatically.  When I say Ops, I mean the yellow bar around their name with the &quot;hammer&quot; privileges (the ability to kick and ban players from the clan channel).
+
+Note that the only way to do this now is give the person /tmpop and hope they don't disconnect.  /op and /aop and /admin do not work very well for this purpose, as most clans will use a bot for moderating the channel.  If the bot doesn't see itself with having the gold bar / hammer icon it won't try to use /kick or /ban.  /aop /admin and /op users do not get the yellow bar around their name.  /tmpop users do, however with clans this doesn't work too well because an admin has to give /tmpop to the cheiftain and shamans every time they join the channel (since its /tmpop they lose the yellow bar / hammer icon when they leave and don't get it when they come back.  In the official server all shamans and the cheiftain automatically get the hammer / yellow bar when they join their clan channel.)
+-------------------------------------------------------
+
+Date: 2008-Oct-01 15:23
+By: pelish
+
+Comment:
+How it is on official battle.net servers? We should mimic them in this scope.
+-------------------------------------------------------
+
+Date: 2008-Oct-01 13:00
+By: tsume
+
+Comment:
+Same problem here on latest SVN build still.  Please fix this!
+-------------------------------------------------------
+
+For detailed info, follow this link:
+<A HREF="http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=5919&amp;group_id=2291">http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=5919&amp;group_id=2291</A>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000843.html">[pvpgn-dev] [Bug #7380] Admins cant join private clan channels
+</A></li>
+	<LI>Next message: <A HREF="000845.html">[pvpgn-dev] [Bug #13788] bnchat admin errors
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#844">[ date ]</a>
+              <a href="thread.html#844">[ thread ]</a>
+              <a href="subject.html#844">[ subject ]</a>
+              <a href="author.html#844">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

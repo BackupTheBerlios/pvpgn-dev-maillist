@@ -1,0 +1,187 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] pvpgn UPDATE, 1.67, 1.68 version-history.txt, 1.300,	1.301
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2009-February/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20pvpgn%20UPDATE%2C%201.67%2C%201.68%20version-history.txt%2C%201.300%2C%0A%091.301&In-Reply-To=%3C20090225221901.B251711F2F1%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001011.html">
+   <LINK REL="Next"  HREF="001013.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] pvpgn UPDATE, 1.67, 1.68 version-history.txt, 1.300,	1.301</H1>
+    <B>pandaemonium</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20pvpgn%20UPDATE%2C%201.67%2C%201.68%20version-history.txt%2C%201.300%2C%0A%091.301&In-Reply-To=%3C20090225221901.B251711F2F1%40mail.berlios.de%3E"
+       TITLE="[pvpgn-dev] pvpgn UPDATE, 1.67, 1.68 version-history.txt, 1.300,	1.301">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Wed Feb 25 23:19:01 CET 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001011.html">[pvpgn-dev] r553 - trunk/pvpgn/conf
+</A></li>
+        <LI>Next message: <A HREF="001013.html">[pvpgn-dev] pvpgn/conf sql_DB_layout.conf, 1.10,	1.11 sql_DB_layout2.conf, 1.6, 1.7
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1012">[ date ]</a>
+              <a href="thread.html#1012">[ thread ]</a>
+              <a href="subject.html#1012">[ subject ]</a>
+              <a href="author.html#1012">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/pvpgn/pvpgn
+In directory sheep:/tmp/cvs-serv506
+
+Modified Files:
+	UPDATE version-history.txt 
+Log Message:
+fix potential SQL injection via clan MOTD
+
+
+Index: UPDATE
+===================================================================
+RCS file: /cvsroot/pvpgn/pvpgn/UPDATE,v
+retrieving revision 1.67
+retrieving revision 1.68
+diff -u -d -r1.67 -r1.68
+--- UPDATE	3 Dec 2008 23:53:40 -0000	1.67
++++ UPDATE	25 Feb 2009 22:18:59 -0000	1.68
+@@ -16,16 +16,23 @@
+ 
+  Updating from 1.8.4 to 1.8.5
+ ===================================
++
++Configuration files changed:
+ - conf/versioncheck.conf : added STAR/SEXP IX86 vcheck entries
+ - conf/autoupdate.conf : STAR/SEXP related updates
++- conf/sql_DB_layout.conf : changed field sizes in clan table
++- conf/sql_DB_layout2.conf : changed field sizes in clan table
+ 
+  Updating from 1.8.3 to 1.8.4
+ ===================================
++
++Configuration files changed:
+ - conf/versioncheck.conf : added STAR/SEXP IX86 vcheck entries
+ - conf/autoupdate.conf : STAR/SEXP related updates
+ 
+  Updating from 1.8.2 to 1.8.3
+ ===================================
++
+ Configuration files changed:
+ - conf/channels.conf : added channels needed by DUNE 2000 clients
+ - conf/versioncheck.conf : added WAR3/W3XP/D2DV/D2XP IX86 entries and
+@@ -36,12 +43,14 @@
+ 
+  Updating from 1.8.1 to 1.8.2
+ ===================================
++
+ Configuration files changed:
+ - conf/versioncheck.conf : added SC/BW entries
+ 
+  Updating from 1.8.0 to 1.8.1
+ ===================================
+ Configuration files changed:
++
+ - conf/versioncheck.conf : added W3/SC entries entries
+ - conf/bnetd.conf : added account_force_username option
+ - conf/supportfile.conf : removed unused support files from the list
+@@ -52,19 +61,20 @@
+ 
+  Updating from 1.8.0rc2 to 1.8.0
+ ====================================
++
+ Configuration files changed:
+ - conf/versioncheck.conf : added W3/SC entries entries
+ 
+-
+  Updating from 1.8.0rc1 to 1.8.0rc2
+ ====================================
++
+ Configuration files changed:
+ - conf/versioncheck.conf : added W3 entries
+ - conf/autoupdate.conf : W3 related updates
+ 
+-
+  Updating from 1.7.9 to 1.8.0rc1
+ =================================
++
+ Configuration files changed:
+ - conf/sql_DB_layout2.conf : added creation of two additional indices
+ - conf/versioncheck.conf : added D2 / W3 entries + cleanups
+@@ -72,6 +82,7 @@
+ 
+  Updating from 1.7.8 to 1.7.9
+ ==============================
++
+ Configuration files changed:
+ - conf/d2cs.conf : added pid entry
+ - conf/d2dbs.conf : added pid entry
+@@ -86,6 +97,7 @@
+ 
+  Updating from 1.7.7 to 1.7.8
+ ==============================
++
+ Configuration files changed:
+ - conf/sql_DB_layout.conf : includes changes needed for the new &quot;username&quot; SQL 
+     field used to fix a MAJOR bug that shows up with case sensitive SQL engines
+@@ -112,6 +124,8 @@
+ 
+  Updating from 1.7.3 to 1.7.4
+ ==============================
++
++Configuration files changed:
+ - conf/bnetd.conf : added &quot;ladder_prefix&quot; parameter to allow only games with 
+     matching gamename to be counted as ladder (applies only to alternative 
+     ladder game types as specified by &quot;ladder_games&quot; directive)
+
+Index: version-history.txt
+===================================================================
+RCS file: /cvsroot/pvpgn/pvpgn/version-history.txt,v
+retrieving revision 1.300
+retrieving revision 1.301
+diff -u -d -r1.300 -r1.301
+--- version-history.txt	7 Feb 2009 16:21:42 -0000	1.300
++++ version-history.txt	25 Feb 2009 22:18:59 -0000	1.301
+@@ -11,7 +11,10 @@
+   -- fixed bug when clanmember can promote/demote any
+      member of his clan by sending proper rankupdate packet
+   -- fixed bug when a hosting bot was able to create a 
+-     custom game which caused clients to disconect
++     custom game which caused clients to disconnect
++
++ [SQL]
++  -- fix potential SQL injection via clan MOTD
+ 
+ [MISC]
+   -- updated IX86 autoupdate according to STAR/SEXP 1.16.1
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001011.html">[pvpgn-dev] r553 - trunk/pvpgn/conf
+</A></li>
+	<LI>Next message: <A HREF="001013.html">[pvpgn-dev] pvpgn/conf sql_DB_layout.conf, 1.10,	1.11 sql_DB_layout2.conf, 1.6, 1.7
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1012">[ date ]</a>
+              <a href="thread.html#1012">[ thread ]</a>
+              <a href="subject.html#1012">[ subject ]</a>
+              <a href="author.html#1012">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

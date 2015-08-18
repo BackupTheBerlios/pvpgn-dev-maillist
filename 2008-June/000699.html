@@ -1,0 +1,180 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] pvpgn/conf versioncheck.conf,1.31,1.32
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2008-June/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20pvpgn/conf%20versioncheck.conf%2C1.31%2C1.32&In-Reply-To=%3C20080601103030.27D19144BFF%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000698.html">
+   <LINK REL="Next"  HREF="000700.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] pvpgn/conf versioncheck.conf,1.31,1.32</H1>
+    <B>pelish</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20pvpgn/conf%20versioncheck.conf%2C1.31%2C1.32&In-Reply-To=%3C20080601103030.27D19144BFF%40mail.berlios.de%3E"
+       TITLE="[pvpgn-dev] pvpgn/conf versioncheck.conf,1.31,1.32">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sun Jun  1 12:30:30 CEST 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000698.html">[pvpgn-dev] r449 - in trunk/pvpgn: . conf
+</A></li>
+        <LI>Next message: <A HREF="000700.html">[pvpgn-dev] pvpgn version-history.txt,1.279,1.280
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#699">[ date ]</a>
+              <a href="thread.html#699">[ thread ]</a>
+              <a href="subject.html#699">[ subject ]</a>
+              <a href="author.html#699">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/pvpgn/pvpgn/conf
+In directory sheep:/tmp/cvs-serv14217/conf
+
+Modified Files:
+	versioncheck.conf 
+Log Message:
+add WAR3/W3XP 1.21b versionchecks
+
+Index: versioncheck.conf
+===================================================================
+RCS file: /cvsroot/pvpgn/pvpgn/conf/versioncheck.conf,v
+retrieving revision 1.31
+retrieving revision 1.32
+diff -u -d -r1.31 -r1.32
+--- versioncheck.conf	12 Oct 2007 15:16:57 -0000	1.31
++++ versioncheck.conf	1 Jun 2008 10:30:27 -0000	1.32
+@@ -61,29 +61,29 @@
+ 
+ # -=-=-=-=-=-=- Latest Versions -=-=-=-=-=-=- No Update Required -=-=-=-=-=-=-
+ 
+-# Warcraft III - TFT (Expansion) 1.21
++# Warcraft III - TFT (Expansion) 1.21b
+ # Note: this version check is sent in both FT and ROC mode
+ &quot;A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B&quot; \
+  IX86ver1.mpq \
+  IX86 \
+  W3XP \
+- &quot;war3.exe 12/28/06 20:35:21 1572307&quot; \
++ &quot;war3.exe 07/19/07 18:41:12 409660&quot; \
+  0x00000015 \
+- 1.21.0.119 \
+- 0xab35b5f1 \
+- W3XP_121
++ 1.21.1.156 \
++ 0x1b735294 \
++ W3XP_121B
+ 
+-# Warcraft III - ROC 1.21
++# Warcraft III - ROC 1.21b
+ # Note: this version check is sent in both FT and ROC mode
+ &quot;A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B&quot; \
+  IX86ver1.mpq \
+  IX86 \
+  WAR3 \
+- &quot;war3.exe 12/28/06 20:35:21 1572307&quot; \
++ &quot;war3.exe 07/19/07 18:41:12 409660&quot; \
+  0x00000015 \
+- 1.21.0.119 \
+- 0xab35b5f1 \
+- WAR3_121
++ 1.21.1.156 \
++ 0x1b735294 \
++ WAR3_121B
+ 
+ # Diablo II - LoD (Expansion) 1.11b
+ &quot;A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B&quot; \
+@@ -319,6 +319,18 @@
+ 
+ # =================== WarCraft 3 Expansion Entries ==================
+ 
++# Warcraft III - TFT (Expansion) 1.21a
++# Note: this version check is sent in both FT and ROC mode
++&quot;A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B&quot; \
++ IX86ver1.mpq \
++ IX86 \
++ W3XP \
++ &quot;war3.exe 12/28/06 20:35:21 1572307&quot; \
++ 0x00000015 \
++ 1.21.0.119 \
++ 0xab35b5f1 \
++ W3XP_121A
++
+ # Warcraft III - TFT (Expansion) 1.20e
+ # Note: this version check is sent in both FT and ROC mode
+ &quot;A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B&quot; \
+@@ -527,6 +539,18 @@
+ 
+ # ====================== WarCraft 3 Entries ========================
+ 
++# Warcraft III - ROC 1.21a
++# Note: this version check is sent in both FT and ROC mode
++&quot;A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B&quot; \
++ IX86ver1.mpq \
++ IX86 \
++ WAR3 \
++ &quot;war3.exe 12/28/06 20:35:21 1572307&quot; \
++ 0x00000015 \
++ 1.21.0.119 \
++ 0xab35b5f1 \
++ WAR3_121A
++
+ # Warcraft III - ROC 1.20e
+ # Note: this version check is sent in both FT and ROC mode
+ &quot;A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B&quot; \
+@@ -2387,6 +2411,7 @@
+ # NULL \
+ # 0 \
+ # 0.0.0.0 \
++# 0x0 \
+ # DRTL_1xx
+ 
+ ##### Mac OS X (XMAC) ########################################################
+@@ -2448,6 +2473,7 @@
+ # NULL \
+ # 0 \
+ # 0.0.0.0 \
++# 0x0 \
+ # DRTL_1xx
+ 
+ ##### Mac OS Classic (PMAC) ##################################################
+@@ -2509,6 +2535,7 @@
+ # NULL \
+ # 0 \
+ # 0.0.0.0 \
++# 0x0 \
+ # DRTL_1xx
+ 
+ #                                                                            #
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000698.html">[pvpgn-dev] r449 - in trunk/pvpgn: . conf
+</A></li>
+	<LI>Next message: <A HREF="000700.html">[pvpgn-dev] pvpgn version-history.txt,1.279,1.280
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#699">[ date ]</a>
+              <a href="thread.html#699">[ thread ]</a>
+              <a href="subject.html#699">[ subject ]</a>
+              <a href="author.html#699">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

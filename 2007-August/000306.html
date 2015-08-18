@@ -1,0 +1,84 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r316 - trunk/pvpgn/src/client
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-August/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r316%20-%20trunk/pvpgn/src/client&In-Reply-To=%3C200708151048.l7FAmLpK020919%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000305.html">
+   <LINK REL="Next"  HREF="000307.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r316 - trunk/pvpgn/src/client</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r316%20-%20trunk/pvpgn/src/client&In-Reply-To=%3C200708151048.l7FAmLpK020919%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r316 - trunk/pvpgn/src/client">svn at svn.berlios.de
+       </A><BR>
+    <I>Wed Aug 15 12:48:21 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000305.html">[pvpgn-dev] [Bug #10741] Tournaments
+</A></li>
+        <LI>Next message: <A HREF="000307.html">[pvpgn-dev] pvpgn/src/client bnchat.c,1.22,1.23
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#306">[ date ]</a>
+              <a href="thread.html#306">[ thread ]</a>
+              <a href="subject.html#306">[ subject ]</a>
+              <a href="author.html#306">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pandaemonium
+Date: 2007-08-15 12:48:10 +0200 (Wed, 15 Aug 2007)
+New Revision: 316
+
+Modified:
+   trunk/pvpgn/src/client/bnchat.cpp
+Log:
+correct error message
+
+Modified: trunk/pvpgn/src/client/bnchat.cpp
+===================================================================
+--- trunk/pvpgn/src/client/bnchat.cpp	2007-08-15 09:17:57 UTC (rev 315)
++++ trunk/pvpgn/src/client/bnchat.cpp	2007-08-15 10:48:10 UTC (rev 316)
+@@ -882,7 +882,7 @@
+ 		std::strchr(user.player,'&gt;')  ||
+ 		std::strchr(user.player,'?'))
+ 	    {
+-		std::printf(&quot;The special characters #%%&amp;*\\\&quot;,&lt;/&gt;? are allowed in usernames. Try again.\n&quot;);
++		std::printf(&quot;The special characters #%%&amp;*\\\&quot;,&lt;/&gt;? are not allowed in usernames. Try again.\n&quot;);
+ 	    }
+ 	    if (std::strlen(user.player)&gt;=MAX_USERNAME_LEN)
+ 	    {
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000305.html">[pvpgn-dev] [Bug #10741] Tournaments
+</A></li>
+	<LI>Next message: <A HREF="000307.html">[pvpgn-dev] pvpgn/src/client bnchat.c,1.22,1.23
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#306">[ date ]</a>
+              <a href="thread.html#306">[ thread ]</a>
+              <a href="subject.html#306">[ subject ]</a>
+              <a href="author.html#306">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

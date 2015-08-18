@@ -1,0 +1,96 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] [Bug #11794] login in passworded games without pass
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-August/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BBug%20%2311794%5D%20login%20in%20passworded%20games%20without%20pass&In-Reply-To=%3C200708172029.l7HKTwuo020912%40unicorn.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000363.html">
+   <LINK REL="Next"  HREF="000365.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] [Bug #11794] login in passworded games without pass</H1>
+    <B>admin at berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BBug%20%2311794%5D%20login%20in%20passworded%20games%20without%20pass&In-Reply-To=%3C200708172029.l7HKTwuo020912%40unicorn.berlios.de%3E"
+       TITLE="[pvpgn-dev] [Bug #11794] login in passworded games without pass">admin at berlios.de
+       </A><BR>
+    <I>Fri Aug 17 22:29:58 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000363.html">[pvpgn-dev] PvPGN 1.99.r324 Released!
+</A></li>
+        <LI>Next message: <A HREF="000365.html">[pvpgn-dev] r325 - in trunk/pvpgn/src: bnetd common
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#364">[ date ]</a>
+              <a href="thread.html#364">[ thread ]</a>
+              <a href="subject.html#364">[ subject ]</a>
+              <a href="author.html#364">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Bug #11794, was updated on 2007-Aug-18 00:29
+Here is a current snapshot of the bug.
+
+Project: Player vs Player Gaming Network
+Category: Diablo Series
+Status: Open
+Resolution: None
+Bug Group: bnetd
+Priority: 5
+Submitted by: scurfee
+Assigned to : none
+Summary: login in passworded games without pass
+
+Details: all users  can join to passworded game without password (just click &quot;join&quot;)
+
+[info ] game_create: game &quot;123&quot; (pass &quot;321&quot;) type 19(Diablo II (closed)) startver 4 created
+
+[debug] _client_joingame: [316] trying to join game &quot;123&quot; pass=&quot;&quot;
+[debug] game_add_player: game &quot;123&quot; password mismatch &quot;321&quot;!=&quot;&quot;
+[info ] _client_joingame: [316] &quot;second_account&quot; joined game &quot;123&quot;, but could not be recorded on server
+
+
+server version 1.8.1
+bnetd,d2cs,d2dbs PvPGN-1.8.1-2-Win32-SQLite-3.4.1-BIN.zip
+d2gs 1.10beta6
+
+in bnetd.conf 
+# Should games with passwords be hidden on the game list?                          //--  maybe trouble here but see!=ignore_password(); ^_^
+hide_pass_games = false
+
+
+
+
+For detailed info, follow this link:
+<A HREF="http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=11794&amp;group_id=2291">http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=11794&amp;group_id=2291</A>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000363.html">[pvpgn-dev] PvPGN 1.99.r324 Released!
+</A></li>
+	<LI>Next message: <A HREF="000365.html">[pvpgn-dev] r325 - in trunk/pvpgn/src: bnetd common
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#364">[ date ]</a>
+              <a href="thread.html#364">[ thread ]</a>
+              <a href="subject.html#364">[ subject ]</a>
+              <a href="author.html#364">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,121 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r456 - trunk/pvpgn/src/common
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2008-June/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r456%20-%20trunk/pvpgn/src/common&In-Reply-To=%3C200806091818.m59IITtW012141%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000710.html">
+   <LINK REL="Next"  HREF="000712.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r456 - trunk/pvpgn/src/common</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r456%20-%20trunk/pvpgn/src/common&In-Reply-To=%3C200806091818.m59IITtW012141%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r456 - trunk/pvpgn/src/common">svn at svn.berlios.de
+       </A><BR>
+    <I>Mon Jun  9 20:18:29 CEST 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000710.html">[pvpgn-dev] r455 - trunk/pvpgn/src/common
+</A></li>
+        <LI>Next message: <A HREF="000712.html">[pvpgn-dev] r457 - trunk/pvpgn/src/bnetd
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#711">[ date ]</a>
+              <a href="thread.html#711">[ thread ]</a>
+              <a href="subject.html#711">[ subject ]</a>
+              <a href="author.html#711">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pandaemonium
+Date: 2008-06-09 20:18:28 +0200 (Mon, 09 Jun 2008)
+New Revision: 456
+
+Modified:
+   trunk/pvpgn/src/common/packet.cpp
+   trunk/pvpgn/src/common/packet.h
+Log:
+add new package descriptions and fix some existant names
+
+Modified: trunk/pvpgn/src/common/packet.cpp
+===================================================================
+--- trunk/pvpgn/src/common/packet.cpp	2008-06-09 18:17:21 UTC (rev 455)
++++ trunk/pvpgn/src/common/packet.cpp	2008-06-09 18:18:28 UTC (rev 456)
+@@ -370,6 +370,10 @@
+                 return &quot;CLIENT_LOGONPROOFREQ&quot;;
+ 	    case CLIENT_CREATEACCOUNT_W3:
+ 		return &quot;CLIENT_CREATEACCOUNT_W3&quot;;
++	    case CLIENT_PASSCHANGEREQ:
++		return &quot;CLIENT_PASSCHANGEREQ&quot;;
++	    case CLIENT_PASSCHANGEPROOFREQ:
++		return &quot;CLIENT_PASSCHANGEPROOFREQ&quot;;
+ 	    case CLIENT_CHANGEGAMEPORT:
+                 return &quot;CLIENT_CHANGEGAMEPORT&quot;;
+             case CLIENT_CREATEACCTREQ2:
+@@ -608,11 +612,15 @@
+ 	    case SERVER_LOGONPROOFREPLY:
+ 		return &quot;SERVER_LOGONPROOFREPLY&quot;;
+ 	    case SERVER_CREATEACCOUNT_W3:
+-		return &quot;SERVER_CREATEACCTREPLY2&quot;;
++		return &quot;SERVER_CREATEACCOUNT_W3&quot;;
++	    case SERVER_PASSCHANGEREPLY:
++		return &quot;SERVER_PASSCHANGEREPLY&quot;;
++	    case SERVER_PASSCHANGEPROOFREPLY:
++		return &quot;SERVER_PASSCHANGEPROOFREPLY&quot;;
+ 	    case SERVER_LOGINREPLY2:
+ 		return &quot;SERVER_LOGINREPLY2&quot;;
+ 	    case SERVER_CREATEACCTREPLY2:
+-		return &quot;SERVER_CREATEACCOUNT_W3&quot;;
++		return &quot;SERVER_CREATEACCTREPLY2&quot;;
+ 	    case SERVER_FILEINFOREPLY:
+ 		return &quot;SERVER_FILEINFOREPLY&quot;;
+ 	    case SERVER_STATSREPLY:
+
+Modified: trunk/pvpgn/src/common/packet.h
+===================================================================
+--- trunk/pvpgn/src/common/packet.h	2008-06-09 18:17:21 UTC (rev 455)
++++ trunk/pvpgn/src/common/packet.h	2008-06-09 18:18:28 UTC (rev 456)
+@@ -208,6 +208,10 @@
+ 	t_server_logonproofreply   server_logonproofreply;
+ 	t_client_createaccount_w3  client_createaccount_w3;
+ 	t_server_createaccount_w3  server_createaccount_w3;
++	t_client_passchangereq     client_passchangereq;
++	t_server_passchangereply   server_passchangereply;
++	t_client_passchangeproofreq     client_passchangeproofreq;
++	t_server_passchangeproofreply   server_passchangeproofreply;
+ 	t_client_findanongame      client_findanongame;
+ 	t_client_findanongame_at   client_findanongame_at;
+ 	t_client_findanongame_at_inv   client_findanongame_at_inv;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000710.html">[pvpgn-dev] r455 - trunk/pvpgn/src/common
+</A></li>
+	<LI>Next message: <A HREF="000712.html">[pvpgn-dev] r457 - trunk/pvpgn/src/bnetd
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#711">[ date ]</a>
+              <a href="thread.html#711">[ thread ]</a>
+              <a href="subject.html#711">[ subject ]</a>
+              <a href="author.html#711">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

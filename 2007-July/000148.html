@@ -1,0 +1,87 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] pvpgn/src/common tag.c,1.8,1.9
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-July/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20pvpgn/src/common%20tag.c%2C1.8%2C1.9&In-Reply-To=%3C20070730155011.21877FB7FA%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000149.html">
+   <LINK REL="Next"  HREF="000150.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] pvpgn/src/common tag.c,1.8,1.9</H1>
+    <B>pandaemonium</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20pvpgn/src/common%20tag.c%2C1.8%2C1.9&In-Reply-To=%3C20070730155011.21877FB7FA%40mail.berlios.de%3E"
+       TITLE="[pvpgn-dev] pvpgn/src/common tag.c,1.8,1.9">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Mon Jul 30 17:50:11 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000149.html">[pvpgn-dev] r261 - trunk/pvpgn/src/common
+</A></li>
+        <LI>Next message: <A HREF="000150.html">[pvpgn-dev] r262 - in trunk/pvpgn: conf src/bnetd src/common
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#148">[ date ]</a>
+              <a href="thread.html#148">[ thread ]</a>
+              <a href="subject.html#148">[ subject ]</a>
+              <a href="author.html#148">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/pvpgn/pvpgn/src/common
+In directory sheep:/tmp/cvs-serv11675/src/common
+
+Modified Files:
+	tag.c 
+Log Message:
+Fixed SC:BW client tag in server messages as on Bnet
+
+Index: tag.c
+===================================================================
+RCS file: /cvsroot/pvpgn/pvpgn/src/common/tag.c,v
+retrieving revision 1.8
+retrieving revision 1.9
+diff -u -d -r1.8 -r1.9
+--- tag.c	24 Jul 2005 17:56:42 -0000	1.8
++++ tag.c	30 Jul 2007 15:49:54 -0000	1.9
+@@ -253,7 +253,7 @@
+       case CLIENTTAG_SHAREWARE_UINT:
+         return &quot;Starcraft (Shareware)&quot;;
+       case CLIENTTAG_BROODWARS_UINT:
+-        return &quot;Starcraft: BroodWars&quot;;
++        return &quot;Starcraft: Brood War&quot;;
+       case CLIENTTAG_STARCRAFT_UINT:
+         return &quot;Starcraft&quot;;
+       case CLIENTTAG_BNCHATBOT_UINT:
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000149.html">[pvpgn-dev] r261 - trunk/pvpgn/src/common
+</A></li>
+	<LI>Next message: <A HREF="000150.html">[pvpgn-dev] r262 - in trunk/pvpgn: conf src/bnetd src/common
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#148">[ date ]</a>
+              <a href="thread.html#148">[ thread ]</a>
+              <a href="subject.html#148">[ subject ]</a>
+              <a href="author.html#148">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

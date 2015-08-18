@@ -1,0 +1,203 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r419 - trunk/pvpgn/src/bnetd
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-November/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r419%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200711242134.lAOLY7Pl022548%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000583.html">
+   <LINK REL="Next"  HREF="000585.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r419 - trunk/pvpgn/src/bnetd</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r419%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200711242134.lAOLY7Pl022548%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r419 - trunk/pvpgn/src/bnetd">svn at svn.berlios.de
+       </A><BR>
+    <I>Sat Nov 24 22:34:07 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000583.html">[pvpgn-dev] [Bug #12534] ra2 can created games but cannot start	games
+</A></li>
+        <LI>Next message: <A HREF="000585.html">[pvpgn-dev] r420 - trunk/pvpgn/src/bnetd
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#584">[ date ]</a>
+              <a href="thread.html#584">[ thread ]</a>
+              <a href="subject.html#584">[ subject ]</a>
+              <a href="author.html#584">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pelish
+Date: 2007-11-24 22:34:01 +0100 (Sat, 24 Nov 2007)
+New Revision: 419
+
+Modified:
+   trunk/pvpgn/src/bnetd/handle_wol.cpp
+   trunk/pvpgn/src/bnetd/irc.cpp
+Log:
+unified LIST chat cahnnels command for both WOL protocol versions, better DEBUG message output from IRC based protocols sends
+
+Modified: trunk/pvpgn/src/bnetd/handle_wol.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/handle_wol.cpp	2007-11-23 22:45:41 UTC (rev 418)
++++ trunk/pvpgn/src/bnetd/handle_wol.cpp	2007-11-24 21:34:01 UTC (rev 419)
+@@ -526,65 +526,53 @@
+ static int _handle_list_command(t_connection * conn, int numparams, char ** params, char * text)
+ {
+     char temp[MAX_IRC_MESSAGE_LEN];
+-
+-	irc_send(conn,RPL_LISTSTART,&quot;Channel :Users Names&quot;); /* backward compatibility */
+     t_elem const * curr;
+ 
+-    if (numparams == 0) {
+-        /* This is Westwood Chat LIST command */
+-        eventlog(eventlog_level_debug,__FUNCTION__,&quot;[** WOL **] LIST WCHAT&quot;);
++    irc_send(conn,RPL_LISTSTART,&quot;Channel :Users Names&quot;); /* backward compatibility */
+ 
++    if ((numparams == 0) ||
++        ((std::strcmp(params[0], &quot;0&quot;) == 0) || (std::strcmp(params[0], &quot;-1&quot;) == 0))) {
++        /* LIST all chat channels */
++        /* Emperor sends as params[0] == -1 if want QuickMatch channels too, 0 if not.
++         * This sends also NOX but we dunno why. */
++
++        /* HACK: Currently, this is the best way to set the game type... */
++        if (params)
++            conn_wol_set_game_type(conn,std::atoi(params[1]));
++
+         LIST_TRAVERSE_CONST(channellist(),curr) {
+    	         t_channel const * channel = (const t_channel*)elem_get_data(curr);
+              char const * tempname;
+ 
+              tempname = irc_convert_channel(channel,conn);
+ 
+-             if (std::strstr(tempname,&quot;_game&quot;) == NULL) {
++             if (std::strstr(tempname,&quot;_game&quot;) == NULL) { /* FIXME: Delete this if games are not in channels */
+                 sprintf(temp,&quot;%s %u &quot;,tempname,channel_get_length(channel));
+ 
+-                if ((channel_get_clienttag(channel) != 0) &amp;&amp;
+-                   (channel_get_clienttag(channel)==CLIENTTAG_WCHAT_UINT))
+-                    std::strcat(temp,&quot;1&quot;);  /* WestwoodChat Icon before chanelname */
++	        	if (channel_get_flags(channel) &amp; channel_flags_permanent)
++                    std::strcat(temp,&quot;1&quot;);  /* Official channel */
+                 else
+-                    std::strcat(temp,&quot;0&quot;);  /* No WestwoodChat Icon before chanelname */
++                    std::strcat(temp,&quot;0&quot;);  /* User channel */
+ 
+-                std::strcat(temp,&quot;:&quot;);
++                if (conn_get_clienttag(conn)==CLIENTTAG_WCHAT_UINT)
++                    std::strcat(temp,&quot;:&quot;);    /* WOLv1 ends by &quot;:&quot; */
++                else
++                    std::strcat(temp,&quot; 388&quot;);  /* WOLv2 ends by &quot;388&quot; */
++
++                if (std::strlen(temp)&gt;MAX_IRC_MESSAGE_LEN)
++                    WARN0(&quot;LISTREPLY length exceeded&quot;);
++
+                 irc_send(conn,RPL_CHANNEL,temp);
+              }
+         }
+     }
+-    else if ((std::strcmp(params[0], &quot;0&quot;) == 0) || (std::strcmp(params[0], &quot;-1&quot;) == 0)) {
+-        /* Nox and Emperor send by some reason -1 */
+-		/* HACK: Currently, this is the best way to set the game type... */
+-		conn_wol_set_game_type(conn,std::atoi(params[1]));
+-
+-		eventlog(eventlog_level_debug,__FUNCTION__,&quot;[** WOL **] LIST [Channel]&quot;);
+-   	    LIST_TRAVERSE_CONST(channellist(),curr)
+-		{
+-    		t_channel const * channel = (t_channel const *)elem_get_data(curr);
+-       	    char const * tempname;
+-
+-	        tempname = irc_convert_channel(channel,conn);
+-
+-            if ((channel_get_clienttag(channel) != 0) &amp;&amp;
+-                (channel_get_clienttag(channel)==conn_get_clienttag(conn))) {
+-                     eventlog(eventlog_level_debug,__FUNCTION__,&quot;[** WOL **] LIST [Channel: \&quot;Lob\&quot;] (%s)&quot;,tempname);
+-				     if (std::strlen(tempname)+1+20+1+1&lt;MAX_IRC_MESSAGE_LEN)
+-					     snprintf(temp, sizeof(temp), &quot;%s %u 0 388:&quot;,tempname,channel_get_length(channel));
+- 				     else
+-   					     eventlog(eventlog_level_warn,__FUNCTION__,&quot;LISTREPLY length exceeded&quot;);
+-                     irc_send(conn,RPL_CHANNEL,temp);
+-            }
+-   		}
+-    }
+     /**
+     *  Known channel game types:
+     *  0 = Westwood Chat channels, 1 = Command &amp; Conquer Win95 channels, 2 = Red Alert Win95 channels,
+     *  3 = Red Alert Counterstrike channels, 4 = Red Alert Aftermath channels, 5 = CnC Sole Survivor channels,
+     *  12 = C&amp;C Renegade channels, 14 = Dune 2000 channels, 16 = Nox channels, 18 = Tiberian Sun channels,
+     *  21 = Red Alert 1 v 3.03 channels, 31 = Emperor: Battle for Dune, 33 = Red Alert 2,
+-    *  37 = Nox Quest channels, 39 = C&amp;C Renegade Quickgame channels, 41 = Yuri's Revenge
++    *  37 = Nox Quest channels, 38,39,40 = Quickgame channels, 41 = Yuri's Revenge
+ 	*/
+     if ((numparams == 0) ||
+        (std::strcmp(params[0], &quot;12&quot;) == 0) ||
+@@ -620,7 +608,9 @@
+ 							/**
+ 							*  The layout of the game list entry is something like this:
+                             *
+-							*   #game_channel_name users unknown gameType gameIsTournment gameExtension longIP 128::topic
++							*   #game_channel_name users isofficial gameType gameIsTournment gameExtension longIP locked::topic
++							*   by isofficial is used always 0 (its backwar compatibility with chat channels)
++							*   locked can be 128 = unlocked or 384 = locked
+ 							*/
+ 	        		        if (std::strlen(tempname)+1+20+1+1+std::strlen(topic)&lt;MAX_IRC_MESSAGE_LEN)
+                                    snprintf(temp, sizeof(temp), &quot;%s %u 0 %u %u %s %u 128::%s&quot;,tempname,
+
+Modified: trunk/pvpgn/src/bnetd/irc.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/irc.cpp	2007-11-23 22:45:41 UTC (rev 418)
++++ trunk/pvpgn/src/bnetd/irc.cpp	2007-11-24 21:34:01 UTC (rev 419)
+@@ -106,7 +106,7 @@
+ 	    return -1;
+ 	}
+ 	else
+-	    std::sprintf(data,&quot;:%s %s %s %s\r\n&quot;,ircname,command,nick,params);
++	    std::sprintf(data,&quot;:%s %s %s %s&quot;,ircname,command,nick,params);
+     } else {
+         len = 1+std::strlen(ircname)+1+std::strlen(command)+1+std::strlen(nick)+1+2;
+     	if (len &gt; MAX_IRC_MESSAGE_LEN) {
+@@ -114,8 +114,10 @@
+ 	    return -1;
+ 	}
+ 	else
+-	std::sprintf(data,&quot;:%s %s %s\r\n&quot;,ircname,command,nick);
++	std::sprintf(data,&quot;:%s %s %s&quot;,ircname,command,nick);
+     }
++	DEBUG2(&quot;[%d] sent \&quot;%s\&quot;&quot;,conn_get_socket(conn),data);
++	std::strcat(data,&quot;\r\n&quot;);
+     packet_set_size(p,0);
+     packet_append_data(p,data,len);
+     // eventlog(eventlog_level_debug,__FUNCTION__,&quot;[%d] sent \&quot;%s\&quot;&quot;,conn_get_socket(conn),data);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000583.html">[pvpgn-dev] [Bug #12534] ra2 can created games but cannot start	games
+</A></li>
+	<LI>Next message: <A HREF="000585.html">[pvpgn-dev] r420 - trunk/pvpgn/src/bnetd
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#584">[ date ]</a>
+              <a href="thread.html#584">[ thread ]</a>
+              <a href="subject.html#584">[ subject ]</a>
+              <a href="author.html#584">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

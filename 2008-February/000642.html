@@ -1,0 +1,744 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r431 - in trunk/pvpgn: conf src/bnetd src/common
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2008-February/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r431%20-%20in%20trunk/pvpgn%3A%20conf%20src/bnetd%20src/common&In-Reply-To=%3C200802242151.m1OLp1NS030452%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000641.html">
+   <LINK REL="Next"  HREF="000643.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r431 - in trunk/pvpgn: conf src/bnetd src/common</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r431%20-%20in%20trunk/pvpgn%3A%20conf%20src/bnetd%20src/common&In-Reply-To=%3C200802242151.m1OLp1NS030452%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r431 - in trunk/pvpgn: conf src/bnetd src/common">svn at svn.berlios.de
+       </A><BR>
+    <I>Sun Feb 24 22:51:01 CET 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000641.html">[pvpgn-dev] [Patch #2371] clan management mysql account deleting	and from hash table, 
+</A></li>
+        <LI>Next message: <A HREF="000643.html">[pvpgn-dev] [Bug #10900] could not load saved game
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#642">[ date ]</a>
+              <a href="thread.html#642">[ thread ]</a>
+              <a href="subject.html#642">[ subject ]</a>
+              <a href="author.html#642">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pelish
+Date: 2008-02-24 22:50:35 +0100 (Sun, 24 Feb 2008)
+New Revision: 431
+
+Modified:
+   trunk/pvpgn/conf/bnetd.conf.in
+   trunk/pvpgn/conf/bnetd.conf.win32
+   trunk/pvpgn/src/bnetd/account.cpp
+   trunk/pvpgn/src/bnetd/clan.cpp
+   trunk/pvpgn/src/bnetd/clan.h
+   trunk/pvpgn/src/bnetd/command.cpp
+   trunk/pvpgn/src/bnetd/handle_bnet.cpp
+   trunk/pvpgn/src/bnetd/prefs.cpp
+   trunk/pvpgn/src/bnetd/prefs.h
+   trunk/pvpgn/src/bnetd/sql_common.cpp
+   trunk/pvpgn/src/bnetd/storage_file.cpp
+   trunk/pvpgn/src/common/setup_before.h
+Log:
+add clan management commands: /clan create, invite, disband (includes fullmember variable for invites testing and storage changes according to that)
+
+Modified: trunk/pvpgn/conf/bnetd.conf.in
+===================================================================
+--- trunk/pvpgn/conf/bnetd.conf.in	2008-02-02 20:49:58 UTC (rev 430)
++++ trunk/pvpgn/conf/bnetd.conf.in	2008-02-24 21:50:35 UTC (rev 431)
+@@ -625,3 +625,8 @@
+ 
+ # Default clan channel status when create a clan, 1 for private, 0 for public
+ clan_channel_default_private = 0
++
++# Minimum accepted invites for create new clan. 0 = clans will be created
++# without accepted invitations need. This does not affect WAR3/W3XP ingame
++# clan management.
++clan_min_invites = 2
+
+Modified: trunk/pvpgn/conf/bnetd.conf.win32
+===================================================================
+--- trunk/pvpgn/conf/bnetd.conf.win32	2008-02-02 20:49:58 UTC (rev 430)
++++ trunk/pvpgn/conf/bnetd.conf.win32	2008-02-24 21:50:35 UTC (rev 431)
+@@ -607,3 +607,8 @@
+ 
+ # Default clan channel status when create a clan, 1 for private, 0 for public
+ clan_channel_default_private = 0
++
++# Minimum accepted invites for create new clan. 0 = clans will be created
++# without accepted invitations need. This does not affect WAR3/W3XP ingame
++# clan management.
++clan_min_invites = 2
+
+Modified: trunk/pvpgn/src/bnetd/account.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/account.cpp	2008-02-02 20:49:58 UTC (rev 430)
++++ trunk/pvpgn/src/bnetd/account.cpp	2008-02-24 21:50:35 UTC (rev 431)
+@@ -874,7 +874,7 @@
+ 	return NULL;
+     }
+ 
+-    if ((member = account-&gt;clanmember)&amp;&amp;(clanmember_get_clan(member))&amp;&amp;(clan_get_created(clanmember_get_clan(member)) &gt; 0))
++    if ((member = account-&gt;clanmember)&amp;&amp;(clanmember_get_clan(member))&amp;&amp;(clan_get_created(clanmember_get_clan(member)) &gt; 0)&amp;&amp;(clanmember_get_fullmember(member) == 1))
+ 	return member;
+     else
+ 	return NULL;
+@@ -899,7 +899,7 @@
+ 	return NULL;
+     }
+ 
+-    if(account-&gt;clanmember &amp;&amp; (clanmember_get_clan(account-&gt;clanmember) != NULL) &amp;&amp; (clan_get_created(clanmember_get_clan(account-&gt;clanmember)) &gt; 0))
++    if(account-&gt;clanmember &amp;&amp; (clanmember_get_clan(account-&gt;clanmember) != NULL) &amp;&amp; (clan_get_created(clanmember_get_clan(account-&gt;clanmember)) &gt; 0) &amp;&amp; (clanmember_get_fullmember(account-&gt;clanmember) == 1))
+ 	return clanmember_get_clan(account-&gt;clanmember);
+     else
+ 	return NULL;
+@@ -913,7 +913,8 @@
+ 	return NULL;
+     }
+ 
+-    if(account-&gt;clanmember &amp;&amp; (clanmember_get_clan(account-&gt;clanmember) != NULL) &amp;&amp; (clan_get_created(clanmember_get_clan(account-&gt;clanmember)) &lt;= 0))
++    if(account-&gt;clanmember &amp;&amp; (clanmember_get_clan(account-&gt;clanmember) != NULL) &amp;&amp; ((clan_get_created(clanmember_get_clan(account-&gt;clanmember)) &lt;= 0) || (clanmember_get_fullmember(account-&gt;clanmember) == 0)))
++
+ 	return clanmember_get_clan(account-&gt;clanmember);
+     else
+ 	return NULL;
+
+Modified: trunk/pvpgn/src/bnetd/clan.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/clan.cpp	2008-02-02 20:49:58 UTC (rev 430)
++++ trunk/pvpgn/src/bnetd/clan.cpp	2008-02-24 21:50:35 UTC (rev 431)
+@@ -778,7 +778,7 @@
+ 		eventlog(eventlog_level_error, __FUNCTION__, &quot;found NULL entry in list&quot;);
+ 		continue;
+ 	    }
+-	    eventlog(eventlog_level_error, __FUNCTION__, &quot;trace %d&quot;, clan-&gt;clanid);
++	    eventlog(eventlog_level_trace, __FUNCTION__, &quot;trace %d&quot;, clan-&gt;clanid);
+ 	    if (clan-&gt;created &amp;&amp; (clan-&gt;clanid == cid))
+ 		return clan;
+ 	}
+@@ -984,6 +984,18 @@
+     return 0;
+ }
+ 
++extern int clanmember_set_join_time(t_clanmember * member, std::time_t join_time)
++{
++    if (!(member)) {
++        eventlog(eventlog_level_error, __FUNCTION__, &quot;got NULL clanmember&quot;);
++        return 0;
++    }
++
++    member-&gt;join_time = join_time;
++
++    return 0;
++}
++
+ extern std::time_t clanmember_get_join_time(t_clanmember * member)
+ {
+     if (!(member))
+@@ -1006,6 +1018,33 @@
+     return member-&gt;clan;
+ }
+ 
++extern int clanmember_get_fullmember(t_clanmember * member)
++{
++    if (!(member)) {
++        ERROR0(&quot;got NULL clanmember&quot;);
++        return -1;
++    }
++
++    return member-&gt;fullmember;
++}
++
++extern int clanmember_set_fullmember(t_clanmember * member, int fullmember)
++{
++    if (!(member)) {
++        ERROR0(&quot;got NULL clanmember&quot;);
++        return -1;
++    }
++
++    if (!(fullmember)) {
++        ERROR0(&quot;got NULL fullmember&quot;);
++        return -1;
++    }
++
++    member-&gt;fullmember = fullmember;
++
++    return 0;
++}
++
+ extern const char *clanmember_get_online_status(t_clanmember * member, char *status)
+ {
+ 	return clanmember_get_online_status_by_connection(clanmember_get_conn(member), status);
+@@ -1267,6 +1306,7 @@
+     member-&gt;status = status;
+     member-&gt;join_time = now;
+     member-&gt;clan = clan;
++    member-&gt;fullmember = 0; /* clanmember is invited */
+ #ifdef WITH_SQL
+     member-&gt;modified = 1;
+ #endif
+@@ -1294,7 +1334,8 @@
+     if (member-&gt;memberacc != NULL)
+     {
+ 	account_set_clanmember((t_account*)member-&gt;memberacc, NULL);
+-	storage-&gt;remove_clanmember(account_get_uid((t_account*)member-&gt;memberacc));
++	if (member-&gt;fullmember == true)
++	    storage-&gt;remove_clanmember(account_get_uid((t_account*)member-&gt;memberacc));
+     }
+     xfree((void *) member);
+     clan-&gt;modified = 1;
+
+Modified: trunk/pvpgn/src/bnetd/clan.h
+===================================================================
+--- trunk/pvpgn/src/bnetd/clan.h	2008-02-02 20:49:58 UTC (rev 430)
++++ trunk/pvpgn/src/bnetd/clan.h	2008-02-24 21:50:35 UTC (rev 431)
+@@ -81,6 +81,8 @@
+     char status;
+     std::time_t join_time;
+     t_clan * clan;
++    int fullmember; /* PELISH: 0 -- clanmember is only invited,
++                               1 -- clanmember is fullmember  */
+ #ifdef WITH_SQL
+     char modified;
+ #endif
+@@ -91,7 +93,6 @@
+ }
+ 
+ }
+-
+ #define CLAN_CHIEFTAIN 0x04
+ #define CLAN_SHAMAN    0x03
+ #define CLAN_GRUNT     0x02
+@@ -130,10 +131,14 @@
+ extern t_connection *clanmember_get_conn(t_clanmember * member);
+ extern char clanmember_get_status(t_clanmember * member);
+ extern int clanmember_set_status(t_clanmember * member, char status);
++extern int clanmember_set_join_time(t_clanmember * member, std::time_t join_time);
+ extern std::time_t clanmember_get_join_time(t_clanmember * member);
+ extern t_clan * clanmember_get_clan(t_clanmember * member);
+ extern int clanmember_set_online(t_connection * c);
+ extern int clanmember_set_offline(t_connection * c);
++extern int clanmember_get_fullmember(t_clanmember * member);
++extern int clanmember_set_fullmember(t_clanmember * member, int fullmember);
++
+ extern const char *clanmember_get_online_status(t_clanmember * member, char *status);
+ extern int clanmember_on_change_status(t_clanmember * member);
+ extern const char *clanmember_get_online_status_by_connection(t_connection * conn, char *status);
+
+Modified: trunk/pvpgn/src/bnetd/command.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/command.cpp	2008-02-02 20:49:58 UTC (rev 430)
++++ trunk/pvpgn/src/bnetd/command.cpp	2008-02-24 21:50:35 UTC (rev 431)
+@@ -73,8 +73,8 @@
+ #include &quot;friends.h&quot;
+ #include &quot;clan.h&quot;
+ #include &quot;common/setup_after.h&quot;
++#include &quot;common/flags.h&quot;
+ 
+-
+ namespace pvpgn
+ {
+ 
+@@ -323,6 +323,7 @@
+ static int _handle_gameinfo_command(t_connection * c, char const * text);
+ static int _handle_ladderactivate_command(t_connection * c, char const * text);
+ static int _handle_rehash_command(t_connection * c, char const * text);
++
+ //static int _handle_rank_all_accounts_command(t_connection * c, char const * text);
+ static int _handle_shutdown_command(t_connection * c, char const * text);
+ static int _handle_ladderinfo_command(t_connection * c, char const * text);
+@@ -344,6 +345,7 @@
+ static int _handle_clearstats_command(t_connection * c, char const * text);
+ static int _handle_tos_command(t_connection * c, char const * text);
+ 
++
+ static const t_command_table_row standard_command_table[] =
+ {
+ 	{ &quot;/clan&quot;		, _handle_clan_command },
+@@ -388,8 +390,7 @@
+ 	{ &quot;/kick&quot;               , _handle_kick_command },
+ 	{ &quot;/ban&quot;                , _handle_ban_command },
+ 	{ &quot;/unban&quot;              , _handle_unban_command },
+-	{ &quot;/tos&quot;              , _handle_tos_command },
+-
++	{ &quot;/tos&quot;                , _handle_tos_command },
+ 	{ NULL                  , NULL }
+ 
+ };
+@@ -537,27 +538,38 @@
+   t_clanmember * member;
+   t_clan * clan;
+ 
+-  if((acc = conn_get_account(c)) &amp;&amp; (member = account_get_clanmember(acc)) &amp;&amp; (clan = clanmember_get_clan(member))) {
+-    text = skip_command(text);
+-    if ( text[0] == '\0' ) {
++  if (!(acc = conn_get_account(c))){
++      ERROR0(&quot;got NULL account&quot;);
++  }
++
++  text = skip_command(text);
++  /* FIXME: can get clan as is in creating process */
++  if((member = account_get_clanmember_forced(acc)) &amp;&amp; (clan = clanmember_get_clan(member)) &amp;&amp; (clanmember_get_fullmember(member) == 1)) {
++    if (text[0] == '\0') {
+          message_send_text(c,message_type_info,c,&quot;usage:&quot;);
+-         message_send_text(c,message_type_info,c,&quot;/clan msg MESSAGE&quot;);
++         message_send_text(c,message_type_info,c,&quot;/clan msg &lt;message&gt;&quot;);
+          message_send_text(c,message_type_info,c,&quot;Whispers a message to all your fellow clan members.&quot;);
+          if (clanmember_get_status(member)&gt;=CLAN_SHAMAN) {
+            message_send_text(c,message_type_info,c,&quot;/clan public  /clan pub&quot;);
+            message_send_text(c,message_type_info,c,&quot;Opens the clan channel up to the public so that anyone may enter.&quot;);
+            message_send_text(c,message_type_info,c,&quot;/clan private  /clan priv&quot;);
+            message_send_text(c,message_type_info,c,&quot;Closes the clan channel such that only members of the clan may enter.&quot;);
+-           message_send_text(c,message_type_info,c,&quot;/clan motd MESSAGE&quot;);
+-           message_send_text(c,message_type_info,c,&quot;Update the clan message of the day to MESSAGE.&quot;);
++           message_send_text(c,message_type_info,c,&quot;/clan motd &lt;message&gt;&quot;);
++           message_send_text(c,message_type_info,c,&quot;Update the clan message of the day to &lt;message&gt;.&quot;);
++           message_send_text(c,message_type_info,c,&quot;/clan invite &lt;username&gt;&quot;);
++           message_send_text(c,message_type_info,c,&quot;Invite &lt;username&gt; to your clan.&quot;);
+         }
++        if (clanmember_get_status(member) == CLAN_CHIEFTAIN) {
++           message_send_text(c,message_type_info,c,&quot;/clan disband&quot;);
++           message_send_text(c,message_type_info,c,&quot;Disband your clan.&quot;);
++        }
+         return 0;
+     }
+     if (strstart(text,&quot;msg&quot;)==0 || strstart(text,&quot;m&quot;)==0 || strstart(text,&quot;w&quot;)==0 || strstart(text,&quot;whisper&quot;)==0) {
+         char const *msg = skip_command(text);
+-        if(msg[0]=='\0') {
++        if (msg[0]=='\0') {
+           message_send_text(c,message_type_info,c,&quot;usage:&quot;);
+-          message_send_text(c,message_type_info,c,&quot;/clan msg MESSAGE&quot;);
++          message_send_text(c,message_type_info,c,&quot;/clan msg &lt;message&gt;&quot;);
+           message_send_text(c,message_type_info,c,&quot;Whispers a message to all your fellow clan members.&quot;);
+         }
+         else {
+@@ -585,35 +597,30 @@
+         }
+     }
+     else
+-    if(clanmember_get_status(member)&gt;=CLAN_SHAMAN)
+-    {
++    if (clanmember_get_status(member)&gt;=CLAN_SHAMAN) {
+       if (strstart(text,&quot;public&quot;)==0 || strstart(text,&quot;pub&quot;)==0) {
+-        if(clan_get_channel_type(clan)!=0)
+-        {
++        if(clan_get_channel_type(clan)!=0) {
+           clan_set_channel_type(clan,0);
+           message_send_text(c,message_type_info,c,&quot;Clan channel is opened up!&quot;);
+         }
+         else
+           message_send_text(c,message_type_error,c,&quot;Clan channel has already been opened up!&quot;);
+       }
+-      else
+-      if (strstart(text,&quot;private&quot;)==0 || strstart(text,&quot;priv&quot;)==0) {
+-        if(clan_get_channel_type(clan)!=1)
+-        {
++      else if (strstart(text,&quot;private&quot;)==0 || strstart(text,&quot;priv&quot;)==0) {
++        if(clan_get_channel_type(clan)!=1) {
+           clan_set_channel_type(clan,1);
+           message_send_text(c,message_type_info,c,&quot;Clan channel is closed!&quot;);
+         }
+         else
+           message_send_text(c,message_type_error,c,&quot;Clan channel has already been closed!&quot;);
+       }
+-      else
+-      if (strstart(text,&quot;motd&quot;)==0) {
++      else if (strstart(text,&quot;motd&quot;)==0) {
+         const char * msg=skip_command(text);
+         if(msg[0]=='\0')
+         {
+           message_send_text(c,message_type_info,c,&quot;usage:&quot;);
+-          message_send_text(c,message_type_info,c,&quot;/clan motd MESSAGE&quot;);
+-          message_send_text(c,message_type_info,c,&quot;Update the clan message of the day to MESSAGE.&quot;);
++          message_send_text(c,message_type_info,c,&quot;/clan motd &lt;message&gt;&quot;);
++          message_send_text(c,message_type_info,c,&quot;Update the clan message of the day to &lt;message&gt;.&quot;);
+         }
+         else
+         {
+@@ -621,13 +628,160 @@
+           message_send_text(c,message_type_info,c,&quot;Clan message of day is updated!&quot;);
+         }
+       }
++      else if (strstart(text,&quot;invite&quot;)==0 || strstart(text,&quot;inv&quot;)==0) {
++          const char * username = skip_command(text);
++          t_account * dest_account;
++          t_connection * dest_conn;
++          if(username[0]=='\0') {
++              message_send_text(c,message_type_info,c,&quot;usage:&quot;);
++              message_send_text(c,message_type_info,c,&quot;/clan invite &lt;username&gt;&quot;);
++              message_send_text(c,message_type_info,c,&quot;Invite &lt;username&gt; to your clan.&quot;);
++          }
++          else {
++              if ((dest_account = accountlist_find_account(username)) &amp;&amp; (dest_conn = account_get_conn(dest_account))
++                 &amp;&amp; (account_get_clan(dest_account) == NULL) &amp;&amp; (account_get_creating_clan(dest_account) == NULL)) {
++                  if (prefs_get_clan_newer_time() &gt; 0)
++                      clan_add_member(clan, dest_account, CLAN_NEW);
++                  else
++                      clan_add_member(clan, dest_account, CLAN_PEON);
++                  snprintf(msgtemp, sizeof(msgtemp), &quot;User %s was invited to your clan!&quot;, username);
++                  message_send_text(c,message_type_error,c,msgtemp);
++                  snprintf(msgtemp, sizeof(msgtemp), &quot;You are invited to %s by %s!&quot;,clan_get_name(clan),conn_get_chatname(c));
++                  message_send_text(dest_conn,message_type_error,c,msgtemp);
++              }
++              else {
++                  snprintf(msgtemp, sizeof(msgtemp), &quot;User %s is not online or is already member of clan!&quot;, username);
++                  message_send_text(c,message_type_error,c,msgtemp);
++              }
++          }
++      }
+     }
+     else
+-      message_send_text(c,message_type_error,c,&quot;You are not the chieftain or shaman of clan!&quot;);
++        message_send_text(c,message_type_error,c,&quot;You are not the chieftain or shaman of clan!&quot;);
++    if (clanmember_get_status(member) == CLAN_CHIEFTAIN) {
++        if (strstart(text,&quot;disband&quot;)==0) {
++          const char * ack = skip_command(text);
++          if (ack[0]=='\0') {
++              message_send_text(c,message_type_info,c,&quot;This is one-way action! If you really want&quot;);
++              message_send_text(c,message_type_info,c,&quot;to disband your clan, type /clan disband yes&quot;);
++          }
++          else if (strstart(ack,&quot;yes&quot;)==0) {
++              /* PELISH: fixme - Find out better solution! */
++              if (clanlist_remove_clan(clan) == 0) {
++                  if (clan_get_created(clan) == 1)
++                      clan_remove(clan_get_clantag(clan));
++                  clan_destroy(clan);
++                  message_send_text(c,message_type_info,c,&quot;Your clan was disbanded.&quot;);
++              }
++          }
++        }    
++    }
++    else 
++        message_send_text(c,message_type_error,c,&quot;You are not the chieftain of clan!&quot;);
+   }
+   else
+-    message_send_text(c,message_type_error,c,&quot;You are not in a clan!&quot;);
++  if ((member = account_get_clanmember_forced(acc)) &amp;&amp; (clan = clanmember_get_clan(member)) &amp;&amp; (clanmember_get_fullmember(member) == 0)) {
++     /* User is not in clan, but he can accept invitation to someone */
++        if (text[0]=='\0') {
++            message_send_text(c,message_type_info,c,&quot;usage:&quot;);
++            message_send_text(c,message_type_info,c,&quot;/clan invite get     (show clanname wich you have been invited)&quot;);
++            message_send_text(c,message_type_info,c,&quot;/clan invite accept  (accept invitation to clan)&quot;);
++            message_send_text(c,message_type_info,c,&quot;/clan invite decline (decline invitation to clan)&quot;);
++        }
++        if (strstart(text,&quot;invite&quot;)==0 || strstart(text,&quot;inv&quot;)==0) {
++            text = skip_command(text);
++            if (text[0]=='\0') {
++                message_send_text(c,message_type_info,c,&quot;usage:&quot;);
++                message_send_text(c,message_type_info,c,&quot;/clan invite get     (show clanname wich you have been invited)&quot;);
++                message_send_text(c,message_type_info,c,&quot;/clan invite accept  (accept invitation to clan)&quot;);
++                message_send_text(c,message_type_info,c,&quot;/clan invite decline (decline invitation to clan)&quot;);
++            }
++            else if (strstart(text,&quot;get&quot;)==0) {
++                snprintf(msgtemp, sizeof(msgtemp), &quot;You have been invited to %s&quot;, clan_get_name(clan));
++                message_send_text(c,message_type_info,c,msgtemp);
++            }
++            else if (strstart(text,&quot;accept&quot;)==0 || strstart(text,&quot;acc&quot;)==0) {
++                int created = clan_get_created(clan);
+ 
++                clanmember_set_fullmember(member,1);
++                clanmember_set_join_time(member,std::time(NULL));
++                snprintf(msgtemp, sizeof(msgtemp), &quot;You are now clanmember of %s&quot;, clan_get_name(clan));
++                message_send_text(c,message_type_info,c,msgtemp);
++                if (created &gt; 0) {
++                       DEBUG1(&quot;clan %s has already been created&quot;, clan_get_name(clan));
++                       return 0;
++	            }
++                created++;
++                if (created &gt;= 0) {
++                    clan_set_created(clan, 1);
++                    clan_set_creation_time(clan, std::time(NULL));
++                    /* FIXME: send message &quot;CLAN was be created&quot; to members */
++                    clan_save(clan);
++                }
++                else
++                    clan_set_created(clan, created);
++            }
++            else if (strstart(text,&quot;decline&quot;)==0 || strstart(text,&quot;dec&quot;)==0) {
++                clan_remove_member(clan,member);
++                snprintf(msgtemp, sizeof(msgtemp), &quot;You are no longer ivited to %s&quot;, clan_get_name(clan));
++                message_send_text(c,message_type_info,c,msgtemp);
++            }
++        }
++  }
++  else {
++      if (text[0]=='\0') {
++          message_send_text(c,message_type_info,c,&quot;usage:&quot;);
++          message_send_text(c,message_type_info,c,&quot;/clan create &lt;clantag&gt; &lt;clanname&gt;  (Create a new clan)&quot;);
++      }
++      else if (strstart(text,&quot;create&quot;)==0 || strstart(text,&quot;cre&quot;)==0) {
++          unsigned int i,j;
++          char clantag[CLANSHORT_NAME_MAX+1];
++          char clanname[MAX_CLANNAME_LEN+1];
++
++          for (i=0; text[i]!=' ' &amp;&amp; text[i]!='\0'; i++); /* skip command */
++          for (; text[i]==' '; i++);
++
++          for (j=0; text[i]!=' ' &amp;&amp; text[i]!='\0'; i++) /* get clantag */
++              if (j&lt;sizeof(clantag)-1) clantag[j++] = text[i];
++          clantag[j] = '\0';
++
++          for (; text[i]==' '; i++);                    /* skip spaces */
++          for (j=0; text[i]!='\0'; i++)                 /* get clanname (spaces are allowed) */
++              if (j&lt;sizeof(clanname)-1) clanname[j++] = text[i];
++          clanname[j] = '\0';
++
++          if ((clantag[0]=='\0') || (clanname[0]=='\0')) {
++              message_send_text(c,message_type_info,c,&quot;usage:&quot;);
++              message_send_text(c,message_type_info,c,&quot;/clan create &lt;clantag&gt; &lt;clanname&gt;  (Create a new clan)&quot;);
++              return 0;
++          }
++          
++          if (clan = clanlist_find_clan_by_clantag(str_to_clantag(clantag))) {
++              message_send_text(c,message_type_error,c,&quot;Clan with your specifed &lt;clantag&gt; allready exist!&quot;);
++              message_send_text(c,message_type_error,c,&quot;Please choice another one.&quot;);
++              return 0;
++          }
++
++          if ((clan = clan_create(conn_get_account(c), str_to_clantag(clantag), clanname, NULL)) &amp;&amp; clanlist_add_clan(clan)) {
++              member = account_get_clanmember_forced(acc);
++              clanmember_set_fullmember(member,1);         /*FIXME: Should be in clan_create() */
++              if (prefs_get_clan_min_invites() == 0) {
++                  clan_set_created(clan, 1);
++                  clan_set_creation_time(clan, std::time(NULL));
++                  snprintf(msgtemp, sizeof(msgtemp), &quot;Clan %s is created!&quot;, clan_get_name(clan));
++                  message_send_text(c,message_type_info,c,msgtemp);
++                  clan_save(clan);
++              }
++              else {
++                  snprintf(msgtemp, sizeof(msgtemp), &quot;Clan %s is pre-created, please invite&quot;, clan_get_name(clan));
++                  message_send_text(c,message_type_info,c,msgtemp);
++                  snprintf(msgtemp, sizeof(msgtemp), &quot;at last %u players to your clan by using&quot;,prefs_get_clan_min_invites());
++                  message_send_text(c,message_type_info,c,msgtemp);
++                  message_send_text(c,message_type_info,c,&quot;/clan invite &lt;username&gt; command.&quot;);
++              }
++          }
++      }
++  }
+   return 0;
+ }
+ 
+@@ -1844,7 +1998,7 @@
+ {
+   static char const * const info[] =
+     {
+-      &quot; Copyright (C) 2002  See source for details&quot;,
++      &quot; Copyright (C) 2002 - 2008  See source for details&quot;,
+       &quot; &quot;,
+       &quot; PvPGN is free software; you can redistribute it and/or&quot;,
+       &quot; modify it under the terms of the GNU General Public License&quot;,
+@@ -4241,9 +4395,10 @@
+ 
+   if (account_set_strattr(account,key,value)&lt;0)
+     message_send_text(c,message_type_error,c,&quot;Unable to set key&quot;);
+-  else
++  else{
+     message_send_text(c,message_type_error,c,&quot;Key set succesfully&quot;);
+ 
++}
+   return 0;
+ }
+ 
+
+Modified: trunk/pvpgn/src/bnetd/handle_bnet.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/handle_bnet.cpp	2008-02-02 20:49:58 UTC (rev 430)
++++ trunk/pvpgn/src/bnetd/handle_bnet.cpp	2008-02-24 21:50:35 UTC (rev 431)
+@@ -4349,10 +4349,15 @@
+ 		    t_connection *conn;
+ 		    offset += (std::strlen(username) + 1);
+ 		    if ((conn = connlist_find_connection_by_accountname(username)) != NULL) {
+-			if (prefs_get_clan_newer_time() &gt; 0)
+-			    clan_add_member(clan, conn_get_account(conn), CLAN_NEW);
+-			else
+-			    clan_add_member(clan, conn_get_account(conn), CLAN_PEON);
++		    t_clanmember *clanmember;
++			if (prefs_get_clan_newer_time() &gt; 0) {
++			    clanmember = clan_add_member(clan, conn_get_account(conn), CLAN_NEW);
++			    clanmember_set_fullmember(clanmember, 1);      /* FIXME: do only this here and no clan_add_member() */
++            }
++			else {
++			    clanmember = clan_add_member(clan, conn_get_account(conn), CLAN_PEON);
++			    clanmember_set_fullmember(clanmember, 1);      /* FIXME: do only this here and no clan_add_member() */
++			}
+ 			conn_push_outqueue(conn, rpacket);
+ 		    }
+ 		}
+@@ -4621,7 +4626,8 @@
+ 	    char channelname[10];
+ 	    t_clantag clantag;
+ 	    if (clan_get_member_count(clan) &lt; prefs_get_clan_max_members()) {
+-		t_clanmember *member = clan_add_member(clan, conn_get_account(c), 1);
++		t_clanmember *member = clan_add_member(clan, conn_get_account(c), CLAN_PEON); /* PEON? it should be CLAN_NEW?? */
++		clanmember_set_fullmember(member, 1);      /* FIXME: do only this here and no clan_add_member()*/
+ 		if ((member != NULL) &amp;&amp; (clantag = clan_get_clantag(clan))) {
+ 		    snprintf(channelname, sizeof(channelname), &quot;Clan %s&quot;, clantag_to_str(clantag));
+ 		    if (conn_get_channel(c)) {
+
+Modified: trunk/pvpgn/src/bnetd/prefs.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/prefs.cpp	2008-02-02 20:49:58 UTC (rev 430)
++++ trunk/pvpgn/src/bnetd/prefs.cpp	2008-02-24 21:50:35 UTC (rev 431)
+@@ -149,6 +149,7 @@
+     unsigned int clan_newer_time;
+     unsigned int clan_max_members;
+     unsigned int clan_channel_default_private;
++    unsigned int clan_min_invites;
+     unsigned int passfail_count;
+     unsigned int passfail_bantime;
+     unsigned int maxusers_per_channel;
+@@ -605,6 +606,10 @@
+ static const char *conf_get_clan_channel_default_private(void);
+ static int conf_setdef_clan_channel_default_private(void);
+ 
++static int conf_set_clan_min_invites(const char *valstr);
++static const char *conf_get_clan_min_invites(void);
++static int conf_setdef_clan_min_invites(void);
++
+ static int conf_set_passfail_count(const char *valstr);
+ static const char *conf_get_passfail_count(void);
+ static int conf_setdef_passfail_count(void);
+@@ -781,6 +786,7 @@
+     { &quot;clan_newer_time&quot;,        conf_set_clan_newer_time,      conf_get_clan_newer_time,conf_setdef_clan_newer_time},
+     { &quot;clan_max_members&quot;,       conf_set_clan_max_members,     conf_get_clan_max_members,conf_setdef_clan_max_members},
+     { &quot;clan_channel_default_private&quot;,conf_set_clan_channel_default_private,conf_get_clan_channel_default_private,conf_setdef_clan_channel_default_private},
++    { &quot;clan_min_invites&quot;,       conf_set_clan_min_invites,     conf_get_clan_min_invites,conf_setdef_clan_min_invites},
+     { &quot;passfail_count&quot;,		conf_set_passfail_count,       conf_get_passfail_count,conf_setdef_passfail_count},
+     { &quot;passfail_bantime&quot;,	conf_set_passfail_bantime,     conf_get_passfail_bantime,conf_setdef_passfail_bantime},
+     { &quot;maxusers_per_channel&quot;,	conf_set_maxusers_per_channel, conf_get_maxusers_per_channel,conf_setdef_maxusers_per_channel},
+@@ -3146,7 +3152,26 @@
+     return conf_get_bool(prefs_runtime_config.clan_channel_default_private);
+ }
+ 
++extern unsigned int prefs_get_clan_min_invites(void)
++{
++    return prefs_runtime_config.clan_min_invites;
++}
+ 
++static int conf_set_clan_min_invites(const char *valstr)
++{
++    return conf_set_int(&amp;prefs_runtime_config.clan_min_invites,valstr,0);
++}
++
++static int conf_setdef_clan_min_invites(void)
++{
++    return conf_set_int(&amp;prefs_runtime_config.clan_min_invites,NULL,CLAN_DEFAULT_MIN_INVITES);
++}
++
++static const char* conf_get_clan_min_invites(void)
++{
++    return conf_get_int(prefs_runtime_config.clan_min_invites);
++}
++
+ extern unsigned int prefs_get_passfail_count(void)
+ {
+     return prefs_runtime_config.passfail_count;
+
+Modified: trunk/pvpgn/src/bnetd/prefs.h
+===================================================================
+--- trunk/pvpgn/src/bnetd/prefs.h	2008-02-02 20:49:58 UTC (rev 430)
++++ trunk/pvpgn/src/bnetd/prefs.h	2008-02-24 21:50:35 UTC (rev 431)
+@@ -167,6 +167,7 @@
+ extern unsigned int prefs_get_clan_newer_time(void) ;
+ extern unsigned int prefs_get_clan_max_members(void) ;
+ extern unsigned int prefs_get_clan_channel_default_private(void) ;
++extern unsigned int prefs_get_clan_min_invites(void);
+ 
+ extern unsigned int prefs_get_passfail_count(void) ;
+ extern unsigned int prefs_get_passfail_bantime(void) ;
+
+Modified: trunk/pvpgn/src/bnetd/sql_common.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/sql_common.cpp	2008-02-02 20:49:58 UTC (rev 430)
++++ trunk/pvpgn/src/bnetd/sql_common.cpp	2008-02-24 21:50:35 UTC (rev 431)
+@@ -425,6 +425,7 @@
+ 			member-&gt;status = std::atoi(row2[1]);
+ 			member-&gt;join_time = std::atoi(row2[2]);
+ 			member-&gt;clan	  = clan;
++			member-&gt;fullmember = 1;
+ 
+ 			if ((member-&gt;status == CLAN_NEW) &amp;&amp; (std::time(NULL) - member-&gt;join_time &gt; prefs_get_clan_newer_time() * 3600))
+ 			{
+@@ -498,6 +499,8 @@
+ 		eventlog(eventlog_level_error, __FUNCTION__, &quot;got NULL elem in list&quot;);
+ 		continue;
+ 	    }
++	    if (member-&gt;fullmember == 0)
++		continue;
+ 	    if ((member-&gt;status == CLAN_NEW) &amp;&amp; (std::time(NULL) - member-&gt;join_time &gt; prefs_get_clan_newer_time() * 3600))
+ 	    {
+ 		member-&gt;status = CLAN_PEON;
+
+Modified: trunk/pvpgn/src/bnetd/storage_file.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/storage_file.cpp	2008-02-02 20:49:58 UTC (rev 430)
++++ trunk/pvpgn/src/bnetd/storage_file.cpp	2008-02-24 21:50:35 UTC (rev 431)
+@@ -568,6 +568,7 @@
+ 	    member-&gt;status = member_status - '0';
+ 	    member-&gt;join_time = member_join_time;
+ 	    member-&gt;clan = clan;
++ 	    member-&gt;fullmember = 1; /* In files we have only fullmembers */
+ 
+ 	    if ((member-&gt;status == CLAN_NEW) &amp;&amp; (std::time(NULL) - member-&gt;join_time &gt; prefs_get_clan_newer_time() * 3600))
+ 	    {
+@@ -628,7 +629,8 @@
+ 	}
+ 	if ((member-&gt;status == CLAN_NEW) &amp;&amp; (std::time(NULL) - member-&gt;join_time &gt; prefs_get_clan_newer_time() * 3600))
+ 	    member-&gt;status = CLAN_PEON;
+-	std::fprintf(fp, &quot;%i,%c,%u\n&quot;, account_get_uid((t_account*)member-&gt;memberacc), member-&gt;status + '0', (unsigned) member-&gt;join_time);
++	if (member-&gt;fullmember == 1) /* only fullmembers are stored */
++	    std::fprintf(fp, &quot;%i,%c,%u\n&quot;, account_get_uid((t_account*)member-&gt;memberacc), member-&gt;status + '0', (unsigned) member-&gt;join_time);
+     }
+ 
+     std::fclose(fp);
+
+Modified: trunk/pvpgn/src/common/setup_before.h
+===================================================================
+--- trunk/pvpgn/src/common/setup_before.h	2008-02-02 20:49:58 UTC (rev 430)
++++ trunk/pvpgn/src/common/setup_before.h	2008-02-24 21:50:35 UTC (rev 431)
+@@ -159,6 +159,7 @@
+ /* hardcoded limits in the client */
+ const unsigned CLAN_MIN_MEMBERS = 10;
+ const unsigned CLAN_MAX_MEMBERS = 100;
++const unsigned CLAN_DEFAULT_MIN_INVITES = 2;
+ 
+ const unsigned MAX_FRIENDS = 20;
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000641.html">[pvpgn-dev] [Patch #2371] clan management mysql account deleting	and from hash table, 
+</A></li>
+	<LI>Next message: <A HREF="000643.html">[pvpgn-dev] [Bug #10900] could not load saved game
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#642">[ date ]</a>
+              <a href="thread.html#642">[ thread ]</a>
+              <a href="subject.html#642">[ subject ]</a>
+              <a href="author.html#642">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

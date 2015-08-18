@@ -1,0 +1,102 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r525 - trunk/pvpgn/src/bnetd
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2009-January/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r525%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200901312227.n0VMRLXi032437%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000941.html">
+   <LINK REL="Next"  HREF="000943.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r525 - trunk/pvpgn/src/bnetd</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r525%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200901312227.n0VMRLXi032437%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r525 - trunk/pvpgn/src/bnetd">svn at svn.berlios.de
+       </A><BR>
+    <I>Sat Jan 31 23:27:21 CET 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000941.html">[pvpgn-dev] [Bug #15150] chieftain removed from clan after creation
+</A></li>
+        <LI>Next message: <A HREF="000943.html">[pvpgn-dev] r526 - trunk/pvpgn
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#942">[ date ]</a>
+              <a href="thread.html#942">[ thread ]</a>
+              <a href="subject.html#942">[ subject ]</a>
+              <a href="author.html#942">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pandaemonium
+Date: 2009-01-31 23:27:19 +0100 (Sat, 31 Jan 2009)
+New Revision: 525
+
+Modified:
+   trunk/pvpgn/src/bnetd/command.cpp
+Log:
+fix [Bug #15149] clan whisper doesn't return
+
+Modified: trunk/pvpgn/src/bnetd/command.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/command.cpp	2009-01-05 22:23:23 UTC (rev 524)
++++ trunk/pvpgn/src/bnetd/command.cpp	2009-01-31 22:27:19 UTC (rev 525)
+@@ -638,12 +638,8 @@
+                   message_send_text(c,message_type_error,c,msgtemp);
+               }
+           }
+-      }
+-    }
+-    else
+-        message_send_text(c,message_type_error,c,&quot;You are not the chieftain or shaman of clan!&quot;);
+-    if (clanmember_get_status(member) == CLAN_CHIEFTAIN) {
+-        if (strstart(text,&quot;disband&quot;)==0) {
++      } 
++      else if (strstart(text,&quot;disband&quot;)==0) {
+           const char * ack = skip_command(text);
+           if (ack[0]=='\0') {
+               message_send_text(c,message_type_info,c,&quot;This is one-way action! If you really want&quot;);
+@@ -658,10 +654,8 @@
+                   message_send_text(c,message_type_info,c,&quot;Your clan was disbanded.&quot;);
+               }
+           }
+-        }    
++      }
+     }
+-    else 
+-        message_send_text(c,message_type_error,c,&quot;You are not the chieftain of clan!&quot;);
+   }
+   else
+   if ((member = account_get_clanmember_forced(acc)) &amp;&amp; (clan = clanmember_get_clan(member)) &amp;&amp; (clanmember_get_fullmember(member) == 0)) {
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000941.html">[pvpgn-dev] [Bug #15150] chieftain removed from clan after creation
+</A></li>
+	<LI>Next message: <A HREF="000943.html">[pvpgn-dev] r526 - trunk/pvpgn
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#942">[ date ]</a>
+              <a href="thread.html#942">[ thread ]</a>
+              <a href="subject.html#942">[ subject ]</a>
+              <a href="author.html#942">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

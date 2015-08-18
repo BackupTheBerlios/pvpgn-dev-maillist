@@ -1,0 +1,100 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] [Patch #2605] New clan with no chieftain - Bug #14571
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2009-February/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BPatch%20%232605%5D%20New%20clan%20with%20no%20chieftain%20-%20Bug%20%2314571&In-Reply-To=%3C200902062222.n16MMbWf011610%40unicorn.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000967.html">
+   <LINK REL="Next"  HREF="000969.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] [Patch #2605] New clan with no chieftain - Bug #14571</H1>
+    <B>admin at berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BPatch%20%232605%5D%20New%20clan%20with%20no%20chieftain%20-%20Bug%20%2314571&In-Reply-To=%3C200902062222.n16MMbWf011610%40unicorn.berlios.de%3E"
+       TITLE="[pvpgn-dev] [Patch #2605] New clan with no chieftain - Bug #14571">admin at berlios.de
+       </A><BR>
+    <I>Fri Feb  6 23:22:37 CET 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000967.html">[pvpgn-dev] r530 - in trunk/pvpgn: conf src/bnetd
+</A></li>
+        <LI>Next message: <A HREF="000969.html">[pvpgn-dev] [Bug #15150] chieftain removed from clan after creation
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#968">[ date ]</a>
+              <a href="thread.html#968">[ thread ]</a>
+              <a href="subject.html#968">[ subject ]</a>
+              <a href="author.html#968">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Patch #2605 has been updated. 
+
+Project: pvpgn
+Category: 1.99.x
+Status: Closed
+Submitted by: justcme
+Assigned to : pelish
+Summary: New clan with no chieftain - Bug #14571
+
+Follow-Ups:
+
+Date: 2009-Feb-06 23:22
+By: pelish
+
+Comment:
+This is a fix for [ Bug #15150 ] chieftain removed from clan after creation. Thank you for that fix. It is on SVN now.
+-------------------------------------------------------
+
+Date: 2008-Dec-18 03:46
+By: justcme
+
+Comment:
+I'm not a professional coder, so I can't argue otherwise. But I do wish to let you know that I have tested the results of this patch and it does appear to fix the bug.
+The reason for setting fullmember in clan_create (bnetd/clan.cpp) is because fullmember isn't set to 1 in the normal creation method using _client_clan_createinvitereq (bnetd/handle_bnet.cpp), while it IS set in the command line method (command.cpp).
+
+Perhaps you could look into this discrepancy.
+-------------------------------------------------------
+
+Date: 2008-Dec-18 00:08
+By: pelish
+
+Comment:
+Thank you for your work. Im sorry but Im pretty sure that this is not bug fix for Bug #14571. Also because we want to make some big recoding of Clan related code, I will take this patch pending.
+-------------------------------------------------------
+
+-------------------------------------------------------
+For more info, visit:
+
+<A HREF="http://developer.berlios.de/patch/?func=detailpatch&amp;patch_id=2605&amp;group_id=2291">http://developer.berlios.de/patch/?func=detailpatch&amp;patch_id=2605&amp;group_id=2291</A>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000967.html">[pvpgn-dev] r530 - in trunk/pvpgn: conf src/bnetd
+</A></li>
+	<LI>Next message: <A HREF="000969.html">[pvpgn-dev] [Bug #15150] chieftain removed from clan after creation
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#968">[ date ]</a>
+              <a href="thread.html#968">[ thread ]</a>
+              <a href="subject.html#968">[ subject ]</a>
+              <a href="author.html#968">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

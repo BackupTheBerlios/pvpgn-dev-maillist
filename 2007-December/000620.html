@@ -1,0 +1,113 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] Changing PvPGN license from &quot;GPLv2 and later&quot; to GPLv3/AGPLv3
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-December/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20Changing%20PvPGN%20license%20from%20%22GPLv2%20and%20later%22%20to%0A%20GPLv3/AGPLv3&In-Reply-To=%3C47650053.6070503%40gmx.net%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000611.html">
+   <LINK REL="Next"  HREF="000621.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] Changing PvPGN license from &quot;GPLv2 and later&quot; to GPLv3/AGPLv3</H1>
+    <B>Aaron</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20Changing%20PvPGN%20license%20from%20%22GPLv2%20and%20later%22%20to%0A%20GPLv3/AGPLv3&In-Reply-To=%3C47650053.6070503%40gmx.net%3E"
+       TITLE="[pvpgn-dev] Changing PvPGN license from &quot;GPLv2 and later&quot; to GPLv3/AGPLv3">aaron667 at gmx.net
+       </A><BR>
+    <I>Sun Dec 16 11:39:15 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000611.html">[pvpgn-dev] Changing PvPGN license from &quot;GPLv2 and later&quot; to GPLv3/AGPLv3
+</A></li>
+        <LI>Next message: <A HREF="000621.html">[pvpgn-dev] Changing PvPGN license from &quot;GPLv2 and later&quot; to	GPLv3/AGPLv3
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#620">[ date ]</a>
+              <a href="thread.html#620">[ thread ]</a>
+              <a href="subject.html#620">[ subject ]</a>
+              <a href="author.html#620">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Quite some time has passed, no new comments on this issue.
+So whats the final status about this?
+
+Regards
+   aaron
+
+Aaron schrieb:
+&gt;<i> dizzy schrieb:
+</I>&gt;&gt;<i> On Tuesday 04 December 2007 16:38:25 Ender wrote:
+</I>&gt;&gt;&gt;<i> dizzy wrote:
+</I>&gt;&gt;&gt;&gt;<i> On Tuesday 04 December 2007 10:55:38 Ender wrote:
+</I>&gt;&gt;&gt;&gt;&gt;<i> I hate to put everything on my own shoulders but i will say i honestly
+</I>&gt;&gt;&gt;&gt;&gt;<i> have some plans to use pvpgn for my own game, (like planned on hopefully
+</I>&gt;&gt;&gt;&gt;&gt;<i> soon, within 6 months) and i would like nothing more than to built a
+</I>&gt;&gt;&gt;&gt;&gt;<i> video game on top of pvpgn, and keep my game server code closed, but
+</I>&gt;&gt;&gt;&gt;&gt;<i> still give back changes to pvpgn and bug fixes. This happens ALL the
+</I>&gt;&gt;&gt;&gt;&gt;<i> time btw in the BSD community. Companys base there products on Freebsd
+</I>&gt;&gt;&gt;&gt;&gt;<i> for example and when they find bugs and stuff they give back patches,
+</I>&gt;&gt;&gt;&gt;&gt;<i> &quot;just because&quot;.
+</I>&gt;&gt;&gt;&gt;<i> In this specific case you could provide full sources to your own pvpgn
+</I>&gt;&gt;&gt;&gt;<i> modifications (thus to the server part to support your game) and
+</I>&gt;&gt;&gt;&gt;<i> implement from 0 your own client side network code (which you had to do
+</I>&gt;&gt;&gt;&gt;<i> anyway because pvpgn does not have almost any client code). Why would you
+</I>&gt;&gt;&gt;&gt;<i> need to keep closed source the server part?
+</I>&gt;&gt;&gt;<i> Because these days a lot of &quot;game content&quot; is in the server side code.
+</I>&gt;&gt;&gt;<i> 100% dynamic events, real world changes like weather, and things like
+</I>&gt;&gt;&gt;<i> that. If you know Final Fantasy 11 (there first final fantasy MMO) there
+</I>&gt;&gt;&gt;<i> is a massive amount of &quot;ecosystem&quot; code that is all server side.
+</I>&gt;&gt;&gt;<i> Countrys trade with each other and effect prices, and weather effects
+</I>&gt;&gt;&gt;<i> your stats and all kinds of weird things like that. Server side content
+</I>&gt;&gt;&gt;<i> can be big and important.
+</I>&gt;&gt;<i> Ok, then you could take another aproach. Have your content stuff in a separate 
+</I>&gt;&gt;<i> server that talks with pvpgn a network protocol (just like d2gs does with 
+</I>&gt;&gt;<i> d2cs and like you can see d2cs is GPL while d2gs is not nor does it needs to 
+</I>&gt;&gt;<i> be). I think that won't change with AGPL since for all users communicating 
+</I>&gt;&gt;<i> with pvpgn you can offer them your (modified) pvpgn source but you do not 
+</I>&gt;&gt;<i> need to offer them your &quot;game server&quot; source because that one is not covered 
+</I>&gt;&gt;<i> by AGPL nor does it needs to be (AGPL just as GPL does not &quot;infect&quot; programs 
+</I>&gt;&gt;<i> that communicate with AGPL/GPL programs through network protocols and such).
+</I>&gt;&gt;<i>
+</I>&gt;<i> 
+</I>&gt;<i> I would profer d1zzys approach, too. That way you wouldn't pollute the 
+</I>&gt;<i> PvPGN code more than required with changes for your game, but still 
+</I>&gt;<i> could use the basic functinalities provided (like account, channel and 
+</I>&gt;<i> chat handling). So basically PvPGN would be the chat backend for your 
+</I>&gt;<i> game client.
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> pvpgn-dev mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">pvpgn-dev at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">https://lists.berlios.de/mailman/listinfo/pvpgn-dev</A>
+</I>&gt;<i> 
+</I>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000611.html">[pvpgn-dev] Changing PvPGN license from &quot;GPLv2 and later&quot; to GPLv3/AGPLv3
+</A></li>
+	<LI>Next message: <A HREF="000621.html">[pvpgn-dev] Changing PvPGN license from &quot;GPLv2 and later&quot; to	GPLv3/AGPLv3
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#620">[ date ]</a>
+              <a href="thread.html#620">[ thread ]</a>
+              <a href="subject.html#620">[ subject ]</a>
+              <a href="author.html#620">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

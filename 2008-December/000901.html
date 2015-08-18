@@ -1,0 +1,132 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] pvpgn/src/bnetd handle_bnet.c,1.253,1.254
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2008-December/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20pvpgn/src/bnetd%20handle_bnet.c%2C1.253%2C1.254&In-Reply-To=%3C20081215074614.7E8FD16AB09%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000900.html">
+   <LINK REL="Next"  HREF="000902.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] pvpgn/src/bnetd handle_bnet.c,1.253,1.254</H1>
+    <B>pelish</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20pvpgn/src/bnetd%20handle_bnet.c%2C1.253%2C1.254&In-Reply-To=%3C20081215074614.7E8FD16AB09%40mail.berlios.de%3E"
+       TITLE="[pvpgn-dev] pvpgn/src/bnetd handle_bnet.c,1.253,1.254">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Mon Dec 15 08:46:14 CET 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000900.html">[pvpgn-dev] [Bug #10811] User with cg 6 able to send oversize	message.
+</A></li>
+        <LI>Next message: <A HREF="000902.html">[pvpgn-dev] pvpgn version-history.txt,1.298,1.299
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#901">[ date ]</a>
+              <a href="thread.html#901">[ thread ]</a>
+              <a href="subject.html#901">[ subject ]</a>
+              <a href="author.html#901">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/pvpgn/pvpgn/src/bnetd
+In directory sheep:/tmp/cvs-serv3807/src/bnetd
+
+Modified Files:
+	handle_bnet.c 
+Log Message:
+fix for bug [ #14890 ] Clan Rank Exploit. This should also fix bug [ #7993 ] Clans losing chieftains (feedback welcome)
+
+Index: handle_bnet.c
+===================================================================
+RCS file: /cvsroot/pvpgn/pvpgn/src/bnetd/handle_bnet.c,v
+retrieving revision 1.253
+retrieving revision 1.254
+diff -u -d -r1.253 -r1.254
+--- handle_bnet.c	17 Nov 2008 23:05:15 -0000	1.253
++++ handle_bnet.c	15 Dec 2008 07:46:11 -0000	1.254
+@@ -4481,6 +4481,8 @@
+ 	char status;
+ 	t_clan *clan;
+ 	t_clanmember *dest_member;
++	t_clanmember *member;
++	t_account *account;
+ 
+ 	packet_set_size(rpacket, sizeof(t_server_w3xp_clanmember_rankupdate_reply));
+ 	packet_set_type(rpacket, SERVER_W3XP_CLANMEMBER_RANKUPDATE_REPLY);
+@@ -4489,23 +4491,34 @@
+ 	username = packet_get_str_const(packet, offset, USER_NAME_MAX);
+ 	offset += (strlen(username) + 1);
+     if (packet_get_size(packet) &lt; offset+1) {
+-        eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad W3XP_CLAN_CREATEINVITEREPLY packet (mising status)&quot;, conn_get_socket(c));
++        eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad W3XP_CLANMEMBER_RANKUPDATE_REQ packet (mising status)&quot;, conn_get_socket(c));
+         return -1;
+     }
+ 	status = *((char *) packet_get_data_const(packet, offset, 1));
+ 
+-	clan = account_get_clan(conn_get_account(c));
+-	dest_member = clan_find_member_by_name(clan, username);
+-	if (clanmember_set_status(dest_member, status) == 0) 
+-	{
+-	    bn_byte_set(&amp;rpacket-&gt;u.server_w3xp_clanmember_rankupdate_reply.result, 
+-	                SERVER_W3XP_CLANMEMBER_RANKUPDATE_SUCCESS);
+-	    clanmember_on_change_status(dest_member);
++    account = (conn_get_account(c));
++
++    if ((clan = account_get_clan(account)) &amp;&amp; (member = clan_find_member(clan,account))
++      &amp;&amp; (dest_member = clan_find_member_by_name(clan, username)) &amp;&amp; (member != dest_member)) {
++        if ((status &lt; CLAN_PEON) || (status &gt; CLAN_SHAMAN)) {
++            /* PELISH: CLAN_NEW can not be promoted to anything 
++             * and also noone can be promoted to CLAN_CHIEFTAIN */
++            DEBUG1(&quot;trying to change to bad status %u&quot;, status);
++	        bn_byte_set(&amp;rpacket-&gt;u.server_w3xp_clanmember_rankupdate_reply.result, SERVER_W3XP_CLANMEMBER_RANKUPDATE_FAILED);
++        }
++        else if ((((clanmember_get_status(member) == CLAN_SHAMAN) &amp;&amp; (status &lt; CLAN_SHAMAN) &amp;&amp; (clanmember_get_status(dest_member) &lt; CLAN_SHAMAN)) ||
++          (clanmember_get_status(member) == CLAN_CHIEFTAIN)) &amp;&amp; 
++           (clanmember_set_status(dest_member, status) == 0)) {
++            bn_byte_set(&amp;rpacket-&gt;u.server_w3xp_clanmember_rankupdate_reply.result, SERVER_W3XP_CLANMEMBER_RANKUPDATE_SUCCESS);
++            clanmember_on_change_status(dest_member);
++        }
++        else {
++	        bn_byte_set(&amp;rpacket-&gt;u.server_w3xp_clanmember_rankupdate_reply.result, SERVER_W3XP_CLANMEMBER_RANKUPDATE_FAILED);
++        }
+ 	} 
+ 	else 
+ 	{
+-	    bn_byte_set(&amp;rpacket-&gt;u.server_w3xp_clanmember_rankupdate_reply.result, 
+-	                SERVER_W3XP_CLANMEMBER_RANKUPDATE_FAILED);
++	    bn_byte_set(&amp;rpacket-&gt;u.server_w3xp_clanmember_rankupdate_reply.result, SERVER_W3XP_CLANMEMBER_RANKUPDATE_FAILED);
+ 	}
+ 	conn_push_outqueue(c, rpacket);
+ 	packet_del_ref(rpacket);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000900.html">[pvpgn-dev] [Bug #10811] User with cg 6 able to send oversize	message.
+</A></li>
+	<LI>Next message: <A HREF="000902.html">[pvpgn-dev] pvpgn version-history.txt,1.298,1.299
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#901">[ date ]</a>
+              <a href="thread.html#901">[ thread ]</a>
+              <a href="subject.html#901">[ subject ]</a>
+              <a href="author.html#901">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

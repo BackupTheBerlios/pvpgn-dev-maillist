@@ -1,0 +1,117 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] [Bug #7992] /clearstats does not completely clear stats
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-August/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BBug%20%237992%5D%20/clearstats%20does%20not%20completely%20clear%20stats&In-Reply-To=%3C200708030701.l7371rwZ023997%40unicorn.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000210.html">
+   <LINK REL="Next"  HREF="000212.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] [Bug #7992] /clearstats does not completely clear stats</H1>
+    <B>admin at berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BBug%20%237992%5D%20/clearstats%20does%20not%20completely%20clear%20stats&In-Reply-To=%3C200708030701.l7371rwZ023997%40unicorn.berlios.de%3E"
+       TITLE="[pvpgn-dev] [Bug #7992] /clearstats does not completely clear stats">admin at berlios.de
+       </A><BR>
+    <I>Fri Aug  3 09:01:53 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000210.html">[pvpgn-dev] [Patch #2123] &quot;/&quot; commands support in WOL
+</A></li>
+        <LI>Next message: <A HREF="000212.html">[pvpgn-dev] [Bug #10811] User with cg 6 able to send oversize	message.
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#211">[ date ]</a>
+              <a href="thread.html#211">[ thread ]</a>
+              <a href="subject.html#211">[ subject ]</a>
+              <a href="author.html#211">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Bug #7992, was updated on 2006-Jun-26 14:34
+Here is a current snapshot of the bug.
+
+Project: Player vs Player Gaming Network
+Category: Warcraft Series
+Status: Open
+Resolution: None
+Bug Group: bnetd
+Priority: 5
+Submitted by: u-238
+Assigned to : pandaemonium
+Summary: /clearstats does not completely clear stats
+
+Details: /clearstats will only clear the stats you see in the bottom left of the profile, not the ones in the top left.  See picture:
+<A HREF="http://150.101.157.212/~mark/clearstats.png">http://150.101.157.212/~mark/clearstats.png</A>
+
+Below is a quote from the server admin who reported this:
+
+so say if i reset them at 20 - 0, it becomes:
+bottom 0 - 0
+top 20 - 0
+ -- 
+if they game for 1 win:
+bottom says 1 - 0,
+top says 21 - 0 
+but level starts from scratch again
+
+Follow-Ups:
+
+Date: 2007-Aug-03 09:01
+By: pelish
+
+Comment:
+How about any sub-command like &quot;/clearstats all&quot; (racewins) or something like?
+-------------------------------------------------------
+
+Date: 2006-Oct-12 18:14
+By: pandaemonium
+
+Comment:
+as far as I can recall this was intentional...
+
+/clearstats was only ment to clear ladder rankings, not racewins
+
+we might start a vote if this should be changed or not...
+-------------------------------------------------------
+
+Date: 2006-Oct-05 00:11
+By: ugurcan
+
+Comment:
+wasd
+-------------------------------------------------------
+
+For detailed info, follow this link:
+<A HREF="http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=7992&amp;group_id=2291">http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=7992&amp;group_id=2291</A>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000210.html">[pvpgn-dev] [Patch #2123] &quot;/&quot; commands support in WOL
+</A></li>
+	<LI>Next message: <A HREF="000212.html">[pvpgn-dev] [Bug #10811] User with cg 6 able to send oversize	message.
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#211">[ date ]</a>
+              <a href="thread.html#211">[ thread ]</a>
+              <a href="subject.html#211">[ subject ]</a>
+              <a href="author.html#211">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

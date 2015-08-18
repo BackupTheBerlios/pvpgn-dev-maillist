@@ -1,0 +1,134 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] pvpgn/src/bnetd handle_bnet.c,1.255,1.256
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2009-February/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20pvpgn/src/bnetd%20handle_bnet.c%2C1.255%2C1.256&In-Reply-To=%3C20090225223519.D0F13156046%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001019.html">
+   <LINK REL="Next"  HREF="001021.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] pvpgn/src/bnetd handle_bnet.c,1.255,1.256</H1>
+    <B>pelish</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20pvpgn/src/bnetd%20handle_bnet.c%2C1.255%2C1.256&In-Reply-To=%3C20090225223519.D0F13156046%40mail.berlios.de%3E"
+       TITLE="[pvpgn-dev] pvpgn/src/bnetd handle_bnet.c,1.255,1.256">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Wed Feb 25 23:35:19 CET 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001019.html">[pvpgn-dev] [Bug #15279] clan set motd doesn't escape characters
+</A></li>
+        <LI>Next message: <A HREF="001021.html">[pvpgn-dev] pvpgn/src/common bnet_protocol.h,1.58,1.59
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1020">[ date ]</a>
+              <a href="thread.html#1020">[ thread ]</a>
+              <a href="subject.html#1020">[ subject ]</a>
+              <a href="author.html#1020">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/pvpgn/pvpgn/src/bnetd
+In directory sheep:/tmp/cvs-serv5732/src/bnetd
+
+Modified Files:
+	handle_bnet.c 
+Log Message:
+fixed bug when clanmember without permission  was able to disband clan
+
+Index: handle_bnet.c
+===================================================================
+RCS file: /cvsroot/pvpgn/pvpgn/src/bnetd/handle_bnet.c,v
+retrieving revision 1.255
+retrieving revision 1.256
+diff -u -d -r1.255 -r1.256
+--- handle_bnet.c	9 Feb 2009 22:12:33 -0000	1.255
++++ handle_bnet.c	25 Feb 2009 22:35:16 -0000	1.256
+@@ -4292,29 +4292,35 @@
+     t_packet *rpacket;
+ 
+     if (packet_get_size(packet) &lt; sizeof(t_client_w3xp_clan_disbandreq)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad W3XP_CLAN_DISBANDREQ packet (expected %u bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_w3xp_clan_disbandreq), packet_get_size(packet));
+-	return -1;
++        eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad W3XP_CLAN_DISBANDREQ packet (expected %u bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_w3xp_clan_disbandreq), packet_get_size(packet));
++        return -1;
+     }
+ 
+     if ((rpacket = packet_create(packet_class_bnet))) {
+-	t_clan *clan;
+-	t_account *myacc;
+-	myacc = conn_get_account(c);
+-	clan = account_get_clan(myacc);
+-	packet_set_size(rpacket, sizeof(t_server_w3xp_clan_disbandreply));
+-	packet_set_type(rpacket, SERVER_W3XP_CLAN_DISBANDREPLY);
+-	bn_int_set(&amp;rpacket-&gt;u.server_w3xp_clan_disbandreply.count, bn_int_get(packet-&gt;u.client_w3xp_clan_disbandreq.count));
+-	if ((clanlist_remove_clan(clan) == 0) &amp;&amp; (clan_remove(clan_get_clantag(clan)) == 0)) {
+-	    bn_byte_set(&amp;rpacket-&gt;u.server_w3xp_clan_disbandreply.result, SERVER_W3XP_CLAN_DISBANDREPLY_RESULT_OK);
+-	    clan_close_status_window_on_disband(clan);
+-	    clan_send_packet_to_online_members(clan, rpacket);
+-	    packet_del_ref(rpacket);
+-	    clan_destroy(clan);
+-	} else {
+-	    bn_byte_set(&amp;rpacket-&gt;u.server_w3xp_clan_disbandreply.result, SERVER_W3XP_CLAN_DISBANDREPLY_RESULT_EXCEPTION);
+-	    conn_push_outqueue(c, rpacket);
+-	    packet_del_ref(rpacket);
+-	}
++        t_clan *clan;
++        t_clanmember *member;
++        t_account *account;
++
++        packet_set_size(rpacket, sizeof(t_server_w3xp_clan_disbandreply));
++        packet_set_type(rpacket, SERVER_W3XP_CLAN_DISBANDREPLY);
++        bn_int_set(&amp;rpacket-&gt;u.server_w3xp_clan_disbandreply.count, bn_int_get(packet-&gt;u.client_w3xp_clan_disbandreq.count));
++
++        if (!((account = conn_get_account(c)) &amp;&amp; (clan = account_get_clan(account)) &amp;&amp; (member = account_get_clanmember(account)) &amp;&amp; (clanmember_get_status(member) &gt;= CLAN_CHIEFTAIN))) {
++       	    eventlog(eventlog_level_warn, __FUNCTION__, &quot;[%d] got suspicious W3XP_CLAN_DISBANDREQ packet (request without required privileges)&quot;, conn_get_socket(c));
++       	    bn_byte_set(&amp;rpacket-&gt;u.server_w3xp_clan_disbandreply.result, SERVER_W3XP_CLAN_DISBANDREPLY_RESULT_NOT_AUTHORIZED);
++       	    conn_push_outqueue(c, rpacket);
++       	    packet_del_ref(rpacket);
++        } else if ((clanlist_remove_clan(clan) == 0) &amp;&amp; (clan_remove(clan_get_clantag(clan)) == 0)) {
++            bn_byte_set(&amp;rpacket-&gt;u.server_w3xp_clan_disbandreply.result, SERVER_W3XP_CLAN_DISBANDREPLY_RESULT_OK);
++            clan_close_status_window_on_disband(clan);
++            clan_send_packet_to_online_members(clan, rpacket);
++            packet_del_ref(rpacket);
++            clan_destroy(clan);
++        } else {
++            bn_byte_set(&amp;rpacket-&gt;u.server_w3xp_clan_disbandreply.result, SERVER_W3XP_CLAN_DISBANDREPLY_RESULT_EXCEPTION);
++            conn_push_outqueue(c, rpacket);
++            packet_del_ref(rpacket);
++        }
+     }
+ 
+     return 0;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001019.html">[pvpgn-dev] [Bug #15279] clan set motd doesn't escape characters
+</A></li>
+	<LI>Next message: <A HREF="001021.html">[pvpgn-dev] pvpgn/src/common bnet_protocol.h,1.58,1.59
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1020">[ date ]</a>
+              <a href="thread.html#1020">[ thread ]</a>
+              <a href="subject.html#1020">[ subject ]</a>
+              <a href="author.html#1020">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,104 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] cd-key check idea
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2008-December/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20cd-key%20check%20idea&In-Reply-To=%3C200812151307.02473.dizone%40gmail.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000910.html">
+   <LINK REL="Next"  HREF="000912.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] cd-key check idea</H1>
+    <B>dizzy</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20cd-key%20check%20idea&In-Reply-To=%3C200812151307.02473.dizone%40gmail.com%3E"
+       TITLE="[pvpgn-dev] cd-key check idea">dizone at gmail.com
+       </A><BR>
+    <I>Mon Dec 15 22:07:02 CET 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000910.html">[pvpgn-dev] cd-key check idea
+</A></li>
+        <LI>Next message: <A HREF="000912.html">[pvpgn-dev] cd-key check idea
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#911">[ date ]</a>
+              <a href="thread.html#911">[ thread ]</a>
+              <a href="subject.html#911">[ subject ]</a>
+              <a href="author.html#911">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>On Monday 15 December 2008 12:35:14 Pieter De Wit wrote:
+&gt;<i> Hi d1zzy,
+</I>&gt;<i>
+</I>&gt;<i> What do you expect to get out of this &quot;after all is said and done&quot; ?
+</I>
+Some kind of assurance that they won't sue us after SC2 gets released and some 
+random guy on the net adds sc2 support to pvpgn (as it happened with bnetd).
+
+&gt;<i> The idea of a secure &quot;tunnel&quot; for these cd-key checks makes sense no
+</I>&gt;<i> matter how you look at it. The fact that Blizzard didn't go for this
+</I>&gt;<i> option was their own choice.
+</I>&gt;<i>
+</I>&gt;<i> With PvPGN attempting to intersect/proxy these requests I think it will
+</I>&gt;<i> restart Blizzard's hunt to close PvPGN down. I think, if PvPGN is to do
+</I>&gt;<i> cd-keys, it should be via the secure tunnel, and every admin is giving
+</I>&gt;<i> a server login.
+</I>
+A client proxy would not send the cdkeys to pvpgn. But even if it would send 
+them (like right now the clients send the packets directly to pvpgn), the 
+protocol makes it impossible for the admin to retrieve them, they are 
+encrypted (which kinda makes it hard to proxy but probably not impossible).
+
+&gt;<i> If anything is tracked to that server admin, they will know where to
+</I>&gt;<i> look (stolen keys etc.)
+</I>
+Nobody can steal client keys with pvpgn because they are sent encrypted by the 
+client in a way pvpgn can't do nothing about. This is a myth (which started 
+because some time ag oblizzard did NOT encrypt the cdkey, not sure if it's 
+still valid with older than W3 clients, I assume not but for W3 I know for 
+sure it's encrypted and can me read only by Blizzard with their private key 
+on their servers).
+
+&gt;<i>
+</I>&gt;<i> Either way, what would happen if the key failed a check ? What good
+</I>&gt;<i> is it to PvPGN to check the key (not talking legally now :) )
+</I>
+Hopefully that would make it clear to Blizzard and the courts that pvpgn does 
+not exists to offer an alternative for those that do not have cdkeys but 
+actually to offer an alternative for bnet (for example to run a closed 
+community LAN party pvpgn server where you cannot use Blizzard's servers).
+
+-- 
+Dizzy
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000910.html">[pvpgn-dev] cd-key check idea
+</A></li>
+	<LI>Next message: <A HREF="000912.html">[pvpgn-dev] cd-key check idea
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#911">[ date ]</a>
+              <a href="thread.html#911">[ thread ]</a>
+              <a href="subject.html#911">[ subject ]</a>
+              <a href="author.html#911">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

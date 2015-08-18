@@ -1,0 +1,109 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] Some question for deverloper technical ...
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-February/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20Some%20question%20for%20deverloper%20technical%20...&In-Reply-To=%3C485113.34216.qm%40web51112.mail.yahoo.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000023.html">
+   <LINK REL="Next"  HREF="000025.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] Some question for deverloper technical ...</H1>
+    <B>All4you</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20Some%20question%20for%20deverloper%20technical%20...&In-Reply-To=%3C485113.34216.qm%40web51112.mail.yahoo.com%3E"
+       TITLE="[pvpgn-dev] Some question for deverloper technical ...">zhaowei_hn at yahoo.com
+       </A><BR>
+    <I>Tue Feb 13 16:37:37 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000023.html">[pvpgn-dev] Some question for deverloper technical ...
+</A></li>
+        <LI>Next message: <A HREF="000025.html">[pvpgn-dev] Some question for deverloper technical ...
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#24">[ date ]</a>
+              <a href="thread.html#24">[ thread ]</a>
+              <a href="subject.html#24">[ subject ]</a>
+              <a href="author.html#24">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>After some hours , i have some result ...
+   
+  With BroodWar user, they have TAG SEXP, the default icon and default ladder icons like <A HREF="http://www.battle.net/images/battle/images/chat/icons/sun.jpg">http://www.battle.net/images/battle/images/chat/icons/sun.jpg</A> is builtin with Stardat.MPQ , if the client can't find icons in icons_STAR.bni, they will get default icons from MPQ files. I have some fun stuff ...I backup two file icons.bni and icons_STAR.bni , and i deleted icons_STAR.bni and replace icons_STAR.bni with the content of icons.bni , when i login PVPGN with SEXP user, it's display only SEXP icons, this icons is get from icons_STAR.bni ( that's content from icons.bni ) ...
+   
+  That 'all ...i'm sure that :
+   
+   The main icons file is from icons_STAR.bni , IF the client can't get icon from this file, they will get default icons from StarDat.MPQ file ...The solutions to change icon like PGTour rank system is ...
+   
+  First : creat some image TGA will be rank icon like A+,A- , B+,B- and built it in to icons_STAR.bni ( using bnibuilt ) , define each icon with each TAG Name like RANK1 to RANKXXX ...
+   
+  Second : Edit PVPGN source code ( when display username list and icons ) , with each rank, define clienttag with the SAME TAG Name ...
+   
+  Third : recompiled PVPGN ...
+   
+  But my problem is i still can't find where PVPGN display icon and username list in BroodWar ...Who know that information ?? Please help me ...i am newbie with PVPGN system code ^.^
+   
+  Best regard ...
+
+All4you &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">zhaowei_hn at yahoo.com</A>&gt; wrote:
+  Good idea , but i have seen icons.bni , it have only default icons for TAG, even it don't have default rank icon , seem like PVPGN convert string rank to icon but i still can't find where 's that function ...
+
+Dizzy &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">dizone at gmail.com</A>&gt; wrote:   On 2/13/07, All4you wrote:
+&gt;<i> hmm, i want manual assign an icon to player , not in icons.bni because that
+</I>&gt;<i> 's only default TAG icon , i want assign own rank icon to player like A+,B+
+</I>&gt;<i> ... Where i have to look at ? What file ?
+</I>
+You will stil need to put all these icons to the icons.bni file and
+assign some unused TAG's for them, then you could tag the player with
+that special TAG to have the new icon.
+
+-- 
+Dizzy
+
+    
+---------------------------------
+  Looking for earth-friendly autos? 
+Browse Top Cars by &quot;Green Rating&quot; at Yahoo! Autos' Green Center. _______________________________________________
+pvpgn-dev mailing list
+<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">pvpgn-dev at lists.berlios.de</A>
+<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">https://lists.berlios.de/mailman/listinfo/pvpgn-dev</A>
+
+
+ 
+---------------------------------
+Bored stiff? Loosen up...
+Download and play hundreds of games for free on Yahoo! Games.
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: &lt;<A HREF="https://lists.berlios.de/pipermail/pvpgn-dev/attachments/20070213/3f3a112c/attachment.html">https://lists.berlios.de/pipermail/pvpgn-dev/attachments/20070213/3f3a112c/attachment.html</A>&gt;
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000023.html">[pvpgn-dev] Some question for deverloper technical ...
+</A></li>
+	<LI>Next message: <A HREF="000025.html">[pvpgn-dev] Some question for deverloper technical ...
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#24">[ date ]</a>
+              <a href="thread.html#24">[ thread ]</a>
+              <a href="subject.html#24">[ subject ]</a>
+              <a href="author.html#24">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

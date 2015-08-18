@@ -1,0 +1,84 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r365 - trunk/pvpgn/conf
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-August/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r365%20-%20trunk/pvpgn/conf&In-Reply-To=%3C200708261305.l7QD5ABN008201%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000416.html">
+   <LINK REL="Next"  HREF="000418.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r365 - trunk/pvpgn/conf</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r365%20-%20trunk/pvpgn/conf&In-Reply-To=%3C200708261305.l7QD5ABN008201%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r365 - trunk/pvpgn/conf">svn at svn.berlios.de
+       </A><BR>
+    <I>Sun Aug 26 15:05:10 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000416.html">[pvpgn-dev] r364 - trunk/pvpgn/src/bnetd
+</A></li>
+        <LI>Next message: <A HREF="000418.html">[pvpgn-dev] r366 - in trunk/pvpgn/src: . bnetd d2cs d2dbs win32
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#417">[ date ]</a>
+              <a href="thread.html#417">[ thread ]</a>
+              <a href="subject.html#417">[ subject ]</a>
+              <a href="author.html#417">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pelish
+Date: 2007-08-26 15:05:07 +0200 (Sun, 26 Aug 2007)
+New Revision: 365
+
+Modified:
+   trunk/pvpgn/conf/CMakeLists.txt
+Log:
+fix issue with not converting unix-end-lines to dos-end-lines on Win32 systems
+
+Modified: trunk/pvpgn/conf/CMakeLists.txt
+===================================================================
+--- trunk/pvpgn/conf/CMakeLists.txt	2007-08-26 12:59:48 UTC (rev 364)
++++ trunk/pvpgn/conf/CMakeLists.txt	2007-08-26 13:05:07 UTC (rev 365)
+@@ -6,7 +6,7 @@
+   sql_DB_layout2.conf sql_DB_layout.conf supportfile.conf topics.conf 
+   tournament.conf versioncheck.conf)
+ foreach(CONF ${OUTPUT_CONFS})
+-  configure_file(${CMAKE_CURRENT_SOURCE_DIR}/${CONF}.in ${CMAKE_CURRENT_BINARY_DIR}/${CONF} COPYONLY)
++  configure_file(${CMAKE_CURRENT_SOURCE_DIR}/${CONF}.in ${CMAKE_CURRENT_BINARY_DIR}/${CONF})
+ endforeach(CONF)
+ 
+ # generate the config files replacing the path variables
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000416.html">[pvpgn-dev] r364 - trunk/pvpgn/src/bnetd
+</A></li>
+	<LI>Next message: <A HREF="000418.html">[pvpgn-dev] r366 - in trunk/pvpgn/src: . bnetd d2cs d2dbs win32
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#417">[ date ]</a>
+              <a href="thread.html#417">[ thread ]</a>
+              <a href="subject.html#417">[ subject ]</a>
+              <a href="author.html#417">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,124 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] [Bug #18519] Exploit rollback overhead text
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2012-March/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BBug%20%2318519%5D%20Exploit%20rollback%20overhead%20text&In-Reply-To=%3C201203040054.q240sUKD013653%40unicorn.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="001030.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] [Bug #18519] Exploit rollback overhead text</H1>
+    <B>admin at berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BBug%20%2318519%5D%20Exploit%20rollback%20overhead%20text&In-Reply-To=%3C201203040054.q240sUKD013653%40unicorn.berlios.de%3E"
+       TITLE="[pvpgn-dev] [Bug #18519] Exploit rollback overhead text">admin at berlios.de
+       </A><BR>
+    <I>Sun Mar  4 01:54:30 CET 2012</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="001030.html">No subject
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1285">[ date ]</a>
+              <a href="thread.html#1285">[ thread ]</a>
+              <a href="subject.html#1285">[ subject ]</a>
+              <a href="author.html#1285">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Bug #18519, was updated on 2012-Mar-03 15:54
+Here is a current snapshot of the bug.
+
+Project: Player vs Player Gaming Network
+Category: Diablo Series
+Status: Open
+Resolution: None
+Bug Group: d2cs/d2dbs
+Priority: 5
+Submitted by: turrete
+Assigned to : none
+Summary: Exploit rollback overhead text
+
+Details: Any way to solve this ????
+RedVex + ASCII macro.
+This is from <A HREF="http://blizzhackers.blogspot.com/2010/03/happy-birfday-gayry-rollback-party.html">http://blizzhackers.blogspot.com/2010/03/happy-birfday-gayry-rollback-party.html</A>
+Thanks in advance.
+
+
+What is a rollback:
+A rollback causes the game to drop, without saving your character. What this means is you can make an Enigma, look at the stats, then roll it back to being a 3os armor with jah/ith/ber outside of it. You can also revert items back to being unid, and hundreds of other useful things.
+
+The method:
+Spam overhead messages while casting a missile spell (Fire Blast works well and only rq level 2, fire bolt should work as well).
+
+The process:
+There are many ways to do this. The best is probably this.
+
+1) Download RedVex: <A HREF="http://bhfiles.com/files/Diablo%20II/1.12a/RedVex/Redvex_3.0_6-12-07.rar">http://bhfiles.com/files/Diablo%20II/1.12a/RedVex/Redvex_3.0_6-12-07.rar</A>
+2) Download ASCII Macro: <A HREF="http://bhfiles.com/files/Diablo%20II/1.12a/RedVex/Plugins/Ascii%20Macro%201.1.rar">http://bhfiles.com/files/Diablo%20II/1.12a/RedVex/Plugins/Ascii%20Macro%201.1.rar</A>
+3) Make a file, &quot;crash.txt&quot; in the Macros folder.
+4) Fill that file with the following:
+Code:
+
+00OverheadDataOverflow oVERHEADdATAoVERFLOW OverheadDataOverflow oVERHEADdATAoVERFLOW
+
+01oVERHEADdATAoVERFLOW OverheadDataOverflow OverheadDataOverflow oVERHEADdATAoVERFLOW
+
+02oVERHEADdATAoVERFLOW OverheadDataOverflow OverheadDataOverflow oVERHEADdATAoVERFLOW
+
+03oVERHEADdATAoVERFLOW OverheadDataOverflow OverheadDataOverflow oVERHEADdATAoVERFLOW
+
+04oVERHEADdATAoVERFLOW OverheadDataOverflow OverheadDataOverflow oVERHEADdATAoVERFLOW
+
+05oVERHEADdATAoVERFLOW OverheadDataOverflow OverheadDataOverflow oVERHEADdATAoVERFLOW
+
+06oVERHEADdATAoVERFLOW OverheadDataOverflow OverheadDataOverflow oVERHEADdATAoVERFLOW
+
+07oVERHEADdATAoVERFLOW OverheadDataOverflow OverheadDataOverflow oVERHEADdATAoVERFLOW
+
+08oVERHEADdATAoVERFLOW OverheadDataOverflow OverheadDataOverflow oVERHEADdATAoVERFLOW
+
+09oVERHEADdATAoVERFLOW OverheadDataOverflow OverheadDataOverflow oVERHEADdATAoVERFLOW
+
+10oVERHEADdATAoVERFLOW OverheadDataOverflow OverheadDataOverflow oVERHEADdATAoVERFLOW
+
+5) Get into game, leave town.
+6) Start spamming fire blast, then type &quot;.overhead crash&quot;
+
+If done properly, it should crash by the third message is sent, every time. This is the method that is being sold by a lot of people, including benowns (you might have seen him selling it in his signature). Despite Mibz being a retard and removing it, it DOES in fact work. If you use it right.
+
+
+
+For detailed info, follow this link:
+<A HREF="http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=18519&amp;group_id=2291">http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=18519&amp;group_id=2291</A>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="001030.html">No subject
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1285">[ date ]</a>
+              <a href="thread.html#1285">[ thread ]</a>
+              <a href="subject.html#1285">[ subject ]</a>
+              <a href="author.html#1285">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,94 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] [Bug #14821] Compiler warnings
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2009-January/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BBug%20%2314821%5D%20Compiler%20warnings&In-Reply-To=%3C200901282217.n0SMHa9I007621%40unicorn.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000937.html">
+   <LINK REL="Next"  HREF="000939.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] [Bug #14821] Compiler warnings</H1>
+    <B>admin at berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BBug%20%2314821%5D%20Compiler%20warnings&In-Reply-To=%3C200901282217.n0SMHa9I007621%40unicorn.berlios.de%3E"
+       TITLE="[pvpgn-dev] [Bug #14821] Compiler warnings">admin at berlios.de
+       </A><BR>
+    <I>Wed Jan 28 23:17:36 CET 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000937.html">[pvpgn-dev] [Bug #15149] clan whisper doesn't return
+</A></li>
+        <LI>Next message: <A HREF="000939.html">[pvpgn-dev] [Bug #15150] chieftain removed from clan after creation
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#938">[ date ]</a>
+              <a href="thread.html#938">[ thread ]</a>
+              <a href="subject.html#938">[ subject ]</a>
+              <a href="author.html#938">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Bug #14821, was updated on 2008-Nov-22 15:04
+Here is a current snapshot of the bug.
+
+Project: Player vs Player Gaming Network
+Category: General
+Status: Open
+Resolution: None
+Bug Group: bnetd
+Priority: 5
+Submitted by: u-238
+Assigned to : none
+Summary: Compiler warnings
+
+Details: Compiling latest SVN (as at 22/11/2008) on CentOS
+
+
+/downloads/pvpgnsrc/pvpgn/src/bnetd/connection.cpp: In function &quot;int pvpgn::bnetd::conn_set_channel(pvpgn::bnetd::t_connection*, const char*)&quot;:
+/downloads/pvpgnsrc/pvpgn/src/bnetd/connection.cpp:1974: warning: passing NULL to non-pointer argument 3 of 
+&quot;pvpgn::bnetd::t_channel* pvpgn::bnetd::channel_create(const char*, const char*, pvpgn::t_clienttag, int, int, int, int, const char*, const char*, int, int, int, int)&quot;
+/downloads/pvpgnsrc/pvpgn/src/bnetd/connection.cpp:1976: warning: passing NULL to non-pointer argument 3 of &quot;pvpgn::bnetd::t_channel* pvpgn::bnetd::channel_create(const char*, const char*, pvpgn::t_clienttag, int, int, int, int, const char*, const char*, int, int, int, int)&quot;
+
+
+Follow-Ups:
+
+Date: 2009-Jan-29 00:17
+By: saidin
+
+Comment:
+There are several other issues. For example, building in Debug triggers the addition of -pedantic, which will complain about 'long long' if you are using MYSQL. Newer compilers throw even more errors - gcc 4.3.2 on Ubuntu throws pages of them.
+-------------------------------------------------------
+
+For detailed info, follow this link:
+<A HREF="http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=14821&amp;group_id=2291">http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=14821&amp;group_id=2291</A>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000937.html">[pvpgn-dev] [Bug #15149] clan whisper doesn't return
+</A></li>
+	<LI>Next message: <A HREF="000939.html">[pvpgn-dev] [Bug #15150] chieftain removed from clan after creation
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#938">[ date ]</a>
+              <a href="thread.html#938">[ thread ]</a>
+              <a href="subject.html#938">[ subject ]</a>
+              <a href="author.html#938">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

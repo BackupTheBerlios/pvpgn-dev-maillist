@@ -1,0 +1,171 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] Im sorry but I still dont understand how to list	games
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-May/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20Im%20sorry%20but%20I%20still%20dont%20understand%20how%20to%20list%0A%09games&In-Reply-To=%3Ccc416a620705020004h7f9c1d91g4625db58f5774a21%40mail.gmail.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="000069.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] Im sorry but I still dont understand how to list	games</H1>
+    <B>Dizzy</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20Im%20sorry%20but%20I%20still%20dont%20understand%20how%20to%20list%0A%09games&In-Reply-To=%3Ccc416a620705020004h7f9c1d91g4625db58f5774a21%40mail.gmail.com%3E"
+       TITLE="[pvpgn-dev] Im sorry but I still dont understand how to list	games">dizone at gmail.com
+       </A><BR>
+    <I>Wed May  2 09:04:12 CEST 2007</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="000069.html">[pvpgn-dev] Im sorry but I still dont understand how to list	games
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#68">[ date ]</a>
+              <a href="thread.html#68">[ thread ]</a>
+              <a href="subject.html#68">[ subject ]</a>
+              <a href="author.html#68">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>On 4/26/07, Pelish &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">pelish at gmail.com</A>&gt; wrote:
+&gt;<i> Good day,
+</I>&gt;<i> as I have sayd I still dont know how to list games. I have tryed to
+</I>&gt;<i> understand how it works in hendle_bnet.cpp but here is not as return t_game
+</I>&gt;<i> but packet. I need to list games but as return I need t_game (that I will
+</I>&gt;<i> format and send to client). D1zzy tryed to show me this in IRC but I have
+</I>&gt;<i> lose this conversation and I havent understand everithing.
+</I>&gt;<i>
+</I>&gt;<i> It is possible to send me any part of code by mail?
+</I>
+Sure, that's why we have this mailing list.
+
+In order to traverse the game list maintained by the game.cpp code you
+will need to make a function of your own, that will receive a t_game
+pointer and some &quot;void*&quot; field that you manage yourself.
+
+So, say you want in some function to traverse the list of games and
+print it to screen. So we create a function called print_game like
+this (this function is called a callback function):
+
+int print_game(t_game* game, void* /* ignored */)
+{
+  printf(&quot;Game: %s\n&quot;, game_get_name(game));
+  return 0;
+}
+
+
+In order to have this function actually be called for each game we
+need to game gamelist_traverse with it as a parameter, like this:
+gamelist_traverse(&amp;print_game, 0);
+
+Now, gamelist_traverse will traverse over each t_game structure from
+the game list and will call our callback print_game function giving it
+as a first parameter the t_game structure and as a second parameter
+the second parameter given to gamelist_traverse (in our example &quot;0&quot;
+which is ignored).
+
+If you understood so far let's move to a more complex (but more
+common) example (where we will use the second parameter too).
+
+Say you are handling a packet received on a &quot;t_connection* con&quot; and
+you want for each game of a type to send something over the connection
+(over &quot;con&quot;). Notice that we need somehow to pass the &quot;con&quot; from the
+caller of gamelist_traverse to our function that handles each t_game.
+We use the second parameter &quot;void*&quot; for that.
+
+int append_game_info(t_game* game, void* vcon)
+{
+
+  // first convert vcon which is of void* to t_connection* because we
+know it's just that
+  t_connection* con = static_cast&lt;t_connection*&gt;(vcon);
+
+  if (game_get_type(game) == someType) {
+    // append data to &quot;con&quot;
+  }
+
+  return 0;
+}
+
+
+And to call gamelist_traverse for that function just do:
+gamelist_traverse(&amp;append_game_info, con);
+// where &quot;con&quot; here is the t_connection variable that I pass to the callback
+
+I hope this is clear too. In case you need to pass to the function
+called on each t_game more data than a single pointer (above we passed
+only a t_connection* but in practice you may need to pass more than a
+pointer) just make a &quot;struct&quot; that packs all the information that need
+to be passed and provide a pointer to it when you call
+
+Example, suppose that I need to pass 2 integers and one pointer (one
+integer is used to count the selected games, one to count the total
+and the pointer is the t_connection* where we send the data). Then we
+have this:
+
+struct append_game_info_cbdata {
+  int total, selected;
+  t_connection* con;
+};
+
+int append_game_info2(t_game* game, void* vdata)
+{
+  // just like before convert the void* to our actual structure
+because we know it's that
+  append_game_info_cbdata* data = static_cast&lt;append_game_info_cbdata*&gt;(vdata);
+
+  if (game_get_type(game) == someType) {
+     data-&gt;selected++;
+     // do stuff on data-&gt;con
+  }
+
+  data-&gt;total++;
+
+  return 0;
+}
+
+And to call it just use:
+
+append_game_info_cbdata data;
+data.total = data.selected = 0;
+data.con = con; // where &quot;con&quot; is our local t_connection* that we pass
+back to the callback
+
+gamelist_traverse(&amp;append_game_info2, &amp;data);
+
+&gt;<i> Btw I have used &quot;pvpgn-dev mailinglist&quot; now ;)
+</I>
+Good :)
+
+-- 
+Dizzy
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="000069.html">[pvpgn-dev] Im sorry but I still dont understand how to list	games
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#68">[ date ]</a>
+              <a href="thread.html#68">[ thread ]</a>
+              <a href="subject.html#68">[ subject ]</a>
+              <a href="author.html#68">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

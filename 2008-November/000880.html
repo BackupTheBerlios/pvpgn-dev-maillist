@@ -1,0 +1,94 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] pvpgn/src/common bnet_protocol.h,1.57,1.58
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2008-November/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20pvpgn/src/common%20bnet_protocol.h%2C1.57%2C1.58&In-Reply-To=%3C20081117230518.5ACB4161F5F%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000879.html">
+   <LINK REL="Next"  HREF="000881.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] pvpgn/src/common bnet_protocol.h,1.57,1.58</H1>
+    <B>pelish</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20pvpgn/src/common%20bnet_protocol.h%2C1.57%2C1.58&In-Reply-To=%3C20081117230518.5ACB4161F5F%40mail.berlios.de%3E"
+       TITLE="[pvpgn-dev] pvpgn/src/common bnet_protocol.h,1.57,1.58">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Tue Nov 18 00:05:18 CET 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000879.html">[pvpgn-dev] pvpgn/src/bnetd game.c, 1.64, 1.65 game.h, 1.20,	1.21 handle_bnet.c, 1.252, 1.253
+</A></li>
+        <LI>Next message: <A HREF="000881.html">[pvpgn-dev] pvpgn version-history.txt,1.296,1.297
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#880">[ date ]</a>
+              <a href="thread.html#880">[ thread ]</a>
+              <a href="subject.html#880">[ subject ]</a>
+              <a href="author.html#880">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/pvpgn/pvpgn/src/common
+In directory sheep:/tmp/cvs-serv22989/src/common
+
+Modified Files:
+	bnet_protocol.h 
+Log Message:
+fix for [ Bug #10900 ] could not load saved game
+
+Index: bnet_protocol.h
+===================================================================
+RCS file: /cvsroot/pvpgn/pvpgn/src/common/bnet_protocol.h,v
+retrieving revision 1.57
+retrieving revision 1.58
+diff -u -d -r1.57 -r1.58
+--- bnet_protocol.h	20 Aug 2007 19:14:54 -0000	1.57
++++ bnet_protocol.h	17 Nov 2008 23:05:15 -0000	1.58
+@@ -2623,6 +2623,7 @@
+ #define CLIENT_GAMELISTREQ_PGL       0x000e
+ #define CLIENT_GAMELISTREQ_TOPVBOT   0x000f
+ #define CLIENT_GAMELISTREQ_DIABLO    0x0409 /* FIXME: this should be the langid */
++#define CLIENT_GAMELISTREQ_LOADED    0x0a00
+ /* FIXME: Diablo reports differently than it is listed in GAMELIST */
+ #define CLIENT_GAMETYPE_DIABLO_0     0x00000000 /* Level 1 Char */
+ #define CLIENT_GAMETYPE_DIABLO_1     0x00000001 /* Level 2 Char */
+@@ -2718,6 +2719,7 @@
+ #define SERVER_GAMELISTREPLY_GAME_SSTATUS_FULL		0x3 /* game full */
+ #define SERVER_GAMELISTREPLY_GAME_SSTATUS_STARTED	0x4 /* game started */
+ #define SERVER_GAMELISTREPLY_GAME_SSTATUS_NOSPAWNCDKEY	0x5 /* trying to use a spawn install join invalid cdkey creator game */
++#define SERVER_GAMELISTREPLY_GAME_SSTATUS_LOADED        0x0a00 /* Loaded game */
+ 
+ typedef struct
+ {
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000879.html">[pvpgn-dev] pvpgn/src/bnetd game.c, 1.64, 1.65 game.h, 1.20,	1.21 handle_bnet.c, 1.252, 1.253
+</A></li>
+	<LI>Next message: <A HREF="000881.html">[pvpgn-dev] pvpgn version-history.txt,1.296,1.297
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#880">[ date ]</a>
+              <a href="thread.html#880">[ thread ]</a>
+              <a href="subject.html#880">[ subject ]</a>
+              <a href="author.html#880">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

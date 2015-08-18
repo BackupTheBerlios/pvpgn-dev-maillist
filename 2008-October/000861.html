@@ -1,0 +1,156 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r511 - trunk/pvpgn/src/bnetd
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2008-October/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r511%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200810191905.m9JJ57uL004582%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000860.html">
+   <LINK REL="Next"  HREF="000862.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r511 - trunk/pvpgn/src/bnetd</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r511%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200810191905.m9JJ57uL004582%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r511 - trunk/pvpgn/src/bnetd">svn at svn.berlios.de
+       </A><BR>
+    <I>Sun Oct 19 21:05:07 CEST 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000860.html">[pvpgn-dev] [Bug #14689] [SVN r508] WOL DoS / Server Crash when WOL	game finishes
+</A></li>
+        <LI>Next message: <A HREF="000862.html">[pvpgn-dev] [Bug #14689] [SVN r508] WOL DoS / Server Crash when WOL	game finishes
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#861">[ date ]</a>
+              <a href="thread.html#861">[ thread ]</a>
+              <a href="subject.html#861">[ subject ]</a>
+              <a href="author.html#861">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pelish
+Date: 2008-10-19 21:05:05 +0200 (Sun, 19 Oct 2008)
+New Revision: 511
+
+Modified:
+   trunk/pvpgn/src/bnetd/handle_irc.cpp
+   trunk/pvpgn/src/bnetd/handle_irc_common.cpp
+   trunk/pvpgn/src/bnetd/handle_wol.cpp
+   trunk/pvpgn/src/bnetd/message.cpp
+Log:
+Fix for bug which brake WOL games with computers in game. We do truncation of IRC messages when MAX_IRC_MESSAGE_LEN is overflowed but we also do truncation in message_bnet_format() to MAX_MESSAGE_LEN. This should not brake anything but big bnet testing is welcome!
+
+Modified: trunk/pvpgn/src/bnetd/handle_irc.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/handle_irc.cpp	2008-10-18 17:05:57 UTC (rev 510)
++++ trunk/pvpgn/src/bnetd/handle_irc.cpp	2008-10-19 19:05:05 UTC (rev 511)
+@@ -305,7 +305,7 @@
+ 					unsigned int j;
+ 					t_hash       passhash;
+ 					t_account  * temp;
+-					char         msgtemp[MAX_MESSAGE_LEN];
++					char         msgtemp[MAX_IRC_MESSAGE_LEN];
+ 					char       * username=(char *)conn_get_loggeduser(conn);
+ 
+ 					if (account_check_name(username)&lt;0) {
+
+Modified: trunk/pvpgn/src/bnetd/handle_irc_common.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/handle_irc_common.cpp	2008-10-18 17:05:57 UTC (rev 510)
++++ trunk/pvpgn/src/bnetd/handle_irc_common.cpp	2008-10-19 19:05:05 UTC (rev 511)
+@@ -178,13 +178,15 @@
+ 	 */
+ 	return -1;
+     }
+-	//amadeo: code was sent by some unknown fellow of pvpgn, prevents buffer-overflow for
+-	// too long irc-lines
+ 
+-    if (std::strlen(ircline)&gt;254) {
++    //amadeo: code was sent by some unknown fellow of pvpgn, prevents buffer-overflow for
++    // too long irc-lines
++    //PELISH: According to RFC2812 we do truncation on 512 byte
++
++    if (std::strlen(ircline)&gt;MAX_IRC_MESSAGE_LEN) {
+         char * tmp = (char *)ircline;
+-	eventlog(eventlog_level_warn,__FUNCTION__,&quot;line to long, truncation...&quot;);
+-	tmp[254]='\0';
++        eventlog(eventlog_level_warn,__FUNCTION__,&quot;line too long, truncation...&quot;);
++        tmp[MAX_IRC_MESSAGE_LEN]='\0';
+     }
+ 
+     line = xstrdup(ircline);
+
+Modified: trunk/pvpgn/src/bnetd/handle_wol.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/handle_wol.cpp	2008-10-18 17:05:57 UTC (rev 510)
++++ trunk/pvpgn/src/bnetd/handle_wol.cpp	2008-10-19 19:05:05 UTC (rev 511)
+@@ -431,7 +431,7 @@
+ 					unsigned int j;
+ 					t_hash       passhash;
+ 					t_account  * temp;
+-					char         msgtemp[MAX_MESSAGE_LEN];
++					char         msgtemp[MAX_IRC_MESSAGE_LEN];
+ 					char       * username=(char *)conn_get_loggeduser(conn);
+ 
+ 					if (account_check_name(username)&lt;0) {
+@@ -482,7 +482,7 @@
+ 				if (e[i][0]=='#') {
+ 					/* channel message */
+ 					t_channel * channel;
+-					char msgtemp[MAX_MESSAGE_LEN];
++					char msgtemp[MAX_IRC_MESSAGE_LEN];
+ 
+ 					if ((channel = channellist_find_channel_by_name(irc_convert_ircname(e[i]),NULL,NULL))) {
+ 						if ((std::strlen(text)&gt;=9)&amp;&amp;(std::strncmp(text,&quot;\001ACTION &quot;,8)==0)&amp;&amp;(text[std::strlen(text)-1]=='\001')) {
+
+Modified: trunk/pvpgn/src/bnetd/message.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/message.cpp	2008-10-18 17:05:57 UTC (rev 510)
++++ trunk/pvpgn/src/bnetd/message.cpp	2008-10-19 19:05:05 UTC (rev 511)
+@@ -988,6 +988,14 @@
+     if (text &amp;&amp; text[0]=='\0')
+         text = &quot; &quot;; /* empty messages crash some clients, just send whitespace */
+ 
++    if (text &amp;&amp; (std::strlen(text) &gt; MAX_MESSAGE_LEN)) {
++        /* PELISH: We are trying to support MAX_IRC_MESSAGE_LEN for IRC and also
++                   MAX_MESSAGE_LEN for bnet */
++        char * temp = (char *)text;
++        eventlog(eventlog_level_warn,__FUNCTION__,&quot;line too long, truncation...&quot;);
++	    temp[MAX_MESSAGE_LEN] = '\0';
++    }
++
+     packet_set_size(packet,sizeof(t_server_message));
+     packet_set_type(packet,SERVER_MESSAGE);
+     bn_int_set(&amp;packet-&gt;u.server_message.player_ip,SERVER_MESSAGE_PLAYER_IP_DUMMY);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000860.html">[pvpgn-dev] [Bug #14689] [SVN r508] WOL DoS / Server Crash when WOL	game finishes
+</A></li>
+	<LI>Next message: <A HREF="000862.html">[pvpgn-dev] [Bug #14689] [SVN r508] WOL DoS / Server Crash when WOL	game finishes
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#861">[ date ]</a>
+              <a href="thread.html#861">[ thread ]</a>
+              <a href="subject.html#861">[ subject ]</a>
+              <a href="author.html#861">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

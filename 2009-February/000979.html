@@ -1,0 +1,96 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] pvpgn/src/bnetd handle_bnet.c,1.254,1.255
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2009-February/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20pvpgn/src/bnetd%20handle_bnet.c%2C1.254%2C1.255&In-Reply-To=%3C20090209221236.1C517170CFD%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000978.html">
+   <LINK REL="Next"  HREF="000980.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] pvpgn/src/bnetd handle_bnet.c,1.254,1.255</H1>
+    <B>pelish</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20pvpgn/src/bnetd%20handle_bnet.c%2C1.254%2C1.255&In-Reply-To=%3C20090209221236.1C517170CFD%40mail.berlios.de%3E"
+       TITLE="[pvpgn-dev] pvpgn/src/bnetd handle_bnet.c,1.254,1.255">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Mon Feb  9 23:12:36 CET 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000978.html">[pvpgn-dev] r532 - trunk/pvpgn/src/bnetd
+</A></li>
+        <LI>Next message: <A HREF="000980.html">[pvpgn-dev] [Bug #15183] Can't join private games
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#979">[ date ]</a>
+              <a href="thread.html#979">[ thread ]</a>
+              <a href="subject.html#979">[ subject ]</a>
+              <a href="author.html#979">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/pvpgn/pvpgn/src/bnetd
+In directory sheep:/tmp/cvs-serv30169
+
+Modified Files:
+	handle_bnet.c 
+Log Message:
+making backport of pandaemonium's fix for [ Bug #15183 ] Can't join private games
+
+Index: handle_bnet.c
+===================================================================
+RCS file: /cvsroot/pvpgn/pvpgn/src/bnetd/handle_bnet.c,v
+retrieving revision 1.254
+retrieving revision 1.255
+diff -u -d -r1.254 -r1.255
+--- handle_bnet.c	15 Dec 2008 07:46:11 -0000	1.254
++++ handle_bnet.c	9 Feb 2009 22:12:33 -0000	1.255
+@@ -3356,7 +3356,7 @@
+ 			break;
+ 		    }
+ 
+-		    if (game_get_status(game) &amp; game_status_loaded) {
++		    if (game_get_status(game) == game_status_loaded) {
+ 		        bn_int_set(&amp;rpacket-&gt;u.server_gamelistreply.sstatus, SERVER_GAMELISTREPLY_GAME_SSTATUS_LOADED);
+ 		        eventlog(eventlog_level_debug, __FUNCTION__, &quot;[%d] GAMELISTREPLY found loaded game&quot;, conn_get_socket(c));
+             }
+@@ -3718,7 +3718,7 @@
+ 		    game_set_flag(conn_get_game(c), game_flag_private);
+ 		if (status &amp; CLIENT_STARTGAME4_STATUS_FULL)
+ 		    game_set_status(conn_get_game(c), game_status_full);
+-        if (bngtype &amp; CLIENT_GAMELISTREQ_LOADED) /* PELISH: seems strange but it is really needed for loaded games */
++        if (bngtype == CLIENT_GAMELISTREQ_LOADED) /* PELISH: seems strange but it is really needed for loaded games */
+ 		    game_set_status(conn_get_game(c), game_status_loaded);
+ 		//FIXME: still need special handling for status disc-is-loss and replay
+ 	    }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000978.html">[pvpgn-dev] r532 - trunk/pvpgn/src/bnetd
+</A></li>
+	<LI>Next message: <A HREF="000980.html">[pvpgn-dev] [Bug #15183] Can't join private games
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#979">[ date ]</a>
+              <a href="thread.html#979">[ thread ]</a>
+              <a href="subject.html#979">[ subject ]</a>
+              <a href="author.html#979">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

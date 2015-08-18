@@ -1,0 +1,117 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r292 - trunk/pvpgn/src/bnetd
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-August/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r292%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200708061945.l76JjsHI027400%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000235.html">
+   <LINK REL="Next"  HREF="000237.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r292 - trunk/pvpgn/src/bnetd</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r292%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200708061945.l76JjsHI027400%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r292 - trunk/pvpgn/src/bnetd">svn at svn.berlios.de
+       </A><BR>
+    <I>Mon Aug  6 21:45:54 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000235.html">[pvpgn-dev] [Patch #2127] one SUPER hendle file for all IRC based	protocols
+</A></li>
+        <LI>Next message: <A HREF="000237.html">[pvpgn-dev] r293 - trunk/pvpgn/src/bnetd
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#236">[ date ]</a>
+              <a href="thread.html#236">[ thread ]</a>
+              <a href="subject.html#236">[ subject ]</a>
+              <a href="author.html#236">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pandaemonium
+Date: 2007-08-06 21:45:53 +0200 (Mon, 06 Aug 2007)
+New Revision: 292
+
+Modified:
+   trunk/pvpgn/src/bnetd/handle_irc.cpp
+   trunk/pvpgn/src/bnetd/handle_wol.cpp
+   trunk/pvpgn/src/bnetd/irc.cpp
+Log:
+make WOL2 clients recieve proper namreply
+
+Modified: trunk/pvpgn/src/bnetd/handle_irc.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/handle_irc.cpp	2007-08-06 16:19:40 UTC (rev 291)
++++ trunk/pvpgn/src/bnetd/handle_irc.cpp	2007-08-06 19:45:53 UTC (rev 292)
+@@ -794,7 +794,6 @@
+ 				else
+ 					irc_send(conn,RPL_NOTOPIC,&quot;:No topic is set&quot;);
+ 
+-				irc_send_rpl_namreply(conn,channel);
+ 	    		}
+ 		}
+ 		}
+
+Modified: trunk/pvpgn/src/bnetd/handle_wol.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/handle_wol.cpp	2007-08-06 16:19:40 UTC (rev 291)
++++ trunk/pvpgn/src/bnetd/handle_wol.cpp	2007-08-06 19:45:53 UTC (rev 292)
+@@ -853,12 +853,6 @@
+ 				channel_set_userflags(conn);
+ 				wolname=irc_convert_channel(channel);
+ 
+-	    			irc_send_rpl_namreply(conn,channel);
+-
+-				if ((std::strlen(wolname)+1+std::strlen(&quot;:End of NAMES list&quot;)+1)&lt;MAX_IRC_MESSAGE_LEN) {
+-					snprintf(temp, sizeof(temp), &quot;%s :End of NAMES list&quot;,wolname);
+-					irc_send(conn,RPL_ENDOFNAMES,temp);
+-				}
+ 			}
+ 		}
+     		if (e)
+
+Modified: trunk/pvpgn/src/bnetd/irc.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/irc.cpp	2007-08-06 16:19:40 UTC (rev 291)
++++ trunk/pvpgn/src/bnetd/irc.cpp	2007-08-06 19:45:53 UTC (rev 292)
+@@ -893,6 +893,8 @@
+ 	return -1;
+     }
+ 
++    eventlog(eventlog_level_debug,__FUNCTION__,&quot;got called&quot;);
++
+     std::memset(temp,0,sizeof(temp));
+     ircname = irc_convert_channel(channel);
+     if (!ircname) {
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000235.html">[pvpgn-dev] [Patch #2127] one SUPER hendle file for all IRC based	protocols
+</A></li>
+	<LI>Next message: <A HREF="000237.html">[pvpgn-dev] r293 - trunk/pvpgn/src/bnetd
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#236">[ date ]</a>
+              <a href="thread.html#236">[ thread ]</a>
+              <a href="subject.html#236">[ subject ]</a>
+              <a href="author.html#236">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

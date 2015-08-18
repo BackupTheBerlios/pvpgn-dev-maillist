@@ -1,0 +1,482 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r443 - trunk/pvpgn/src/common
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2008-April/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r443%20-%20trunk/pvpgn/src/common&In-Reply-To=%3C200804031616.m33GG1cp012440%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000659.html">
+   <LINK REL="Next"  HREF="000661.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r443 - trunk/pvpgn/src/common</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r443%20-%20trunk/pvpgn/src/common&In-Reply-To=%3C200804031616.m33GG1cp012440%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r443 - trunk/pvpgn/src/common">svn at svn.berlios.de
+       </A><BR>
+    <I>Thu Apr  3 18:16:01 CEST 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000659.html">[pvpgn-dev] r442 - in trunk/pvpgn: . src src/test
+</A></li>
+        <LI>Next message: <A HREF="000661.html">[pvpgn-dev] r444 - trunk/pvpgn/src/common
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#660">[ date ]</a>
+              <a href="thread.html#660">[ thread ]</a>
+              <a href="subject.html#660">[ subject ]</a>
+              <a href="author.html#660">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pandaemonium
+Date: 2008-04-03 18:16:01 +0200 (Thu, 03 Apr 2008)
+New Revision: 443
+
+Added:
+   trunk/pvpgn/src/common/bnetsrp3.cpp
+   trunk/pvpgn/src/common/bnetsrp3.h
+Modified:
+   trunk/pvpgn/src/common/CMakeLists.txt
+Log:
+add bnet srp3 implementation
+
+Modified: trunk/pvpgn/src/common/CMakeLists.txt
+===================================================================
+--- trunk/pvpgn/src/common/CMakeLists.txt	2008-04-03 16:14:42 UTC (rev 442)
++++ trunk/pvpgn/src/common/CMakeLists.txt	2008-04-03 16:16:01 UTC (rev 443)
+@@ -17,7 +17,8 @@
+ 	setup_before.h systemerror.cpp systemerror.h tag.cpp tag.h token.cpp 
+ 	token.h tracker.h trans.cpp trans.h udp_protocol.h util.cpp util.h 
+ 	version.h wolhash.cpp wolhash.h xalloc.cpp xalloc.h xstr.cpp xstr.h 
+-	xstring.cpp xstring.h gui_printf.h gui_printf.cpp )
++	xstring.cpp xstring.h gui_printf.h gui_printf.cpp 
++	bigint.cpp bigint.h bnetsrp3.cpp bnetsrp3.h)
+ 
+ add_library(common
+   ${COMMON_SOURCES}
+
+Added: trunk/pvpgn/src/common/bnetsrp3.cpp
+===================================================================
+--- trunk/pvpgn/src/common/bnetsrp3.cpp	2008-04-03 16:14:42 UTC (rev 442)
++++ trunk/pvpgn/src/common/bnetsrp3.cpp	2008-04-03 16:16:01 UTC (rev 443)
+@@ -0,0 +1,313 @@
++/*
++ * Class that implements the SRP-3 based authentication schema
++ * used by Blizzards WarCraft 3. Implementations is based upon
++ * public information available under
++ * <A HREF="http://www.javaop.com/@ron/documents/SRP.html">http://www.javaop.com/@ron/documents/SRP.html</A>
++ *
++ * Copyright (C) 2008 - Olaf Freyer
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU Affero General Public License
++ * as published by the Free Software Foundation; either version 3
++ * of the License, or (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU Affero General Public License for more details.
++ */
++
++#include &quot;common/setup_before.h&quot;
++#include &lt;iostream&gt;
++#include &lt;sstream&gt;
++#include &lt;stdexcept&gt;
++#include &lt;cstdlib&gt;
++#include &lt;cstdio&gt;
++#include &lt;cassert&gt;
++
++#include &quot;bnetsrp3.h&quot;
++
++#include &quot;common/bigint.h&quot;
++#include &quot;common/bnethash.h&quot;
++#include &quot;common/eventlog.h&quot;
++#include &quot;common/util.h&quot;
++#include &quot;common/xalloc.h&quot;
++#include &quot;compat/uint.h&quot;
++
++#include &quot;common/setup_after.h&quot;
++
++namespace pvpgn
++{
++
++t_uint8 bnetsrp3_g = 0x2F;
++
++const unsigned char bnetsrp3_N[] = {
++  0xF8, 0xFF, 0x1A, 0x8B, 0x61, 0x99, 0x18, 0x03,
++  0x21, 0x86, 0xB6, 0x8C, 0xA0, 0x92, 0xB5, 0x55,
++  0x7E, 0x97, 0x6C, 0x78, 0xC7, 0x32, 0x12, 0xD9,
++  0x12, 0x16, 0xF6, 0x65, 0x85, 0x23, 0xC7, 0x87
++};
++
++const unsigned char bnetsrp3_I[] = {
++  0xF8, 0x01, 0x8C, 0xF0, 0xA4, 0x25, 0xBA, 0x8B,
++  0xEB, 0x89, 0x58, 0xB1, 0xAB, 0x6B, 0xF9, 0x0A,
++  0xED, 0x97, 0x0E, 0x6C
++};
++
++BigInt BnetSRP3::N = BigInt(bnetsrp3_N, 32);
++BigInt BnetSRP3::g = BigInt(bnetsrp3_g);
++BigInt BnetSRP3::I = BigInt(bnetsrp3_I, 32);
++
++int
++BnetSRP3::init(const char* username_, const char* password_, BigInt* salt_)
++{
++  int i;
++  const char* source;
++  char* symbol;
++
++  if (!username_) {
++    eventlog(eventlog_level_error,__FUNCTION__,&quot;got NULL username_&quot;);
++    return -1;
++  }
++
++  username_length = std::strlen(username_);
++  username = (char*)xmalloc(username_length+1);
++  source = username_;
++  symbol = username;
++  for(i=0; i&lt;username_length; i++)
++  {
++    *(symbol++) = std::toupper(*(source++));
++  }
++
++  if (!((password_==NULL) ^ (salt_==NULL))) {
++    eventlog(eventlog_level_error,__FUNCTION__,&quot;need to init with EITHER password_ OR salt_&quot;);
++    return -1;
++  }
++
++  if (password_!=NULL) {
++    password_length = std::strlen(password_);
++    password = (char*)xmalloc(password_length+1);
++    source =  password_;
++    symbol = password;
++    for(i=0; i&lt;password_length; i++)
++    {
++      *(symbol++) = std::toupper(*(source++));
++    }
++    a = BigInt::random(32) % N;
++    s = BigInt::random(32);
++  } else {
++    password = NULL;
++    password_length = 0;
++    b = BigInt::random(32) % N;
++    s = *salt_;
++  }
++
++  B = NULL;
++
++  s.getData(raw_salt, 32);
++
++  return 0;
++}
++
++
++BnetSRP3::BnetSRP3(const char* username_, BigInt&amp; salt)
++{
++  init(username_, NULL, &amp;salt);
++}
++
++BnetSRP3::BnetSRP3(const std::string&amp; username_, BigInt&amp; salt)
++{
++  init(username_.c_str(), NULL, &amp;salt);
++}
++
++BnetSRP3::BnetSRP3(const char* username_, const char* password_)
++{
++  init(username_, password_, NULL);
++}
++
++BnetSRP3::BnetSRP3(const std::string&amp; username_, const std::string&amp; password_)
++{
++  init(username_.c_str(), password_.c_str(), NULL);
++}
++
++BnetSRP3::~BnetSRP3()
++{
++  if (username)
++    xfree(username);
++
++  if (password)
++    xfree(password);
++
++  if (B)
++    delete B;
++}
++
++BigInt
++BnetSRP3::getClientPrivateKey() const
++{
++  char* userpass;	// username,':',password
++  t_hash userpass_hash;
++  char private_value[32+20];	// s, H(userpass)
++  t_hash private_value_hash;
++
++  userpass = (char*)xmalloc(username_length + 1 + password_length + 1);
++  std::memcpy(userpass, username, username_length);
++  userpass[username_length] = ':';
++  std::memcpy(userpass + username_length + 1, password, password_length);
++  userpass[username_length + 1 + password_length] = '\0';
++  little_endian_sha1_hash(&amp;userpass_hash, username_length + 1 + password_length, userpass);
++  xfree(userpass);
++
++  std::memcpy(&amp;private_value[0],  raw_salt, 32);
++  std::memcpy(&amp;private_value[32], userpass_hash, 20);
++  little_endian_sha1_hash(&amp;private_value_hash, 52, private_value);
++
++  return BigInt((unsigned char const*)private_value_hash, 20, 1, false);
++}
++
++BigInt
++BnetSRP3::getScrambler(BigInt&amp; B) const
++{
++  unsigned char raw_B[32];
++  t_uint32 scrambler;
++  t_hash hash;
++
++  B.getData(raw_B, 32, 4, false);
++  sha1_hash(&amp;hash, 32, raw_B);
++  scrambler= *(t_uint32*) hash;
++
++  return BigInt(scrambler);
++}
++
++BigInt 
++BnetSRP3::getClientSecret(BigInt&amp; B) const
++{
++  BigInt x = getClientPrivateKey();
++  BigInt u = getScrambler(B);
++  return (N + B - g.powm(x,N)).powm((x*u)+a,N);
++}
++
++BigInt 
++BnetSRP3::getServerSecret(BigInt&amp; A, BigInt&amp; v)
++{
++  BigInt B = getServerSessionPublicKey(v);
++  BigInt u = getScrambler(B);
++  return ((A * v.powm(u,N)) % N).powm(b,N);
++}
++
++BigInt
++BnetSRP3::hashSecret(BigInt&amp; secret) const
++{
++  int i;
++  unsigned char* raw_secret;
++  unsigned char odd[16], even[16], hashedSecret[40];
++  unsigned char* secretPointer;
++  unsigned char* oddPointer;
++  unsigned char* evenPointer;
++  t_hash odd_hash, even_hash;
++
++  raw_secret = secret.getData(32,4,false);
++  secretPointer = raw_secret;
++  oddPointer = odd;
++  evenPointer = even;
++
++  for(i=0; i&lt;16; i++)
++  {
++    *(oddPointer++) = *(secretPointer++);
++    *(evenPointer++) = *(secretPointer++);
++  }
++
++  xfree(raw_secret);
++  little_endian_sha1_hash(&amp;odd_hash,  16, odd);
++  little_endian_sha1_hash(&amp;even_hash, 16, even);
++
++  secretPointer = hashedSecret;
++  oddPointer = (unsigned char*)odd_hash;
++  evenPointer = (unsigned char*)even_hash;
++
++  for(i=0; i&lt;20; i++)
++  {
++    *(secretPointer++) = *(oddPointer++);
++    *(secretPointer++) = *(evenPointer++);
++  }
++
++return BigInt(hashedSecret,40,1,false);
++}
++
++BigInt
++BnetSRP3::getVerifier() const
++{
++  return g.powm(getClientPrivateKey(),N);
++}
++
++BigInt
++BnetSRP3::getSalt() const
++{
++  return s;
++}
++
++BigInt 
++BnetSRP3::getClientSessionPublicKey() const
++{
++  return g.powm(a,N);
++}
++
++BigInt 
++BnetSRP3::getServerSessionPublicKey(BigInt&amp; v)
++{
++  if (!B)
++    B = new BigInt((v + g.powm(b,N)) % N);
++
++  return *B;
++}
++
++BigInt
++BnetSRP3::getHashedClientSecret(BigInt&amp; B) const
++{
++  BigInt clientSecret = getClientSecret(B);
++  return hashSecret(clientSecret);
++}
++
++BigInt
++BnetSRP3::getHashedServerSecret(BigInt&amp; A, BigInt&amp; v)
++{
++  BigInt serverSecret = getServerSecret(A,v);
++  return hashSecret(serverSecret);
++}
++
++BigInt 
++BnetSRP3::getClientPasswordProof(BigInt&amp; A, BigInt&amp; B, BigInt&amp; K) const
++{
++  unsigned char proofData[176];
++  t_hash usernameHash, proofHash;
++
++  little_endian_sha1_hash(&amp;usernameHash, username_length, username);
++
++  I.getData(&amp;proofData[0], 20, 4, false);
++  std::memcpy(&amp;proofData[20] , usernameHash , 20);
++  s.getData(&amp;proofData[40], 32);
++  A.getData(&amp;proofData[72], 32, 4, false);
++  B.getData(&amp;proofData[104], 32, 4, false);
++  K.getData(&amp;proofData[136], 40, 4, false);
++
++  little_endian_sha1_hash(&amp;proofHash, 176, proofData);
++  
++  return BigInt((unsigned char*)proofHash,20,1,false);
++}
++
++BigInt
++BnetSRP3::getServerPasswordProof(BigInt&amp; A, BigInt&amp; M, BigInt&amp; K) const
++{
++  unsigned char proofData[92];
++  t_hash proofHash;
++
++  A.getData(&amp;proofData[0], 32, 4, false);
++  M.getData(&amp;proofData[32], 20, 4, false );
++  K.getData(&amp;proofData[52], 40, 4, false);
++
++  little_endian_sha1_hash(&amp;proofHash, 92, proofData);
++
++  return BigInt((unsigned char*)proofHash,20,1,false);
++}
++
++}
+
+Added: trunk/pvpgn/src/common/bnetsrp3.h
+===================================================================
+--- trunk/pvpgn/src/common/bnetsrp3.h	2008-04-03 16:14:42 UTC (rev 442)
++++ trunk/pvpgn/src/common/bnetsrp3.h	2008-04-03 16:16:01 UTC (rev 443)
+@@ -0,0 +1,69 @@
++/*
++ * Class that implements the SRP-3 based authentication schema
++ * used by Blizzards WarCraft 3. Implementations is based upon
++ * public information available under
++ * <A HREF="http://www.javaop.com/@ron/documents/SRP.html">http://www.javaop.com/@ron/documents/SRP.html</A>
++ *
++ * Copyright (C) 2008 - Olaf Freyer
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU Affero General Public License
++ * as published by the Free Software Foundation; either version 3
++ * of the License, or (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU Affero General Public License for more details.
++ */
++
++#ifndef __BNET_SRP3_INCLUDED__
++#define __BNET_SRP3_INCLUDED__
++
++#include &lt;string&gt;
++#include &quot;common/bigint.h&quot;
++
++namespace pvpgn
++{
++
++class BnetSRP3
++{
++public:
++	BnetSRP3(const char* username, BigInt&amp; salt);
++	BnetSRP3(const std::string&amp; username, BigInt&amp; salt);
++	BnetSRP3(const char* username, const char* password);
++	BnetSRP3(const std::string&amp; username, const std::string&amp; password);
++	~BnetSRP3();
++	BigInt getVerifier() const;
++	BigInt getSalt() const;
++	BigInt getClientSessionPublicKey() const;
++	BigInt getServerSessionPublicKey(BigInt&amp; v);
++	BigInt getHashedClientSecret(BigInt&amp; B) const;
++	BigInt getHashedServerSecret(BigInt&amp; A, BigInt&amp; v);
++	BigInt getClientPasswordProof(BigInt&amp; A, BigInt&amp; B, BigInt&amp; K) const;
++	BigInt getServerPasswordProof(BigInt&amp; A, BigInt&amp; M, BigInt&amp; K) const;
++
++private:
++	int	init(const char* username, const char* password, BigInt* salt);
++        BigInt	getClientPrivateKey() const;
++	BigInt	getScrambler(BigInt&amp; B) const;
++	BigInt	getClientSecret(BigInt&amp; B) const;
++	BigInt	getServerSecret(BigInt&amp; A, BigInt&amp; v);
++	BigInt  hashSecret(BigInt&amp; secret) const;
++	static BigInt	N;	// modulus
++	static BigInt	g;	// generator
++	static BigInt	I;	// H(g) xor H(N) where H() is standard SHA1
++	BigInt	a;	// client session private key
++	BigInt	b;	// server session private key
++	BigInt	s;	// salt
++	BigInt *B;	// server public key cache
++	char*	username;
++	size_t	username_length;
++	char*	password;
++	size_t	password_length;
++	unsigned char raw_salt[32];
++};
++
++}
++
++#endif /* __BNET_SRP3_INCLUDED__ */
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000659.html">[pvpgn-dev] r442 - in trunk/pvpgn: . src src/test
+</A></li>
+	<LI>Next message: <A HREF="000661.html">[pvpgn-dev] r444 - trunk/pvpgn/src/common
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#660">[ date ]</a>
+              <a href="thread.html#660">[ thread ]</a>
+              <a href="subject.html#660">[ subject ]</a>
+              <a href="author.html#660">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

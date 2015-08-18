@@ -1,0 +1,87 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] pvpgn/src/bnetd command.c,1.168,1.169
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2008-July/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20pvpgn/src/bnetd%20command.c%2C1.168%2C1.169&In-Reply-To=%3C20080727114446.796301133C9%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000768.html">
+   <LINK REL="Next"  HREF="000770.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] pvpgn/src/bnetd command.c,1.168,1.169</H1>
+    <B>pandaemonium</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20pvpgn/src/bnetd%20command.c%2C1.168%2C1.169&In-Reply-To=%3C20080727114446.796301133C9%40mail.berlios.de%3E"
+       TITLE="[pvpgn-dev] pvpgn/src/bnetd command.c,1.168,1.169">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sun Jul 27 13:44:46 CEST 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000768.html">[pvpgn-dev] r478 - trunk/pvpgn/src/bnetd
+</A></li>
+        <LI>Next message: <A HREF="000770.html">[pvpgn-dev] [Patch #2531] spell error
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#769">[ date ]</a>
+              <a href="thread.html#769">[ thread ]</a>
+              <a href="subject.html#769">[ subject ]</a>
+              <a href="author.html#769">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/pvpgn/pvpgn/src/bnetd
+In directory sheep:/tmp/cvs-serv22672
+
+Modified Files:
+	command.c 
+Log Message:
+fix spelling
+
+Index: command.c
+===================================================================
+RCS file: /cvsroot/pvpgn/pvpgn/src/bnetd/command.c,v
+retrieving revision 1.168
+retrieving revision 1.169
+diff -u -d -r1.168 -r1.169
+--- command.c	18 Nov 2007 18:46:57 -0000	1.168
++++ command.c	27 Jul 2008 11:44:43 -0000	1.169
+@@ -2209,7 +2209,7 @@
+     {
+       if (!conn_get_dndstr(c))
+       {
+-	message_send_text(c,message_type_info,c,&quot;Do Not Diturb mode engaged.&quot;);
++	message_send_text(c,message_type_info,c,&quot;Do Not Disturb mode engaged.&quot;);
+ 	conn_set_dndstr(c,&quot;Not available&quot;);
+       }
+       else
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000768.html">[pvpgn-dev] r478 - trunk/pvpgn/src/bnetd
+</A></li>
+	<LI>Next message: <A HREF="000770.html">[pvpgn-dev] [Patch #2531] spell error
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#769">[ date ]</a>
+              <a href="thread.html#769">[ thread ]</a>
+              <a href="subject.html#769">[ subject ]</a>
+              <a href="author.html#769">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

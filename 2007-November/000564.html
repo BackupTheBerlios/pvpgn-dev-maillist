@@ -1,0 +1,127 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] Some idea how to better solve &quot;/commands&quot;
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-November/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20Some%20idea%20how%20to%20better%20solve%20%22/commands%22&In-Reply-To=%3Ceb9d4d380711151331rbe1845cn2d62bed8328d731d%40mail.gmail.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000562.html">
+   <LINK REL="Next"  HREF="000533.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] Some idea how to better solve &quot;/commands&quot;</H1>
+    <B>Pelish</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20Some%20idea%20how%20to%20better%20solve%20%22/commands%22&In-Reply-To=%3Ceb9d4d380711151331rbe1845cn2d62bed8328d731d%40mail.gmail.com%3E"
+       TITLE="[pvpgn-dev] Some idea how to better solve &quot;/commands&quot;">pelish at gmail.com
+       </A><BR>
+    <I>Thu Nov 15 22:31:01 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000562.html">[pvpgn-dev] Some idea how to better solve &quot;/commands&quot;
+</A></li>
+        <LI>Next message: <A HREF="000533.html">[pvpgn-dev] [Bug #12352] [error]
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#564">[ date ]</a>
+              <a href="thread.html#564">[ thread ]</a>
+              <a href="subject.html#564">[ subject ]</a>
+              <a href="author.html#564">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>There are many things that we need to sovle arround KICK and BAN commands.
+When I will
+change &quot;static&quot; to &quot;external&quot; than It will be the same like before.
+That is because there is
+&quot;skip command&quot; &quot;get dst&quot;... My idea was in moving core of all commands
+to another file and
+here (in command.cpp) only solve problems arround tokenization &quot;char * text&quot;
+commands (I mean &quot;skip command, get dst etc&quot;). About fact when is KICK
+included in BAN: I dont want to change that. I only want to make it much
+more common - also when we will have all functions in some common file than
+we can have once KICK things and use it subsequently: when will be called
+from BNET like now, when will be called from IRC/WOL only BANing.
+
+there is an exemple for KICK command in command_common.cpp:
+extern _handle_kick_command (t_connection * sender, t_connection * kicked,
+char * reason)
+{
+ /* some kick code */
+}
+
+there is an exemple for BAN command in command_common.cpp:
+extern _handle_ban_command (t_connection * sender, t_connection * banned,
+char * reason)
+{
+ /* some ban code without KICK */
+}
+
+and here is command.cpp (used for commands from client by &quot;/[command]
+KICK:
+static int _handle_kick_command(t_connection * c, char const *text)
+{
+/* skip command */
+/* get dst*/
+_handle_kick_command (c,dst,text);
+}
+
+BAN:
+static int _handle_ban_command(t_connection * c, char const *text)
+{
+/* skip command */
+/* get dst*/
+_handle_kick_command (c,dst,text);
+_handle_ban_command (c,dst,text);
+}
+
+There is also another problem that I havent mentioned here.
+when I kick someone in IRC/WOL i must send special message that
+include my nick, nick of kicked person and reason. This message is
+sended to all connection in channel.
+The problem is in fact that I cant formate it by message_type
+formating since there is only
+my connection,
+*text, and dst connection. Dst connection is changing for all ppl in channel.
+
+The last thing that I have on my mind is that we need to have many
+message_type_error formating that only once.
+It is because in IRC/WOL are error codes for many situations but I must
+check it explicitely before I calling original function that do the same
+checking but sends only message_type_error. This is not so common at the
+moment too.
+
+Hope that You will understand me my friends ;)
+
+Pelish
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: &lt;<A HREF="https://lists.berlios.de/pipermail/pvpgn-dev/attachments/20071115/979ee366/attachment.html">https://lists.berlios.de/pipermail/pvpgn-dev/attachments/20071115/979ee366/attachment.html</A>&gt;
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000562.html">[pvpgn-dev] Some idea how to better solve &quot;/commands&quot;
+</A></li>
+	<LI>Next message: <A HREF="000533.html">[pvpgn-dev] [Bug #12352] [error]
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#564">[ date ]</a>
+              <a href="thread.html#564">[ thread ]</a>
+              <a href="subject.html#564">[ subject ]</a>
+              <a href="author.html#564">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,141 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r367 - in trunk/pvpgn/src: bnetd common d2cs d2dbs
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-August/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r367%20-%20in%20trunk/pvpgn/src%3A%20bnetd%20common%20d2cs%20d2dbs&In-Reply-To=%3C200708261442.l7QEgGp0015379%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000418.html">
+   <LINK REL="Next"  HREF="000420.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r367 - in trunk/pvpgn/src: bnetd common d2cs d2dbs</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r367%20-%20in%20trunk/pvpgn/src%3A%20bnetd%20common%20d2cs%20d2dbs&In-Reply-To=%3C200708261442.l7QEgGp0015379%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r367 - in trunk/pvpgn/src: bnetd common d2cs d2dbs">svn at svn.berlios.de
+       </A><BR>
+    <I>Sun Aug 26 16:42:16 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000418.html">[pvpgn-dev] r366 - in trunk/pvpgn/src: . bnetd d2cs d2dbs win32
+</A></li>
+        <LI>Next message: <A HREF="000420.html">[pvpgn-dev] r368 - trunk/pvpgn/src/win32
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#419">[ date ]</a>
+              <a href="thread.html#419">[ thread ]</a>
+              <a href="subject.html#419">[ subject ]</a>
+              <a href="author.html#419">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pandaemonium
+Date: 2007-08-26 16:42:15 +0200 (Sun, 26 Aug 2007)
+New Revision: 367
+
+Modified:
+   trunk/pvpgn/src/bnetd/CMakeLists.txt
+   trunk/pvpgn/src/common/CMakeLists.txt
+   trunk/pvpgn/src/d2cs/CMakeLists.txt
+   trunk/pvpgn/src/d2dbs/CMakeLists.txt
+Log:
+quick (and dirty?) fix for GUI versions not displaying any log messages
+
+Modified: trunk/pvpgn/src/bnetd/CMakeLists.txt
+===================================================================
+--- trunk/pvpgn/src/bnetd/CMakeLists.txt	2007-08-26 14:06:50 UTC (rev 366)
++++ trunk/pvpgn/src/bnetd/CMakeLists.txt	2007-08-26 14:42:15 UTC (rev 367)
+@@ -57,7 +57,7 @@
+   add_executable(bnetd_gui WIN32 ${BNETD_SOURCES} ${BNETD_SERVICE_SOURCES} 
+     ${BNETD_GUI_SOURCES} ${BNETD_GUI_RESOURCES})
+   set_target_properties(bnetd_gui PROPERTIES COMPILE_FLAGS &quot;-DWIN32_GUI&quot;)
+-  target_link_libraries(bnetd_gui common compat tinycdb ${NETWORK_LIBRARIES}
++  target_link_libraries(bnetd_gui common_gui compat tinycdb ${NETWORK_LIBRARIES}
+     ${ZLIB_LIBRARIES} ${MYSQL_LIBRARIES} ${SQLITE3_LIBRARIES})
+   install(TARGETS bnetd_gui DESTINATION ${SBINDIR})
+ endif(WITH_WIN32_GUI)
+
+Modified: trunk/pvpgn/src/common/CMakeLists.txt
+===================================================================
+--- trunk/pvpgn/src/common/CMakeLists.txt	2007-08-26 14:06:50 UTC (rev 366)
++++ trunk/pvpgn/src/common/CMakeLists.txt	2007-08-26 14:42:15 UTC (rev 367)
+@@ -1,4 +1,4 @@
+-add_library(common 
++set(COMMON_SOURCES
+ 	addr.cpp addr.h anongame_protocol.h asnprintf.cpp asnprintf.h 
+ 	bnethashconv.cpp bnethashconv.h bnethash.cpp bnethash.h bnet_protocol.h 
+ 	bnettime.cpp bnettime.h bn_type.cpp bn_type.h bot_protocol.h conf.cpp 
+@@ -18,3 +18,16 @@
+ 	token.h tracker.h trans.cpp trans.h udp_protocol.h util.cpp util.h 
+ 	version.h wolhash.cpp wolhash.h xalloc.cpp xalloc.h xstr.cpp xstr.h 
+ 	xstring.cpp xstring.h)
++
++add_library(common
++  ${COMMON_SOURCES}
++)
++
++# build the GUI version too
++# (this will practically recompile every file again)
++if(WITH_WIN32_GUI)
++add_library(common_gui
++  ${COMMON_SOURCES}
++)
++set_target_properties(common_gui PROPERTIES COMPILE_FLAGS &quot;-DWIN32_GUI&quot;)
++endif(WITH_WIN32_GUI)
+
+Modified: trunk/pvpgn/src/d2cs/CMakeLists.txt
+===================================================================
+--- trunk/pvpgn/src/d2cs/CMakeLists.txt	2007-08-26 14:06:50 UTC (rev 366)
++++ trunk/pvpgn/src/d2cs/CMakeLists.txt	2007-08-26 14:42:15 UTC (rev 367)
+@@ -22,6 +22,6 @@
+ if(WITH_WIN32_GUI)
+   add_executable(d2cs_gui WIN32 ${D2CS_SOURCES} ${D2CS_SERVICE_SOURCES})
+   set_target_properties(d2cs_gui PROPERTIES COMPILE_FLAGS &quot;-DWIN32_GUI&quot;)
+-  target_link_libraries(d2cs_gui common compat ${NETWORK_LIBRARIES})
++  target_link_libraries(d2cs_gui common_gui compat ${NETWORK_LIBRARIES})
+   install(TARGETS d2cs_gui DESTINATION ${SBINDIR})
+ endif(WITH_WIN32_GUI)
+
+Modified: trunk/pvpgn/src/d2dbs/CMakeLists.txt
+===================================================================
+--- trunk/pvpgn/src/d2dbs/CMakeLists.txt	2007-08-26 14:06:50 UTC (rev 366)
++++ trunk/pvpgn/src/d2dbs/CMakeLists.txt	2007-08-26 14:42:15 UTC (rev 367)
+@@ -18,6 +18,6 @@
+ if(WITH_WIN32_GUI)
+   add_executable(d2dbs_gui WIN32 ${D2DBS_SOURCES} ${D2DBS_SERVICE_SOURCES})
+   set_target_properties(d2dbs_gui PROPERTIES COMPILE_FLAGS &quot;-DWIN32_GUI&quot;)
+-  target_link_libraries(d2dbs_gui common compat ${NETWORK_LIBRARIES})
++  target_link_libraries(d2dbs_gui common_gui compat ${NETWORK_LIBRARIES})
+   install(TARGETS d2dbs_gui DESTINATION ${SBINDIR})
+ endif(WITH_WIN32_GUI)
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000418.html">[pvpgn-dev] r366 - in trunk/pvpgn/src: . bnetd d2cs d2dbs win32
+</A></li>
+	<LI>Next message: <A HREF="000420.html">[pvpgn-dev] r368 - trunk/pvpgn/src/win32
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#419">[ date ]</a>
+              <a href="thread.html#419">[ thread ]</a>
+              <a href="subject.html#419">[ subject ]</a>
+              <a href="author.html#419">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

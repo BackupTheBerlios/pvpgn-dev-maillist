@@ -1,0 +1,188 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r457 - trunk/pvpgn/src/bnetd
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2008-June/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r457%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200806091822.m59IM5ga012654%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000711.html">
+   <LINK REL="Next"  HREF="000713.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r457 - trunk/pvpgn/src/bnetd</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r457%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200806091822.m59IM5ga012654%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r457 - trunk/pvpgn/src/bnetd">svn at svn.berlios.de
+       </A><BR>
+    <I>Mon Jun  9 20:22:05 CEST 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000711.html">[pvpgn-dev] r456 - trunk/pvpgn/src/common
+</A></li>
+        <LI>Next message: <A HREF="000713.html">[pvpgn-dev] r458 - trunk/pvpgn/src/common
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#712">[ date ]</a>
+              <a href="thread.html#712">[ thread ]</a>
+              <a href="subject.html#712">[ subject ]</a>
+              <a href="author.html#712">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pandaemonium
+Date: 2008-06-09 20:22:05 +0200 (Mon, 09 Jun 2008)
+New Revision: 457
+
+Modified:
+   trunk/pvpgn/src/bnetd/account_wrap.cpp
+   trunk/pvpgn/src/bnetd/account_wrap.h
+Log:
+add ways to store/retrieve raw attributes and based on this add a way to store/retrieve srp3 salt/verifier
+
+Modified: trunk/pvpgn/src/bnetd/account_wrap.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/account_wrap.cpp	2008-06-09 18:18:28 UTC (rev 456)
++++ trunk/pvpgn/src/bnetd/account_wrap.cpp	2008-06-09 18:22:05 UTC (rev 457)
+@@ -145,7 +145,67 @@
+     return account_set_strattr(account,key,val?&quot;true&quot;:&quot;false&quot;);
+ }
+ 
++extern char const * account_get_rawattr_real(t_account * account, char const * key, char const * fn, unsigned int ln)
++{
++    char const * temp;
++    char * result;
++    int length;
+ 
++    if (!account)
++    {
++	eventlog(eventlog_level_error,__FUNCTION__,&quot;got NULL account (from %s:%u)&quot;,fn,ln);
++	return NULL;
++    }
++    if (!key)
++    {
++	eventlog(eventlog_level_error,__FUNCTION__,&quot;got NULL key (from %s:%u)&quot;,fn,ln);
++	return NULL;
++    }
++
++    if (!(temp = account_get_strattr(account,key)))
++	return NULL;
++
++    length = std::strlen(temp)/3;
++
++    if (!(result = (char *)xmalloc(length)))
++    {
++    	eventlog(eventlog_level_error,__FUNCTION__,&quot;failed to create result&quot;);
++	return NULL;
++    }
++    hex_to_str(temp, result, length);
++
++    return result;
++}
++
++extern int account_set_rawattr(t_account * account, char const * key, char const * val, int length)
++{
++    char * temp_buffer;
++    int result;
++
++    if (!account)
++    {
++	eventlog(eventlog_level_error,__FUNCTION__,&quot;got NULL account&quot;);
++	return -1;
++    }
++    if (!key)
++    {
++	eventlog(eventlog_level_error,__FUNCTION__,&quot;got NULL key&quot;);
++	return -1;
++    }
++
++    if (!(temp_buffer = (char *)xmalloc(length*3+1)))
++    {
++    	eventlog(eventlog_level_error,__FUNCTION__,&quot;failed to create temp_buffer&quot;);
++	return -1;
++    }
++
++    str_to_hex(temp_buffer, val, length);
++    result = account_set_strattr(account,key,temp_buffer);
++    xfree((void *)temp_buffer);
++    return result;
++}
++
++
+ /****************************************************************/
+ 
+ 
+@@ -161,22 +221,22 @@
+ 
+ extern char const * account_get_salt(t_account * account)
+ {
+-    return account_get_strattr(account,&quot;BNET\\acct\\salt&quot;);
++    return account_get_rawattr(account,&quot;BNET\\acct\\salt&quot;);
+ }
+ 
+ extern int account_set_salt(t_account * account, char const * salt)
+ {
+-    return account_set_strattr(account,&quot;BNET\\acct\\salt&quot;,salt);
++    return account_set_rawattr(account,&quot;BNET\\acct\\salt&quot;,salt, 32);
+ }
+ 
+ extern char const * account_get_verifier(t_account * account)
+ {
+-    return account_get_strattr(account,&quot;BNET\\acct\\verifier&quot;);
++    return account_get_rawattr(account,&quot;BNET\\acct\\verifier&quot;);
+ }
+ 
+ extern int account_set_verifier(t_account * account, char const * verifier)
+ {
+-    return account_set_strattr(account,&quot;BNET\\acct\\verifier&quot;,verifier);
++    return account_set_rawattr(account,&quot;BNET\\acct\\verifier&quot;,verifier, 32);
+ }
+ 
+ 
+
+Modified: trunk/pvpgn/src/bnetd/account_wrap.h
+===================================================================
+--- trunk/pvpgn/src/bnetd/account_wrap.h	2008-06-09 18:18:28 UTC (rev 456)
++++ trunk/pvpgn/src/bnetd/account_wrap.h	2008-06-09 18:22:05 UTC (rev 457)
+@@ -47,6 +47,11 @@
+ #define account_get_boolattr(A,K) account_get_boolattr_real(A,K,__FILE__,__LINE__)
+ extern int account_set_boolattr(t_account * account, char const * key, int val);
+ 
++/* warning: unlike the other account_get_*attr functions this one allocates memory for returning data - its up to the caller to clean it up */
++extern char const * account_get_rawattr_real(t_account * account, char const * key, char const * fn, unsigned int ln);
++#define account_get_rawattr(A,K) account_get_rawattr_real(A,K,__FILE__,__LINE__)
++extern int account_set_rawattr(t_account * account, char const * key, char const * val, int length);
++
+ extern char const * account_get_pass(t_account * account);
+ extern int account_set_pass(t_account * account, char const * passhash1);
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000711.html">[pvpgn-dev] r456 - trunk/pvpgn/src/common
+</A></li>
+	<LI>Next message: <A HREF="000713.html">[pvpgn-dev] r458 - trunk/pvpgn/src/common
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#712">[ date ]</a>
+              <a href="thread.html#712">[ thread ]</a>
+              <a href="subject.html#712">[ subject ]</a>
+              <a href="author.html#712">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

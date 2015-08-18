@@ -1,0 +1,2278 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r328 - in trunk/pvpgn: . src/bnetd src/client	src/common src/compat src/d2cs src/d2dbs src/tinycdb
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-August/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r328%20-%20in%20trunk/pvpgn%3A%20.%20src/bnetd%20src/client%0A%09src/common%20src/compat%20src/d2cs%20src/d2dbs%20src/tinycdb&In-Reply-To=%3C200708192250.l7JMoH1Z000815%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000368.html">
+   <LINK REL="Next"  HREF="000370.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r328 - in trunk/pvpgn: . src/bnetd src/client	src/common src/compat src/d2cs src/d2dbs src/tinycdb</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r328%20-%20in%20trunk/pvpgn%3A%20.%20src/bnetd%20src/client%0A%09src/common%20src/compat%20src/d2cs%20src/d2dbs%20src/tinycdb&In-Reply-To=%3C200708192250.l7JMoH1Z000815%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r328 - in trunk/pvpgn: . src/bnetd src/client	src/common src/compat src/d2cs src/d2dbs src/tinycdb">svn at svn.berlios.de
+       </A><BR>
+    <I>Mon Aug 20 00:50:17 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000368.html">[pvpgn-dev] [Bug #5310] raw list crash
+</A></li>
+        <LI>Next message: <A HREF="000370.html">[pvpgn-dev] r329 - trunk/pvpgn/src/bnetd
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#369">[ date ]</a>
+              <a href="thread.html#369">[ thread ]</a>
+              <a href="subject.html#369">[ subject ]</a>
+              <a href="author.html#369">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pandaemonium
+Date: 2007-08-20 00:50:02 +0200 (Mon, 20 Aug 2007)
+New Revision: 328
+
+Added:
+   trunk/pvpgn/src/compat/pgetpid.h
+Removed:
+   trunk/pvpgn/src/compat/pgetopt.cpp
+   trunk/pvpgn/src/compat/pgetopt.h
+   trunk/pvpgn/src/compat/strchr.h
+   trunk/pvpgn/src/compat/strrchr.h
+Modified:
+   trunk/pvpgn/ConfigureChecks.cmake
+   trunk/pvpgn/config.h.cmake
+   trunk/pvpgn/src/bnetd/CMakeLists.txt
+   trunk/pvpgn/src/bnetd/account.cpp
+   trunk/pvpgn/src/bnetd/anongame_infos.cpp
+   trunk/pvpgn/src/bnetd/command.cpp
+   trunk/pvpgn/src/bnetd/game.cpp
+   trunk/pvpgn/src/bnetd/handle_apireg.cpp
+   trunk/pvpgn/src/bnetd/handle_bnet.cpp
+   trunk/pvpgn/src/bnetd/handle_irc.cpp
+   trunk/pvpgn/src/bnetd/handle_irc_common.cpp
+   trunk/pvpgn/src/bnetd/handle_wol.cpp
+   trunk/pvpgn/src/bnetd/ipban.cpp
+   trunk/pvpgn/src/bnetd/irc.cpp
+   trunk/pvpgn/src/bnetd/ladder.cpp
+   trunk/pvpgn/src/bnetd/mail.cpp
+   trunk/pvpgn/src/bnetd/main.cpp
+   trunk/pvpgn/src/bnetd/realm.cpp
+   trunk/pvpgn/src/bnetd/storage.cpp
+   trunk/pvpgn/src/bnetd/topic.cpp
+   trunk/pvpgn/src/bnetd/topic.h
+   trunk/pvpgn/src/bnetd/versioncheck.cpp
+   trunk/pvpgn/src/client/CMakeLists.txt
+   trunk/pvpgn/src/common/setup_before.h
+   trunk/pvpgn/src/common/systemerror.cpp
+   trunk/pvpgn/src/common/tag.cpp
+   trunk/pvpgn/src/common/trans.cpp
+   trunk/pvpgn/src/compat/CMakeLists.txt
+   trunk/pvpgn/src/compat/Makefile.am
+   trunk/pvpgn/src/compat/gethostname.h
+   trunk/pvpgn/src/compat/inet_ntoa.cpp
+   trunk/pvpgn/src/compat/inet_ntoa.h
+   trunk/pvpgn/src/compat/recv.h
+   trunk/pvpgn/src/compat/send.h
+   trunk/pvpgn/src/compat/strcasecmp.cpp
+   trunk/pvpgn/src/compat/strncasecmp.cpp
+   trunk/pvpgn/src/compat/strsep.cpp
+   trunk/pvpgn/src/d2cs/CMakeLists.txt
+   trunk/pvpgn/src/d2cs/d2charlist.cpp
+   trunk/pvpgn/src/d2cs/handle_d2cs.cpp
+   trunk/pvpgn/src/d2cs/main.cpp
+   trunk/pvpgn/src/d2dbs/CMakeLists.txt
+   trunk/pvpgn/src/d2dbs/d2ladder.cpp
+   trunk/pvpgn/src/d2dbs/d2ladder.h
+   trunk/pvpgn/src/d2dbs/main.cpp
+   trunk/pvpgn/src/tinycdb/cdb.cpp
+Log:
+first shot at enabling cmake based builds on win32 platform.
+currently only tested with visual studio 8 (2005).
+the bncdb tool is currently intentionally broken
+as it was the only component relying on compat/pgetopt 
+(which has been removed due to serious problems building it).
+I will fix this problem tomorrow and add a common/conf based
+commandline parser similar to the one used in bnetd,d2cs and d2dbs.
+
+Modified: trunk/pvpgn/ConfigureChecks.cmake
+===================================================================
+--- trunk/pvpgn/ConfigureChecks.cmake	2007-08-19 12:45:17 UTC (rev 327)
++++ trunk/pvpgn/ConfigureChecks.cmake	2007-08-19 22:50:02 UTC (rev 328)
+@@ -8,6 +8,7 @@
+ include(CheckLibraryExists)
+ include(CheckTypeSizeCXX)
+ include(CheckCXXCompilerFlag)
++include(CheckCXXSourceCompiles)
+ 
+ check_include_files_cxx(&quot;cassert;cctype;cerrno;cmath;climits;csignal;cstdarg;cstddef;cstdio;cstdlib;cstring;ctime;deque;exception;fstream;iomanip;iostream;limits;list;map;memory;sstream;stdexcept;string;utility;vector&quot; HAVE_STD_HEADERS)
+ if(NOT HAVE_STD_HEADERS)
+@@ -49,6 +50,8 @@
+ check_include_file_cxx(sys/resource.h HAVE_SYS_RESOURCE_H)
+ check_include_file_cxx(sqlite3.h HAVE_SQLITE3_H)
+ check_include_file_cxx(pcap.h HAVE_PCAP_H)
++check_include_file_cxx(windows.h HAVE_WINDOWS_H)
++check_include_file_cxx(winsock2.h HAVE_WINSOCK2_H)
+ 
+ check_type_size_cxx(&quot;unsigned char&quot; SIZEOF_UNSIGNED_CHAR)
+ check_type_size_cxx(&quot;unsigned short&quot; SIZEOF_UNSIGNED_SHORT)
+@@ -122,7 +125,16 @@
+ check_function_exists(_snprintf HAVE__SNPRINTF)
+ check_function_exists(setpgrp HAVE_SETPGRP)
+ 
++check_cxx_source_compiles(
++ &quot;
++ #include &lt;direct.h&gt;
++ // this declaration will fail when there already exists a non const char** version which returns size_t
++ int main() { mkdir(\&quot;\&quot;); return 0; }
++ &quot;
++MKDIR_TAKES_ONE_ARG)
++
+ find_package(ZLIB REQUIRED)
++INCLUDE_DIRECTORIES(${ZLIB_INCLUDE_DIR})
+ check_library_exists(pcap pcap_open_offline &quot;&quot; HAVE_LIBPCAP)
+ 
+ #storage module checks
+@@ -135,7 +147,7 @@
+ 
+ configure_file(config.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/config.h)
+ 
+-check_cxx_compiler_flag(&quot;-Wall&quot; WITH_FLAG_WALL)
++#check_cxx_compiler_flag(&quot;-Wall&quot; WITH_FLAG_WALL)
+ 
+ if(WITH_ANSI)
+     check_cxx_compiler_flag(&quot;-pedantic -ansi&quot; WITH_FLAG_ANSIPEDANTIC)
+
+Modified: trunk/pvpgn/config.h.cmake
+===================================================================
+--- trunk/pvpgn/config.h.cmake	2007-08-19 12:45:17 UTC (rev 327)
++++ trunk/pvpgn/config.h.cmake	2007-08-19 22:50:02 UTC (rev 328)
+@@ -1,6 +1,8 @@
+ #ifndef PVPGN_CONFIG_H
+ #define PVPGN_CONFIG_H
+ 
++#define CMAKE_BUILD
++
+ #cmakedefine HAVE_FCNTL_H
+ #cmakedefine HAVE_SYS_TIME_H
+ #cmakedefine HAVE_SYS_SELECT_H
+@@ -36,7 +38,10 @@
+ #cmakedefine HAVE_SYS_RESOURCE_H
+ #cmakedefine HAVE_SQLITE3_H
+ #cmakedefine HAVE_PCAP_H
++#cmakedefine HAVE_WINDOWS_H
++#cmakedefine HAVE_WINSOCK2_H
+ 
++
+ #cmakedefine SIZEOF_UNSIGNED_CHAR ${SIZEOF_UNSIGNED_CHAR}
+ #cmakedefine SIZEOF_UNSIGNED_SHORT ${SIZEOF_UNSIGNED_SHORT}
+ #cmakedefine SIZEOF_UNSIGNED_INT ${SIZEOF_UNSIGNED_INT}
+@@ -97,6 +102,7 @@
+ #cmakedefine HAVE_SETUID
+ #cmakedefine HAVE_MKDIR
+ #cmakedefine HAVE__MKDIR
++#cmakedefine MKDIR_TAKES_ONE_ARG 
+ #cmakedefine HAVE_STRSEP
+ #cmakedefine HAVE_GETOPT
+ #cmakedefine HAVE_KQUEUE
+
+Modified: trunk/pvpgn/src/bnetd/CMakeLists.txt
+===================================================================
+--- trunk/pvpgn/src/bnetd/CMakeLists.txt	2007-08-19 12:45:17 UTC (rev 327)
++++ trunk/pvpgn/src/bnetd/CMakeLists.txt	2007-08-19 22:50:02 UTC (rev 328)
+@@ -14,3 +14,7 @@
+ handle_apireg.cpp)
+ target_link_libraries(bnetd compat common tinycdb 
+ ${ZLIB_LIBRARIES} ${MYSQL_LIBRARIES} ${SQLITE3_LIBRARIES})
++
++IF(WIN32)
++target_link_libraries(bnetd win32 ws2_32)
++ENDIF(WIN32)
+
+Modified: trunk/pvpgn/src/bnetd/account.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/account.cpp	2007-08-19 12:45:17 UTC (rev 327)
++++ trunk/pvpgn/src/bnetd/account.cpp	2007-08-19 22:50:02 UTC (rev 328)
+@@ -23,6 +23,7 @@
+ 
+ #include &lt;cstddef&gt;
+ #include &lt;cassert&gt;
++#include &lt;cctype&gt;
+ 
+ #include &quot;compat/strdup.h&quot;
+ #include &quot;compat/strcasecmp.h&quot;
+
+Modified: trunk/pvpgn/src/bnetd/anongame_infos.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/anongame_infos.cpp	2007-08-19 12:45:17 UTC (rev 327)
++++ trunk/pvpgn/src/bnetd/anongame_infos.cpp	2007-08-19 22:50:02 UTC (rev 328)
+@@ -28,6 +28,9 @@
+ #include &quot;common/tag.h&quot;
+ #include &quot;common/bn_type.h&quot;
+ #include &quot;common/xalloc.h&quot;
++#ifdef WIN32
++# define ZLIB_WINAPI
++#endif
+ #include &quot;zlib.h&quot;
+ #include &quot;tournament.h&quot;
+ #include &quot;anongame_maplists.h&quot;
+
+Modified: trunk/pvpgn/src/bnetd/command.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/command.cpp	2007-08-19 12:45:17 UTC (rev 327)
++++ trunk/pvpgn/src/bnetd/command.cpp	2007-08-19 22:50:02 UTC (rev 328)
+@@ -32,6 +32,7 @@
+ #include &lt;cstdlib&gt;
+ 
+ #include &quot;compat/strcasecmp.h&quot;
++#include &quot;compat/snprintf.h&quot;
+ #include &quot;common/tag.h&quot;
+ #include &quot;common/util.h&quot;
+ #include &quot;common/version.h&quot;
+@@ -4499,7 +4500,7 @@
+     for (tmp--;tmp[0]==' ';tmp--);
+     tmp[1]='\0';
+     topic++;
+-    tmp  = std::strchr(topic,'&quot;');
++    tmp  = std::strchr((char *)topic,'&quot;');
+     if (tmp) tmp[0]='\0';
+   }
+ 
+
+Modified: trunk/pvpgn/src/bnetd/game.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/game.cpp	2007-08-19 12:45:17 UTC (rev 327)
++++ trunk/pvpgn/src/bnetd/game.cpp	2007-08-19 22:50:02 UTC (rev 328)
+@@ -25,6 +25,7 @@
+ #include &lt;cassert&gt;
+ 
+ #include &quot;compat/rename.h&quot;
++#include &quot;compat/strcasecmp.h&quot;
+ #include &quot;common/eventlog.h&quot;
+ #include &quot;common/addr.h&quot;
+ #include &quot;common/bnettime.h&quot;
+
+Modified: trunk/pvpgn/src/bnetd/handle_apireg.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/handle_apireg.cpp	2007-08-19 12:45:17 UTC (rev 327)
++++ trunk/pvpgn/src/bnetd/handle_apireg.cpp	2007-08-19 22:50:02 UTC (rev 328)
+@@ -30,6 +30,9 @@
+ #include &quot;common/list.h&quot;
+ #include &quot;common/packet.h&quot;
+ 
++#include &quot;compat/strcasecmp.h&quot;
++#include &quot;compat/snprintf.h&quot;
++
+ #include &quot;prefs.h&quot;
+ #include &quot;irc.h&quot;
+ #include &quot;account.h&quot;
+
+Modified: trunk/pvpgn/src/bnetd/handle_bnet.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/handle_bnet.cpp	2007-08-19 12:45:17 UTC (rev 327)
++++ trunk/pvpgn/src/bnetd/handle_bnet.cpp	2007-08-19 22:50:02 UTC (rev 328)
+@@ -24,11 +24,12 @@
+ #include &quot;handle_bnet.h&quot;
+ 
+ #include &lt;sstream&gt;
+-#include &lt;string&gt;
+ #include &lt;cstring&gt;
++#include &lt;cstring&gt;
+ #include &lt;cctype&gt;
+ 
+ #include &quot;compat/strcasecmp.h&quot;
++#include &quot;compat/strncasecmp.h&quot;
+ #include &quot;compat/snprintf.h&quot;
+ #include &quot;common/packet.h&quot;
+ #include &quot;common/eventlog.h&quot;
+
+Modified: trunk/pvpgn/src/bnetd/handle_irc.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/handle_irc.cpp	2007-08-19 12:45:17 UTC (rev 327)
++++ trunk/pvpgn/src/bnetd/handle_irc.cpp	2007-08-19 22:50:02 UTC (rev 328)
+@@ -34,6 +34,8 @@
+ #include &quot;common/list.h&quot;
+ #include &quot;common/addr.h&quot;
+ 
++#include &quot;compat/snprintf.h&quot;
++
+ #include &quot;prefs.h&quot;
+ #include &quot;command.h&quot;
+ #include &quot;irc.h&quot;
+
+Modified: trunk/pvpgn/src/bnetd/handle_irc_common.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/handle_irc_common.cpp	2007-08-19 12:45:17 UTC (rev 327)
++++ trunk/pvpgn/src/bnetd/handle_irc_common.cpp	2007-08-19 22:50:02 UTC (rev 328)
+@@ -28,6 +28,8 @@
+ #include &quot;common/util.h&quot;
+ #include &quot;common/irc_protocol.h&quot;
+ 
++#include &quot;compat/snprintf.h&quot;
++
+ #include &quot;handle_irc.h&quot;
+ #include &quot;handle_wol.h&quot;
+ 
+
+Modified: trunk/pvpgn/src/bnetd/handle_wol.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/handle_wol.cpp	2007-08-19 12:45:17 UTC (rev 327)
++++ trunk/pvpgn/src/bnetd/handle_wol.cpp	2007-08-19 22:50:02 UTC (rev 328)
+@@ -35,6 +35,8 @@
+ #include &quot;common/addr.h&quot;
+ #include &quot;common/trans.h&quot;
+ 
++#include &quot;compat/snprintf.h&quot;
++
+ #include &quot;prefs.h&quot;
+ #include &quot;command.h&quot;
+ #include &quot;irc.h&quot;
+
+Modified: trunk/pvpgn/src/bnetd/ipban.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/ipban.cpp	2007-08-19 12:45:17 UTC (rev 327)
++++ trunk/pvpgn/src/bnetd/ipban.cpp	2007-08-19 22:50:02 UTC (rev 328)
+@@ -27,6 +27,8 @@
+ #include &lt;cctype&gt;
+ 
+ #include &quot;compat/strsep.h&quot;
++#include &quot;compat/strcasecmp.h&quot;
++
+ #include &quot;common/list.h&quot;
+ #include &quot;common/util.h&quot;
+ #include &quot;common/eventlog.h&quot;
+
+Modified: trunk/pvpgn/src/bnetd/irc.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/irc.cpp	2007-08-19 12:45:17 UTC (rev 327)
++++ trunk/pvpgn/src/bnetd/irc.cpp	2007-08-19 22:50:02 UTC (rev 328)
+@@ -26,6 +26,9 @@
+ #include &lt;ctime&gt;
+ #include &lt;cstdlib&gt;
+ 
++#include &quot;compat/snprintf.h&quot;
++#include &quot;compat/strcasecmp.h&quot;
++
+ #include &quot;common/irc_protocol.h&quot;
+ #include &quot;common/packet.h&quot;
+ #include &quot;common/eventlog.h&quot;
+@@ -1202,6 +1205,7 @@
+     {
+         irc_send(c, RPL_NOTOPIC, &quot;:No topic is set&quot;);
+     }
++	return 0;
+ }
+ 
+ extern int _handle_topic_command(t_connection * conn, int numparams, char ** params, char * text)
+
+Modified: trunk/pvpgn/src/bnetd/ladder.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/ladder.cpp	2007-08-19 12:45:17 UTC (rev 327)
++++ trunk/pvpgn/src/bnetd/ladder.cpp	2007-08-19 22:50:02 UTC (rev 328)
+@@ -23,11 +23,11 @@
+ 
+ #include &lt;cstdio&gt;
+ #include &lt;cerrno&gt;
+-#include &lt;string&gt;
++#include &lt;cstring&gt;
+ #include &lt;fstream&gt;
+ #include &lt;iostream&gt;
+ #include &lt;sstream&gt;
+-#include &lt;cstring&gt;
++#include &lt;string&gt;
+ #include &lt;list&gt;
+ #include &lt;map&gt;
+ #include &lt;algorithm&gt;
+
+Modified: trunk/pvpgn/src/bnetd/mail.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/mail.cpp	2007-08-19 12:45:17 UTC (rev 327)
++++ trunk/pvpgn/src/bnetd/mail.cpp	2007-08-19 22:50:02 UTC (rev 328)
+@@ -26,6 +26,7 @@
+ #include &lt;cstring&gt;
+ #include &lt;cstdlib&gt;
+ #include &lt;cerrno&gt;
++#include &lt;algorithm&gt;
+ 
+ #include &quot;compat/strcasecmp.h&quot;
+ #include &quot;compat/mkdir.h&quot;
+@@ -100,7 +101,6 @@
+ {
+ 	p_mkdir(prefs_get_maildir(), S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
+ 	p_mkdir(path.c_str(), S_IRWXU | S_IXGRP | S_IRGRP | S_IROTH | S_IXOTH);
+-
+ 	mdir.open(path, false);
+ }
+ 
+
+Modified: trunk/pvpgn/src/bnetd/main.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/main.cpp	2007-08-19 12:45:17 UTC (rev 327)
++++ trunk/pvpgn/src/bnetd/main.cpp	2007-08-19 22:50:02 UTC (rev 328)
+@@ -45,6 +45,7 @@
+ #include &quot;compat/stdfileno.h&quot;
+ #include &quot;compat/psock.h&quot;
+ #include &quot;compat/uname.h&quot;
++#include &quot;compat/pgetpid.h&quot;
+ #include &quot;common/eventlog.h&quot;
+ #include &quot;common/xalloc.h&quot;
+ #include &quot;common/fdwatch.h&quot;
+@@ -270,7 +271,7 @@
+ 	xfree((void *)pidfile); /* avoid warning */
+ 	return NULL;
+     } else {
+-	std::fprintf(fp,&quot;%u&quot;,(unsigned int)getpid());
++	std::fprintf(fp,&quot;%u&quot;,(unsigned int)pgetpid());
+ 	if (std::fclose(fp)&lt;0)
+ 	    eventlog(eventlog_level_error,__FUNCTION__,&quot;could not close pid file \&quot;%s\&quot; after writing (std::fclose: %s)&quot;,pidfile,std::strerror(errno));
+     }
+@@ -426,7 +427,7 @@
+ {
+     struct utsname     utsbuf;
+ #ifdef HAVE_GETPID
+-    eventlog(eventlog_level_info,__FUNCTION__,PVPGN_SOFTWARE&quot; version &quot;PVPGN_VERSION&quot; process %u&quot;,(unsigned int)getpid());
++    eventlog(eventlog_level_info,__FUNCTION__,PVPGN_SOFTWARE&quot; version &quot;PVPGN_VERSION&quot; process %u&quot;,(unsigned int)pgetpid());
+ #else
+     eventlog(eventlog_level_info,__FUNCTION__,PVPGN_SOFTWARE&quot; version &quot;PVPGN_VERSION);
+ #endif
+
+Modified: trunk/pvpgn/src/bnetd/realm.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/realm.cpp	2007-08-19 12:45:17 UTC (rev 327)
++++ trunk/pvpgn/src/bnetd/realm.cpp	2007-08-19 22:50:02 UTC (rev 328)
+@@ -30,6 +30,8 @@
+ #include &quot;common/addr.h&quot;
+ #include &quot;common/util.h&quot;
+ 
++#include &quot;compat/strcasecmp.h&quot;
++
+ #include &quot;connection.h&quot;
+ #include &quot;common/setup_after.h&quot;
+ 
+
+Modified: trunk/pvpgn/src/bnetd/storage.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/storage.cpp	2007-08-19 12:45:17 UTC (rev 327)
++++ trunk/pvpgn/src/bnetd/storage.cpp	2007-08-19 22:50:02 UTC (rev 328)
+@@ -53,7 +53,7 @@
+     }
+ 
+     temp = xstrdup(spath);
+-    if ((p = std::strchr(spath, ':')) == NULL) {
++    if ((p = std::strchr((char *)spath, ':')) == NULL) {
+ 	eventlog(eventlog_level_error, __FUNCTION__, &quot;malformed storage_path , driver not found&quot;);
+ 	xfree((void*)temp);
+ 	return -1;
+
+Modified: trunk/pvpgn/src/bnetd/topic.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/topic.cpp	2007-08-19 12:45:17 UTC (rev 327)
++++ trunk/pvpgn/src/bnetd/topic.cpp	2007-08-19 22:50:02 UTC (rev 328)
+@@ -13,8 +13,8 @@
+  * along with this program; if not, write to the Free Software
+  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+  */
++#define TOPIC_INTERNAL_ACCESS
+ #include &quot;common/setup_before.h&quot;
+-#define TOPIC_INTERNAL_ACCESS
+ #include &quot;topic.h&quot;
+ 
+ #include &lt;cstdio&gt;
+
+Modified: trunk/pvpgn/src/bnetd/topic.h
+===================================================================
+--- trunk/pvpgn/src/bnetd/topic.h	2007-08-19 12:45:17 UTC (rev 327)
++++ trunk/pvpgn/src/bnetd/topic.h	2007-08-19 22:50:02 UTC (rev 328)
+@@ -23,7 +23,7 @@
+ namespace bnetd
+ {
+ 
+-typedef struct topic
++typedef struct s_topic
+ #ifdef TOPIC_INTERNAL_ACCESS
+ {
+   char *   channel_name;
+
+Modified: trunk/pvpgn/src/bnetd/versioncheck.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/versioncheck.cpp	2007-08-19 12:45:17 UTC (rev 327)
++++ trunk/pvpgn/src/bnetd/versioncheck.cpp	2007-08-19 22:50:02 UTC (rev 328)
+@@ -203,7 +203,7 @@
+         t1.tm_isdst = -1;
+ 
+         exeinfo    = strreverse((char *)exeinfo);
+-        if (!(marker     = std::strchr(exeinfo,' ')))
++        if (!(marker = std::strchr((char *)exeinfo,' ')))
+         {
+ 	  xfree((void *)parsed_exeinfo-&gt;exe);
+ 	  xfree((void *)parsed_exeinfo);
+
+Modified: trunk/pvpgn/src/client/CMakeLists.txt
+===================================================================
+--- trunk/pvpgn/src/client/CMakeLists.txt	2007-08-19 12:45:17 UTC (rev 327)
++++ trunk/pvpgn/src/client/CMakeLists.txt	2007-08-19 22:50:02 UTC (rev 328)
+@@ -9,3 +9,10 @@
+ 
+ add_executable(bnstat bnstat.cpp client.cpp client_connect.cpp udptest.cpp)
+ target_link_libraries(bnstat common compat)
++
++IF(WIN32)
++ target_link_libraries(bnchat ws2_32)
++ target_link_libraries(bnftp ws2_32)
++ target_link_libraries(bnbot ws2_32)
++ target_link_libraries(bnstat ws2_32)
++ENDIF(WIN32)
+
+Modified: trunk/pvpgn/src/common/setup_before.h
+===================================================================
+--- trunk/pvpgn/src/common/setup_before.h	2007-08-19 12:45:17 UTC (rev 327)
++++ trunk/pvpgn/src/common/setup_before.h	2007-08-19 22:50:02 UTC (rev 328)
+@@ -27,8 +27,10 @@
+ # include &quot;config.h&quot;
+ #endif
+ 
+-#ifdef WIN32
+-# include &quot;win32/configwin.h&quot;
++#ifndef CMAKE_BULD
++# ifdef WIN32
++#  include &quot;win32/configwin.h&quot;
++# endif
+ #endif
+ 
+ /* This file contains compile-time configuration parameters including
+
+Modified: trunk/pvpgn/src/common/systemerror.cpp
+===================================================================
+--- trunk/pvpgn/src/common/systemerror.cpp	2007-08-19 12:45:17 UTC (rev 327)
++++ trunk/pvpgn/src/common/systemerror.cpp	2007-08-19 22:50:02 UTC (rev 328)
+@@ -19,7 +19,7 @@
+ #include &quot;common/setup_before.h&quot;
+ #include &quot;systemerror.h&quot;
+ 
+-#include &lt;string.h&gt;
++#include &lt;string&gt;
+ 
+ #include &quot;compat/strerror.h&quot;
+ #include &quot;common/setup_after.h&quot;
+
+Modified: trunk/pvpgn/src/common/tag.cpp
+===================================================================
+--- trunk/pvpgn/src/common/tag.cpp	2007-08-19 12:45:17 UTC (rev 327)
++++ trunk/pvpgn/src/common/tag.cpp	2007-08-19 22:50:02 UTC (rev 328)
+@@ -23,6 +23,8 @@
+ #include &lt;cstring&gt;
+ #include &lt;cctype&gt;
+ 
++#include &quot;compat/strcasecmp.h&quot;
++
+ #include &quot;common/eventlog.h&quot;
+ #include &quot;common/xalloc.h&quot;
+ #include &quot;common/setup_after.h&quot;
+
+Modified: trunk/pvpgn/src/common/trans.cpp
+===================================================================
+--- trunk/pvpgn/src/common/trans.cpp	2007-08-19 12:45:17 UTC (rev 327)
++++ trunk/pvpgn/src/common/trans.cpp	2007-08-19 22:50:02 UTC (rev 328)
+@@ -43,7 +43,7 @@
+     unsigned int	pos;
+     char		*buff;
+     char		*temp;
+-    char const		*input;
++    char 	*input;
+     char const		*output;
+     char const		*exclude;
+     char const		*include;
+
+Modified: trunk/pvpgn/src/compat/CMakeLists.txt
+===================================================================
+--- trunk/pvpgn/src/compat/CMakeLists.txt	2007-08-19 12:45:17 UTC (rev 327)
++++ trunk/pvpgn/src/compat/CMakeLists.txt	2007-08-19 22:50:02 UTC (rev 328)
+@@ -1,3 +1,3 @@
+-add_library(compat psock.cpp strerror.cpp strsep.cpp pgetopt.cpp 
+-gettimeofday.cpp inet_aton.cpp inet_ntoa.cpp mmap.cpp pdir.cpp snprintf.cpp 
++add_library(compat psock.cpp strerror.cpp strsep.cpp gettimeofday.cpp 
++inet_aton.cpp inet_ntoa.cpp mmap.cpp pdir.cpp snprintf.cpp 
+ strcasecmp.cpp strdup.cpp strncasecmp.cpp strtoul.cpp uname.cpp vsnprintf.cpp)
+
+Modified: trunk/pvpgn/src/compat/Makefile.am
+===================================================================
+--- trunk/pvpgn/src/compat/Makefile.am	2007-08-19 12:45:17 UTC (rev 327)
++++ trunk/pvpgn/src/compat/Makefile.am	2007-08-19 22:50:02 UTC (rev 328)
+@@ -2,13 +2,13 @@
+ 
+ noinst_LIBRARIES = libcompat.a
+ 
+-libcompat_a_SOURCES = psock.cpp strerror.cpp strsep.cpp pgetopt.cpp \
++libcompat_a_SOURCES = psock.cpp strerror.cpp strsep.cpp \
+ 	gettimeofday.cpp inet_aton.cpp inet_ntoa.cpp mmap.cpp pdir.cpp \
+ 	snprintf.cpp strcasecmp.cpp strdup.cpp strncasecmp.cpp strtoul.cpp \
+ 	uname.cpp vsnprintf.cpp
+ 
+-noinst_HEADERS = access.h gethostname.h pgetopt.h gettimeofday.h inet_aton.h \
++noinst_HEADERS = access.h gethostname.h gettimeofday.h inet_aton.h \
+ 	inet_ntoa.h mkdir.h mmap.h netinet_in.h pdir.h psock.h read.h recv.h \
+ 	rename.h send.h snprintf.h socket.h statmacros.h stdfileno.h \
+-	strcasecmp.h strchr.h strdup.h strerror.h strncasecmp.h strrchr.h \
+-	strsep.h strtoul.h termios.h uint.h uname.h vsnprintf.h
++	strcasecmp.h strdup.h strerror.h strncasecmp.h strsep.h strtoul.h \
++	termios.h uint.h uname.h vsnprintf.h pgetpid.h
+
+Modified: trunk/pvpgn/src/compat/gethostname.h
+===================================================================
+--- trunk/pvpgn/src/compat/gethostname.h	2007-08-19 12:45:17 UTC (rev 327)
++++ trunk/pvpgn/src/compat/gethostname.h	2007-08-19 22:50:02 UTC (rev 328)
+@@ -23,14 +23,15 @@
+  * the socket stuff under Windows.  This tries to hide that.
+  */
+ 
+-#ifdef WIN32
+-# include &lt;winsock2.h&gt;
+-#endif
+ #ifdef HAVE_UNISTD_H
+ # include &lt;unistd.h&gt;
+ #endif
+-#ifndef HAVE_GETHOSTNAME
+-# error &quot;This program requires gethostname()&quot;
++#ifdef HAVE_WINSOCK2_H
++# include &lt;winsock2.h&gt;
++#else
++# ifndef HAVE_GETHOSTNAME 
++#  error &quot;This program requires gethostname()&quot;
++# endif
+ #endif
+ 
+ #endif
+
+Modified: trunk/pvpgn/src/compat/inet_ntoa.cpp
+===================================================================
+--- trunk/pvpgn/src/compat/inet_ntoa.cpp	2007-08-19 12:45:17 UTC (rev 327)
++++ trunk/pvpgn/src/compat/inet_ntoa.cpp	2007-08-19 22:50:02 UTC (rev 328)
+@@ -34,6 +34,9 @@
+ #ifdef HAVE_ARPA_INET_H
+ # include &lt;arpa/inet.h&gt;
+ #endif
++#ifdef HAVE_WINSOCK2_H
++# include &lt;winsock2.h&gt;
++#endif
+ #include &quot;common/setup_after.h&quot;
+ 
+ 
+
+Modified: trunk/pvpgn/src/compat/inet_ntoa.h
+===================================================================
+--- trunk/pvpgn/src/compat/inet_ntoa.h	2007-08-19 12:45:17 UTC (rev 327)
++++ trunk/pvpgn/src/compat/inet_ntoa.h	2007-08-19 22:50:02 UTC (rev 328)
+@@ -26,6 +26,9 @@
+ #ifdef HAVE_ARPA_INET_H
+ # include &lt;arpa/inet.h&gt;
+ #endif
++#ifdef HAVE_WINSOCK2_H
++# include &lt;winsock2.h&gt;
++#endif
+ 
+ namespace pvpgn
+ {
+
+Deleted: trunk/pvpgn/src/compat/pgetopt.cpp
+===================================================================
+--- trunk/pvpgn/src/compat/pgetopt.cpp	2007-08-19 12:45:17 UTC (rev 327)
++++ trunk/pvpgn/src/compat/pgetopt.cpp	2007-08-19 22:50:02 UTC (rev 328)
+@@ -1,1011 +0,0 @@
+-/* Getopt for GNU.
+-   NOTE: getopt is now part of the C library, so if you don't know what
+-   &quot;Keep this file name-space clean&quot; means, talk to <A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">roland at gnu.ai.mit.edu</A>
+-   before changing it!
+-
+-   Copyright (C) 1987, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97
+-   Free Software Foundation, Inc.
+-
+-   This file is part of the GNU C Library.  Its master source is NOT part of
+-   the C library, however.  The master source lives in /gd/gnu/lib.
+-
+-   The GNU C Library is free software; you can redistribute it and/or
+-   modify it under the terms of the GNU Library General Public License as
+-   published by the Free Software Foundation; either version 2 of the
+-   License, or (at your option) any later version.
+-
+-   The GNU C Library is distributed in the hope that it will be useful,
+-   but WITHOUT ANY WARRANTY; without even the implied warranty of
+-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+-   Library General Public License for more details.
+-
+-   You should have received a copy of the GNU Library General Public
+-   License along with the GNU C Library; see the file COPYING.LIB.  If not,
+-   write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+-   Boston, MA 02111-1307, USA.  */
+-
+-#include &lt;common/setup_before.h&gt;
+-
+-#ifndef HAVE_GETOPT
+-
+-/* This tells Alpha OSF/1 not to define a getopt prototype in &lt;stdio.h&gt;.
+-   Ditto for AIX 3.2 and &lt;stdlib.h&gt;.  */
+-#ifndef _NO_PROTO
+-#define _NO_PROTO
+-#endif
+-
+-#if !defined (__STDC__) || !__STDC__
+-/* This is a separate conditional since some stdc systems
+-   reject `defined (const)'.  */
+-#ifndef const
+-#define const
+-#endif
+-#endif
+-
+-#include &lt;cstdio&gt;
+-
+-
+-/* Comment out all this code if we are using the GNU C Library, and are not
+-   actually compiling the library itself.  This code is part of the GNU C
+-   Library, but also included in many other GNU distributions.  Compiling
+-   and linking in this code is a waste when using the GNU C library
+-   (especially if it is a shared library).  Rather than having every GNU
+-   program understand `configure --with-gnu-libc' and omit the object files,
+-   it is simpler to just do this in the source for each such file.  */
+-
+-#define GETOPT_INTERFACE_VERSION 2
+-#if !defined (_LIBC) &amp;&amp; defined (__GLIBC__) &amp;&amp; __GLIBC__ &gt;= 2
+-#include &lt;gnu-versions.h&gt;
+-#if _GNU_GETOPT_INTERFACE_VERSION == GETOPT_INTERFACE_VERSION
+-#define ELIDE_CODE
+-#endif
+-#endif
+-
+-#ifndef ELIDE_CODE
+-
+-
+-/* This needs to come after some library #include
+-   to get __GNU_LIBRARY__ defined.  */
+-#ifdef __GNU_LIBRARY__
+-/* Don't include stdlib.h for non-GNU C libraries because some of them
+-   contain conflicting prototypes for getopt.  */
+-#include &lt;cstdlib&gt;
+-#include &lt;unistd.h&gt;
+-#endif	/* GNU C library.  */
+-
+-#ifdef VMS
+-#include &lt;unixlib.h&gt;
+-#if HAVE_STRING_H - 0
+-#include &lt;string.h&gt;
+-#endif
+-#endif
+-
+-#if defined (WIN32) &amp;&amp; !defined (__CYGWIN32__)
+-/* It's not Unix, really.  See?  Capital letters.  */
+-#include &lt;windows.h&gt;
+-#define getpid() GetCurrentProcessId()
+-#endif
+-
+-#ifndef _
+-/* This is for other GNU distributions with internationalized messages.
+-   When compiling libc, the _ macro is predefined.  */
+-#ifdef HAVE_LIBINTL_H
+-# include &lt;libintl.h&gt;
+-# define _(msgid)	gettext (msgid)
+-#else
+-# define _(msgid)	(msgid)
+-#endif
+-#endif
+-
+-/* This version of `getopt' appears to the caller like standard Unix `getopt'
+-   but it behaves differently for the user, since it allows the user
+-   to intersperse the options with the other arguments.
+-
+-   As `getopt' works, it permutes the elements of ARGV so that,
+-   when it is done, all the options precede everything else.  Thus
+-   all application programs are extended to handle flexible argument order.
+-
+-   Setting the environment variable POSIXLY_CORRECT disables permutation.
+-   Then the behavior is completely standard.
+-
+-   GNU application programs can use a third alternative mode in which
+-   they can distinguish the relative order of options and other arguments.  */
+-
+-#include &quot;getopt.h&quot;
+-
+-#include &quot;common/setup_after.h&quot;
+-
+-namespace pvpgn
+-{
+-
+-/* For communication from `getopt' to the caller.
+-   When `getopt' finds an option that takes an argument,
+-   the argument value is returned here.
+-   Also, when `ordering' is RETURN_IN_ORDER,
+-   each non-option ARGV-element is returned here.  */
+-
+-char *optarg = NULL;
+-
+-/* Index in ARGV of the next element to be scanned.
+-   This is used for communication to and from the caller
+-   and for communication between successive calls to `getopt'.
+-
+-   On entry to `getopt', zero means this is the first call; initialize.
+-
+-   When `getopt' returns -1, this is the index of the first of the
+-   non-option elements that the caller should itself scan.
+-
+-   Otherwise, `optind' communicates from one call to the next
+-   how much of ARGV has been scanned so far.  */
+-
+-/* 1003.2 says this must be 1 before any call.  */
+-int optind = 1;
+-
+-/* Formerly, initialization of getopt depended on optind==0, which
+-   causes problems with re-calling getopt as programs generally don't
+-   know that. */
+-
+-int __getopt_initialized = 0;
+-
+-/* The next char to be scanned in the option-element
+-   in which the last option character we returned was found.
+-   This allows us to pick up the scan where we left off.
+-
+-   If this is zero, or a null string, it means resume the scan
+-   by advancing to the next ARGV-element.  */
+-
+-static char *nextchar;
+-
+-/* Callers store zero here to inhibit the error message
+-   for unrecognized options.  */
+-
+-int opterr = 1;
+-
+-/* Set to an option character which was unrecognized.
+-   This must be initialized on some systems to avoid linking in the
+-   system's own getopt implementation.  */
+-
+-int optopt = '?';
+-
+-/* Describe how to deal with options that follow non-option ARGV-elements.
+-
+-   If the caller did not specify anything,
+-   the default is REQUIRE_ORDER if the environment variable
+-   POSIXLY_CORRECT is defined, PERMUTE otherwise.
+-
+-   REQUIRE_ORDER means don't recognize them as options;
+-   stop option processing when the first non-option is seen.
+-   This is what Unix does.
+-   This mode of operation is selected by either setting the environment
+-   variable POSIXLY_CORRECT, or using `+' as the first character
+-   of the list of option characters.
+-
+-   PERMUTE is the default.  We permute the contents of ARGV as we scan,
+-   so that eventually all the non-options are at the end.  This allows options
+-   to be given in any order, even with programs that were not written to
+-   expect this.
+-
+-   RETURN_IN_ORDER is an option available to programs that were written
+-   to expect options and other ARGV-elements in any order and that care about
+-   the ordering of the two.  We describe each non-option ARGV-element
+-   as if it were the argument of an option with character code 1.
+-   Using `-' as the first character of the list of option characters
+-   selects this mode of operation.
+-
+-   The special argument `--' forces an end of option-scanning regardless
+-   of the value of `ordering'.  In the case of RETURN_IN_ORDER, only
+-   `--' can cause `getopt' to return -1 with `optind' != ARGC.  */
+-
+-static enum
+-{
+-  REQUIRE_ORDER, PERMUTE, RETURN_IN_ORDER
+-} ordering;
+-
+-/* Value of POSIXLY_CORRECT environment variable.  */
+-static char *posixly_correct;
+-
+-#ifdef	__GNU_LIBRARY__
+-/* We want to avoid inclusion of string.h with non-GNU libraries
+-   because there are many ways it can cause trouble.
+-   On some systems, it contains special magic macros that don't work
+-   in GCC.  */
+-#include &lt;string.h&gt;
+-#define	my_index	strchr
+-#else
+-
+-/* Avoid depending on library functions or files
+-   whose names are inconsistent.  */
+-
+-char *getenv ();
+-
+-static char *
+-my_index (str, chr)
+-     const char *str;
+-     int chr;
+-{
+-  while (*str)
+-    {
+-      if (*str == chr)
+-	return (char *) str;
+-      str++;
+-    }
+-  return 0;
+-}
+-
+-/* If using GCC, we can safely declare strlen this way.
+-   If not using GCC, it is ok not to declare it.  */
+-#ifdef __GNUC__
+-/* Note that Motorola Delta 68k R3V7 comes with GCC but not stddef.h.
+-   That was relevant to code that was here before.  */
+-#if !defined (__STDC__) || !__STDC__
+-/* gcc with -traditional declares the built-in strlen to return int,
+-   and has done so at least since version 2.4.5. -- rms.  */
+-extern int strlen (const char *);
+-#endif /* not __STDC__ */
+-#endif /* __GNUC__ */
+-
+-#endif /* not __GNU_LIBRARY__ */
+-
+-/* Handle permutation of arguments.  */
+-
+-/* Describe the part of ARGV that contains non-options that have
+-   been skipped.  `first_nonopt' is the index in ARGV of the first of them;
+-   `last_nonopt' is the index after the last of them.  */
+-
+-static int first_nonopt;
+-static int last_nonopt;
+-
+-#ifdef _LIBC
+-/* Bash 2.0 gives us an environment variable containing flags
+-   indicating ARGV elements that should not be considered arguments.  */
+-
+-static const char *nonoption_flags;
+-static int nonoption_flags_len;
+-
+-static int original_argc;
+-static char *const *original_argv;
+-
+-/* Make sure the environment variable bash 2.0 puts in the environment
+-   is valid for the getopt call we must make sure that the ARGV passed
+-   to getopt is that one passed to the process.  */
+-static void store_args (int argc, char *const *argv) __attribute__ ((unused));
+-static void
+-store_args (int argc, char *const *argv)
+-{
+-  /* XXX This is no good solution.  We should rather copy the args so
+-     that we can compare them later.  But we must not use malloc(3).  */
+-  original_argc = argc;
+-  original_argv = argv;
+-}
+-text_set_element (__libc_subinit, store_args);
+-#endif
+-
+-/* Exchange two adjacent subsequences of ARGV.
+-   One subsequence is elements [first_nonopt,last_nonopt)
+-   which contains all the non-options that have been skipped so far.
+-   The other is elements [last_nonopt,optind), which contains all
+-   the options processed since those non-options were skipped.
+-
+-   `first_nonopt' and `last_nonopt' are relocated so that they describe
+-   the new indices of the non-options in ARGV after they are moved.  */
+-
+-#if defined (__STDC__) &amp;&amp; __STDC__
+-static void exchange (char **);
+-#endif
+-
+-static void
+-exchange (argv)
+-     char **argv;
+-{
+-  int bottom = first_nonopt;
+-  int middle = last_nonopt;
+-  int top = optind;
+-  char *tem;
+-
+-  /* Exchange the shorter segment with the far end of the longer segment.
+-     That puts the shorter segment into the right place.
+-     It leaves the longer segment in the right place overall,
+-     but it consists of two parts that need to be swapped next.  */
+-
+-  while (top &gt; middle &amp;&amp; middle &gt; bottom)
+-    {
+-      if (top - middle &gt; middle - bottom)
+-	{
+-	  /* Bottom segment is the short one.  */
+-	  int len = middle - bottom;
+-	  register int i;
+-
+-	  /* Swap it with the top part of the top segment.  */
+-	  for (i = 0; i &lt; len; i++)
+-	    {
+-	      tem = argv[bottom + i];
+-	      argv[bottom + i] = argv[top - (middle - bottom) + i];
+-	      argv[top - (middle - bottom) + i] = tem;
+-	    }
+-	  /* Exclude the moved bottom segment from further swapping.  */
+-	  top -= len;
+-	}
+-      else
+-	{
+-	  /* Top segment is the short one.  */
+-	  int len = top - middle;
+-	  register int i;
+-
+-	  /* Swap it with the bottom part of the bottom segment.  */
+-	  for (i = 0; i &lt; len; i++)
+-	    {
+-	      tem = argv[bottom + i];
+-	      argv[bottom + i] = argv[middle + i];
+-	      argv[middle + i] = tem;
+-	    }
+-	  /* Exclude the moved top segment from further swapping.  */
+-	  bottom += len;
+-	}
+-    }
+-
+-  /* Update records for the slots the non-options now occupy.  */
+-
+-  first_nonopt += (optind - last_nonopt);
+-  last_nonopt = optind;
+-}
+-
+-/* Initialize the internal data when the first call is made.  */
+-
+-#if defined (__STDC__) &amp;&amp; __STDC__
+-static const char *_getopt_initialize (int, char *const *, const char *);
+-#endif
+-static const char *
+-_getopt_initialize (argc, argv, optstring)
+-     int argc;
+-     char *const *argv;
+-     const char *optstring;
+-{
+-  /* Start processing options with ARGV-element 1 (since ARGV-element 0
+-     is the program name); the sequence of previously skipped
+-     non-option ARGV-elements is empty.  */
+-
+-  first_nonopt = last_nonopt = optind = 1;
+-
+-  nextchar = NULL;
+-
+-  posixly_correct = getenv (&quot;POSIXLY_CORRECT&quot;);
+-
+-  /* Determine how to handle the ordering of options and nonoptions.  */
+-
+-  if (optstring[0] == '-')
+-    {
+-      ordering = RETURN_IN_ORDER;
+-      ++optstring;
+-    }
+-  else if (optstring[0] == '+')
+-    {
+-      ordering = REQUIRE_ORDER;
+-      ++optstring;
+-    }
+-  else if (posixly_correct != NULL)
+-    ordering = REQUIRE_ORDER;
+-  else
+-    ordering = PERMUTE;
+-
+-#ifdef _LIBC
+-  if (posixly_correct == NULL
+-      &amp;&amp; argc == original_argc &amp;&amp; argv == original_argv)
+-    {
+-      /* Bash 2.0 puts a special variable in the environment for each
+-	 command it runs, specifying which ARGV elements are the results of
+-	 file name wildcard expansion and therefore should not be
+-	 considered as options.  */
+-      char var[100];
+-      sprintf (var, &quot;_%d_GNU_nonoption_argv_flags_&quot;, getpid ());
+-      nonoption_flags = getenv (var);
+-      if (nonoption_flags == NULL)
+-	nonoption_flags_len = 0;
+-      else
+-	nonoption_flags_len = strlen (nonoption_flags);
+-    }
+-  else
+-    nonoption_flags_len = 0;
+-#endif
+-
+-  return optstring;
+-}
+-
+-/* Scan elements of ARGV (whose length is ARGC) for option characters
+-   given in OPTSTRING.
+-
+-   If an element of ARGV starts with '-', and is not exactly &quot;-&quot; or &quot;--&quot;,
+-   then it is an option element.  The characters of this element
+-   (aside from the initial '-') are option characters.  If `getopt'
+-   is called repeatedly, it returns successively each of the option characters
+-   from each of the option elements.
+-
+-   If `getopt' finds another option character, it returns that character,
+-   updating `optind' and `nextchar' so that the next call to `getopt' can
+-   resume the scan with the following option character or ARGV-element.
+-
+-   If there are no more option characters, `getopt' returns -1.
+-   Then `optind' is the index in ARGV of the first ARGV-element
+-   that is not an option.  (The ARGV-elements have been permuted
+-   so that those that are not options now come last.)
+-
+-   OPTSTRING is a string containing the legitimate option characters.
+-   If an option character is seen that is not listed in OPTSTRING,
+-   return '?' after printing an error message.  If you set `opterr' to
+-   zero, the error message is suppressed but we still return '?'.
+-
+-   If a char in OPTSTRING is followed by a colon, that means it wants an arg,
+-   so the following text in the same ARGV-element, or the text of the following
+-   ARGV-element, is returned in `optarg'.  Two colons mean an option that
+-   wants an optional arg; if there is text in the current ARGV-element,
+-   it is returned in `optarg', otherwise `optarg' is set to zero.
+-
+-   If OPTSTRING starts with `-' or `+', it requests different methods of
+-   handling the non-option ARGV-elements.
+-   See the comments about RETURN_IN_ORDER and REQUIRE_ORDER, above.
+-
+-   Long-named options begin with `--' instead of `-'.
+-   Their names may be abbreviated as long as the abbreviation is unique
+-   or is an exact match for some defined option.  If they have an
+-   argument, it follows the option name in the same ARGV-element, separated
+-   from the option name by a `=', or else the in next ARGV-element.
+-   When `getopt' finds a long-named option, it returns 0 if that option's
+-   `flag' field is nonzero, the value of the option's `val' field
+-   if the `flag' field is zero.
+-
+-   The elements of ARGV aren't really const, because we permute them.
+-   But we pretend they're const in the prototype to be compatible
+-   with other systems.
+-
+-   LONGOPTS is a vector of `struct option' terminated by an
+-   element containing a name which is zero.
+-
+-   LONGIND returns the index in LONGOPT of the long-named option found.
+-   It is only valid when a long-named option has been found by the most
+-   recent call.
+-
+-   If LONG_ONLY is nonzero, '-' as well as '--' can introduce
+-   long-named options.  */
+-
+-int
+-_getopt_internal (argc, argv, optstring, longopts, longind, long_only)
+-     int argc;
+-     char *const *argv;
+-     const char *optstring;
+-     const struct option *longopts;
+-     int *longind;
+-     int long_only;
+-{
+-  optarg = NULL;
+-
+-  if (!__getopt_initialized || optind == 0)
+-    {
+-      optstring = _getopt_initialize (argc, argv, optstring);
+-      optind = 1;		/* Don't scan ARGV[0], the program name.  */
+-      __getopt_initialized = 1;
+-    }
+-
+-  /* Test whether ARGV[optind] points to a non-option argument.
+-     Either it does not have option syntax, or there is an environment flag
+-     from the shell indicating it is not an option.  The later information
+-     is only used when the used in the GNU libc.  */
+-#ifdef _LIBC
+-#define NONOPTION_P (argv[optind][0] != '-' || argv[optind][1] == '\0'	      \
+-		     || (optind &lt; nonoption_flags_len			      \
+-			 &amp;&amp; nonoption_flags[optind] == '1'))
+-#else
+-#define NONOPTION_P (argv[optind][0] != '-' || argv[optind][1] == '\0')
+-#endif
+-
+-  if (nextchar == NULL || *nextchar == '\0')
+-    {
+-      /* Advance to the next ARGV-element.  */
+-
+-      /* Give FIRST_NONOPT &amp; LAST_NONOPT rational values if OPTIND has been
+-	 moved back by the user (who may also have changed the arguments).  */
+-      if (last_nonopt &gt; optind)
+-	last_nonopt = optind;
+-      if (first_nonopt &gt; optind)
+-	first_nonopt = optind;
+-
+-      if (ordering == PERMUTE)
+-	{
+-	  /* If we have just processed some options following some non-options,
+-	     exchange them so that the options come first.  */
+-
+-	  if (first_nonopt != last_nonopt &amp;&amp; last_nonopt != optind)
+-	    exchange ((char **) argv);
+-	  else if (last_nonopt != optind)
+-	    first_nonopt = optind;
+-
+-	  /* Skip any additional non-options
+-	     and extend the range of non-options previously skipped.  */
+-
+-	  while (optind &lt; argc &amp;&amp; NONOPTION_P)
+-	    optind++;
+-	  last_nonopt = optind;
+-	}
+-
+-      /* The special ARGV-element `--' means premature end of options.
+-	 Skip it like a null option,
+-	 then exchange with previous non-options as if it were an option,
+-	 then skip everything else like a non-option.  */
+-
+-      if (optind != argc &amp;&amp; !strcmp (argv[optind], &quot;--&quot;))
+-	{
+-	  optind++;
+-
+-	  if (first_nonopt != last_nonopt &amp;&amp; last_nonopt != optind)
+-	    exchange ((char **) argv);
+-	  else if (first_nonopt == last_nonopt)
+-	    first_nonopt = optind;
+-	  last_nonopt = argc;
+-
+-	  optind = argc;
+-	}
+-
+-      /* If we have done all the ARGV-elements, stop the scan
+-	 and back over any non-options that we skipped and permuted.  */
+-
+-      if (optind == argc)
+-	{
+-	  /* Set the next-arg-index to point at the non-options
+-	     that we previously skipped, so the caller will digest them.  */
+-	  if (first_nonopt != last_nonopt)
+-	    optind = first_nonopt;
+-	  return -1;
+-	}
+-
+-      /* If we have come to a non-option and did not permute it,
+-	 either stop the scan or describe it to the caller and pass it by.  */
+-
+-      if (NONOPTION_P)
+-	{
+-	  if (ordering == REQUIRE_ORDER)
+-	    return -1;
+-	  optarg = argv[optind++];
+-	  return 1;
+-	}
+-
+-      /* We have found another option-ARGV-element.
+-	 Skip the initial punctuation.  */
+-
+-      nextchar = (argv[optind] + 1
+-		  + (longopts != NULL &amp;&amp; argv[optind][1] == '-'));
+-    }
+-
+-  /* Decode the current option-ARGV-element.  */
+-
+-  /* Check whether the ARGV-element is a long option.
+-
+-     If long_only and the ARGV-element has the form &quot;-f&quot;, where f is
+-     a valid short option, don't consider it an abbreviated form of
+-     a long option that starts with f.  Otherwise there would be no
+-     way to give the -f short option.
+-
+-     On the other hand, if there's a long option &quot;fubar&quot; and
+-     the ARGV-element is &quot;-fu&quot;, do consider that an abbreviation of
+-     the long option, just like &quot;--fu&quot;, and not &quot;-f&quot; with arg &quot;u&quot;.
+-
+-     This distinction seems to be the most useful approach.  */
+-
+-  if (longopts != NULL
+-      &amp;&amp; (argv[optind][1] == '-'
+-	  || (long_only &amp;&amp; (argv[optind][2] || !my_index (optstring, argv[optind][1])))))
+-    {
+-      char *nameend;
+-      const struct option *p;
+-      const struct option *pfound = NULL;
+-      int exact = 0;
+-      int ambig = 0;
+-      int indfound = -1;
+-      int option_index;
+-
+-      for (nameend = nextchar; *nameend &amp;&amp; *nameend != '='; nameend++)
+-	/* Do nothing.  */ ;
+-
+-      /* Test all long options for either exact match
+-	 or abbreviated matches.  */
+-      for (p = longopts, option_index = 0; p-&gt;name; p++, option_index++)
+-	if (!strncmp (p-&gt;name, nextchar, nameend - nextchar))
+-	  {
+-	    if ((unsigned int) (nameend - nextchar)
+-		== (unsigned int) strlen (p-&gt;name))
+-	      {
+-		/* Exact match found.  */
+-		pfound = p;
+-		indfound = option_index;
+-		exact = 1;
+-		break;
+-	      }
+-	    else if (pfound == NULL)
+-	      {
+-		/* First nonexact match found.  */
+-		pfound = p;
+-		indfound = option_index;
+-	      }
+-	    else
+-	      /* Second or later nonexact match found.  */
+-	      ambig = 1;
+-	  }
+-
+-      if (ambig &amp;&amp; !exact)
+-	{
+-	  if (opterr)
+-	    fprintf (stderr, _(&quot;%s: option `%s' is ambiguous\n&quot;),
+-		     argv[0], argv[optind]);
+-	  nextchar += strlen (nextchar);
+-	  optind++;
+-	  optopt = 0;
+-	  return '?';
+-	}
+-
+-      if (pfound != NULL)
+-	{
+-	  option_index = indfound;
+-	  optind++;
+-	  if (*nameend)
+-	    {
+-	      /* Don't test has_arg with &gt;, because some C compilers don't
+-		 allow it to be used on enums.  */
+-	      if (pfound-&gt;has_arg)
+-		optarg = nameend + 1;
+-	      else
+-		{
+-		  if (opterr)
+-		  {
+-		   if (argv[optind - 1][1] == '-')
+-		    /* --option */
+-		    fprintf (stderr,
+-		     _(&quot;%s: option `--%s' doesn't allow an argument\n&quot;),
+-		     argv[0], pfound-&gt;name);
+-		   else
+-		    /* +option or -option */
+-		    fprintf (stderr,
+-		     _(&quot;%s: option `%c%s' doesn't allow an argument\n&quot;),
+-		     argv[0], argv[optind - 1][0], pfound-&gt;name);
+-		  }
+-		  nextchar += strlen (nextchar);
+-
+-		  optopt = pfound-&gt;val;
+-		  return '?';
+-		}
+-	    }
+-	  else if (pfound-&gt;has_arg == 1)
+-	    {
+-	      if (optind &lt; argc)
+-		optarg = argv[optind++];
+-	      else
+-		{
+-		  if (opterr)
+-		    fprintf (stderr,
+-			   _(&quot;%s: option `%s' requires an argument\n&quot;),
+-			   argv[0], argv[optind - 1]);
+-		  nextchar += strlen (nextchar);
+-		  optopt = pfound-&gt;val;
+-		  return optstring[0] == ':' ? ':' : '?';
+-		}
+-	    }
+-	  nextchar += strlen (nextchar);
+-	  if (longind != NULL)
+-	    *longind = option_index;
+-	  if (pfound-&gt;flag)
+-	    {
+-	      *(pfound-&gt;flag) = pfound-&gt;val;
+-	      return 0;
+-	    }
+-	  return pfound-&gt;val;
+-	}
+-
+-      /* Can't find it as a long option.  If this is not getopt_long_only,
+-	 or the option starts with '--' or is not a valid short
+-	 option, then it's an error.
+-	 Otherwise interpret it as a short option.  */
+-      if (!long_only || argv[optind][1] == '-'
+-	  || my_index (optstring, *nextchar) == NULL)
+-	{
+-	  if (opterr)
+-	    {
+-	      if (argv[optind][1] == '-')
+-		/* --option */
+-		fprintf (stderr, _(&quot;%s: unrecognized option `--%s'\n&quot;),
+-			 argv[0], nextchar);
+-	      else
+-		/* +option or -option */
+-		fprintf (stderr, _(&quot;%s: unrecognized option `%c%s'\n&quot;),
+-			 argv[0], argv[optind][0], nextchar);
+-	    }
+-	  nextchar = (char *) &quot;&quot;;
+-	  optind++;
+-	  optopt = 0;
+-	  return '?';
+-	}
+-    }
+-
+-  /* Look at and handle the next short option-character.  */
+-
+-  {
+-    char c = *nextchar++;
+-    char *temp = my_index (optstring, c);
+-
+-    /* Increment `optind' when we start to process its last character.  */
+-    if (*nextchar == '\0')
+-      ++optind;
+-
+-    if (temp == NULL || c == ':')
+-      {
+-	if (opterr)
+-	  {
+-	    if (posixly_correct)
+-	      /* 1003.2 specifies the format of this message.  */
+-	      fprintf (stderr, _(&quot;%s: illegal option -- %c\n&quot;),
+-		       argv[0], c);
+-	    else
+-	      fprintf (stderr, _(&quot;%s: invalid option -- %c\n&quot;),
+-		       argv[0], c);
+-	  }
+-	optopt = c;
+-	return '?';
+-      }
+-    /* Convenience. Treat POSIX -W foo same as long option --foo */
+-    if (temp[0] == 'W' &amp;&amp; temp[1] == ';')
+-      {
+-	char *nameend;
+-	const struct option *p;
+-	const struct option *pfound = NULL;
+-	int exact = 0;
+-	int ambig = 0;
+-	int indfound = 0;
+-	int option_index;
+-
+-	/* This is an option that requires an argument.  */
+-	if (*nextchar != '\0')
+-	  {
+-	    optarg = nextchar;
+-	    /* If we end this ARGV-element by taking the rest as an arg,
+-	       we must advance to the next element now.  */
+-	    optind++;
+-	  }
+-	else if (optind == argc)
+-	  {
+-	    if (opterr)
+-	      {
+-		/* 1003.2 specifies the format of this message.  */
+-		fprintf (stderr, _(&quot;%s: option requires an argument -- %c\n&quot;),
+-			 argv[0], c);
+-	      }
+-	    optopt = c;
+-	    if (optstring[0] == ':')
+-	      c = ':';
+-	    else
+-	      c = '?';
+-	    return c;
+-	  }
+-	else
+-	  /* We already incremented `optind' once;
+-	     increment it again when taking next ARGV-elt as argument.  */
+-	  optarg = argv[optind++];
+-
+-	/* optarg is now the argument, see if it's in the
+-	   table of longopts.  */
+-
+-	for (nextchar = nameend = optarg; *nameend &amp;&amp; *nameend != '='; nameend++)
+-	  /* Do nothing.  */ ;
+-
+-	/* Test all long options for either exact match
+-	   or abbreviated matches.  */
+-	for (p = longopts, option_index = 0; p-&gt;name; p++, option_index++)
+-	  if (!strncmp (p-&gt;name, nextchar, nameend - nextchar))
+-	    {
+-	      if ((unsigned int) (nameend - nextchar) == strlen (p-&gt;name))
+-		{
+-		  /* Exact match found.  */
+-		  pfound = p;
+-		  indfound = option_index;
+-		  exact = 1;
+-		  break;
+-		}
+-	      else if (pfound == NULL)
+-		{
+-		  /* First nonexact match found.  */
+-		  pfound = p;
+-		  indfound = option_index;
+-		}
+-	      else
+-		/* Second or later nonexact match found.  */
+-		ambig = 1;
+-	    }
+-	if (ambig &amp;&amp; !exact)
+-	  {
+-	    if (opterr)
+-	      fprintf (stderr, _(&quot;%s: option `-W %s' is ambiguous\n&quot;),
+-		       argv[0], argv[optind]);
+-	    nextchar += strlen (nextchar);
+-	    optind++;
+-	    return '?';
+-	  }
+-	if (pfound != NULL)
+-	  {
+-	    option_index = indfound;
+-	    if (*nameend)
+-	      {
+-		/* Don't test has_arg with &gt;, because some C compilers don't
+-		   allow it to be used on enums.  */
+-		if (pfound-&gt;has_arg)
+-		  optarg = nameend + 1;
+-		else
+-		  {
+-		    if (opterr)
+-		      fprintf (stderr, _(&quot;\
+-%s: option `-W %s' doesn't allow an argument\n&quot;),
+-			       argv[0], pfound-&gt;name);
+-
+-		    nextchar += strlen (nextchar);
+-		    return '?';
+-		  }
+-	      }
+-	    else if (pfound-&gt;has_arg == 1)
+-	      {
+-		if (optind &lt; argc)
+-		  optarg = argv[optind++];
+-		else
+-		  {
+-		    if (opterr)
+-		      fprintf (stderr,
+-			       _(&quot;%s: option `%s' requires an argument\n&quot;),
+-			       argv[0], argv[optind - 1]);
+-		    nextchar += strlen (nextchar);
+-		    return optstring[0] == ':' ? ':' : '?';
+-		  }
+-	      }
+-	    nextchar += strlen (nextchar);
+-	    if (longind != NULL)
+-	      *longind = option_index;
+-	    if (pfound-&gt;flag)
+-	      {
+-		*(pfound-&gt;flag) = pfound-&gt;val;
+-		return 0;
+-	      }
+-	    return pfound-&gt;val;
+-	  }
+-	  nextchar = NULL;
+-	  return 'W';	/* Let the application handle it.   */
+-      }
+-    if (temp[1] == ':')
+-      {
+-	if (temp[2] == ':')
+-	  {
+-	    /* This is an option that accepts an argument optionally.  */
+-	    if (*nextchar != '\0')
+-	      {
+-		optarg = nextchar;
+-		optind++;
+-	      }
+-	    else
+-	      optarg = NULL;
+-	    nextchar = NULL;
+-	  }
+-	else
+-	  {
+-	    /* This is an option that requires an argument.  */
+-	    if (*nextchar != '\0')
+-	      {
+-		optarg = nextchar;
+-		/* If we end this ARGV-element by taking the rest as an arg,
+-		   we must advance to the next element now.  */
+-		optind++;
+-	      }
+-	    else if (optind == argc)
+-	      {
+-		if (opterr)
+-		  {
+-		    /* 1003.2 specifies the format of this message.  */
+-		    fprintf (stderr,
+-			   _(&quot;%s: option requires an argument -- %c\n&quot;),
+-			   argv[0], c);
+-		  }
+-		optopt = c;
+-		if (optstring[0] == ':')
+-		  c = ':';
+-		else
+-		  c = '?';
+-	      }
+-	    else
+-	      /* We already incremented `optind' once;
+-		 increment it again when taking next ARGV-elt as argument.  */
+-	      optarg = argv[optind++];
+-	    nextchar = NULL;
+-	  }
+-      }
+-    return c;
+-  }
+-}
+-
+-int
+-getopt (argc, argv, optstring)
+-     int argc;
+-     char *const *argv;
+-     const char *optstring;
+-{
+-  return _getopt_internal (argc, argv, optstring,
+-			   (const struct option *) 0,
+-			   (int *) 0,
+-			   0);
+-}
+-
+-}
+-
+-#endif	/* Not ELIDE_CODE.  */
+-
+-#ifdef TEST
+-
+-/* Compile with -DTEST to make an executable for use in testing
+-   the above definition of `getopt'.  */
+-
+-int
+-main (argc, argv)
+-     int argc;
+-     char **argv;
+-{
+-  int c;
+-  int digit_optind = 0;
+-
+-  while (1)
+-    {
+-      int this_option_optind = optind ? optind : 1;
+-
+-      c = getopt (argc, argv, &quot;abc:d:0123456789&quot;);
+-      if (c == -1)
+-	break;
+-
+-      switch (c)
+-	{
+-	case '0':
+-	case '1':
+-	case '2':
+-	case '3':
+-	case '4':
+-	case '5':
+-	case '6':
+-	case '7':
+-	case '8':
+-	case '9':
+-	  if (digit_optind != 0 &amp;&amp; digit_optind != this_option_optind)
+-	    printf (&quot;digits occur in two different argv-elements.\n&quot;);
+-	  digit_optind = this_option_optind;
+-	  printf (&quot;option %c\n&quot;, c);
+-	  break;
+-
+-	case 'a':
+-	  printf (&quot;option a\n&quot;);
+-	  break;
+-
+-	case 'b':
+-	  printf (&quot;option b\n&quot;);
+-	  break;
+-
+-	case 'c':
+-	  printf (&quot;option c with value `%s'\n&quot;, optarg);
+-	  break;
+-
+-	case '?':
+-	  break;
+-
+-	default:
+-	  printf (&quot;?? getopt returned character code 0%o ??\n&quot;, c);
+-	}
+-    }
+-
+-  if (optind &lt; argc)
+-    {
+-      printf (&quot;non-option ARGV-elements: &quot;);
+-      while (optind &lt; argc)
+-	printf (&quot;%s &quot;, argv[optind++]);
+-      printf (&quot;\n&quot;);
+-    }
+-
+-  exit (0);
+-}
+-
+-#endif /* TEST */
+-
+-#endif /* !HAVE_GETOPT */
+
+Deleted: trunk/pvpgn/src/compat/pgetopt.h
+===================================================================
+--- trunk/pvpgn/src/compat/pgetopt.h	2007-08-19 12:45:17 UTC (rev 327)
++++ trunk/pvpgn/src/compat/pgetopt.h	2007-08-19 22:50:02 UTC (rev 328)
+@@ -1,148 +0,0 @@
+-/* Declarations for getopt.
+-   Copyright (C) 1989,90,91,92,93,94,96,97 Free Software Foundation, Inc.
+-
+-   This file is part of the GNU C Library.  Its master source is NOT part of
+-   the C library, however.  The master source lives in /gd/gnu/lib.
+-
+-   The GNU C Library is free software; you can redistribute it and/or
+-   modify it under the terms of the GNU Library General Public License as
+-   published by the Free Software Foundation; either version 2 of the
+-   License, or (at your option) any later version.
+-
+-   The GNU C Library is distributed in the hope that it will be useful,
+-   but WITHOUT ANY WARRANTY; without even the implied warranty of
+-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+-   Library General Public License for more details.
+-
+-   You should have received a copy of the GNU Library General Public
+-   License along with the GNU C Library; see the file COPYING.LIB.  If not,
+-   write to the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+-   Boston, MA 02111-1307, USA.  */
+-
+-#ifndef _PVPGN_GETOPT_H_
+-#define _PVPGN_GETOPT_H_ 1
+-
+-#include &quot;common/setup_before.h&quot;
+-
+-#ifdef HAVE_UNISTD_H
+-# include &lt;unistd.h&gt;
+-#endif
+-
+-#ifndef HAVE_GETOPT
+-
+-namespace pvpgn
+-{
+-
+-/* For communication from `getopt' to the caller.
+-   When `getopt' finds an option that takes an argument,
+-   the argument value is returned here.
+-   Also, when `ordering' is RETURN_IN_ORDER,
+-   each non-option ARGV-element is returned here.  */
+-
+-extern char *optarg;
+-
+-/* Index in ARGV of the next element to be scanned.
+-   This is used for communication to and from the caller
+-   and for communication between successive calls to `getopt'.
+-
+-   On entry to `getopt', zero means this is the first call; initialize.
+-
+-   When `getopt' returns -1, this is the index of the first of the
+-   non-option elements that the caller should itself scan.
+-
+-   Otherwise, `optind' communicates from one call to the next
+-   how much of ARGV has been scanned so far.  */
+-
+-extern int optind;
+-
+-/* Callers store zero here to inhibit the error message `getopt' prints
+-   for unrecognized options.  */
+-
+-extern int opterr;
+-
+-/* Set to an option character which was unrecognized.  */
+-
+-extern int optopt;
+-
+-/* Describe the long-named options requested by the application.
+-   The LONG_OPTIONS argument to getopt_long or getopt_long_only is a vector
+-   of `struct option' terminated by an element containing a name which is
+-   zero.
+-
+-   The field `has_arg' is:
+-   no_argument		(or 0) if the option does not take an argument,
+-   required_argument	(or 1) if the option requires an argument,
+-   optional_argument 	(or 2) if the option takes an optional argument.
+-
+-   If the field `flag' is not NULL, it points to a variable that is set
+-   to the value given in the field `val' when the option is found, but
+-   left unchanged if the option is not found.
+-
+-   To have a long-named option do something other than set an `int' to
+-   a compiled-in constant, such as set a value from `optarg', set the
+-   option's `flag' field to zero and its `val' field to a nonzero
+-   value (the equivalent single-letter option character, if there is
+-   one).  For long options that have a zero `flag' field, `getopt'
+-   returns the contents of the `val' field.  */
+-
+-struct option
+-{
+-#if defined (__STDC__) &amp;&amp; __STDC__
+-  const char *name;
+-#else
+-  char *name;
+-#endif
+-  /* has_arg can't be an enum because some compilers complain about
+-     type mismatches in all the code that assumes it is an int.  */
+-  int has_arg;
+-  int *flag;
+-  int val;
+-};
+-
+-/* Names for the values of the `has_arg' field of `struct option'.  */
+-
+-#define	no_argument		0
+-#define required_argument	1
+-#define optional_argument	2
+-
+-#ifdef WIN32
+-#define extern
+-#endif
+-
+-#if defined (__STDC__) &amp;&amp; __STDC__
+-#ifdef __GNU_LIBRARY__
+-/* Many other libraries have conflicting prototypes for getopt, with
+-   differences in the consts, in stdlib.h.  To avoid compilation
+-   errors, only prototype getopt for the GNU C library.  */
+-extern int getopt (int argc, char *const *argv, const char *shortopts);
+-#else /* not __GNU_LIBRARY__ */
+-extern int getopt ();
+-#endif /* __GNU_LIBRARY__ */
+-extern int getopt_long (int argc, char *const *argv, const char *shortopts,
+-		        const struct option *longopts, int *longind);
+-extern int getopt_long_only (int argc, char *const *argv,
+-			     const char *shortopts,
+-		             const struct option *longopts, int *longind);
+-
+-/* Internal only.  Users should not call this directly.  */
+-extern int _getopt_internal (int argc, char *const *argv,
+-			     const char *shortopts,
+-		             const struct option *longopts, int *longind,
+-			     int long_only);
+-#else /* not __STDC__ */
+-extern int getopt ();
+-extern int getopt_long ();
+-extern int getopt_long_only ();
+-
+-extern int _getopt_internal ();
+-#endif /* __STDC__ */
+-
+-#ifdef WIN32
+-#undef extern
+-#endif
+-
+-}
+-
+-#endif /* !HAVE_GETOPT */
+-
+-#endif /* _PVPGN_GETOPT_H_ */
+
+Added: trunk/pvpgn/src/compat/pgetpid.h
+===================================================================
+--- trunk/pvpgn/src/compat/pgetpid.h	2007-08-19 12:45:17 UTC (rev 327)
++++ trunk/pvpgn/src/compat/pgetpid.h	2007-08-19 22:50:02 UTC (rev 328)
+@@ -0,0 +1,36 @@
++/*
++ * Copyright (C) 2000  Ross Combs (<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">rocombs at cs.nmsu.edu</A>)
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License
++ * as published by the Free Software Foundation; either version 2
++ * of the License, or (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
++ */
++#ifndef INCLUDED_PGETPID_PROTOS
++#define INCLUDED_PGETPID_PROTOS
++
++#ifdef HAVE_GETPID
++# ifndef WIN32
++#   ifdef HAVE_UNISTD_H
++#    include &lt;unistd.h&gt;
++#   endif
++#   ifdef HAVE_SYS_TYPES_H
++#    include &lt;sys/types.h&gt;
++#   endif
++#  define pgetpid() getpid()
++# else
++#  include &lt;windows.h&gt;
++#  define pgetpid() GetCurrentProcessId()
++# endif
++#endif
++
++#endif
+
+Modified: trunk/pvpgn/src/compat/recv.h
+===================================================================
+--- trunk/pvpgn/src/compat/recv.h	2007-08-19 12:45:17 UTC (rev 327)
++++ trunk/pvpgn/src/compat/recv.h	2007-08-19 22:50:02 UTC (rev 328)
+@@ -25,7 +25,12 @@
+ # include &lt;cstddef&gt;
+ # define recv(s, b, l, f) recvfrom(s, b, l, f, NULL, NULL)
+ #else
+-# error &quot;This program requires recvfrom()&quot;
++# ifdef HAVE_WINSOCK2_H
++#  include &lt;winsock2.h&gt;
++#  define recv(s, b, l, f) recvfrom(s, b, l, f, NULL, NULL)
++# else
++#   error &quot;This program requires recvfrom()&quot;
++# endif
+ #endif
+ 
+ #endif
+
+Modified: trunk/pvpgn/src/compat/send.h
+===================================================================
+--- trunk/pvpgn/src/compat/send.h	2007-08-19 12:45:17 UTC (rev 327)
++++ trunk/pvpgn/src/compat/send.h	2007-08-19 22:50:02 UTC (rev 328)
+@@ -25,7 +25,12 @@
+ # include &lt;cstddef&gt;
+ # define send(s, b, l, f) sendto(s, b, l, f, NULL, NULL)
+ #else
+-# error &quot;This program requires sendto()&quot;
++# ifdef HAVE_WINSOCK2_H
++#  include &lt;winsock2.h&gt;
++#  define send(s, b, l, f) sendto(s, b, l, f, NULL, NULL)
++# else
++#   error &quot;This program requires sendto()&quot;
++# endif
+ #endif
+ 
+ #endif
+
+Modified: trunk/pvpgn/src/compat/strcasecmp.cpp
+===================================================================
+--- trunk/pvpgn/src/compat/strcasecmp.cpp	2007-08-19 12:45:17 UTC (rev 327)
++++ trunk/pvpgn/src/compat/strcasecmp.cpp	2007-08-19 22:50:02 UTC (rev 328)
+@@ -17,16 +17,11 @@
+  */
+ #include &quot;common/setup_before.h&quot;
+ #ifndef HAVE_STRCASECMP
++#include &quot;strcasecmp.h&quot;
+ 
+ #include &lt;ctype.h&gt;
+-#ifdef HAVE_STRING_H
+-# include &lt;string.h&gt;
+-#else
+-# ifdef HAVE_STRINGS_H
+-#  include &lt;strings.h&gt;
+-# endif
+-#endif
+-#include &quot;strcasecmp.h&quot;
++#include &lt;cstring&gt;
++
+ #include &quot;common/setup_after.h&quot;
+ 
+ 
+
+Deleted: trunk/pvpgn/src/compat/strchr.h
+===================================================================
+--- trunk/pvpgn/src/compat/strchr.h	2007-08-19 12:45:17 UTC (rev 327)
++++ trunk/pvpgn/src/compat/strchr.h	2007-08-19 22:50:02 UTC (rev 328)
+@@ -1,31 +0,0 @@
+-/*
+- * Copyright (C) 2000  Ross Combs (<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">rocombs at cs.nmsu.edu</A>)
+- *
+- * This program is free software; you can redistribute it and/or
+- * modify it under the terms of the GNU General Public License
+- * as published by the Free Software Foundation; either version 2
+- * of the License, or (at your option) any later version.
+- *
+- * This program is distributed in the hope that it will be useful,
+- * but WITHOUT ANY WARRANTY; without even the implied warranty of
+- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+- * GNU General Public License for more details.
+- *
+- * You should have received a copy of the GNU General Public License
+- * along with this program; if not, write to the Free Software
+- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+- */
+-#ifndef INCLUDED_STRCHR_PROTOS
+-#define INCLUDED_STRCHR_PROTOS
+-
+-#ifndef HAVE_STRCHR
+-
+-#ifdef HAVE_INDEX
+-# define strchr index
+-#else
+-# error &quot;This program requires either strchr() or index()&quot;
+-#endif
+-
+-#endif
+-
+-#endif
+
+Modified: trunk/pvpgn/src/compat/strncasecmp.cpp
+===================================================================
+--- trunk/pvpgn/src/compat/strncasecmp.cpp	2007-08-19 12:45:17 UTC (rev 327)
++++ trunk/pvpgn/src/compat/strncasecmp.cpp	2007-08-19 22:50:02 UTC (rev 328)
+@@ -17,16 +17,11 @@
+  */
+ #include &quot;common/setup_before.h&quot;
+ #ifndef HAVE_STRCASECMP
++#include &quot;strncasecmp.h&quot;
+ 
+ #include &lt;ctype.h&gt;
+-#ifdef HAVE_STRING_H
+-# include &lt;string.h&gt;
+-#else
+-# ifdef HAVE_STRINGS_H
+-#  include &lt;strings.h&gt;
+-# endif
+-#endif
+-#include &quot;strncasecmp.h&quot;
++#include &lt;cstring&gt;
++
+ #include &quot;common/setup_after.h&quot;
+ 
+ 
+
+Deleted: trunk/pvpgn/src/compat/strrchr.h
+===================================================================
+--- trunk/pvpgn/src/compat/strrchr.h	2007-08-19 12:45:17 UTC (rev 327)
++++ trunk/pvpgn/src/compat/strrchr.h	2007-08-19 22:50:02 UTC (rev 328)
+@@ -1,31 +0,0 @@
+-/*
+- * Copyright (C) 2000  Ross Combs (<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">rocombs at cs.nmsu.edu</A>)
+- *
+- * This program is free software; you can redistribute it and/or
+- * modify it under the terms of the GNU General Public License
+- * as published by the Free Software Foundation; either version 2
+- * of the License, or (at your option) any later version.
+- *
+- * This program is distributed in the hope that it will be useful,
+- * but WITHOUT ANY WARRANTY; without even the implied warranty of
+- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+- * GNU General Public License for more details.
+- *
+- * You should have received a copy of the GNU General Public License
+- * along with this program; if not, write to the Free Software
+- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+- */
+-#ifndef INCLUDED_STRRCHR_PROTOS
+-#define INCLUDED_STRRCHR_PROTOS
+-
+-#ifndef HAVE_STRRCHR
+-
+-#ifdef HAVE_RINDEX
+-# define strrchr rindex
+-#else
+-# error &quot;This program requires either strrchr() or rindex()&quot;
+-#endif
+-
+-#endif
+-
+-#endif
+
+Modified: trunk/pvpgn/src/compat/strsep.cpp
+===================================================================
+--- trunk/pvpgn/src/compat/strsep.cpp	2007-08-19 12:45:17 UTC (rev 327)
++++ trunk/pvpgn/src/compat/strsep.cpp	2007-08-19 22:50:02 UTC (rev 328)
+@@ -17,16 +17,10 @@
+  */
+ #include &quot;common/setup_before.h&quot;
+ #ifndef HAVE_STRSEP
+-
+-#ifdef HAVE_STRING_H
+-# include &lt;string.h&gt;
+-#else
+-# ifdef HAVE_STRINGS_H
+-#  include &lt;strings.h&gt;
+-# endif
+-#endif
+-#include &quot;compat/strchr.h&quot;
+ #include &quot;strsep.h&quot;
++
++#include &lt;cstring&gt;
++
+ #include &quot;common/setup_after.h&quot;
+ 
+ 
+@@ -44,7 +38,7 @@
+ 
+     /* FIXME: optimiz case of 1 char delims (maybe not worth the effort) */
+     for (; **str!='\0'; (*str)++)
+-        if (strchr(delims,**str))
++		if (std::strchr(delims,**str))
+         {
+             **str = '\0'; /* terminate token */
+             (*str)++; /* remember the position of the next char */
+
+Modified: trunk/pvpgn/src/d2cs/CMakeLists.txt
+===================================================================
+--- trunk/pvpgn/src/d2cs/CMakeLists.txt	2007-08-19 12:45:17 UTC (rev 327)
++++ trunk/pvpgn/src/d2cs/CMakeLists.txt	2007-08-19 22:50:02 UTC (rev 328)
+@@ -3,3 +3,7 @@
+ handle_d2cs.cpp handle_d2gs.cpp handle_init.cpp handle_signal.cpp main.cpp 
+ net.cpp prefs.cpp s2s.cpp server.cpp serverqueue.cpp)
+ target_link_libraries(d2cs common compat win32)
++
++IF(WIN32)
++target_link_libraries(d2cs win32 ws2_32)
++ENDIF(WIN32)
+
+Modified: trunk/pvpgn/src/d2cs/d2charlist.cpp
+===================================================================
+--- trunk/pvpgn/src/d2cs/d2charlist.cpp	2007-08-19 12:45:17 UTC (rev 327)
++++ trunk/pvpgn/src/d2cs/d2charlist.cpp	2007-08-19 22:50:02 UTC (rev 328)
+@@ -23,6 +23,7 @@
+ #include &lt;cstring&gt;
+ 
+ #include &quot;compat/strcasecmp.h&quot;
++#include &quot;compat/strncasecmp.h&quot;
+ #include &quot;common/eventlog.h&quot;
+ #include &quot;common/xalloc.h&quot;
+ #include &quot;prefs.h&quot;
+
+Modified: trunk/pvpgn/src/d2cs/handle_d2cs.cpp
+===================================================================
+--- trunk/pvpgn/src/d2cs/handle_d2cs.cpp	2007-08-19 12:45:17 UTC (rev 327)
++++ trunk/pvpgn/src/d2cs/handle_d2cs.cpp	2007-08-19 22:50:02 UTC (rev 328)
+@@ -26,6 +26,7 @@
+ #include &quot;compat/mkdir.h&quot;
+ #include &quot;compat/pdir.h&quot;
+ #include &quot;compat/psock.h&quot;
++#include &quot;compat/statmacros.h&quot;
+ #include &quot;common/eventlog.h&quot;
+ #include &quot;common/xalloc.h&quot;
+ #include &quot;common/d2cs_d2dbs_ladder.h&quot;
+
+Modified: trunk/pvpgn/src/d2cs/main.cpp
+===================================================================
+--- trunk/pvpgn/src/d2cs/main.cpp	2007-08-19 12:45:17 UTC (rev 327)
++++ trunk/pvpgn/src/d2cs/main.cpp	2007-08-19 22:50:02 UTC (rev 328)
+@@ -39,6 +39,7 @@
+ #endif
+ 
+ #include &quot;compat/stdfileno.h&quot;
++#include &quot;compat/pgetpid.h&quot;
+ #include &quot;common/eventlog.h&quot;
+ #include &quot;common/xalloc.h&quot;
+ #include &quot;common/trans.h&quot;
+@@ -121,7 +122,7 @@
+ 			xfree((void *)pidfile); /* avoid warning */
+ 			return NULL;
+ 		} else {
+-			std::fprintf(fp,&quot;%u&quot;,(unsigned int)getpid());
++			std::fprintf(fp,&quot;%u&quot;,(unsigned int)pgetpid());
+ 			if (std::fclose(fp)&lt;0)
+ 				eventlog(eventlog_level_error,__FUNCTION__,&quot;could not close pid file \&quot;%s\&quot; after writing (std::fclose: %s)&quot;,pidfile,std::strerror(errno));
+ 		}
+
+Modified: trunk/pvpgn/src/d2dbs/CMakeLists.txt
+===================================================================
+--- trunk/pvpgn/src/d2dbs/CMakeLists.txt	2007-08-19 12:45:17 UTC (rev 327)
++++ trunk/pvpgn/src/d2dbs/CMakeLists.txt	2007-08-19 22:50:02 UTC (rev 328)
+@@ -1,3 +1,7 @@
+ add_executable(d2dbs charlock.cpp d2ladder.cpp dbserver.cpp dbspacket.cpp 
+ cmdline.cpp prefs.cpp handle_signal.cpp dbsdupecheck.cpp main.cpp)
+ target_link_libraries(d2dbs common compat)
++
++IF(WIN32)
++target_link_libraries(d2dbs win32 ws2_32)
++ENDIF(WIN32)
+
+Modified: trunk/pvpgn/src/d2dbs/d2ladder.cpp
+===================================================================
+--- trunk/pvpgn/src/d2dbs/d2ladder.cpp	2007-08-19 12:45:17 UTC (rev 327)
++++ trunk/pvpgn/src/d2dbs/d2ladder.cpp	2007-08-19 22:50:02 UTC (rev 328)
+@@ -786,7 +786,7 @@
+ int d2ladder_checksum_set(void)
+ {
+ 	std::FILE		* fdladder;
+-	off_t		filesize;
++	long		filesize;
+ 	int		curlen,readlen,len;
+ 	unsigned char * buffer;
+ 	bn_int		checksum;
+@@ -800,7 +800,7 @@
+ 	std::fseek(fdladder,0,SEEK_END);
+ 	filesize=std::ftell(fdladder);
+ 	std::rewind(fdladder);
+-	if(filesize==(off_t)-1) {
++	if(filesize==-1) {
+ 		eventlog(eventlog_level_error,__FUNCTION__,&quot;lseek() error in ladder file %s&quot;,d2ladder_ladder_file);
+ 		std::fclose(fdladder);
+ 		return -1;
+@@ -839,7 +839,7 @@
+ int d2ladder_checksum_check(void)
+ {
+ 	std::FILE		* fdladder;
+-	off_t		filesize;
++	long		filesize;
+ 	int		curlen,readlen,len;
+ 	unsigned char	* buffer;
+ 	int		checksum,oldchecksum;
+@@ -854,7 +854,7 @@
+ 	std::fseek(fdladder,0,SEEK_END);
+ 	filesize=std::ftell(fdladder);
+ 	std::rewind(fdladder);
+-	if(filesize==(off_t)-1) {
++	if(filesize==-1) {
+ 		eventlog(eventlog_level_error,__FUNCTION__,&quot;lseek() error in  ladder file %s&quot;,d2ladder_ladder_file);
+ 		std::fclose(fdladder);
+ 		return -1;
+
+Modified: trunk/pvpgn/src/d2dbs/d2ladder.h
+===================================================================
+--- trunk/pvpgn/src/d2dbs/d2ladder.h	2007-08-19 12:45:17 UTC (rev 327)
++++ trunk/pvpgn/src/d2dbs/d2ladder.h	2007-08-19 22:50:02 UTC (rev 328)
+@@ -19,6 +19,7 @@
+ #define INCLUDED_D2LADDER_H
+ 
+ #include &lt;cstdio&gt;
++#include &lt;cstddef&gt;
+ #include &quot;common/list.h&quot;
+ #include &quot;common/d2cs_d2dbs_ladder.h&quot;
+ #define JUST_NEED_TYPES
+
+Modified: trunk/pvpgn/src/d2dbs/main.cpp
+===================================================================
+--- trunk/pvpgn/src/d2dbs/main.cpp	2007-08-19 12:45:17 UTC (rev 327)
++++ trunk/pvpgn/src/d2dbs/main.cpp	2007-08-19 22:50:02 UTC (rev 328)
+@@ -40,6 +40,7 @@
+ #endif
+ 
+ #include &quot;compat/stdfileno.h&quot;
++#include &quot;compat/pgetpid.h&quot;
+ #include &quot;common/eventlog.h&quot;
+ #include &quot;common/xalloc.h&quot;
+ #include &quot;cmdline.h&quot;
+@@ -117,7 +118,7 @@
+ 			xfree((void *)pidfile); /* avoid warning */
+ 			return NULL;
+ 		} else {
+-			std::fprintf(fp,&quot;%u&quot;,(unsigned int)getpid());
++			std::fprintf(fp,&quot;%u&quot;,(unsigned int)pgetpid());
+ 			if (std::fclose(fp)&lt;0)
+ 				eventlog(eventlog_level_error,__FUNCTION__,&quot;could not close pid file \&quot;%s\&quot; after writing (std::fclose: %s)&quot;,pidfile,std::strerror(errno));
+ 		}
+
+Modified: trunk/pvpgn/src/tinycdb/cdb.cpp
+===================================================================
+--- trunk/pvpgn/src/tinycdb/cdb.cpp	2007-08-19 12:45:17 UTC (rev 327)
++++ trunk/pvpgn/src/tinycdb/cdb.cpp	2007-08-19 22:50:02 UTC (rev 328)
+@@ -10,7 +10,6 @@
+ #include &lt;cerrno&gt;
+ 
+ #include &quot;common/xalloc.h&quot;
+-#include &quot;compat/pgetopt.h&quot;
+ #include &quot;cdb.h&quot;
+ #include &quot;common/setup_after.h&quot;
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000368.html">[pvpgn-dev] [Bug #5310] raw list crash
+</A></li>
+	<LI>Next message: <A HREF="000370.html">[pvpgn-dev] r329 - trunk/pvpgn/src/bnetd
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#369">[ date ]</a>
+              <a href="thread.html#369">[ thread ]</a>
+              <a href="subject.html#369">[ subject ]</a>
+              <a href="author.html#369">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

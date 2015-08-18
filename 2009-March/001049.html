@@ -1,0 +1,117 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] [Bug #15327] User Notification Message
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2009-March/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BBug%20%2315327%5D%20User%20Notification%20Message&In-Reply-To=%3C200903021621.n22GLCUP024572%40unicorn.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001047.html">
+   <LINK REL="Next"  HREF="001050.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] [Bug #15327] User Notification Message</H1>
+    <B>admin at berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BBug%20%2315327%5D%20User%20Notification%20Message&In-Reply-To=%3C200903021621.n22GLCUP024572%40unicorn.berlios.de%3E"
+       TITLE="[pvpgn-dev] [Bug #15327] User Notification Message">admin at berlios.de
+       </A><BR>
+    <I>Mon Mar  2 17:21:12 CET 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001047.html">[pvpgn-dev] [Bug #15325] Clan using the same short name can be	registered
+</A></li>
+        <LI>Next message: <A HREF="001050.html">[pvpgn-dev] [Bug #15322] field size inconsitency
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1049">[ date ]</a>
+              <a href="thread.html#1049">[ thread ]</a>
+              <a href="subject.html#1049">[ subject ]</a>
+              <a href="author.html#1049">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Bug #15327, was updated on 2009-Feb-28 02:25
+Here is a current snapshot of the bug.
+
+Project: Player vs Player Gaming Network
+Category: None
+Status: Open
+Resolution: None
+Bug Group: bnetd
+Priority: 5
+Submitted by: jgodbout
+Assigned to : pandaemonium
+Summary: User Notification Message
+
+Details: When there is a user notification message, such as one of your friends entering the server, joining a game, leaving a game, or leaving a server, the message is sent by the server name, instead of the user triggering the event, which Battle.net does.
+
+For my server, Bored Aussie, this would be an example:
+BoredAussie whispers: Your friend m1LkmaN has entered a game called &quot;bvd&quot;.
+
+Where it should be:
+m1Lkman whispers: Your friend m1LkmaN has entered a game called &quot;bvd&quot;.
+
+This allows the /r command to go to the user triggering the event.
+
+This can be fixed by changing line 184 of watch.cpp from:
+
+message_send_text(dest_c,message_type_whisper,NULL,msg);
+
+to
+
+message_send_text(dest_c,message_type_whisper,my_c,msg);
+
+I have tested this and it works great.
+
+
+Thanks,
+Jacob Godbout
+
+
+Follow-Ups:
+
+Date: 2009-Mar-02 17:21
+By: pandaemonium
+
+Comment:
+As this seems to be an often requested feature we should consider making it configurable - but I'm not yet sure what default we'd set.
+-------------------------------------------------------
+
+Date: 2009-Mar-01 21:53
+By: saidin
+
+Comment:
+Lots of people have been wanting this changed and, since Battle.NET does it, it would improve emulation consistency.
+-------------------------------------------------------
+
+For detailed info, follow this link:
+<A HREF="http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=15327&amp;group_id=2291">http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=15327&amp;group_id=2291</A>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001047.html">[pvpgn-dev] [Bug #15325] Clan using the same short name can be	registered
+</A></li>
+	<LI>Next message: <A HREF="001050.html">[pvpgn-dev] [Bug #15322] field size inconsitency
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1049">[ date ]</a>
+              <a href="thread.html#1049">[ thread ]</a>
+              <a href="subject.html#1049">[ subject ]</a>
+              <a href="author.html#1049">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

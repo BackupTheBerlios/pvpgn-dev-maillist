@@ -1,0 +1,113 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] crash!! in WOL - QUICKMATCH , QUICKCOOP
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2009-October/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20crash%21%21%20in%20WOL%20-%20QUICKMATCH%20%2C%20QUICKCOOP&In-Reply-To=%3Ceb9d4d380910070408t812a89boc2ff8c316d04e528%40mail.gmail.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001142.html">
+   <LINK REL="Next"  HREF="001147.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] crash!! in WOL - QUICKMATCH , QUICKCOOP</H1>
+    <B>Pelish</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20crash%21%21%20in%20WOL%20-%20QUICKMATCH%20%2C%20QUICKCOOP&In-Reply-To=%3Ceb9d4d380910070408t812a89boc2ff8c316d04e528%40mail.gmail.com%3E"
+       TITLE="[pvpgn-dev] crash!! in WOL - QUICKMATCH , QUICKCOOP">pelish at gmail.com
+       </A><BR>
+    <I>Wed Oct  7 13:08:11 CEST 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001142.html">[pvpgn-dev] crash!! in WOL - QUICKMATCH , QUICKCOOP
+</A></li>
+        <LI>Next message: <A HREF="001147.html">[pvpgn-dev] crash!! in WOL - QUICKMATCH , QUICKCOOP
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1143">[ date ]</a>
+              <a href="thread.html#1143">[ thread ]</a>
+              <a href="subject.html#1143">[ subject ]</a>
+              <a href="author.html#1143">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Hello,
+thank you for report of that fix. I see what's wrong now so I will fix that
+but I want to use an other way than you. Anyway I hope that you will be able
+to test it when I will commit that fix.
+
+Regards
+Pelish
+
+2009/10/7 ^A|An M0r3n0^ &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">alanstr at gmail.com</A>&gt;
+
+&gt;<i>
+</I>&gt;<i> line 526 - static int anongame_wol_tokenize_line(t_connection * conn, char
+</I>&gt;<i> const * text)
+</I>&gt;<i>
+</I>&gt;<i> changed the code:  tested in WIN, UNIX
+</I>&gt;<i> =============
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> command = (
+</I>&gt;<i> char*) xmalloc (std::strlen(text)+3);
+</I>&gt;<i>
+</I>&gt;<i> std::sprintf(command,
+</I>&gt;<i> &quot;%s&quot;,text);
+</I>&gt;<i>
+</I>&gt;<i> // command = line;
+</I>&gt;<i>
+</I>&gt;<i> if (!(temp = strchr(command,' '))) {
+</I>&gt;<i>
+</I>&gt;<i> WARN0(
+</I>&gt;<i> &quot;got malformed line (missing command)&quot;);
+</I>&gt;<i>
+</I>&gt;<i> xfree(command);
+</I>&gt;<i> return -1; ..............
+</I>&gt;<i>
+</I>&gt;<i> .............
+</I>&gt;<i> .....
+</I>&gt;<i>
+</I>&gt;<i> if (command == 0)
+</I>&gt;<i>
+</I>&gt;<i> xfree(command);
+</I>&gt;<i>
+</I>&gt;<i> return 0;
+</I>&gt;<i> //I have no problems in quickmatch. so far,
+</I>&gt;<i>
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> pvpgn-dev mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">pvpgn-dev at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">https://lists.berlios.de/mailman/listinfo/pvpgn-dev</A>
+</I>&gt;<i>
+</I>&gt;<i>
+</I>-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: &lt;<A HREF="https://lists.berlios.de/pipermail/pvpgn-dev/attachments/20091007/ad9b421b/attachment.html">https://lists.berlios.de/pipermail/pvpgn-dev/attachments/20091007/ad9b421b/attachment.html</A>&gt;
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001142.html">[pvpgn-dev] crash!! in WOL - QUICKMATCH , QUICKCOOP
+</A></li>
+	<LI>Next message: <A HREF="001147.html">[pvpgn-dev] crash!! in WOL - QUICKMATCH , QUICKCOOP
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1143">[ date ]</a>
+              <a href="thread.html#1143">[ thread ]</a>
+              <a href="subject.html#1143">[ subject ]</a>
+              <a href="author.html#1143">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,104 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] [Patch #2370] Staggered gamelist reply
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2009-June/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BPatch%20%232370%5D%20Staggered%20gamelist%20reply&In-Reply-To=%3C200906171829.n5HITfwu007266%40unicorn.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="001113.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] [Patch #2370] Staggered gamelist reply</H1>
+    <B>admin at berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BPatch%20%232370%5D%20Staggered%20gamelist%20reply&In-Reply-To=%3C200906171829.n5HITfwu007266%40unicorn.berlios.de%3E"
+       TITLE="[pvpgn-dev] [Patch #2370] Staggered gamelist reply">admin at berlios.de
+       </A><BR>
+    <I>Wed Jun 17 20:29:41 CEST 2009</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="001113.html">[pvpgn-dev] [Patch #2370] Staggered gamelist reply
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1112">[ date ]</a>
+              <a href="thread.html#1112">[ thread ]</a>
+              <a href="subject.html#1112">[ subject ]</a>
+              <a href="author.html#1112">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Patch #2370 has been updated. 
+
+Project: pvpgn
+Category: 1.99.x
+Status: Open
+Submitted by: zzzoom
+Assigned to : none
+Summary: Staggered gamelist reply
+
+Follow-Ups:
+
+Date: 2009-Jun-17 20:29
+By: pada
+
+Comment:
+It's a nice idea, but the current version (2008-02-09) is using a global pointer which would cause problems when more than 1 person would request the game list!
+In my opinion, you would have to store the pointer (glist_cursor) for each person to prevent this situation.
+-------------------------------------------------------
+
+Date: 2008-Dec-18 03:04
+By: u-238
+
+Comment:
+I completely agree with the implementation of this patch.  This problem has happened to me before on Bored Aussie because we have so many games online.
+-------------------------------------------------------
+
+Date: 2008-Dec-18 01:14
+By: pelish
+
+Comment:
+Idea of this patch seems reasonable to me. I vote for commit but I would like to see point of view of users/developers.
+-------------------------------------------------------
+
+Date: 2008-Feb-11 12:28
+By: zzzoom
+
+Comment:
+bnetd currently replies to a gamelist request with the first few games in its gamelist that fit in a packet, which makes older open games not visible in high traffic servers.
+This patch adds a single serverwide cursor to the gamelist so one gamelist starts where the last left off. This gives an even distribution of &quot;air time&quot; for all games.
+-------------------------------------------------------
+
+-------------------------------------------------------
+For more info, visit:
+
+<A HREF="http://developer.berlios.de/patch/?func=detailpatch&amp;patch_id=2370&amp;group_id=2291">http://developer.berlios.de/patch/?func=detailpatch&amp;patch_id=2370&amp;group_id=2291</A>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="001113.html">[pvpgn-dev] [Patch #2370] Staggered gamelist reply
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1112">[ date ]</a>
+              <a href="thread.html#1112">[ thread ]</a>
+              <a href="subject.html#1112">[ subject ]</a>
+              <a href="author.html#1112">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

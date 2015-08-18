@@ -1,0 +1,9 @@
+From qualakon at gmail.com  Thu Jan  2 12:00:48 2014
+From: qualakon at gmail.com (qualakon at gmail.com)
+Date: Thu, 02 Jan 2014 03:00:48 -0800
+Subject: [pvpgn-dev] Hellfire support for PvPGN
+Message-ID: <20140102110048.5660816.90130.1183@gmail.com>
+
+An HTML attachment was scrubbed...
+URL: <https://lists.berlios.de/pipermail/pvpgn-dev/attachments/20140102/429f4528/attachment.html>
+

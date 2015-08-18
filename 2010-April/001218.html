@@ -1,0 +1,89 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] [Bug #17054] Player joining channel crashes bnetd
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2010-April/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BBug%20%2317054%5D%20Player%20joining%20channel%20crashes%20bnetd&In-Reply-To=%3C201004051304.o35D4JQg009543%40unicorn.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001217.html">
+   <LINK REL="Next"  HREF="001219.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] [Bug #17054] Player joining channel crashes bnetd</H1>
+    <B>admin at berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BBug%20%2317054%5D%20Player%20joining%20channel%20crashes%20bnetd&In-Reply-To=%3C201004051304.o35D4JQg009543%40unicorn.berlios.de%3E"
+       TITLE="[pvpgn-dev] [Bug #17054] Player joining channel crashes bnetd">admin at berlios.de
+       </A><BR>
+    <I>Mon Apr  5 15:04:19 CEST 2010</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001217.html">[pvpgn-dev] [Bug #17044] Clan remove member exploit
+</A></li>
+        <LI>Next message: <A HREF="001219.html">[pvpgn-dev] [Bug #17056] GUI menu Edit Config &amp; MySQL 5.1 &quot;fix&quot;
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1218">[ date ]</a>
+              <a href="thread.html#1218">[ thread ]</a>
+              <a href="subject.html#1218">[ subject ]</a>
+              <a href="author.html#1218">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Bug #17054, was updated on 2010-Apr-05 23:04
+Here is a current snapshot of the bug.
+
+Project: Player vs Player Gaming Network
+Category: General
+Status: Open
+Resolution: None
+Bug Group: bnetd
+Priority: 5
+Submitted by: phoenicks
+Assigned to : none
+Summary: Player joining channel crashes bnetd
+
+Details: SVN revision 576
+
+When a player (tested under WAR3 + CHAT) enters channel, BNETD crashes.
+
+./bnetd -D:
+<A HREF="http://pastebin.com/teuW6p04">http://pastebin.com/teuW6p04</A>
+
+valgrind --tool=memcheck --num-callers=10 /root/pvpgn-built/sbin/bnetd -f 2&gt; vg.out:
+
+<A HREF="http://pastebin.com/4jH735Ne">http://pastebin.com/4jH735Ne</A>
+
+Note: When running bnetd with Valgrind, bnetd does NOT crash.
+
+For detailed info, follow this link:
+<A HREF="http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=17054&amp;group_id=2291">http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=17054&amp;group_id=2291</A>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001217.html">[pvpgn-dev] [Bug #17044] Clan remove member exploit
+</A></li>
+	<LI>Next message: <A HREF="001219.html">[pvpgn-dev] [Bug #17056] GUI menu Edit Config &amp; MySQL 5.1 &quot;fix&quot;
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1218">[ date ]</a>
+              <a href="thread.html#1218">[ thread ]</a>
+              <a href="subject.html#1218">[ subject ]</a>
+              <a href="author.html#1218">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

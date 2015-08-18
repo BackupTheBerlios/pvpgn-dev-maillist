@@ -1,0 +1,620 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r394 - in trunk/pvpgn/src: . bnetd common d2cs d2dbs	win32
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-September/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r394%20-%20in%20trunk/pvpgn/src%3A%20.%20bnetd%20common%20d2cs%20d2dbs%0A%09win32&In-Reply-To=%3C200709272031.l8RKVFW7030627%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000475.html">
+   <LINK REL="Next"  HREF="000477.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r394 - in trunk/pvpgn/src: . bnetd common d2cs d2dbs	win32</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r394%20-%20in%20trunk/pvpgn/src%3A%20.%20bnetd%20common%20d2cs%20d2dbs%0A%09win32&In-Reply-To=%3C200709272031.l8RKVFW7030627%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r394 - in trunk/pvpgn/src: . bnetd common d2cs d2dbs	win32">svn at svn.berlios.de
+       </A><BR>
+    <I>Thu Sep 27 22:31:15 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000475.html">[pvpgn-dev] r393 - trunk/pvpgn/docs
+</A></li>
+        <LI>Next message: <A HREF="000477.html">[pvpgn-dev] r395 - trunk/pvpgn/cmake/Modules
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#476">[ date ]</a>
+              <a href="thread.html#476">[ thread ]</a>
+              <a href="subject.html#476">[ subject ]</a>
+              <a href="author.html#476">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pandaemonium
+Date: 2007-09-27 22:31:14 +0200 (Thu, 27 Sep 2007)
+New Revision: 394
+
+Modified:
+   trunk/pvpgn/src/CMakeLists.txt
+   trunk/pvpgn/src/bnetd/CMakeLists.txt
+   trunk/pvpgn/src/bnetd/main.cpp
+   trunk/pvpgn/src/common/CMakeLists.txt
+   trunk/pvpgn/src/d2cs/CMakeLists.txt
+   trunk/pvpgn/src/d2cs/main.cpp
+   trunk/pvpgn/src/d2dbs/CMakeLists.txt
+   trunk/pvpgn/src/d2dbs/main.cpp
+   trunk/pvpgn/src/win32/CMakeLists.txt
+   trunk/pvpgn/src/win32/console_output.cpp
+   trunk/pvpgn/src/win32/console_output.h
+   trunk/pvpgn/src/win32/d2cs_winmain.cpp
+   trunk/pvpgn/src/win32/d2dbs_winmain.cpp
+   trunk/pvpgn/src/win32/service.cpp
+   trunk/pvpgn/src/win32/winmain.cpp
+Log:
+revert some of my recent changes to make WIN32_GUI version workin with mingw32 builds (seems like mingw loader gets confused when both WinMain() and main() exist.
+
+Modified: trunk/pvpgn/src/CMakeLists.txt
+===================================================================
+--- trunk/pvpgn/src/CMakeLists.txt	2007-09-27 17:52:10 UTC (rev 393)
++++ trunk/pvpgn/src/CMakeLists.txt	2007-09-27 20:31:14 UTC (rev 394)
+@@ -29,6 +29,10 @@
+     add_definitions(&quot;-DWITH_SQL_PGSQL&quot;)
+ endif(PGSQL_FOUND)
+ 
++if (WITH_WIN32_GUI)
++    add_definitions(&quot;-DWIN32_GUI&quot;)
++endif (WITH_WIN32_GUI)
++
+ subdirs(compat common win32 tinycdb bntrackd client bniutils bnpass)
+ 
+ if(WITH_BNETD)
+
+Modified: trunk/pvpgn/src/bnetd/CMakeLists.txt
+===================================================================
+--- trunk/pvpgn/src/bnetd/CMakeLists.txt	2007-09-27 17:52:10 UTC (rev 393)
++++ trunk/pvpgn/src/bnetd/CMakeLists.txt	2007-09-27 20:31:14 UTC (rev 394)
+@@ -43,7 +43,6 @@
+ 
+ if(WITH_WIN32_GUI)
+   add_executable(bnetd WIN32 ${BNETD_SOURCES} ${BNETD_GUI_RESOURCES})
+-  set_target_properties(bnetd PROPERTIES COMPILE_FLAGS &quot;-DWIN32_GUI&quot;)
+ else(WITH_WIN32_GUI)  
+   add_executable(bnetd ${BNETD_SOURCES} ${BNETD_CONSOLE_RESOURCES})
+ endif(WITH_WIN32_GUI)
+
+Modified: trunk/pvpgn/src/bnetd/main.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/main.cpp	2007-09-27 17:52:10 UTC (rev 393)
++++ trunk/pvpgn/src/bnetd/main.cpp	2007-09-27 20:31:14 UTC (rev 394)
+@@ -458,7 +458,11 @@
+     return;
+ }
+ 
++#ifdef WIN32_GUI
++extern int app_main(int argc, char ** argv)
++#else
+ extern int main(int argc, char ** argv)
++#endif
+ {
+ try {
+     int a;
+
+Modified: trunk/pvpgn/src/common/CMakeLists.txt
+===================================================================
+--- trunk/pvpgn/src/common/CMakeLists.txt	2007-09-27 17:52:10 UTC (rev 393)
++++ trunk/pvpgn/src/common/CMakeLists.txt	2007-09-27 20:31:14 UTC (rev 394)
+@@ -22,7 +22,3 @@
+ add_library(common
+   ${COMMON_SOURCES}
+ )
+-
+-if(WITH_WIN32_GUI)
+-set_target_properties(common PROPERTIES COMPILE_FLAGS &quot;-DWIN32_GUI&quot;)
+-endif(WITH_WIN32_GUI)
+
+Modified: trunk/pvpgn/src/d2cs/CMakeLists.txt
+===================================================================
+--- trunk/pvpgn/src/d2cs/CMakeLists.txt	2007-09-27 17:52:10 UTC (rev 393)
++++ trunk/pvpgn/src/d2cs/CMakeLists.txt	2007-09-27 20:31:14 UTC (rev 394)
+@@ -11,7 +11,6 @@
+ 
+ if(WITH_WIN32_GUI)
+   add_executable(d2cs WIN32 ${D2CS_SOURCES})
+-  set_target_properties(d2cs PROPERTIES COMPILE_FLAGS &quot;-DWIN32_GUI&quot;)
+ else(WITH_WIN32_GUI)
+   add_executable(d2cs ${D2CS_SOURCES})
+ endif(WITH_WIN32_GUI)
+
+Modified: trunk/pvpgn/src/d2cs/main.cpp
+===================================================================
+--- trunk/pvpgn/src/d2cs/main.cpp	2007-09-27 17:52:10 UTC (rev 393)
++++ trunk/pvpgn/src/d2cs/main.cpp	2007-09-27 20:31:14 UTC (rev 394)
+@@ -244,7 +244,11 @@
+ }
+ 
+ 
++#ifdef WIN32_GUI
++extern int app_main(int argc, char ** argv)
++#else
+ extern int main(int argc, char ** argv)
++#endif
+ {
+ 	int pid;
+ 	char * pidfile;
+
+Modified: trunk/pvpgn/src/d2dbs/CMakeLists.txt
+===================================================================
+--- trunk/pvpgn/src/d2dbs/CMakeLists.txt	2007-09-27 17:52:10 UTC (rev 393)
++++ trunk/pvpgn/src/d2dbs/CMakeLists.txt	2007-09-27 20:31:14 UTC (rev 394)
+@@ -7,7 +7,6 @@
+ 
+ if(WITH_WIN32_GUI)
+   add_executable(d2dbs WIN32 ${D2DBS_SOURCES})
+-  set_target_properties(d2dbs PROPERTIES COMPILE_FLAGS &quot;-DWIN32_GUI&quot;)
+ else(WITH_WIN32_GUI)
+   add_executable(d2dbs ${D2DBS_SOURCES})
+ endif(WITH_WIN32_GUI)
+
+Modified: trunk/pvpgn/src/d2dbs/main.cpp
+===================================================================
+--- trunk/pvpgn/src/d2dbs/main.cpp	2007-09-27 17:52:10 UTC (rev 393)
++++ trunk/pvpgn/src/d2dbs/main.cpp	2007-09-27 20:31:14 UTC (rev 394)
+@@ -220,7 +220,11 @@
+ }
+ 
+ 
++#ifdef WIN32_GUI
++extern int app_main(int argc, char ** argv)
++#else
+ extern int main(int argc, char ** argv)
++#endif
+ {
+ 	int pid;
+ 	char * pidfile;
+
+Modified: trunk/pvpgn/src/win32/CMakeLists.txt
+===================================================================
+--- trunk/pvpgn/src/win32/CMakeLists.txt	2007-09-27 17:52:10 UTC (rev 393)
++++ trunk/pvpgn/src/win32/CMakeLists.txt	2007-09-27 20:31:14 UTC (rev 394)
+@@ -3,8 +3,3 @@
+ )
+ 
+ add_library(win32 ${WIN32_SOURCES})
+-
+-if(WITH_WIN32_GUI)
+-
+-set_target_properties(win32 PROPERTIES COMPILE_FLAGS &quot;-DWIN32_GUI&quot;)
+-endif(WITH_WIN32_GUI)
+
+Modified: trunk/pvpgn/src/win32/console_output.cpp
+===================================================================
+--- trunk/pvpgn/src/win32/console_output.cpp	2007-09-27 17:52:10 UTC (rev 393)
++++ trunk/pvpgn/src/win32/console_output.cpp	2007-09-27 20:31:14 UTC (rev 394)
+@@ -1,85 +1,85 @@
+-/***************************************************************************
+- *   Copyright (C) 2004 by Richard Moore (<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">rich at kde.org</A>                     *
+- *   Copyright (C) 2007 by Olaf Freyer                                     *
+- *                                                                         *
+- *   This program is free software; you can redistribute it and/or modify  *
+- *   it under the terms of the GNU Library General Public License as       *
+- *   published by the Free Software Foundation; either version 2 of the    *
+- *   License, or (at your option) any later version.                       *
+- *                                                                         *
+- *   This program is distributed in the hope that it will be useful,       *
+- *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+- *   GNU General Public License for more details.                          *
+- *                                                                         *
+- *   You should have received a copy of the GNU Library General Public     *
+- *   License along with this program; if not, write to the                 *
+- *   Free Software Foundation, Inc.,                                       *
+- *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.         *
+- ***************************************************************************/
+-
+-#include &quot;common/setup_before.h&quot;
+-#include &quot;console_output.h&quot;
+-#ifdef WIN32
+-# include &lt;windows.h&gt;
+-# include &lt;fcntl.h&gt;
+-# include &lt;io.h&gt;
+-# include &lt;iostream&gt;
+-# include &lt;fstream&gt;
+-#endif
+-#include &quot;common/setup_after.h&quot;
+-
++/***************************************************************************
++ *   Copyright (C) 2004 by Richard Moore (<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">rich at kde.org</A>                     *
++ *   Copyright (C) 2007 by Olaf Freyer                                     *
++ *                                                                         *
++ *   This program is free software; you can redistribute it and/or modify  *
++ *   it under the terms of the GNU Library General Public License as       *
++ *   published by the Free Software Foundation; either version 2 of the    *
++ *   License, or (at your option) any later version.                       *
++ *                                                                         *
++ *   This program is distributed in the hope that it will be useful,       *
++ *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
++ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
++ *   GNU General Public License for more details.                          *
++ *                                                                         *
++ *   You should have received a copy of the GNU Library General Public     *
++ *   License along with this program; if not, write to the                 *
++ *   Free Software Foundation, Inc.,                                       *
++ *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.         *
++ ***************************************************************************/
++
++#include &quot;common/setup_before.h&quot;
++#include &quot;console_output.h&quot;
++#ifdef WIN32
++# include &lt;windows.h&gt;
++# include &lt;fcntl.h&gt;
++# include &lt;io.h&gt;
++# include &lt;iostream&gt;
++# include &lt;fstream&gt;
++#endif
++#include &quot;common/setup_after.h&quot;
++
+ namespace pvpgn
+-{
+-
+-Console::Console(){
+-	initialised = false;
+-}
+-
+-Console::~Console() throw () {
+-	if (initialised)
+-		FreeConsole();
+-}
+-
+-void Console::RedirectIOToConsole() {
+-#ifdef WIN32
+-   const WORD MAX_CONSOLE_LINES = 500;
+-   const WORD CONSOLE_COLUMNS= 140;
+-   int hConHandle;
+-   long lStdHandle;
+-   std::FILE *fp;
+-   CONSOLE_SCREEN_BUFFER_INFO coninfo;
+-
+-   if (initialised)
+-	   return;
+-
+-   AllocConsole(); 
+-   GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &amp;coninfo);
+-   coninfo.dwSize.X = CONSOLE_COLUMNS;
+-   coninfo.dwSize.Y = MAX_CONSOLE_LINES;
+-   SetConsoleScreenBufferSize(GetStdHandle(STD_OUTPUT_HANDLE), coninfo.dwSize);
+-   
+-   lStdHandle = (long)GetStdHandle(STD_INPUT_HANDLE);
+-   hConHandle = _open_osfhandle(lStdHandle, _O_TEXT);
+-   fp = _fdopen(hConHandle, &quot;r&quot;);
+-   *stdin = *fp;
+-   setvbuf( stdin, NULL, _IONBF, 0 );;
+-
+-   lStdHandle = (long)GetStdHandle(STD_OUTPUT_HANDLE);
+-   hConHandle = _open_osfhandle(lStdHandle, _O_TEXT);
+-   fp = _fdopen(hConHandle, &quot;w&quot;);
+-   *stdout = *fp;
+-   setvbuf( stdout, NULL, _IONBF, 0 );
+-
+-   lStdHandle = (long)GetStdHandle(STD_ERROR_HANDLE);
+-   hConHandle = _open_osfhandle(lStdHandle, _O_TEXT);
+-   fp = _fdopen(hConHandle, &quot;w&quot;);
+-   *stderr = *fp;
+-   setvbuf( stderr, NULL, _IONBF, 0 );
+-
+-   std::ios::sync_with_stdio();
+-   initialised = true;
+-#endif
+-}
+-
+-}
++{
++
++Console::Console(){
++	initialised = false;
++}
++
++Console::~Console() throw () {
++	if (initialised)
++		FreeConsole();
++}
++
++void Console::RedirectIOToConsole() {
++#ifdef WIN32
++   const WORD MAX_CONSOLE_LINES = 500;
++   const WORD CONSOLE_COLUMNS= 140;
++   int hConHandle;
++   long lStdHandle;
++   std::FILE *fp;
++   CONSOLE_SCREEN_BUFFER_INFO coninfo;
++
++   if (initialised)
++	   return;
++
++   AllocConsole(); 
++   GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &amp;coninfo);
++   coninfo.dwSize.X = CONSOLE_COLUMNS;
++   coninfo.dwSize.Y = MAX_CONSOLE_LINES;
++   SetConsoleScreenBufferSize(GetStdHandle(STD_OUTPUT_HANDLE), coninfo.dwSize);
++   
++   lStdHandle = (long)GetStdHandle(STD_INPUT_HANDLE);
++   hConHandle = _open_osfhandle(lStdHandle, _O_TEXT);
++   fp = _fdopen(hConHandle, &quot;r&quot;);
++   *stdin = *fp;
++   setvbuf( stdin, NULL, _IONBF, 0 );;
++
++   lStdHandle = (long)GetStdHandle(STD_OUTPUT_HANDLE);
++   hConHandle = _open_osfhandle(lStdHandle, _O_TEXT);
++   fp = _fdopen(hConHandle, &quot;w&quot;);
++   *stdout = *fp;
++   setvbuf( stdout, NULL, _IONBF, 0 );
++
++   lStdHandle = (long)GetStdHandle(STD_ERROR_HANDLE);
++   hConHandle = _open_osfhandle(lStdHandle, _O_TEXT);
++   fp = _fdopen(hConHandle, &quot;w&quot;);
++   *stderr = *fp;
++   setvbuf( stderr, NULL, _IONBF, 0 );
++
++   std::ios::sync_with_stdio();
++   initialised = true;
++#endif
++}
++
++}
+
+Modified: trunk/pvpgn/src/win32/console_output.h
+===================================================================
+--- trunk/pvpgn/src/win32/console_output.h	2007-09-27 17:52:10 UTC (rev 393)
++++ trunk/pvpgn/src/win32/console_output.h	2007-09-27 20:31:14 UTC (rev 394)
+@@ -1,32 +1,32 @@
+-/***************************************************************************
+- *   Copyright (C) 2007 by Olaf Freyer                                     *
+- *                                                                         *
+- *   This program is free software; you can redistribute it and/or modify  *
+- *   it under the terms of the GNU Library General Public License as       *
+- *   published by the Free Software Foundation; either version 2 of the    *
+- *   License, or (at your option) any later version.                       *
+- *                                                                         *
+- *   This program is distributed in the hope that it will be useful,       *
+- *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
+- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
+- *   GNU General Public License for more details.                          *
+- *                                                                         *
+- *   You should have received a copy of the GNU Library General Public     *
+- *   License along with this program; if not, write to the                 *
+- *   Free Software Foundation, Inc.,                                       *
+- *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.         *
++/***************************************************************************
++ *   Copyright (C) 2007 by Olaf Freyer                                     *
++ *                                                                         *
++ *   This program is free software; you can redistribute it and/or modify  *
++ *   it under the terms of the GNU Library General Public License as       *
++ *   published by the Free Software Foundation; either version 2 of the    *
++ *   License, or (at your option) any later version.                       *
++ *                                                                         *
++ *   This program is distributed in the hope that it will be useful,       *
++ *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
++ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
++ *   GNU General Public License for more details.                          *
++ *                                                                         *
++ *   You should have received a copy of the GNU Library General Public     *
++ *   License along with this program; if not, write to the                 *
++ *   Free Software Foundation, Inc.,                                       *
++ *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.         *
+  ***************************************************************************/
+ 
+ namespace pvpgn
+-{
+-
+-class Console {
+-public:
+-	Console();
+-	~Console() throw ();
+-	void RedirectIOToConsole();
+-private:
+-	bool initialised;
+-};
+-
+-}
+\ No newline at end of file
++{
++
++class Console {
++public:
++	Console();
++	~Console() throw ();
++	void RedirectIOToConsole();
++private:
++	bool initialised;
++};
++
++}
+
+Modified: trunk/pvpgn/src/win32/d2cs_winmain.cpp
+===================================================================
+--- trunk/pvpgn/src/win32/d2cs_winmain.cpp	2007-09-27 17:52:10 UTC (rev 393)
++++ trunk/pvpgn/src/win32/d2cs_winmain.cpp	2007-09-27 20:31:14 UTC (rev 394)
+@@ -37,7 +37,7 @@
+ 
+ #define WM_SHELLNOTIFY          (WM_USER+1)
+ 
+-extern int main(int argc, char **argv); /* d2cs main function in d2cs/main.c */
++extern int app_main(int argc, char **argv); /* d2cs main function in d2cs/main.c */
+ 
+ namespace pvpgn
+ {
+@@ -225,7 +225,7 @@
+ 
+ static void d2cs(void * dummy)
+ {
+-    switch (main(__argc, __argv))
++    switch (app_main(__argc, __argv))
+     {
+         case EXIT_SERVICE:
+             gui_run = FALSE; /* close gui */
+@@ -260,7 +260,7 @@
+ 
+ 	if (cmdline_get_console()){
+ 		console.RedirectIOToConsole();
+-		return main(__argc, __argv);
++		return app_main(__argc, __argv);
+ 	}
+ 
+     LoadLibrary(&quot;RichEd20.dll&quot;);
+
+Modified: trunk/pvpgn/src/win32/d2dbs_winmain.cpp
+===================================================================
+--- trunk/pvpgn/src/win32/d2dbs_winmain.cpp	2007-09-27 17:52:10 UTC (rev 393)
++++ trunk/pvpgn/src/win32/d2dbs_winmain.cpp	2007-09-27 20:31:14 UTC (rev 394)
+@@ -28,16 +28,16 @@
+ #include &quot;common/eventlog.h&quot;
+ #include &quot;d2dbs/version.h&quot;
+ #include &quot;d2dbs/handle_signal.h&quot;
+-#include &quot;d2dbs/cmdline.h&quot;
++#include &quot;d2dbs/cmdline.h&quot;
+ #include &quot;service.h&quot;
+ #include &quot;winmain.h&quot;
+-#include &quot;console_output.h&quot;
+-
++#include &quot;console_output.h&quot;
++
+ #include &quot;common/setup_after.h&quot;
+ 
+ #define WM_SHELLNOTIFY          (WM_USER+1)
+ 
+-extern int main(int argc, char **argv); /* d2dbs main function in d2dbs/main.c */
++extern int app_main(int argc, char **argv); /* d2dbs main function in d2dbs/main.c */
+ 
+ namespace pvpgn
+ {
+@@ -221,7 +221,7 @@
+ 
+ static void d2dbs(void * dummy)
+ {
+-    switch (main(__argc, __argv))
++    switch (app_main(__argc, __argv))
+     {
+         case EXIT_SERVICE:
+             gui_run = FALSE; /* close gui */
+@@ -249,16 +249,16 @@
+     HWND		hwnd;
+     MSG			msg;
+     
+-	Console     console;
+-
+-	if (cmdline_load(__argc, __argv) != 1) {
+-		return -1;
+-	}
+-
+-	if (cmdline_get_console()){
+-		console.RedirectIOToConsole();
+-		return main(__argc, __argv);
+-	}
++	Console     console;
++
++	if (cmdline_load(__argc, __argv) != 1) {
++		return -1;
++	}
++
++	if (cmdline_get_console()){
++		console.RedirectIOToConsole();
++		return app_main(__argc, __argv);
++	}
+     
+     LoadLibrary(&quot;RichEd20.dll&quot;);
+ 
+
+Modified: trunk/pvpgn/src/win32/service.cpp
+===================================================================
+--- trunk/pvpgn/src/win32/service.cpp	2007-09-27 17:52:10 UTC (rev 393)
++++ trunk/pvpgn/src/win32/service.cpp	2007-09-27 20:31:14 UTC (rev 394)
+@@ -34,7 +34,11 @@
+ 
+ extern int g_ServiceStatus;
+ 
+-extern int main(int argc, char **argv);
++#ifdef WIN32_GUI
++extern int app_main(int argc, char ** argv);
++#else
++extern int main(int argc, char ** argv);
++#endif
+ 
+ SERVICE_STATUS serviceStatus;
+ SERVICE_STATUS_HANDLE serviceStatusHandle = 0;
+@@ -200,8 +204,15 @@
+ 		g_ServiceStatus = 1;
+ 		argc = 1;
+ 
++		
++#ifdef WIN32_GUI
++		app_main(argc, argv);
++#else
+ 		main(argc, argv);
++#endif
+ 
++
++
+ 		// service was stopped
+ 		serviceStatus.dwCurrentState = SERVICE_STOP_PENDING;
+ 		SetServiceStatus(serviceStatusHandle, &amp;serviceStatus);
+
+Modified: trunk/pvpgn/src/win32/winmain.cpp
+===================================================================
+--- trunk/pvpgn/src/win32/winmain.cpp	2007-09-27 17:52:10 UTC (rev 393)
++++ trunk/pvpgn/src/win32/winmain.cpp	2007-09-27 20:31:14 UTC (rev 394)
+@@ -53,7 +53,7 @@
+ 
+ #define WM_SHELLNOTIFY          (WM_USER+1)
+ 
+-extern int main(int argc, char **argv); /* bnetd main function in bnetd/main.c */
++extern int app_main(int argc, char **argv); /* bnetd main function in bnetd/main.c */
+ 
+ namespace pvpgn
+ {
+@@ -818,7 +818,7 @@
+ 
+ 	if (cmdline_get_console()){
+ 		console.RedirectIOToConsole();
+-		return main(__argc, __argv);
++		return app_main(__argc, __argv);
+ 	}
+ 
+ 	pvpgn::bnetd::gui.main_finished = FALSE;
+@@ -826,7 +826,7 @@
+ 	_beginthread( pvpgn::bnetd::guiThread, 0, (void*)hInstance);
+ 	WaitForSingleObject(pvpgn::bnetd::gui.event_ready, INFINITE);
+ 
+-	result = main(__argc ,__argv);
++	result = app_main(__argc ,__argv);
+     
+ 	pvpgn::bnetd::gui.main_finished = TRUE;
+ 	eventlog(pvpgn::eventlog_level_debug,__FUNCTION__,&quot;server exited ( return : %i )&quot;, result);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000475.html">[pvpgn-dev] r393 - trunk/pvpgn/docs
+</A></li>
+	<LI>Next message: <A HREF="000477.html">[pvpgn-dev] r395 - trunk/pvpgn/cmake/Modules
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#476">[ date ]</a>
+              <a href="thread.html#476">[ thread ]</a>
+              <a href="subject.html#476">[ subject ]</a>
+              <a href="author.html#476">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

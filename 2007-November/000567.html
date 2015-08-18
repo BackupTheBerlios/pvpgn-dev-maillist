@@ -1,0 +1,95 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] pvpgn/src/bnetd command.c,1.167,1.168
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-November/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20pvpgn/src/bnetd%20command.c%2C1.167%2C1.168&In-Reply-To=%3C20071118184755.E02BE2FA91%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000566.html">
+   <LINK REL="Next"  HREF="000568.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] pvpgn/src/bnetd command.c,1.167,1.168</H1>
+    <B>pelish</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20pvpgn/src/bnetd%20command.c%2C1.167%2C1.168&In-Reply-To=%3C20071118184755.E02BE2FA91%40mail.berlios.de%3E"
+       TITLE="[pvpgn-dev] pvpgn/src/bnetd command.c,1.167,1.168">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sun Nov 18 19:47:55 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000566.html">[pvpgn-dev] pvpgn version-history.txt,1.276,1.277
+</A></li>
+        <LI>Next message: <A HREF="000568.html">[pvpgn-dev] [Bug #11794] login in passworded games without pass
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#567">[ date ]</a>
+              <a href="thread.html#567">[ thread ]</a>
+              <a href="subject.html#567">[ subject ]</a>
+              <a href="author.html#567">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/pvpgn/pvpgn/src/bnetd
+In directory sheep:/tmp/cvs-serv10023/src/bnetd
+
+Modified Files:
+	command.c 
+Log Message:
+fix bug reported in <A HREF="http://pelish.spfree.net/index.php?topic=183.0">http://pelish.spfree.net/index.php?topic=183.0</A>
+
+Index: command.c
+===================================================================
+RCS file: /cvsroot/pvpgn/pvpgn/src/bnetd/command.c,v
+retrieving revision 1.167
+retrieving revision 1.168
+diff -u -d -r1.167 -r1.168
+--- command.c	2 Oct 2007 13:34:54 -0000	1.167
++++ command.c	18 Nov 2007 18:46:57 -0000	1.168
+@@ -4378,7 +4378,7 @@
+     char *	username;
+     unsigned int usergroups;	// from user account
+     unsigned int groups = 0;	// converted from arg3
+-    char	tempgroups[8];	// converted from usergroups
++    char	tempgroups[9];	// converted from usergroups
+     char 	t[MAX_MESSAGE_LEN];
+     unsigned int i,j;
+     char	arg1[256];
+@@ -4440,6 +4440,7 @@
+ 	if (usergroups &amp; 32) tempgroups[5] = '6'; else tempgroups[5] = ' ';
+ 	if (usergroups &amp; 64) tempgroups[6] = '7'; else tempgroups[6] = ' ';
+ 	if (usergroups &amp; 128) tempgroups[7] = '8'; else tempgroups[7] = ' ';
++	tempgroups[8] = '\0';
+ 	snprintf(msgtemp, sizeof(msgtemp), &quot;%.64s's command group(s): %.128s&quot;, username, tempgroups);
+ 	message_send_text(c,message_type_info,c,msgtemp);
+ 	return 0;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000566.html">[pvpgn-dev] pvpgn version-history.txt,1.276,1.277
+</A></li>
+	<LI>Next message: <A HREF="000568.html">[pvpgn-dev] [Bug #11794] login in passworded games without pass
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#567">[ date ]</a>
+              <a href="thread.html#567">[ thread ]</a>
+              <a href="subject.html#567">[ subject ]</a>
+              <a href="author.html#567">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

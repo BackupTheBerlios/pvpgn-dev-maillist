@@ -1,0 +1,146 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r325 - in trunk/pvpgn/src: bnetd common
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-August/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r325%20-%20in%20trunk/pvpgn/src%3A%20bnetd%20common&In-Reply-To=%3C200708191145.l7JBjMpB013238%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000364.html">
+   <LINK REL="Next"  HREF="000366.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r325 - in trunk/pvpgn/src: bnetd common</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r325%20-%20in%20trunk/pvpgn/src%3A%20bnetd%20common&In-Reply-To=%3C200708191145.l7JBjMpB013238%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r325 - in trunk/pvpgn/src: bnetd common">svn at svn.berlios.de
+       </A><BR>
+    <I>Sun Aug 19 13:45:22 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000364.html">[pvpgn-dev] [Bug #11794] login in passworded games without pass
+</A></li>
+        <LI>Next message: <A HREF="000366.html">[pvpgn-dev] r326 - in trunk/pvpgn: . cmake cmake/Modules src	src/bnetd src/bniutils src/bnpass src/bnpcap src/bntrackd	src/client src/common src/compat src/d2cs src/d2dbs	src/tinycdb src/win32
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#365">[ date ]</a>
+              <a href="thread.html#365">[ thread ]</a>
+              <a href="subject.html#365">[ subject ]</a>
+              <a href="author.html#365">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: d1zzy
+Date: 2007-08-19 13:45:14 +0200 (Sun, 19 Aug 2007)
+New Revision: 325
+
+Modified:
+   trunk/pvpgn/src/bnetd/sql_dbcreator.cpp
+   trunk/pvpgn/src/common/eventlog.cpp
+Log:
+Cleaned some stuff namely removing checks for vprintf as it's part of 
+ISO C++ and we require full ISO C++ enviroment support anyway and 
+removed a wrong ; at the end of a function definition (g++ complained 
+about it only when compiled with &quot;-pedantic -ansi&quot; which is default with 
+the cmake build system).
+
+
+Modified: trunk/pvpgn/src/bnetd/sql_dbcreator.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/sql_dbcreator.cpp	2007-08-17 13:04:48 UTC (rev 324)
++++ trunk/pvpgn/src/bnetd/sql_dbcreator.cpp	2007-08-19 11:45:14 UTC (rev 325)
+@@ -76,7 +76,7 @@
+   }
+ 
+   return column;
+-};
++}
+ 
+ void dispose_column(t_column * column)
+ {
+
+Modified: trunk/pvpgn/src/common/eventlog.cpp
+===================================================================
+--- trunk/pvpgn/src/common/eventlog.cpp	2007-08-17 13:04:48 UTC (rev 324)
++++ trunk/pvpgn/src/common/eventlog.cpp	2007-08-19 11:45:14 UTC (rev 325)
+@@ -282,18 +282,10 @@
+ 
+     va_start(args,fmt);
+ 
+-#ifdef HAVE_VPRINTF
+     std::vfprintf(eventstrm,fmt,args);
+ #ifdef WIN32_GUI
+     gui_lvprintf(level,fmt,args);
+ #endif
+-#else
+-# if HAVE__DOPRNT
+-    _doprnt(fmt,args,eventstrm);
+-# else
+-    std::fprintf(eventstrm,&quot;sorry, vfprintf() and _doprnt() are not available on this system&quot;);
+-# endif
+-#endif
+     va_end(args);
+     std::fprintf(eventstrm,&quot;\n&quot;);
+ #ifdef WIN32_GUI
+@@ -303,15 +295,7 @@
+     if (eventlog_debugmode) {
+ 	    std::printf(&quot;%s [%s] %s: &quot;,time_string,eventlog_get_levelname_str(level),module);
+     	va_start(args,fmt);
+-#ifdef HAVE_VPRINTF
+ 	std::vprintf(fmt,args);
+-#else
+-# if HAVE__DOPRNT
+-    	_doprnt(fmt,args,stdout);
+-# else
+-	std::printf(&quot;sorry, vfprintf() and _doprnt() are not available on this system&quot;);
+-# endif
+-#endif
+     	va_end(args);
+ 	std::printf(&quot;\n&quot;);
+ 	std::fflush(stdout);
+@@ -358,15 +342,7 @@
+ 
+     std::fprintf(fp,&quot;%s [%s] %s: &quot;,time_string,eventlog_get_levelname_str(level),module);
+     va_start(args,fmt);
+-#ifdef HAVE_VPRINTF
+     std::vfprintf(fp,fmt,args);
+-#else
+-# if HAVE__DOPRNT
+-    _doprnt(fmt,args,fp);
+-# else
+-    std::fprintf(fp,&quot;sorry, vfprintf() and _doprnt() are not available on this system&quot;);
+-# endif
+-#endif
+     va_end(args);
+     std::fprintf(fp,&quot;\n&quot;);
+     std::fclose(fp);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000364.html">[pvpgn-dev] [Bug #11794] login in passworded games without pass
+</A></li>
+	<LI>Next message: <A HREF="000366.html">[pvpgn-dev] r326 - in trunk/pvpgn: . cmake cmake/Modules src	src/bnetd src/bniutils src/bnpass src/bnpcap src/bntrackd	src/client src/common src/compat src/d2cs src/d2dbs	src/tinycdb src/win32
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#365">[ date ]</a>
+              <a href="thread.html#365">[ thread ]</a>
+              <a href="subject.html#365">[ subject ]</a>
+              <a href="author.html#365">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

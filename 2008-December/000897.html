@@ -1,0 +1,124 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r521 - trunk/pvpgn/src/bnetd
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2008-December/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r521%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200812142301.mBEN1T0L001223%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000896.html">
+   <LINK REL="Next"  HREF="000898.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r521 - trunk/pvpgn/src/bnetd</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r521%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200812142301.mBEN1T0L001223%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r521 - trunk/pvpgn/src/bnetd">svn at svn.berlios.de
+       </A><BR>
+    <I>Mon Dec 15 00:01:29 CET 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000896.html">[pvpgn-dev] [Bug #10900] could not load saved game
+</A></li>
+        <LI>Next message: <A HREF="000898.html">[pvpgn-dev] [Bug #7993] Clans losing chieftains
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#897">[ date ]</a>
+              <a href="thread.html#897">[ thread ]</a>
+              <a href="subject.html#897">[ subject ]</a>
+              <a href="author.html#897">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pelish
+Date: 2008-12-15 00:01:27 +0100 (Mon, 15 Dec 2008)
+New Revision: 521
+
+Modified:
+   trunk/pvpgn/src/bnetd/handle_bnet.cpp
+Log:
+fix for bug [ #14890 ] Clan Rank Exploit and also should fix bug [ #7993 ] Clans losing chieftains
+
+Modified: trunk/pvpgn/src/bnetd/handle_bnet.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/handle_bnet.cpp	2008-12-14 19:43:44 UTC (rev 520)
++++ trunk/pvpgn/src/bnetd/handle_bnet.cpp	2008-12-14 23:01:27 UTC (rev 521)
+@@ -4747,6 +4747,8 @@
+ 	char status;
+ 	t_clan *clan;
+ 	t_clanmember *dest_member;
++	t_clanmember *member;
++	t_account *account;
+ 
+ 	packet_set_size(rpacket, sizeof(t_server_clanmember_rankupdate_reply));
+ 	packet_set_type(rpacket, SERVER_CLANMEMBER_RANKUPDATE_REPLY);
+@@ -4760,18 +4762,28 @@
+     }
+ 	status = *((char *) packet_get_data_const(packet, offset, 1));
+ 
+-	clan = account_get_clan(conn_get_account(c));
+-	dest_member = clan_find_member_by_name(clan, username);
+-	if (clanmember_set_status(dest_member, status) == 0)
+-	{
+-	    bn_byte_set(&amp;rpacket-&gt;u.server_clanmember_rankupdate_reply.result,
+-	                SERVER_CLANMEMBER_RANKUPDATE_SUCCESS);
+-	    clanmember_on_change_status(dest_member);
++    account = (conn_get_account(c));
++
++    if ((clan = account_get_clan(account)) &amp;&amp; (member = clan_find_member(clan,account))
++      &amp;&amp; (dest_member = clan_find_member_by_name(clan, username)) &amp;&amp; (member != dest_member)) {
++        if ((status &lt; CLAN_PEON) || (status &gt; CLAN_SHAMAN)) {
++            /* PELISH: CLAN_NEW can not be promoted to anything 
++             * and also noone can be promoted to CLAN_CHIEFTAIN */
++            DEBUG1(&quot;trying to change to bad status %u&quot;, status);
++	        bn_byte_set(&amp;rpacket-&gt;u.server_clanmember_rankupdate_reply.result, SERVER_CLANMEMBER_RANKUPDATE_FAILED);
++        }
++        else if ((((clanmember_get_status(member) == CLAN_SHAMAN) &amp;&amp; (status &lt; CLAN_SHAMAN) &amp;&amp; (clanmember_get_status(dest_member) &lt; CLAN_SHAMAN)) ||
++          (clanmember_get_status(member) == CLAN_CHIEFTAIN)) &amp;&amp; 
++           (clanmember_set_status(dest_member, status) == 0)) {
++            bn_byte_set(&amp;rpacket-&gt;u.server_clanmember_rankupdate_reply.result, SERVER_CLANMEMBER_RANKUPDATE_SUCCESS);
++            clanmember_on_change_status(dest_member);
++        }
++        else {
++	        bn_byte_set(&amp;rpacket-&gt;u.server_clanmember_rankupdate_reply.result, SERVER_CLANMEMBER_RANKUPDATE_FAILED);
++        }
+ 	}
+-	else
+-	{
+-	    bn_byte_set(&amp;rpacket-&gt;u.server_clanmember_rankupdate_reply.result,
+-	                SERVER_CLANMEMBER_RANKUPDATE_FAILED);
++	else {
++	    bn_byte_set(&amp;rpacket-&gt;u.server_clanmember_rankupdate_reply.result, SERVER_CLANMEMBER_RANKUPDATE_FAILED);
+ 	}
+ 	conn_push_outqueue(c, rpacket);
+ 	packet_del_ref(rpacket);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000896.html">[pvpgn-dev] [Bug #10900] could not load saved game
+</A></li>
+	<LI>Next message: <A HREF="000898.html">[pvpgn-dev] [Bug #7993] Clans losing chieftains
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#897">[ date ]</a>
+              <a href="thread.html#897">[ thread ]</a>
+              <a href="subject.html#897">[ subject ]</a>
+              <a href="author.html#897">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

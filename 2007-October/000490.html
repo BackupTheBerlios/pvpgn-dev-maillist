@@ -1,0 +1,164 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r401 - trunk/pvpgn/src/bnetd
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-October/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r401%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200710051018.l95AI9pq023884%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000489.html">
+   <LINK REL="Next"  HREF="000491.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r401 - trunk/pvpgn/src/bnetd</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r401%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200710051018.l95AI9pq023884%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r401 - trunk/pvpgn/src/bnetd">svn at svn.berlios.de
+       </A><BR>
+    <I>Fri Oct  5 12:18:09 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000489.html">[pvpgn-dev] r400 - trunk/pvpgn
+</A></li>
+        <LI>Next message: <A HREF="000491.html">[pvpgn-dev] r402 - trunk/pvpgn/src/bnetd
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#490">[ date ]</a>
+              <a href="thread.html#490">[ thread ]</a>
+              <a href="subject.html#490">[ subject ]</a>
+              <a href="author.html#490">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: d1zzy
+Date: 2007-10-05 12:18:09 +0200 (Fri, 05 Oct 2007)
+New Revision: 401
+
+Modified:
+   trunk/pvpgn/src/bnetd/channel.cpp
+   trunk/pvpgn/src/bnetd/channel.h
+   trunk/pvpgn/src/bnetd/connection.cpp
+Log:
+Try to fix some recent bugs and implement a better alternative for the 
+different type of quiting messages. If all those messages 
+(part/quit/kick) work fine for all protocols then this code should work.
+
+
+Modified: trunk/pvpgn/src/bnetd/channel.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/channel.cpp	2007-10-05 07:34:47 UTC (rev 400)
++++ trunk/pvpgn/src/bnetd/channel.cpp	2007-10-05 10:18:09 UTC (rev 401)
+@@ -500,7 +500,7 @@
+ }
+ 
+ 
+-extern int channel_del_connection(t_channel * channel, t_connection * connection)
++extern int channel_del_connection(t_channel * channel, t_connection * connection, t_message_type mess)
+ {
+     t_channelmember * curr;
+     t_channelmember * temp;
+@@ -517,6 +517,7 @@
+         return -1;
+     }
+ 
++    channel_message_send(channel, mess, connection, NULL);
+     channel_message_log(channel,connection,0,&quot;PARTED&quot;);
+ 
+     curr = channel-&gt;memberlist;
+@@ -1146,7 +1147,7 @@
+ 	  member = old_channel-&gt;memberlist;
+ 	  while (member)
+ 	  {
+-	    channel_del_connection(channel,member-&gt;connection);
++	    channel_del_connection(channel,member-&gt;connection,message_type_quit);
+ 	    conn_set_channel_var(member-&gt;connection,NULL);
+ 	    member = member-&gt;next;
+ 	  }
+
+Modified: trunk/pvpgn/src/bnetd/channel.h
+===================================================================
+--- trunk/pvpgn/src/bnetd/channel.h	2007-10-05 07:34:47 UTC (rev 400)
++++ trunk/pvpgn/src/bnetd/channel.h	2007-10-05 10:18:09 UTC (rev 401)
+@@ -145,7 +145,7 @@
+ extern unsigned int channel_get_channelid(t_channel const * channel);
+ extern int channel_set_channelid(t_channel * channel, unsigned int channelid);
+ extern int channel_add_connection(t_channel * channel, t_connection * connection);
+-extern int channel_del_connection(t_channel * channel, t_connection * connection);
++extern int channel_del_connection(t_channel * channel, t_connection * connection, t_message_type mess);
+ extern void channel_update_latency(t_connection * conn);
+ extern void channel_update_userflags(t_connection * conn);
+ extern void channel_message_log(t_channel const * channel, t_connection * me, int fromuser, char const * text);
+
+Modified: trunk/pvpgn/src/bnetd/connection.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/connection.cpp	2007-10-05 07:34:47 UTC (rev 400)
++++ trunk/pvpgn/src/bnetd/connection.cpp	2007-10-05 10:18:09 UTC (rev 401)
+@@ -571,7 +571,7 @@
+ 
+     /* if this user in a channel, notify everyone that the user has left */
+     if (c-&gt;protocol.chat.channel)
+-	channel_del_connection(c-&gt;protocol.chat.channel,c);
++	channel_del_connection(c-&gt;protocol.chat.channel,c,message_type_quit);
+ 
+    if ((c-&gt;protocol.game) &amp;&amp; (c-&gt;protocol.account))
+    {
+@@ -2007,8 +2007,7 @@
+         return -1;
+     }
+ 
+-    channel_message_send(c-&gt;protocol.chat.channel,message_type_part,c,NULL);
+-    channel_del_connection(c-&gt;protocol.chat.channel,c);
++    channel_del_connection(c-&gt;protocol.chat.channel,c,message_type_part);
+     c-&gt;protocol.chat.channel = NULL;
+ 
+     return 0;
+@@ -2028,8 +2027,7 @@
+         return -1;
+     }
+    
+-    channel_message_send(c-&gt;protocol.chat.channel,message_type_kick,c,text);
+-    channel_del_connection(c-&gt;protocol.chat.channel,c);
++    channel_del_connection(c-&gt;protocol.chat.channel,c,message_type_kick);
+     c-&gt;protocol.chat.channel = NULL;
+ 
+     return 0;
+@@ -2049,8 +2047,7 @@
+         return -1;
+     }
+    
+-    channel_message_send(c-&gt;protocol.chat.channel,message_type_quit,c,text);
+-    channel_del_connection(c-&gt;protocol.chat.channel,c);
++    channel_del_connection(c-&gt;protocol.chat.channel,c,message_type_quit);
+     c-&gt;protocol.chat.channel = NULL;
+ 
+     return 0;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000489.html">[pvpgn-dev] r400 - trunk/pvpgn
+</A></li>
+	<LI>Next message: <A HREF="000491.html">[pvpgn-dev] r402 - trunk/pvpgn/src/bnetd
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#490">[ date ]</a>
+              <a href="thread.html#490">[ thread ]</a>
+              <a href="subject.html#490">[ subject ]</a>
+              <a href="author.html#490">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

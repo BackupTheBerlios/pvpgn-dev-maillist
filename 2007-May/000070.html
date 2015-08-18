@@ -1,0 +1,84 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] sql_mysql.c
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-May/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20sql_mysql.c&In-Reply-To=%3C4641AA2B.9080205%40penzadom.ru%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000069.html">
+   <LINK REL="Next"  HREF="000071.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] sql_mysql.c</H1>
+    <B>Stalker</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20sql_mysql.c&In-Reply-To=%3C4641AA2B.9080205%40penzadom.ru%3E"
+       TITLE="[pvpgn-dev] sql_mysql.c">stalker at penzadom.ru
+       </A><BR>
+    <I>Wed May  9 13:02:03 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000069.html">[pvpgn-dev] Im sorry but I still dont understand how to list	games
+</A></li>
+        <LI>Next message: <A HREF="000071.html">[pvpgn-dev] sql_mysql.c
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#70">[ date ]</a>
+              <a href="thread.html#70">[ thread ]</a>
+              <a href="subject.html#70">[ subject ]</a>
+              <a href="author.html#70">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>i have found a little bug in sql_mysql.c
+there was an error message in the log:
+
+May 06 14:47:17 [warn ] sql_mysql_init: Your mySQL client lib version
+does not support reconnecting after a timeout.
+May 06 14:47:17 [warn ] sql_mysql_init: If this causes you any trouble
+you are advices to upgrade
+May 06 14:47:17 [warn ] sql_mysql_init: your mySQL client libs to at
+least mySQL 5.0.13 to resolve this problem.
+
+but current mysql version on the server/client is  5.0.30-3 (debian etch)
+
+In
+sql_mysql.c
+
+#if MYSQL_VERSION_ID &gt;= 50003
+  #if MYSQL_VERSIOB_ID &gt;= 50013
+
+fix  if MYSQL_VERSIOB_ID &gt;= 50013  to
+if MYSQL_VERSION_ID &gt;= 50013   fix problem
+
+
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000069.html">[pvpgn-dev] Im sorry but I still dont understand how to list	games
+</A></li>
+	<LI>Next message: <A HREF="000071.html">[pvpgn-dev] sql_mysql.c
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#70">[ date ]</a>
+              <a href="thread.html#70">[ thread ]</a>
+              <a href="subject.html#70">[ subject ]</a>
+              <a href="author.html#70">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

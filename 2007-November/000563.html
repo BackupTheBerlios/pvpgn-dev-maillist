@@ -1,0 +1,344 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r408 - trunk/pvpgn/src/bnetd
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-November/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r408%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200711131125.lADBPf5p010160%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000561.html">
+   <LINK REL="Next"  HREF="000565.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r408 - trunk/pvpgn/src/bnetd</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r408%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200711131125.lADBPf5p010160%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r408 - trunk/pvpgn/src/bnetd">svn at svn.berlios.de
+       </A><BR>
+    <I>Tue Nov 13 12:25:41 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000561.html">[pvpgn-dev] [Bug #12172] Inaccurate gameinfo for w3
+</A></li>
+        <LI>Next message: <A HREF="000565.html">[pvpgn-dev] r409 - trunk/pvpgn/src/bnetd
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#563">[ date ]</a>
+              <a href="thread.html#563">[ thread ]</a>
+              <a href="subject.html#563">[ subject ]</a>
+              <a href="author.html#563">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pelish
+Date: 2007-11-13 12:25:34 +0100 (Tue, 13 Nov 2007)
+New Revision: 408
+
+Modified:
+   trunk/pvpgn/src/bnetd/channel.cpp
+   trunk/pvpgn/src/bnetd/channel.h
+   trunk/pvpgn/src/bnetd/connection.cpp
+   trunk/pvpgn/src/bnetd/handle_irc.cpp
+   trunk/pvpgn/src/bnetd/handle_wol.cpp
+   trunk/pvpgn/src/bnetd/irc.cpp
+   trunk/pvpgn/src/bnetd/irc.h
+Log:
+KICK/BAN changes according to RFC 2812 add MODE command to IRC/WOL
+
+Modified: trunk/pvpgn/src/bnetd/channel.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/channel.cpp	2007-10-13 12:41:48 UTC (rev 407)
++++ trunk/pvpgn/src/bnetd/channel.cpp	2007-11-13 11:25:34 UTC (rev 408)
+@@ -500,7 +500,7 @@
+ }
+ 
+ 
+-extern int channel_del_connection(t_channel * channel, t_connection * connection, t_message_type mess)
++extern int channel_del_connection(t_channel * channel, t_connection * connection, t_message_type mess, char const * text)
+ {
+     t_channelmember * curr;
+     t_channelmember * temp;
+@@ -517,7 +517,7 @@
+         return -1;
+     }
+ 
+-    channel_message_send(channel, mess, connection, NULL);
++    channel_message_send(channel, mess, connection, text);
+     channel_message_log(channel,connection,0,&quot;PARTED&quot;);
+ 
+     curr = channel-&gt;memberlist;
+@@ -1147,7 +1147,7 @@
+ 	  member = old_channel-&gt;memberlist;
+ 	  while (member)
+ 	  {
+-	    channel_del_connection(channel,member-&gt;connection,message_type_quit);
++	    channel_del_connection(channel,member-&gt;connection,message_type_quit,NULL);
+ 	    conn_set_channel_var(member-&gt;connection,NULL);
+ 	    member = member-&gt;next;
+ 	  }
+
+Modified: trunk/pvpgn/src/bnetd/channel.h
+===================================================================
+--- trunk/pvpgn/src/bnetd/channel.h	2007-10-13 12:41:48 UTC (rev 407)
++++ trunk/pvpgn/src/bnetd/channel.h	2007-11-13 11:25:34 UTC (rev 408)
+@@ -145,7 +145,7 @@
+ extern unsigned int channel_get_channelid(t_channel const * channel);
+ extern int channel_set_channelid(t_channel * channel, unsigned int channelid);
+ extern int channel_add_connection(t_channel * channel, t_connection * connection);
+-extern int channel_del_connection(t_channel * channel, t_connection * connection, t_message_type mess);
++extern int channel_del_connection(t_channel * channel, t_connection * connection, t_message_type mess, char const * text);
+ extern void channel_update_latency(t_connection * conn);
+ extern void channel_update_userflags(t_connection * conn);
+ extern void channel_message_log(t_channel const * channel, t_connection * me, int fromuser, char const * text);
+
+Modified: trunk/pvpgn/src/bnetd/connection.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/connection.cpp	2007-10-13 12:41:48 UTC (rev 407)
++++ trunk/pvpgn/src/bnetd/connection.cpp	2007-11-13 11:25:34 UTC (rev 408)
+@@ -571,7 +571,7 @@
+ 
+     /* if this user in a channel, notify everyone that the user has left */
+     if (c-&gt;protocol.chat.channel)
+-	channel_del_connection(c-&gt;protocol.chat.channel,c,message_type_quit);
++	channel_del_connection(c-&gt;protocol.chat.channel,c,message_type_quit,NULL);
+ 
+    if ((c-&gt;protocol.game) &amp;&amp; (c-&gt;protocol.account))
+    {
+@@ -2007,7 +2007,7 @@
+         return -1;
+     }
+ 
+-    channel_del_connection(c-&gt;protocol.chat.channel,c,message_type_part);
++    channel_del_connection(c-&gt;protocol.chat.channel,c,message_type_part,NULL);
+     c-&gt;protocol.chat.channel = NULL;
+ 
+     return 0;
+@@ -2027,7 +2027,7 @@
+         return -1;
+     }
+    
+-    channel_del_connection(c-&gt;protocol.chat.channel,c,message_type_kick);
++    channel_del_connection(c-&gt;protocol.chat.channel,c,message_type_kick,text);
+     c-&gt;protocol.chat.channel = NULL;
+ 
+     return 0;
+@@ -2047,7 +2047,7 @@
+         return -1;
+     }
+    
+-    channel_del_connection(c-&gt;protocol.chat.channel,c,message_type_quit);
++    channel_del_connection(c-&gt;protocol.chat.channel,c,message_type_quit,text);
+     c-&gt;protocol.chat.channel = NULL;
+ 
+     return 0;
+
+Modified: trunk/pvpgn/src/bnetd/handle_irc.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/handle_irc.cpp	2007-10-13 12:41:48 UTC (rev 407)
++++ trunk/pvpgn/src/bnetd/handle_irc.cpp	2007-11-13 11:25:34 UTC (rev 408)
+@@ -73,7 +73,6 @@
+ 
+ static int _handle_who_command(t_connection * conn, int numparams, char ** params, char * text);
+ static int _handle_list_command(t_connection * conn, int numparams, char ** params, char * text);
+-static int _handle_mode_command(t_connection * conn, int numparams, char ** params, char * text);
+ static int _handle_userhost_command(t_connection * conn, int numparams, char ** params, char * text);
+ static int _handle_ison_command(t_connection * conn, int numparams, char ** params, char * text);
+ static int _handle_whois_command(t_connection * conn, int numparams, char ** params, char * text);
+@@ -576,12 +575,6 @@
+ 	return 0;
+ }
+ 
+-static int _handle_mode_command(t_connection * conn, int numparams, char ** params, char * text)
+-{
+-	/* FIXME: Not yet implemented */
+-	return 0;
+-}
+-
+ static int _handle_userhost_command(t_connection * conn, int numparams, char ** params, char * text)
+ {
+ 	/* FIXME: Send RPL_USERHOST */
+
+Modified: trunk/pvpgn/src/bnetd/handle_wol.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/handle_wol.cpp	2007-10-13 12:41:48 UTC (rev 407)
++++ trunk/pvpgn/src/bnetd/handle_wol.cpp	2007-11-13 11:25:34 UTC (rev 408)
+@@ -99,7 +99,6 @@
+ static int _handle_addbuddy_command(t_connection * conn, int numparams, char ** params, char * text);
+ static int _handle_delbuddy_command(t_connection * conn, int numparams, char ** params, char * text);
+ static int _handle_time_command(t_connection * conn, int numparams, char ** params, char * text);
+-static int _handle_mode_command(t_connection * conn, int numparams, char ** params, char * text);
+ static int _handle_host_command(t_connection * conn, int numparams, char ** params, char * text);
+ static int _handle_advertc_command(t_connection * conn, int numparams, char ** params, char * text);
+ static int _handle_clanbyname_command(t_connection * conn, int numparams, char ** params, char * text);
+@@ -1517,29 +1516,6 @@
+     return 0;
+ }
+ 
+-static int _handle_mode_command(t_connection * conn, int numparams, char ** params, char * text)
+-{
+-    char temp[MAX_IRC_MESSAGE_LEN];
+-
+-   	std::memset(temp,0,sizeof(temp));
+-    t_channel * channel;
+-
+-    /**
+-    * FIXME: CHECK IF USER IS OPERATOR
+-    * because in WOLv1 is used mode command to add OP or Voice to another user !!!!
+-    * in WOLv2 is used for change game mode (cooperative, free for all...)
+-    */
+-
+-	if ((channel = channellist_find_channel_by_name(irc_convert_ircname(params[0]),NULL,NULL))) {
+-        snprintf(temp,sizeof(temp),&quot;%s %s %s&quot;, params[0], params[1], params[2]);
+-   	    channel_message_send(channel,message_type_mode,conn,temp);
+-	}
+-    else {
+-     	irc_send(conn,ERR_NOSUCHCHANNEL,&quot;:No such channel&quot;);
+-	}
+-    return 0;
+-}
+-
+ static int _handle_host_command(t_connection * conn, int numparams, char ** params, char * text)
+ {
+     char temp[MAX_IRC_MESSAGE_LEN];
+
+Modified: trunk/pvpgn/src/bnetd/irc.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/irc.cpp	2007-10-13 12:41:48 UTC (rev 407)
++++ trunk/pvpgn/src/bnetd/irc.cpp	2007-11-13 11:25:34 UTC (rev 408)
+@@ -1387,6 +1387,93 @@
+     return 0;
+ }
+ 
++extern int _handle_mode_command(t_connection * conn, int numparams, char ** params, char * text)
++{
++    char temp[MAX_IRC_MESSAGE_LEN];
++
++   	std::memset(temp,0,sizeof(temp));
++
++    /**
++    * FIXME: CHECK IF USER IS OPERATOR
++    * because in WOLv1 is used mode command to add OP or Voice to another user !!!!
++    * in WOLv2 is used for change game mode (cooperative, free for all...)
++    */
++
++    if (numparams == 1) {
++        irc_send(conn,ERR_NEEDMOREPARAMS,&quot;:Not enough parameters&quot;);
++        return 0;
++    }
++
++    if (params[0][0]=='#') {
++        /* Channel mode */
++        t_channel * channel;
++
++	    if ((channel = channellist_find_channel_by_name(irc_convert_ircname(params[0]),NULL,NULL))) {
++            if (std::strcmp(params[1], &quot;+b&quot;) == 0) {
++                snprintf(temp, sizeof(temp), &quot;/ban %s&quot;, params[2]);
++                handle_command(conn, temp);
++
++                snprintf(temp,sizeof(temp),&quot;%s %s %s&quot;, params[0], params[1], params[2]);
++       	        channel_message_send(channel,message_type_mode,conn,temp);                
++            }
++            else if (std::strcmp(params[1], &quot;-b&quot;) == 0) {
++                snprintf(temp, sizeof(temp), &quot;/unban %s&quot;, params[2]);
++                handle_command(conn, temp);
++
++                snprintf(temp,sizeof(temp),&quot;%s %s %s&quot;, params[0], params[1], params[2]);
++       	        channel_message_send(channel,message_type_mode,conn,temp);                     
++            }
++            else if (std::strcmp(params[1], &quot;b&quot;) == 0) {
++                /* FIXME: Send banlist */
++                snprintf(temp,sizeof(temp),&quot;:End of channel ban list for %s&quot;, params[0]);
++                irc_send(conn,RPL_ENDOFBANLIST,temp);
++            }
++            else if (std::strcmp(params[1], &quot;+o&quot;) == 0) {
++                snprintf(temp, sizeof(temp), &quot;/op %s&quot;, params[2]);
++                handle_command(conn, temp);
++
++                snprintf(temp,sizeof(temp),&quot;%s %s %s&quot;, params[0], params[1], params[2]);
++       	        channel_message_send(channel,message_type_mode,conn,temp);                
++            }
++            else if (std::strcmp(params[1], &quot;-o&quot;) == 0) {
++                snprintf(temp, sizeof(temp), &quot;/deop %s&quot;, params[2]);
++                handle_command(conn, temp);
++
++                snprintf(temp,sizeof(temp),&quot;%s %s %s&quot;, params[0], params[1], params[2]);
++       	        channel_message_send(channel,message_type_mode,conn,temp);                     
++            }
++            else if (std::strcmp(params[1], &quot;+v&quot;) == 0) {
++                snprintf(temp, sizeof(temp), &quot;/voice %s&quot;, params[2]);
++                handle_command(conn, temp);
++
++                snprintf(temp,sizeof(temp),&quot;%s %s %s&quot;, params[0], params[1], params[2]);
++       	        channel_message_send(channel,message_type_mode,conn,temp);                
++            }
++            else if (std::strcmp(params[1], &quot;-v&quot;) == 0) {
++                snprintf(temp, sizeof(temp), &quot;/devoice %s&quot;, params[2]);
++                handle_command(conn, temp);
++
++                snprintf(temp,sizeof(temp),&quot;%s %s %s&quot;, params[0], params[1], params[2]);
++       	        channel_message_send(channel,message_type_mode,conn,temp);                     
++            }
++       	    else {
++                snprintf(temp,sizeof(temp),&quot;:%s is unknown mode char to me&quot;, params[1]);
++                irc_send(conn,ERR_UNKNOWNMODE,temp);
++            }
++	    }
++        else {
++     	    irc_send(conn,ERR_NOSUCHCHANNEL,&quot;:No such channel&quot;);
++     	    return 0;
++	    }
++    }
++    else {
++        /* User mode */
++        /* FIXME: Support user modes (away, invisible...) */
++     	irc_send(conn,ERR_UMODEUNKNOWNFLAG,&quot;:Unknown MODE flag&quot;);
++    }
++    return 0;
+ }
+ 
+ }
++
++}
+
+Modified: trunk/pvpgn/src/bnetd/irc.h
+===================================================================
+--- trunk/pvpgn/src/bnetd/irc.h	2007-10-13 12:41:48 UTC (rev 407)
++++ trunk/pvpgn/src/bnetd/irc.h	2007-11-13 11:25:34 UTC (rev 408)
+@@ -56,6 +56,7 @@
+ extern int _handle_topic_command(t_connection * conn, int numparams, char ** params, char * text);
+ extern int _handle_names_command(t_connection * conn, int numparams, char ** params, char * text);
+ extern int _handle_kick_command(t_connection * conn, int numparams, char ** params, char * text);
++extern int _handle_mode_command(t_connection * conn, int numparams, char ** params, char * text);
+ }
+ 
+ }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000561.html">[pvpgn-dev] [Bug #12172] Inaccurate gameinfo for w3
+</A></li>
+	<LI>Next message: <A HREF="000565.html">[pvpgn-dev] r409 - trunk/pvpgn/src/bnetd
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#563">[ date ]</a>
+              <a href="thread.html#563">[ thread ]</a>
+              <a href="subject.html#563">[ subject ]</a>
+              <a href="author.html#563">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

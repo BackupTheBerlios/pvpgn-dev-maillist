@@ -1,0 +1,120 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] pvpgn/src/bnetd irc.c,1.49,1.50
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2008-September/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20pvpgn/src/bnetd%20irc.c%2C1.49%2C1.50&In-Reply-To=%3C20080915194506.A962F15075B%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000798.html">
+   <LINK REL="Next"  HREF="000800.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] pvpgn/src/bnetd irc.c,1.49,1.50</H1>
+    <B>pelish</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20pvpgn/src/bnetd%20irc.c%2C1.49%2C1.50&In-Reply-To=%3C20080915194506.A962F15075B%40mail.berlios.de%3E"
+       TITLE="[pvpgn-dev] pvpgn/src/bnetd irc.c,1.49,1.50">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Mon Sep 15 21:45:06 CEST 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000798.html">[pvpgn-dev] pvpgn version-history.txt,1.292,1.293
+</A></li>
+        <LI>Next message: <A HREF="000800.html">[pvpgn-dev] r497 - trunk/pvpgn/src/bnetd
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#799">[ date ]</a>
+              <a href="thread.html#799">[ thread ]</a>
+              <a href="subject.html#799">[ subject ]</a>
+              <a href="author.html#799">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/pvpgn/pvpgn/src/bnetd
+In directory sheep:/tmp/cvs-serv24098/src/bnetd
+
+Modified Files:
+	irc.c 
+Log Message:
+fix for bug when client does not got proper information about account which is already in use
+
+Index: irc.c
+===================================================================
+RCS file: /cvsroot/pvpgn/pvpgn/src/bnetd/irc.c,v
+retrieving revision 1.49
+retrieving revision 1.50
+diff -u -d -r1.49 -r1.50
+--- irc.c	13 Jul 2008 23:35:12 -0000	1.49
++++ irc.c	15 Sep 2008 19:45:04 -0000	1.50
+@@ -278,6 +278,7 @@
+     t_account * a;
+     char const * temphash;
+     char const * username;
++    char temp[MAX_IRC_MESSAGE_LEN];
+ 
+     char const * tempapgar;
+ 
+@@ -302,7 +303,8 @@
+     }
+ 
+     if (connlist_find_connection_by_account(a) &amp;&amp; prefs_get_kick_old_login()==0) {
+-            irc_send_cmd(conn,&quot;NOTICE&quot;,&quot;:Authentication rejected (already logged in) &quot;);
++        snprintf(temp, sizeof(temp), &quot;%s :Account is already in use!&quot;,conn_get_loggeduser(conn));
++        irc_send(conn,ERR_NICKNAMEINUSE,temp);
+     }
+     else if (account_get_auth_lock(a)==1) {
+             irc_send_cmd(conn,&quot;NOTICE&quot;,&quot;:Authentication rejected (account is locked) &quot;); 
+@@ -325,9 +327,9 @@
+             }
+     	    
+     	    if(strcmp(temphash,tempapgar) == 0) {
++        	    conn_set_clienttag(conn,CLIENTTAG_WWOL_UINT); /* WWOL hope here is ok */
+                 conn_login(conn,a,username);
+     	        conn_set_state(conn,conn_state_loggedin);
+-        	    conn_set_clienttag(conn,CLIENTTAG_WWOL_UINT); /* WWOL hope here is ok */
+         		return 1;
+     	    }
+     	    else {
+@@ -450,11 +452,7 @@
+     irc_send_cmd(conn,&quot;NOTICE&quot;,&quot;:This is an experimental service.&quot;);
+     
+     conn_set_state(conn,conn_state_bot_password);
+-    if (connlist_find_connection_by_accountname(conn_get_loggeduser(conn))) {
+-    	irc_send_cmd(conn,&quot;NOTICE&quot;,&quot;This account is already logged in, use another account.&quot;);
+-	return -1;
+-    }
+-    
++
+     if (conn_get_ircpass(conn)) {
+ 	irc_send_cmd(conn,&quot;NOTICE&quot;,&quot;:Trying to authenticate with PASS ...&quot;);
+ 	irc_authenticate(conn,conn_get_ircpass(conn));
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000798.html">[pvpgn-dev] pvpgn version-history.txt,1.292,1.293
+</A></li>
+	<LI>Next message: <A HREF="000800.html">[pvpgn-dev] r497 - trunk/pvpgn/src/bnetd
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#799">[ date ]</a>
+              <a href="thread.html#799">[ thread ]</a>
+              <a href="subject.html#799">[ subject ]</a>
+              <a href="author.html#799">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,236 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r338 - in trunk/pvpgn/src: bniutils client common	compat d2cs d2dbs tinycdb win32
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-August/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r338%20-%20in%20trunk/pvpgn/src%3A%20bniutils%20client%20common%0A%09compat%20d2cs%20d2dbs%20tinycdb%20win32&In-Reply-To=%3C200708210955.l7L9theu023628%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000387.html">
+   <LINK REL="Next"  HREF="000389.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r338 - in trunk/pvpgn/src: bniutils client common	compat d2cs d2dbs tinycdb win32</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r338%20-%20in%20trunk/pvpgn/src%3A%20bniutils%20client%20common%0A%09compat%20d2cs%20d2dbs%20tinycdb%20win32&In-Reply-To=%3C200708210955.l7L9theu023628%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r338 - in trunk/pvpgn/src: bniutils client common	compat d2cs d2dbs tinycdb win32">svn at svn.berlios.de
+       </A><BR>
+    <I>Tue Aug 21 11:55:43 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000387.html">[pvpgn-dev] pvpgn/src/common bnet_protocol.h,1.56,1.57
+</A></li>
+        <LI>Next message: <A HREF="000389.html">[pvpgn-dev] r339 - trunk/pvpgn/cmake/Modules
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#388">[ date ]</a>
+              <a href="thread.html#388">[ thread ]</a>
+              <a href="subject.html#388">[ subject ]</a>
+              <a href="author.html#388">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: d1zzy
+Date: 2007-08-21 11:55:43 +0200 (Tue, 21 Aug 2007)
+New Revision: 338
+
+Modified:
+   trunk/pvpgn/src/bniutils/CMakeLists.txt
+   trunk/pvpgn/src/client/CMakeLists.txt
+   trunk/pvpgn/src/common/CMakeLists.txt
+   trunk/pvpgn/src/compat/CMakeLists.txt
+   trunk/pvpgn/src/d2cs/CMakeLists.txt
+   trunk/pvpgn/src/d2dbs/CMakeLists.txt
+   trunk/pvpgn/src/tinycdb/CMakeLists.txt
+   trunk/pvpgn/src/win32/CMakeLists.txt
+Log:
+Added the headers to the project targets so they show up in the 
+generated project files.
+
+
+Modified: trunk/pvpgn/src/bniutils/CMakeLists.txt
+===================================================================
+--- trunk/pvpgn/src/bniutils/CMakeLists.txt	2007-08-20 18:10:03 UTC (rev 337)
++++ trunk/pvpgn/src/bniutils/CMakeLists.txt	2007-08-21 09:55:43 UTC (rev 338)
+@@ -1,14 +1,14 @@
+-add_executable(bnilist bnilist.cpp fileio.cpp tga.cpp)
++add_executable(bnilist bnilist.cpp fileio.cpp fileio.h tga.cpp tga.h)
+ target_link_libraries(bnilist common compat)
+ 
+-add_executable(bni2tga bni2tga.cpp fileio.cpp)
++add_executable(bni2tga bni2tga.cpp fileio.cpp fileio.h)
+ target_link_libraries(bni2tga common)
+ 
+-add_executable(bniextract bniextract.cpp fileio.cpp tga.cpp bni.cpp)
++add_executable(bniextract bniextract.cpp fileio.cpp fileio.h tga.cpp tga.h bni.cpp bni.h)
+ target_link_libraries(bniextract common compat)
+ 
+-add_executable(bnibuild bnibuild.cpp fileio.cpp bni.cpp tga.cpp)
++add_executable(bnibuild bnibuild.cpp fileio.cpp fileio.h bni.cpp bni.h tga.cpp tga.h)
+ target_link_libraries(bnibuild common compat)
+ 
+-add_executable(tgainfo tgainfo.cpp fileio.cpp tga.cpp)
++add_executable(tgainfo tgainfo.cpp fileio.cpp fileio.h tga.cpp tga.h)
+ target_link_libraries(tgainfo common compat)
+
+Modified: trunk/pvpgn/src/client/CMakeLists.txt
+===================================================================
+--- trunk/pvpgn/src/client/CMakeLists.txt	2007-08-20 18:10:03 UTC (rev 337)
++++ trunk/pvpgn/src/client/CMakeLists.txt	2007-08-21 09:55:43 UTC (rev 338)
+@@ -1,11 +1,13 @@
+-add_executable(bnchat bnchat.cpp client.cpp client_connect.cpp udptest.cpp)
++add_executable(bnchat bnchat.cpp client.cpp client.h client_connect.cpp 
++	client_connect.h udptest.cpp udptest.h ansi_term.h)
+ target_link_libraries(bnchat common compat ${NETWORK_LIBRARIES})
+ 
+-add_executable(bnftp bnftp.cpp client.cpp)
++add_executable(bnftp bnftp.cpp client.cpp client.h)
+ target_link_libraries(bnftp common compat ${NETWORK_LIBRARIES})
+ 
+-add_executable(bnbot bnbot.cpp client.cpp)
++add_executable(bnbot bnbot.cpp client.cpp client.h)
+ target_link_libraries(bnbot common compat ${NETWORK_LIBRARIES})
+ 
+-add_executable(bnstat bnstat.cpp client.cpp client_connect.cpp udptest.cpp)
++add_executable(bnstat bnstat.cpp client.cpp client.h client_connect.cpp 
++	client_connect.h udptest.cpp udptest.h)
+ target_link_libraries(bnstat common compat ${NETWORK_LIBRARIES})
+
+Modified: trunk/pvpgn/src/common/CMakeLists.txt
+===================================================================
+--- trunk/pvpgn/src/common/CMakeLists.txt	2007-08-20 18:10:03 UTC (rev 337)
++++ trunk/pvpgn/src/common/CMakeLists.txt	2007-08-21 09:55:43 UTC (rev 338)
+@@ -1,7 +1,20 @@
+-add_library(common conf.cpp list.cpp eventlog.cpp hexdump.cpp bn_type.cpp 
+-util.cpp addr.cpp d2char_checksum.cpp xalloc.cpp network.cpp packet.cpp 
+-xstring.cpp asnprintf.cpp bnethash.cpp bnethashconv.cpp bnettime.cpp 
+-fdwatch.cpp fdwatch_epoll.cpp fdwatch_kqueue.cpp fdwatch_poll.cpp 
+-fdwatch_select.cpp give_up_root_privileges.cpp hashtable.cpp proginfo.cpp 
+-queue.cpp rcm.cpp rlimit.cpp tag.cpp token.cpp trans.cpp fdwbackend.cpp 
+-xstr.cpp systemerror.cpp wolhash.cpp)
++add_library(common 
++	addr.cpp addr.h anongame_protocol.h asnprintf.cpp asnprintf.h 
++	bnethashconv.cpp bnethashconv.h bnethash.cpp bnethash.h bnet_protocol.h 
++	bnettime.cpp bnettime.h bn_type.cpp bn_type.h bot_protocol.h conf.cpp 
++	conf.h d2char_checksum.cpp d2char_checksum.h d2char_file.h 
++	d2cs_bnetd_protocol.h d2cs_d2dbs_ladder.h d2cs_d2gs_character.h 
++	d2cs_d2gs_protocol.h d2cs_protocol.h d2game_protocol.h elist.h 
++	eventlog.cpp eventlog.h fdwatch.cpp fdwatch_epoll.cpp fdwatch_epoll.h
++	fdwatch.h fdwatch_kqueue.cpp fdwatch_kqueue.h fdwatch_poll.cpp 
++	fdwatch_poll.h fdwatch_select.cpp fdwatch_select.h fdwbackend.cpp 
++	fdwbackend.h field_sizes.h file_protocol.h flags.h 
++	give_up_root_privileges.cpp give_up_root_privileges.h hashtable.cpp 
++	hashtable.h hexdump.cpp hexdump.h init_protocol.h introtate.h 
++	irc_protocol.h list.cpp list.h lstr.h network.cpp network.h packet.cpp 
++	packet.h proginfo.cpp proginfo.h queue.cpp queue.h rcm.cpp rcm.h 
++	rlimit.cpp rlimit.h scoped_array.h scoped_ptr.h setup_after.h 
++	setup_before.h systemerror.cpp systemerror.h tag.cpp tag.h token.cpp 
++	token.h tracker.h trans.cpp trans.h udp_protocol.h util.cpp util.h 
++	version.h wolhash.cpp wolhash.h xalloc.cpp xalloc.h xstr.cpp xstr.h 
++	xstring.cpp xstring.h)
+
+Modified: trunk/pvpgn/src/compat/CMakeLists.txt
+===================================================================
+--- trunk/pvpgn/src/compat/CMakeLists.txt	2007-08-20 18:10:03 UTC (rev 337)
++++ trunk/pvpgn/src/compat/CMakeLists.txt	2007-08-21 09:55:43 UTC (rev 338)
+@@ -1,3 +1,9 @@
+-add_library(compat psock.cpp strerror.cpp strsep.cpp gettimeofday.cpp 
+-inet_aton.cpp inet_ntoa.cpp mmap.cpp pdir.cpp snprintf.cpp pgetopt.cpp
+-strcasecmp.cpp strdup.cpp strncasecmp.cpp strtoul.cpp uname.cpp vsnprintf.cpp)
++add_library(compat 
++	access.h gethostname.h gettimeofday.cpp gettimeofday.h inet_aton.cpp 
++	inet_aton.h inet_ntoa.cpp inet_ntoa.h mkdir.h mmap.cpp mmap.h 
++	netinet_in.h pdir.cpp pdir.h pgetopt.cpp pgetopt.h pgetpid.h psock.cpp 
++	psock.h read.h recv.h rename.h send.h snprintf.cpp snprintf.h socket.h 
++	statmacros.h stdfileno.h strcasecmp.cpp strcasecmp.h strdup.cpp 
++	strdup.h strerror.cpp strerror.h strncasecmp.cpp strncasecmp.h 
++	strsep.cpp strsep.h strtoul.cpp strtoul.h termios.h uint.h uname.cpp 
++	uname.h vsnprintf.cpp vsnprintf.h)
+
+Modified: trunk/pvpgn/src/d2cs/CMakeLists.txt
+===================================================================
+--- trunk/pvpgn/src/d2cs/CMakeLists.txt	2007-08-20 18:10:03 UTC (rev 337)
++++ trunk/pvpgn/src/d2cs/CMakeLists.txt	2007-08-21 09:55:43 UTC (rev 338)
+@@ -1,5 +1,10 @@
+-add_executable(d2cs bnetd.cpp cmdline.cpp connection.cpp d2charfile.cpp 
+-d2charlist.cpp d2gs.cpp d2ladder.cpp game.cpp gamequeue.cpp handle_bnetd.cpp 
+-handle_d2cs.cpp handle_d2gs.cpp handle_init.cpp handle_signal.cpp main.cpp 
+-net.cpp prefs.cpp s2s.cpp server.cpp serverqueue.cpp)
++add_executable(d2cs 
++	bit.h bnetd.cpp bnetd.h cmdline.cpp cmdline.h connection.cpp 
++	connection.h d2charfile.cpp d2charfile.h d2charlist.cpp d2charlist.h 
++	d2gs.cpp d2gs.h d2ladder.cpp d2ladder.h game.cpp game.h gamequeue.cpp 
++	gamequeue.h handle_bnetd.cpp handle_bnetd.h handle_d2cs.cpp 
++	handle_d2cs.h handle_d2gs.cpp handle_d2gs.h handle_init.cpp 
++	handle_init.h handle_signal.cpp handle_signal.h main.cpp net.cpp 
++	net.h prefs.cpp prefs.h s2s.cpp s2s.h server.cpp server.h 
++	serverqueue.cpp serverqueue.h setup.h version.h)
+ target_link_libraries(d2cs common compat win32 ${NETWORK_LIBRARIES})
+
+Modified: trunk/pvpgn/src/d2dbs/CMakeLists.txt
+===================================================================
+--- trunk/pvpgn/src/d2dbs/CMakeLists.txt	2007-08-20 18:10:03 UTC (rev 337)
++++ trunk/pvpgn/src/d2dbs/CMakeLists.txt	2007-08-21 09:55:43 UTC (rev 338)
+@@ -1,3 +1,6 @@
+-add_executable(d2dbs charlock.cpp d2ladder.cpp dbserver.cpp dbspacket.cpp 
+-cmdline.cpp prefs.cpp handle_signal.cpp dbsdupecheck.cpp main.cpp)
++add_executable(d2dbs 
++	charlock.cpp charlock.h cmdline.cpp cmdline.h d2ladder.cpp d2ladder.h 
++	dbsdupecheck.cpp dbsdupecheck.h dbserver.cpp dbserver.h dbspacket.cpp 
++	dbspacket.h handle_signal.cpp handle_signal.h main.cpp prefs.cpp 
++	prefs.h setup.h version.h)
+ target_link_libraries(d2dbs common compat win32 ${NETWORK_LIBRARIES})
+
+Modified: trunk/pvpgn/src/tinycdb/CMakeLists.txt
+===================================================================
+--- trunk/pvpgn/src/tinycdb/CMakeLists.txt	2007-08-20 18:10:03 UTC (rev 337)
++++ trunk/pvpgn/src/tinycdb/CMakeLists.txt	2007-08-21 09:55:43 UTC (rev 338)
+@@ -1,6 +1,6 @@
+-add_library(tinycdb cdb_find.cpp cdb_findnext.cpp cdb_hash.cpp cdb_init.cpp 
+-cdb_make_add.cpp cdb_make.cpp cdb_make_find.cpp cdb_make_put.cpp cdb_seek.cpp 
+-cdb_seq.cpp cdb_unpack.cpp)
+-
++add_library(tinycdb 
++	cdb_find.cpp cdb_findnext.cpp cdb.h cdb_hash.cpp cdb_init.cpp cdb_int.h
++	cdb_make_add.cpp cdb_make.cpp cdb_make_find.cpp cdb_make_put.cpp 
++	cdb_seek.cpp cdb_seq.cpp cdb_unpack.cpp)
+ add_executable(bncdb cdb.cpp)
+ target_link_libraries(bncdb tinycdb common compat )
+
+Modified: trunk/pvpgn/src/win32/CMakeLists.txt
+===================================================================
+--- trunk/pvpgn/src/win32/CMakeLists.txt	2007-08-20 18:10:03 UTC (rev 337)
++++ trunk/pvpgn/src/win32/CMakeLists.txt	2007-08-21 09:55:43 UTC (rev 338)
+@@ -1 +1 @@
+-add_library(win32 service.cpp)
++add_library(win32 service.cpp service.h)
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000387.html">[pvpgn-dev] pvpgn/src/common bnet_protocol.h,1.56,1.57
+</A></li>
+	<LI>Next message: <A HREF="000389.html">[pvpgn-dev] r339 - trunk/pvpgn/cmake/Modules
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#388">[ date ]</a>
+              <a href="thread.html#388">[ thread ]</a>
+              <a href="subject.html#388">[ subject ]</a>
+              <a href="author.html#388">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

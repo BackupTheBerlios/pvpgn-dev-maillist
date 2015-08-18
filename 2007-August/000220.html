@@ -1,0 +1,310 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r284 - trunk/pvpgn/src/bnetd
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-August/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r284%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200708031922.l73JMHmo002784%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000219.html">
+   <LINK REL="Next"  HREF="000221.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r284 - trunk/pvpgn/src/bnetd</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r284%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200708031922.l73JMHmo002784%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r284 - trunk/pvpgn/src/bnetd">svn at svn.berlios.de
+       </A><BR>
+    <I>Fri Aug  3 21:22:17 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000219.html">[pvpgn-dev] r283 - trunk/pvpgn/src/bnetd
+</A></li>
+        <LI>Next message: <A HREF="000221.html">[pvpgn-dev] r285 - trunk/pvpgn/src/bnetd
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#220">[ date ]</a>
+              <a href="thread.html#220">[ thread ]</a>
+              <a href="subject.html#220">[ subject ]</a>
+              <a href="author.html#220">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pandaemonium
+Date: 2007-08-03 21:22:16 +0200 (Fri, 03 Aug 2007)
+New Revision: 284
+
+Modified:
+   trunk/pvpgn/src/bnetd/channel.cpp
+   trunk/pvpgn/src/bnetd/handle_irc.cpp
+   trunk/pvpgn/src/bnetd/handle_wol.cpp
+   trunk/pvpgn/src/bnetd/irc.cpp
+   trunk/pvpgn/src/bnetd/message.cpp
+Log:
+make JOIN/PART messages implicit on channel_add/del_connection
+
+Modified: trunk/pvpgn/src/bnetd/channel.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/channel.cpp	2007-08-03 18:14:47 UTC (rev 283)
++++ trunk/pvpgn/src/bnetd/channel.cpp	2007-08-03 19:22:16 UTC (rev 284)
+@@ -480,13 +480,7 @@
+ 	channel_update_userflags(connection);
+     }
+ 
+-    if(!(channel_get_flags(channel) &amp; channel_flags_thevoid))
+-        for (user=channel_get_first(channel); user; user=channel_get_next())
+-        {
+-	    message_send_text(connection,message_type_adduser,user,NULL);
+-    	    if (user!=connection)
+-    		message_send_text(user,message_type_join,connection,NULL);
+-        }
++    channel_message_send(channel,message_type_join,connection,NULL);
+ 
+     /* please don't remove this notice */
+     if (channel-&gt;log)
+@@ -664,7 +658,8 @@
+     }
+ 
+     if(channel_get_flags(channel) &amp; channel_flags_thevoid) // no talking in the void
+-	return;
++        if (type!=message_type_join &amp;&amp; type!=message_type_part) // but we need join/part (at least for self)
++            return;
+ 
+     if(channel_get_flags(channel) &amp; channel_flags_moderated) // moderated channel - only admins,OPs and voices may talk
+     {
+@@ -689,8 +684,10 @@
+     tname = conn_get_chatname(me);
+     for (c=channel_get_first(channel); c; c=channel_get_next())
+     {
+-	if (c==me &amp;&amp; (type==message_type_talk || type==message_type_join || type==message_type_part || type==message_wol_gameopt_owner))
++	if (c==me &amp;&amp; (type==message_type_talk || type==message_wol_gameopt_owner))
+ 	    continue; /* ignore ourself */
++	if (c!=me &amp;&amp; (channel_get_flags(channel) &amp; channel_flags_thevoid) &amp;&amp; type!=message_type_join &amp;&amp; type!=message_type_part)
++            continue; /* make sure we get join/part infos for self even in void */
+ 	if ((type==message_type_talk || type==message_type_whisper || type==message_type_emote || type==message_type_broadcast) &amp;&amp;
+ 	    conn_check_ignoring(c,tname)==1)
+ 	    continue; /* ignore squelched players */
+
+Modified: trunk/pvpgn/src/bnetd/handle_irc.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/handle_irc.cpp	2007-08-03 18:14:47 UTC (rev 283)
++++ trunk/pvpgn/src/bnetd/handle_irc.cpp	2007-08-03 19:22:16 UTC (rev 284)
+@@ -764,12 +764,8 @@
+ 	    e = irc_get_listelems(params[0]);
+ 	    if ((e)&amp;&amp;(e[0])) {
+ 	    		char const * ircname = irc_convert_ircname(e[0]);
+-	    		char * old_channel_name = NULL;
+ 	   	 	t_channel * old_channel = conn_get_channel(conn);
+ 
+-			if (old_channel)
+-			  old_channel_name = xstrdup(irc_convert_channel(old_channel));
+-
+ 			if ((!(ircname)) || (conn_set_channel(conn,ircname)&lt;0)) {
+ 				irc_send(conn,ERR_NOSUCHCHANNEL,&quot;:JOIN failed&quot;); /* FIXME: be more precise; what is the real error code for that? */
+ 			}
+@@ -782,7 +778,6 @@
+ 				char * topic;
+ 
+ 				channel_set_userflags(conn);
+-				message_send_text(conn,message_type_join,conn,NULL); /* we have to send the JOIN acknowledgement */
+ 				ircname=irc_convert_channel(channel);
+ 
+ 				if ((topic = channel_get_topic(channel_get_name(channel)))) {
+@@ -799,16 +794,11 @@
+ 				else
+ 					irc_send(conn,RPL_NOTOPIC,&quot;:No topic is set&quot;);
+ 
+-					irc_send_rpl_namreply(conn,channel);
+-					irc_send(conn,RPL_ENDOFNAMES,&quot;:End of NAMES list&quot;);
++				irc_send_rpl_namreply(conn,channel);
++				irc_send(conn,RPL_ENDOFNAMES,&quot;:End of NAMES list&quot;);
+ 
+-					if (old_channel_name) {
+-                        			snprintf(temp,sizeof(temp),&quot;%s :%s&quot;, old_channel_name,&quot;only one channel at once&quot;);
+-                        			message_send_text(conn,message_type_part,conn,temp);
+-					}
+ 	    		}
+ 		}
+-			if (old_channel_name) xfree((void *)old_channel_name);
+ 		}
+     		if (e)
+ 			irc_unget_listelems(e);
+
+Modified: trunk/pvpgn/src/bnetd/handle_wol.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/handle_wol.cpp	2007-08-03 18:14:47 UTC (rev 283)
++++ trunk/pvpgn/src/bnetd/handle_wol.cpp	2007-08-03 19:22:16 UTC (rev 284)
+@@ -834,12 +834,8 @@
+ 	    e = irc_get_listelems(params[0]);
+ 	    if ((e)&amp;&amp;(e[0])) {
+ 	    		char const * wolname = irc_convert_ircname(e[0]);
+-	    		char * old_channel_name = NULL;
+ 	   	 	t_channel * old_channel = conn_get_channel(conn);
+ 
+-			if (old_channel)
+-			  old_channel_name = xstrdup(irc_convert_channel(old_channel));
+-
+ 			if ((!(wolname)) || (conn_set_channel(conn,wolname)&lt;0)) {
+ 				irc_send(conn,ERR_NOSUCHCHANNEL,&quot;:JOIN failed&quot;); /* FIXME: be more precise; what is the real error code for that? */
+ 			}
+@@ -848,52 +844,17 @@
+ 				t_channel * channel;
+ 				channel = conn_get_channel(conn);
+ 
+-			    if ((conn_get_wol(conn) == 1)) {
+-					channel_set_userflags(conn);
+-					message_send_text(conn,message_type_join,conn,NULL); /* we have to send the JOIN acknowledgement */
+-					wolname=irc_convert_channel(channel);
++				channel_set_userflags(conn);
++				wolname=irc_convert_channel(channel);
+ 
+-	    				irc_send_rpl_namreply(conn,channel);
++	    			irc_send_rpl_namreply(conn,channel);
+ 
+-					if ((std::strlen(wolname)+1+std::strlen(&quot;:End of NAMES list&quot;)+1)&lt;MAX_IRC_MESSAGE_LEN) {
+-						snprintf(temp, sizeof(temp), &quot;%s :End of NAMES list&quot;,wolname);
+-						irc_send(conn,RPL_ENDOFNAMES,temp);
+-					}
++				if ((std::strlen(wolname)+1+std::strlen(&quot;:End of NAMES list&quot;)+1)&lt;MAX_IRC_MESSAGE_LEN) {
++					snprintf(temp, sizeof(temp), &quot;%s :End of NAMES list&quot;,wolname);
++					irc_send(conn,RPL_ENDOFNAMES,temp);
++				}
+ 			    }
+-			    else {
+-					if (channel!=old_channel) {
+-					char * topic;
+-
+-					channel_set_userflags(conn);
+-
+-					message_send_text(conn,message_type_join,conn,NULL); /* we have to send the JOIN acknowledgement */
+-					wolname=irc_convert_channel(channel);
+-
+-						if ((topic = channel_get_topic(channel_get_name(channel)))) {
+-							if ((std::strlen(wolname)+1+1+std::strlen(topic)+1)&lt;MAX_IRC_MESSAGE_LEN) {
+-							snprintf(temp, sizeof(temp), &quot;%s :%s&quot;, wolname, topic);
+-							irc_send(conn,RPL_TOPIC,temp);
+-						}
+-
+-							if ((std::strlen(wolname)+1+std::strlen(&quot;FIXME 0&quot;)+1)&lt;MAX_IRC_MESSAGE_LEN) {
+-							snprintf(temp, sizeof(temp), &quot;%s FIXME 0&quot;,wolname);
+-							irc_send(conn,RPL_TOPICWHOTIME,temp); /* FIXME: this in an undernet extension but other servers support it too */
+-						}
+-					}
+-					else
+-						irc_send(conn,RPL_NOTOPIC,&quot;:No topic is set&quot;);
+-
+-					irc_send_rpl_namreply(conn,channel);
+-					irc_send(conn,RPL_ENDOFNAMES,&quot;:End of NAMES list&quot;);
+-
+-						if (old_channel_name) {
+-                        snprintf(temp,sizeof(temp),&quot;%s :%s&quot;, old_channel_name,&quot;only one channel at once&quot;);
+-                        message_send_text(conn,message_type_part,conn,temp);
+-					}
+-		    		}
+ 			}
+-			}
+-			if (old_channel_name) xfree((void *)old_channel_name);
+ 		}
+     		if (e)
+ 			irc_unget_listelems(e);
+
+Modified: trunk/pvpgn/src/bnetd/irc.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/irc.cpp	2007-08-03 18:14:47 UTC (rev 283)
++++ trunk/pvpgn/src/bnetd/irc.cpp	2007-08-03 19:22:16 UTC (rev 284)
+@@ -691,11 +691,7 @@
+     	from.nick = conn_get_chatname(me);
+     	from.user = ctag;
+     	from.host = addr_num_to_ip_str(conn_get_addr(me));
+-	eventlog(eventlog_level_debug,__FUNCTION__,&quot;mtp: %s&quot;,text);
+-	if (text)
+-    		msg = irc_message_preformat(&amp;from,&quot;PART&quot;,&quot;\r&quot;,text);
+-	else
+-    		msg = irc_message_preformat(&amp;from,&quot;PART&quot;,&quot;\r&quot;,irc_convert_channel(conn_get_channel(me)));
++    	msg = irc_message_preformat(&amp;from,&quot;PART&quot;,&quot;\r&quot;,irc_convert_channel(conn_get_channel(me)));
+     	conn_unget_chatname(me,from.nick);
+     	break;
+     case message_type_talk:
+
+Modified: trunk/pvpgn/src/bnetd/message.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/message.cpp	2007-08-03 18:14:47 UTC (rev 283)
++++ trunk/pvpgn/src/bnetd/message.cpp	2007-08-03 19:22:16 UTC (rev 284)
+@@ -324,6 +324,7 @@
+ 	    eventlog(eventlog_level_error,__FUNCTION__,&quot;got NULL connection for %s&quot;,message_type_get_str(type));
+ 	    return -1;
+ 	}
++	if (me!=dst)
+ 	{
+ 	    char const * tname;
+ 
+@@ -339,6 +340,7 @@
+ 	    eventlog(eventlog_level_error,__FUNCTION__,&quot;got NULL connection for %s&quot;,message_type_get_str(type));
+ 	    return -1;
+ 	}
++	if (me != dst)
+ 	{
+ 	    char const * tname;
+ 
+@@ -698,6 +700,7 @@
+ 		eventlog(eventlog_level_error,__FUNCTION__,&quot;got NULL connection for %s&quot;,message_type_get_str(type));
+ 		return -1;
+ 	    }
++	    if (me!=dst)
+ 	    {
+ 		char const * tname;
+ 
+@@ -713,6 +716,7 @@
+ 		eventlog(eventlog_level_error,__FUNCTION__,&quot;got NULL connection for %s&quot;,message_type_get_str(type));
+ 		return -1;
+ 	    }
++	    if (me!=dst)
+ 	    {
+ 		char const * tname;
+ 
+@@ -961,6 +965,7 @@
+         bn_int_set(&amp;packet-&gt;u.server_message.type,SERVER_MESSAGE_TYPE_JOIN);
+ 	bn_int_set(&amp;packet-&gt;u.server_message.flags,conn_get_flags(me)|dstflags);
+ 	bn_int_set(&amp;packet-&gt;u.server_message.latency,conn_get_latency(me));
++	if (me!=dst)
+ 	{
+ 	    char const * tname;
+ 	    char const * playerinfo;
+@@ -986,6 +991,7 @@
+         bn_int_set(&amp;packet-&gt;u.server_message.type,SERVER_MESSAGE_TYPE_PART);
+ 	bn_int_set(&amp;packet-&gt;u.server_message.flags,conn_get_flags(me)|dstflags);
+ 	bn_int_set(&amp;packet-&gt;u.server_message.latency,conn_get_latency(me));
++	if (me!=dst)
+ 	{
+ 	    char const * tname;
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000219.html">[pvpgn-dev] r283 - trunk/pvpgn/src/bnetd
+</A></li>
+	<LI>Next message: <A HREF="000221.html">[pvpgn-dev] r285 - trunk/pvpgn/src/bnetd
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#220">[ date ]</a>
+              <a href="thread.html#220">[ thread ]</a>
+              <a href="subject.html#220">[ subject ]</a>
+              <a href="author.html#220">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

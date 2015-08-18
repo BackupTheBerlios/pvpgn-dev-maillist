@@ -1,0 +1,324 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r301 - trunk/pvpgn/src/bnetd
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-August/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r301%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200708081810.l78IANxs008119%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000267.html">
+   <LINK REL="Next"  HREF="000269.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r301 - trunk/pvpgn/src/bnetd</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r301%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200708081810.l78IANxs008119%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r301 - trunk/pvpgn/src/bnetd">svn at svn.berlios.de
+       </A><BR>
+    <I>Wed Aug  8 20:10:23 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000267.html">[pvpgn-dev] [Bug #11722] sprintf with source and target buffer	being identical
+</A></li>
+        <LI>Next message: <A HREF="000269.html">[pvpgn-dev] [Patch #2130] games bug fix
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#268">[ date ]</a>
+              <a href="thread.html#268">[ thread ]</a>
+              <a href="subject.html#268">[ subject ]</a>
+              <a href="author.html#268">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pandaemonium
+Date: 2007-08-08 20:10:22 +0200 (Wed, 08 Aug 2007)
+New Revision: 301
+
+Modified:
+   trunk/pvpgn/src/bnetd/channel.cpp
+   trunk/pvpgn/src/bnetd/connection.cpp
+   trunk/pvpgn/src/bnetd/handle_wol.cpp
+   trunk/pvpgn/src/bnetd/irc.cpp
+Log:
+commit of a modified version of [ Patch #2130 ] games bug fix
+
+Modified: trunk/pvpgn/src/bnetd/channel.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/channel.cpp	2007-08-07 15:28:35 UTC (rev 300)
++++ trunk/pvpgn/src/bnetd/channel.cpp	2007-08-08 18:10:22 UTC (rev 301)
+@@ -483,14 +483,20 @@
+         for (user=channel_get_first(channel); user; user=channel_get_next())
+         {
+              message_send_text(connection,message_type_adduser,user,NULL);
+-	     message_send_text(user,message_type_join,connection,NULL);
++             /* In WOL gamechannels we send JOINGAME ack explicitely to self */
++             if (conn_wol_get_ingame(connection)==0)
++                 message_send_text(user,message_type_join,connection,NULL);
+         }
+-    else
+-	message_send_text(connection,message_type_join,connection,NULL);
++    else {
++        if (conn_wol_get_ingame(connection)==0)
++            message_send_text(connection,message_type_join,connection,NULL);
++    }
+ 
+-    if (conn_is_irc_variant(connection))
++    if (conn_is_irc_variant(connection)) {
++        if (conn_wol_get_ingame(connection)==0)
+         message_send_text(connection,message_type_namreply,connection,NULL);
+-
++    }
++     conn_wol_set_ingame(connection,0);
+     /* please don't remove this notice */
+     if (channel-&gt;log)
+ 	message_send_text(connection,message_type_info,connection,prefs_get_log_notice());
+
+Modified: trunk/pvpgn/src/bnetd/connection.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/connection.cpp	2007-08-07 15:28:35 UTC (rev 300)
++++ trunk/pvpgn/src/bnetd/connection.cpp	2007-08-08 18:10:22 UTC (rev 301)
+@@ -3812,8 +3812,7 @@
+     	return;
+     }
+ 
+-    if (ingame)
+-      c-&gt;protocol.wol.ingame = ingame;
++    c-&gt;protocol.wol.ingame = ingame;
+ }
+ 
+ extern int conn_wol_get_ingame(t_connection * c)
+@@ -3864,8 +3863,7 @@
+         return;
+     }
+ 
+-    if (codepage)
+-       c-&gt;protocol.wol.codepage = codepage;
++    c-&gt;protocol.wol.codepage = codepage;
+ }
+ 
+ extern int conn_wol_get_codepage(t_connection * c)
+@@ -3887,8 +3885,7 @@
+         return;
+     }
+ 
+-    if (gameType)
+-        c-&gt;protocol.wol.gameType = gameType;
++    c-&gt;protocol.wol.gameType = gameType;
+ }
+ 
+ extern int conn_wol_get_game_type(t_connection * c)
+@@ -3939,8 +3936,7 @@
+     	return;
+     }
+ 
+-    if (findme)
+-        c-&gt;protocol.wol.findme = findme;
++    c-&gt;protocol.wol.findme = findme;
+ }
+ 
+ extern int conn_wol_get_findme(t_connection * c)
+@@ -3962,8 +3958,7 @@
+     	return;
+     }
+ 
+-    if (pageme)
+-        c-&gt;protocol.wol.pageme = pageme;
++    c-&gt;protocol.wol.pageme = pageme;
+ }
+ 
+ extern int conn_wol_get_pageme(t_connection * c)
+
+Modified: trunk/pvpgn/src/bnetd/handle_wol.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/handle_wol.cpp	2007-08-07 15:28:35 UTC (rev 300)
++++ trunk/pvpgn/src/bnetd/handle_wol.cpp	2007-08-08 18:10:22 UTC (rev 301)
+@@ -711,7 +711,6 @@
+ 
+     if (numparams == 0) {
+         /* This is Westwood Chat LIST command */
+-        /* FIXME: We send only chat channels (no gamechannels for CnC, RedAlert and CnC Sole Survivor) */
+         eventlog(eventlog_level_debug,__FUNCTION__,&quot;[** WOL **] LIST WCHAT&quot;);
+ 
+         LIST_TRAVERSE_CONST(channellist(),curr) {
+@@ -846,13 +845,7 @@
+ 				irc_send(conn,ERR_NOSUCHCHANNEL,&quot;:JOIN failed&quot;); /* FIXME: be more precise; what is the real error code for that? */
+ 			}
+ 			else {
+-    			char temp[MAX_IRC_MESSAGE_LEN];
+-				t_channel * channel;
+-				channel = conn_get_channel(conn);
+-
+ 				channel_set_userflags(conn);
+-				wolname=irc_convert_channel(channel);
+-
+ 			}
+ 		}
+     		if (e)
+@@ -1286,7 +1279,8 @@
+ 	    			char temp[MAX_IRC_MESSAGE_LEN];
+ 
+    					channel_set_userflags(conn);
+-   					message_send_text(conn,message_wol_joingame,conn,gameOptions); /* we have to send the JOINGAME acknowledgement */
++//   					message_send_text(conn,message_wol_joingame,conn,gameOptions); /* we have to send the JOINGAME acknowledgement */
++   					channel_message_send(channel,message_wol_joingame,conn,gameOptions);
+    					wolname=irc_convert_channel(channel);
+ 
+ 					if ((topic = channel_get_topic(channel_get_name(channel)))) {
+@@ -1332,6 +1326,8 @@
+         }
+ 	    eventlog(eventlog_level_debug,__FUNCTION__,&quot;[** WOL **] JOINGAME [Game Options] (%s)&quot;,_temp);
+ 
++		conn_wol_set_ingame(conn,1);
++
+ 	    e = irc_get_listelems(params[0]);
+ 	    if ((e)&amp;&amp;(e[0])) {
+     		char const * wolname = irc_convert_ircname(e[0]);
+@@ -1366,7 +1362,8 @@
+ 					channel_set_max(channel,std::atoi(params[2]));
+ 					channel_wol_set_game_type(channel,std::atoi(params[3]));
+ 					channel_wol_set_game_tournament(channel,std::atoi(params[6]));
+-                    channel_wol_set_game_extension(channel,params[7]);
++                    if (params[7])
++                        channel_wol_set_game_extension(channel,params[7]);
+ 
+ 					message_send_text(conn,message_wol_joingame,conn,_temp); /* we have to send the JOINGAME acknowledgement */
+ 					wolname=irc_convert_channel(channel);
+
+Modified: trunk/pvpgn/src/bnetd/irc.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/irc.cpp	2007-08-07 15:28:35 UTC (rev 300)
++++ trunk/pvpgn/src/bnetd/irc.cpp	2007-08-08 18:10:22 UTC (rev 301)
+@@ -650,14 +650,13 @@
+ 
+         channel = conn_get_channel(me);
+ 
+-	if((conn_get_wol(dst) == 1) &amp;&amp; (conn_get_clienttag(dst) != CLIENTTAG_WCHAT_UINT))
+-	{
++        if((conn_get_wol(dst) == 1) &amp;&amp; (conn_get_clienttag(dst) != CLIENTTAG_WCHAT_UINT)) {
+             char temp[MAX_IRC_MESSAGE_LEN];
+     	    t_clan * clan;
+     	    unsigned int clanid = 0;
+     	    std::memset(temp,0,sizeof(temp));
+-	    
+-	    /**
++
++            /**
+             *  For WOLv2 the channel JOIN output must be like the following:
+     	    *  user!<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">WWOL at hostname</A> JOIN :clanID,longIP channelName
+             */
+@@ -675,11 +674,10 @@
+     	    std::memset(temp,0,sizeof(temp));
+ 
+             if (conn_wol_get_ingame(me) == 1) {
+-                std::sprintf(temp,&quot;2 %u %u 1 1 %u :%s&quot;, channel_get_length(channel), channel_wol_get_game_type(channel), channel_wol_get_game_tournament(channel), irc_convert_channel(channel));
++                std::sprintf(temp,&quot;2 %u %u 1 1 %u :&quot;, channel_get_length(channel), channel_wol_get_game_type(channel), channel_wol_get_game_tournament(channel));
+                 msg = irc_message_preformat(&amp;from,&quot;JOINGAME&quot;,temp,irc_convert_channel(channel));
+             }
+-            else
+-	    {
++            else {
+                 msg = irc_message_preformat(&amp;from,&quot;JOIN&quot;,&quot;\r&quot;,irc_convert_channel(channel));
+ 	    }
+         }
+@@ -931,7 +929,6 @@
+ 		std::strcat(flg,&quot;+&quot;);
+ 	if ((std::strlen(temp)+((!first)?(1):(0))+std::strlen(flg)+std::strlen(name)+1)&lt;=sizeof(temp)) {
+ 	    if (!first) std::strcat(temp,&quot; &quot;);
+-
+             if((conn_get_wol(c) == 1)) {
+                 if ((channel_wol_get_game_owner(channel) != NULL) &amp;&amp; (std::strcmp(channel_wol_get_game_owner(channel),name) == 0)) {
+                        std::strcat(temp,&quot;@&quot;);
+@@ -942,20 +939,22 @@
+                 }
+                 if (conn_get_clienttag(c) != CLIENTTAG_WCHAT_UINT) {
+                     /* BATTLECLAN Support */
++                    char _temp[MAX_IRC_MESSAGE_LEN];
++                    std::memset(_temp,0,sizeof(_temp));
+                     t_clan * clan = account_get_clan(conn_get_account(m));
+                     unsigned int clanid = 0;
+ 
+                     if (clan)
+                         clanid = clan_get_clanid(clan);
+ 
+-                    std::sprintf(temp,&quot;%s%s,%u,%u&quot;,temp,name,clanid,conn_get_addr(m));
++                    std::sprintf(_temp,&quot;%s,%u,%u&quot;,name,clanid,conn_get_addr(m));
++                    std::strcat(temp,_temp);
+                 }
+                 else {
+-                    std::sprintf(temp,&quot;%s%s&quot;,temp,name);
++                    std::strcat(temp,name);
+                 }
+     	    }
+-    	    else
+-    	    {
++    	    else {
+ 	            std::strcat(temp,flg);
+ 	            std::strcat(temp,name);
+     	    }
+@@ -1105,6 +1104,7 @@
+     char * line, * formatted_line;
+     char send_line[MAX_IRC_MESSAGE_LEN];
+     char motd_failed = 0;
++    bool first = true;
+ 
+     if (!conn) {
+ 	   eventlog(eventlog_level_error,__FUNCTION__,&quot;got NULL connection&quot;);
+@@ -1113,14 +1113,17 @@
+ 
+     tempname = conn_get_loggeduser(conn);
+ 
+-    irc_send(conn,RPL_MOTDSTART,&quot;:-&quot;);
+-
+     if ((filename = prefs_get_motdfile())) {
+ 	 if ((fp = std::fopen(filename,&quot;r&quot;))) {
+ 	  while ((line=file_get_line(fp))) {
+ 		if ((formatted_line = message_format_line(conn,line))) {
+ 		  formatted_line[0]=' ';
+ 		  std::sprintf(send_line,&quot;:-%s&quot;,formatted_line);
++		  if (first) {
++		      irc_send(conn,RPL_MOTDSTART,send_line);
++		      first = false;
++          }
++          else
+ 		  irc_send(conn,RPL_MOTD,send_line);
+ 		  xfree(formatted_line);
+ 		}
+@@ -1136,7 +1139,7 @@
+       motd_failed = 1;
+ 
+    if (motd_failed) {
+-      irc_send(conn,RPL_MOTD,&quot;:- Failed to load motd, sending default motd              &quot;);
++      irc_send(conn,RPL_MOTDSTART,&quot;:- Failed to load motd, sending default motd              &quot;);
+       irc_send(conn,RPL_MOTD,&quot;:- ====================================================== &quot;);
+       irc_send(conn,RPL_MOTD,&quot;:-                 <A HREF="http://www.pvpgn.org">http://www.pvpgn.org</A>                   &quot;);
+       irc_send(conn,RPL_MOTD,&quot;:- ====================================================== &quot;);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000267.html">[pvpgn-dev] [Bug #11722] sprintf with source and target buffer	being identical
+</A></li>
+	<LI>Next message: <A HREF="000269.html">[pvpgn-dev] [Patch #2130] games bug fix
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#268">[ date ]</a>
+              <a href="thread.html#268">[ thread ]</a>
+              <a href="subject.html#268">[ subject ]</a>
+              <a href="author.html#268">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

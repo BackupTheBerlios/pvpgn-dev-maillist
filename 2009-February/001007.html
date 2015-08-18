@@ -1,0 +1,138 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r549 - in trunk/pvpgn/src: bnetd client common
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2009-February/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r549%20-%20in%20trunk/pvpgn/src%3A%20bnetd%20client%20common&In-Reply-To=%3C200902252018.n1PKIaUD020203%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001006.html">
+   <LINK REL="Next"  HREF="001008.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r549 - in trunk/pvpgn/src: bnetd client common</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r549%20-%20in%20trunk/pvpgn/src%3A%20bnetd%20client%20common&In-Reply-To=%3C200902252018.n1PKIaUD020203%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r549 - in trunk/pvpgn/src: bnetd client common">svn at svn.berlios.de
+       </A><BR>
+    <I>Wed Feb 25 21:18:36 CET 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001006.html">[pvpgn-dev] r548 - in trunk/pvpgn: . conf src/bnetd
+</A></li>
+        <LI>Next message: <A HREF="001008.html">[pvpgn-dev] r550 - trunk/pvpgn/src/bnetd
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1007">[ date ]</a>
+              <a href="thread.html#1007">[ thread ]</a>
+              <a href="subject.html#1007">[ subject ]</a>
+              <a href="author.html#1007">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pandaemonium
+Date: 2009-02-25 21:18:35 +0100 (Wed, 25 Feb 2009)
+New Revision: 549
+
+Modified:
+   trunk/pvpgn/src/bnetd/clan.cpp
+   trunk/pvpgn/src/bnetd/command.cpp
+   trunk/pvpgn/src/client/bnchat.cpp
+   trunk/pvpgn/src/common/field_sizes.h
+Log:
+add constant for maximum clan MOTD length and fix wrong clanname length allowed in commands
+
+Modified: trunk/pvpgn/src/bnetd/clan.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/clan.cpp	2009-02-24 23:06:00 UTC (rev 548)
++++ trunk/pvpgn/src/bnetd/clan.cpp	2009-02-25 20:18:35 UTC (rev 549)
+@@ -421,7 +421,7 @@
+     if ((clan = account_get_clan(account)) == NULL)
+ 	return -1;
+     offset = sizeof(packet-&gt;u.client_clan_motdchg);
+-    motd = packet_get_str_const(packet, offset, 25);
++    motd = packet_get_str_const(packet, offset, CLAN_MOTD_MAX);
+     eventlog(eventlog_level_trace, __FUNCTION__, &quot;[%d] got W3XP_CLAN_MOTDCHG packet : %s&quot;, conn_get_socket(c), motd);
+     if (clan_set_motd(clan, motd) != 0)
+     {
+
+Modified: trunk/pvpgn/src/bnetd/command.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/command.cpp	2009-02-24 23:06:00 UTC (rev 548)
++++ trunk/pvpgn/src/bnetd/command.cpp	2009-02-25 20:18:35 UTC (rev 549)
+@@ -717,7 +717,7 @@
+       else if (strstart(text,&quot;create&quot;)==0 || strstart(text,&quot;cre&quot;)==0) {
+           unsigned int i,j;
+           char clantag[CLANSHORT_NAME_MAX+1];
+-          char clanname[MAX_CLANNAME_LEN+1];
++          char clanname[CLAN_NAME_MAX+1];
+ 
+           for (i=0; text[i]!=' ' &amp;&amp; text[i]!='\0'; i++); /* skip command */
+           for (; text[i]==' '; i++);
+
+Modified: trunk/pvpgn/src/client/bnchat.cpp
+===================================================================
+--- trunk/pvpgn/src/client/bnchat.cpp	2009-02-24 23:06:00 UTC (rev 548)
++++ trunk/pvpgn/src/client/bnchat.cpp	2009-02-25 20:18:35 UTC (rev 549)
+@@ -1793,7 +1793,7 @@
+ 			    int offset;
+ 
+ 			    offset = sizeof(t_server_clan_invitereq);
+-			    if (!(clan = packet_get_str_const(rpacket,offset,MAX_CLANNAME_LEN)))
++			    if (!(clan = packet_get_str_const(rpacket,offset,CLAN_NAME_MAX)))
+ 			    {
+ 				munge(&amp;client);
+ 				std::printf(&quot;Got SERVER_CLAN_INVITEREQ with bad or missing clanname\n&quot;);
+@@ -1849,7 +1849,7 @@
+ 			    int offset;
+ 
+ 			    offset = sizeof(t_server_clan_createinvitereq);
+-			    if (!(clan = packet_get_str_const(rpacket,offset,MAX_CLANNAME_LEN)))
++			    if (!(clan = packet_get_str_const(rpacket,offset,CLAN_NAME_MAX)))
+ 			    {
+ 				munge(&amp;client);
+ 				std::printf(&quot;Got SERVER_CLAN_CREATEINVITEREQ with bad or missing clanname\n&quot;);
+
+Modified: trunk/pvpgn/src/common/field_sizes.h
+===================================================================
+--- trunk/pvpgn/src/common/field_sizes.h	2009-02-24 23:06:00 UTC (rev 548)
++++ trunk/pvpgn/src/common/field_sizes.h	2009-02-25 20:18:35 UTC (rev 549)
+@@ -34,7 +34,7 @@
+                                    *  proper error packets can be returned) */
+ const int CLANSHORT_NAME_MAX = 4;
+ const unsigned CLAN_NAME_MAX = 25; /* including terminating NUL char */
+-const int MAX_CLANNAME_LEN = 64;
++const unsigned CLAN_MOTD_MAX = 223; 
+ const int MAX_CHANNELNAME_LEN = 32; /* including terminating NUL char */
+ const unsigned MAX_CHARNAME_LEN = 16;
+ const unsigned MIN_CHARNAME_LEN = 2;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001006.html">[pvpgn-dev] r548 - in trunk/pvpgn: . conf src/bnetd
+</A></li>
+	<LI>Next message: <A HREF="001008.html">[pvpgn-dev] r550 - trunk/pvpgn/src/bnetd
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1007">[ date ]</a>
+              <a href="thread.html#1007">[ thread ]</a>
+              <a href="subject.html#1007">[ subject ]</a>
+              <a href="author.html#1007">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

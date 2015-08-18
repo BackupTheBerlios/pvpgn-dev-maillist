@@ -1,0 +1,107 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] [Bug #14587] Issues with Stealthbot (BNLS clients)
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2008-October/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BBug%20%2314587%5D%20Issues%20with%20Stealthbot%20%28BNLS%20clients%29&In-Reply-To=%3C200810012128.m91LSsQc009653%40unicorn.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000813.html">
+   <LINK REL="Next"  HREF="000815.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] [Bug #14587] Issues with Stealthbot (BNLS clients)</H1>
+    <B>admin at berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BBug%20%2314587%5D%20Issues%20with%20Stealthbot%20%28BNLS%20clients%29&In-Reply-To=%3C200810012128.m91LSsQc009653%40unicorn.berlios.de%3E"
+       TITLE="[pvpgn-dev] [Bug #14587] Issues with Stealthbot (BNLS clients)">admin at berlios.de
+       </A><BR>
+    <I>Wed Oct  1 23:28:54 CEST 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000813.html">[pvpgn-dev] [Bug #6534] clan channels reserved only for ops/admins?
+</A></li>
+        <LI>Next message: <A HREF="000815.html">[pvpgn-dev] r500 - trunk/pvpgn/src/bnetd
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#814">[ date ]</a>
+              <a href="thread.html#814">[ thread ]</a>
+              <a href="subject.html#814">[ subject ]</a>
+              <a href="author.html#814">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Bug #14587, was updated on 2008-Oct-01 07:09
+Here is a current snapshot of the bug.
+
+Project: Player vs Player Gaming Network
+Category: Warcraft Series
+Status: Open
+Resolution: None
+Bug Group: bnetd
+Priority: 5
+Submitted by: tsume
+Assigned to : none
+Summary: Issues with Stealthbot (BNLS clients)
+
+Details: I created an account with Stealthbot and logged in perfectly every time even after rebooting server.  However, if I try to login with the same username and password in the actual game, I get the error for wrong password.  If I make an account with WC3, both WC3 and Stealthbot can log into it.  Something must be wrong with the password storage for accounts created via a BNLS client.  I had a close friend verify this with duplicated results.
+
+Also, the bot seems to crash if it's in a clan.  If I accept an invite on the bot, it crashes.  If I log in with an account that's in a clan, it crashes.  If that account is booted from the clan by cheiftain, it can log in again and work.  This behaviour does not occur on the official server leading me to believe PvPGN may be sending bunk data to Stealthbot that it doesn't know how to handle.
+
+If you wish to duplicate this issue exactly, download and install the most popular battle.net bot here:
+<A HREF="http://www.stealthbot.net/">http://www.stealthbot.net/</A>
+And follow the instructions in this post to get the fixed EXE for War3 and fixed BNLS server entry:
+<A HREF="http://www.stealthbot.net/board/index.php?showtopic=11542#Instructions">http://www.stealthbot.net/board/index.php?showtopic=11542#Instructions</A>
+
+Follow-Ups:
+
+Date: 2008-Oct-01 17:28
+By: tsume
+
+Comment:
+Wrong loader.  *facepalm*
+
+The clan crash issue is still there, but this solves the problem with using a bnls bot created account in wc3.  Thanks!
+-------------------------------------------------------
+
+Date: 2008-Oct-01 12:26
+By: pandaemonium
+
+Comment:
+What loader have you been using for your WAR3 client? The &quot;classic&quot; loader or the SRP3-enabled loader?
+For a WAR3 client to work with an account created with a BNLS (SRP3) client you need the correct loader.  For WAR3&lt;1.22 you need the AciD loader 1.3 from <A HREF="http://www.keepmyfile.com/download/48f0052256532">http://www.keepmyfile.com/download/48f0052256532</A> and for WAR3&gt;=1.22 you'll need a SRP3 verion of the loader from <A HREF="http://w3l.info.tm/">http://w3l.info.tm/</A>
+
+I can't comment on the clan crash related issues - but maybe I'll find the time to look into the issue.
+
+-------------------------------------------------------
+
+For detailed info, follow this link:
+<A HREF="http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=14587&amp;group_id=2291">http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=14587&amp;group_id=2291</A>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000813.html">[pvpgn-dev] [Bug #6534] clan channels reserved only for ops/admins?
+</A></li>
+	<LI>Next message: <A HREF="000815.html">[pvpgn-dev] r500 - trunk/pvpgn/src/bnetd
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#814">[ date ]</a>
+              <a href="thread.html#814">[ thread ]</a>
+              <a href="subject.html#814">[ subject ]</a>
+              <a href="author.html#814">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

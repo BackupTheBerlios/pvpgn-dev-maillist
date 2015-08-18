@@ -1,0 +1,115 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] pvpgn/src/bnetd command.c,1.166,1.167
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-October/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20pvpgn/src/bnetd%20command.c%2C1.166%2C1.167&In-Reply-To=%3C20071002133534.6447C106D28%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000481.html">
+   <LINK REL="Next"  HREF="000483.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] pvpgn/src/bnetd command.c,1.166,1.167</H1>
+    <B>d1zzy</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20pvpgn/src/bnetd%20command.c%2C1.166%2C1.167&In-Reply-To=%3C20071002133534.6447C106D28%40mail.berlios.de%3E"
+       TITLE="[pvpgn-dev] pvpgn/src/bnetd command.c,1.166,1.167">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Tue Oct  2 15:35:34 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000481.html">[pvpgn-dev] r399 - trunk/pvpgn/src/bnetd
+</A></li>
+        <LI>Next message: <A HREF="000483.html">[pvpgn-dev] Admin GUI for PvPGN
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#482">[ date ]</a>
+              <a href="thread.html#482">[ thread ]</a>
+              <a href="subject.html#482">[ subject ]</a>
+              <a href="author.html#482">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/pvpgn/pvpgn/src/bnetd
+In directory sheep:/tmp/cvs-serv5152/bnetd
+
+Modified Files:
+	command.c 
+Log Message:
+Following a security bug report from megablue added fixed width 
+string conversions for most of the stuff in command.c and replaced every 
+sprintf with a corresponding snprintf versions hopefully fixing any 
+other similar issues.
+
+
+Index: command.c
+===================================================================
+RCS file: /cvsroot/pvpgn/pvpgn/src/bnetd/command.c,v
+retrieving revision 1.166
+retrieving revision 1.167
+diff -u -d -r1.166 -r1.167
+--- command.c	14 Aug 2007 20:43:12 -0000	1.166
++++ command.c	2 Oct 2007 13:34:54 -0000	1.167
+@@ -146,7 +146,7 @@
+ 
+     if (conn_get_dndstr(dest_c))
+     {
+-        sprintf(msgtemp,&quot;%.64s is unavailable (%.128s)&quot;,conn_get_username(dest_c),conn_get_dndstr(dest_c));
++        snprintf(msgtemp, sizeof(msgtemp), &quot;%.64s is unavailable (%.128s)&quot;,conn_get_username(dest_c),conn_get_dndstr(dest_c));
+         message_send_text(user_c,message_type_info,user_c,msgtemp);
+         return;
+     }
+@@ -155,7 +155,7 @@
+ 
+     if (conn_get_awaystr(dest_c))
+[...1599 lines suppressed...]
+ }
+ 
+@@ -4638,7 +4636,7 @@
+ 	account_set_ladder_rating(account,ctag,ladder_id_ironman,0);
+     }
+ 
+-    sprintf(msgtemp,&quot;Resetted %s's %s Stats&quot;,account_get_name(account),clienttag_get_title(ctag));
++    snprintf(msgtemp, sizeof(msgtemp), &quot;Resetted %.64s's %.64s Stats&quot;,account_get_name(account),clienttag_get_title(ctag));
+     message_send_text(c,message_type_info,c,msgtemp);
+ }
+ 
+@@ -4664,7 +4662,7 @@
+     // this would now need a way to delete the team for all members now
+     //account_set_atteamcount(account,ctag,0);
+ 
+-    sprintf(msgtemp,&quot;Resetted %s's %s Stats&quot;,account_get_name(account),clienttag_get_title(ctag));
++    snprintf(msgtemp, sizeof(msgtemp), &quot;Resetted %.64s's %.64s Stats&quot;,account_get_name(account),clienttag_get_title(ctag));
+     message_send_text(c,message_type_info,c,msgtemp);
+ }
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000481.html">[pvpgn-dev] r399 - trunk/pvpgn/src/bnetd
+</A></li>
+	<LI>Next message: <A HREF="000483.html">[pvpgn-dev] Admin GUI for PvPGN
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#482">[ date ]</a>
+              <a href="thread.html#482">[ thread ]</a>
+              <a href="subject.html#482">[ subject ]</a>
+              <a href="author.html#482">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

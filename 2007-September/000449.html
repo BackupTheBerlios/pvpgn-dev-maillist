@@ -1,0 +1,96 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] Problems in solution KICK on IRC/WOL
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-September/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20Problems%20in%20solution%20KICK%20on%20IRC/WOL&In-Reply-To=%3Ceb9d4d380709111434lb1568b2yaa9c5bbfbcd08ba7%40mail.gmail.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000448.html">
+   <LINK REL="Next"  HREF="000450.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] Problems in solution KICK on IRC/WOL</H1>
+    <B>Pelish</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20Problems%20in%20solution%20KICK%20on%20IRC/WOL&In-Reply-To=%3Ceb9d4d380709111434lb1568b2yaa9c5bbfbcd08ba7%40mail.gmail.com%3E"
+       TITLE="[pvpgn-dev] Problems in solution KICK on IRC/WOL">pelish at gmail.com
+       </A><BR>
+    <I>Tue Sep 11 23:34:53 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000448.html">[pvpgn-dev] [Bug #11959] IRC Ban
+</A></li>
+        <LI>Next message: <A HREF="000450.html">[pvpgn-dev] [Bug #11959] IRC Ban
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#449">[ date ]</a>
+              <a href="thread.html#449">[ thread ]</a>
+              <a href="subject.html#449">[ subject ]</a>
+              <a href="author.html#449">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Good Day Pandaemonium,
+
+I have an problem in fixing last bug &quot;[ Bug #11959 ] IRC Ban&quot; (is reported
+on tracker)
+As in fact it is bug on 1.8.x breanch but I have found other one on 1.99too.
+
+There is also problem in kicking... In WOL we need to have standart KICK
+message because of problem in server-side-JOIN (WOL clients cant join other
+channel by /channel command etc. so also cant JOIN TheVoid by
+server-side-initialised part/join). So I will need to change your
+fixes/optimalisations on revision 284 &quot;weeks make JOIN/PART messages
+implicit on channel_add/del_connection&quot; is great
+but I cant find how to solve problem in diferenting KICK/PART from channel
+
+My suggestion solution:
+- move back message_type_part from channel_del_connection
+-
+than I want to define message_type_kick (well, there is
+message_wol_kick but I want to
+make it implicit)
+- than make some changes on /kick command (for using in all protocols).
+
+Anyways my ideas are not complete so I will be gratefull by any suggestion
+for this problematic.
+
+For 1.8.x I want to backport this solution (or some part of) when will be
+done.
+
+I hope that you will understand me ;)
+
+Thank you
+
+Pelish
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: &lt;<A HREF="https://lists.berlios.de/pipermail/pvpgn-dev/attachments/20070911/41ddc2f8/attachment.html">https://lists.berlios.de/pipermail/pvpgn-dev/attachments/20070911/41ddc2f8/attachment.html</A>&gt;
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000448.html">[pvpgn-dev] [Bug #11959] IRC Ban
+</A></li>
+	<LI>Next message: <A HREF="000450.html">[pvpgn-dev] [Bug #11959] IRC Ban
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#449">[ date ]</a>
+              <a href="thread.html#449">[ thread ]</a>
+              <a href="subject.html#449">[ subject ]</a>
+              <a href="author.html#449">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

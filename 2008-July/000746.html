@@ -1,0 +1,676 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r472 - trunk/pvpgn
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2008-July/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r472%20-%20trunk/pvpgn&In-Reply-To=%3C200807171428.m6HES67s027730%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000745.html">
+   <LINK REL="Next"  HREF="000747.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r472 - trunk/pvpgn</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r472%20-%20trunk/pvpgn&In-Reply-To=%3C200807171428.m6HES67s027730%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r472 - trunk/pvpgn">svn at svn.berlios.de
+       </A><BR>
+    <I>Thu Jul 17 16:28:06 CEST 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000745.html">[pvpgn-dev] r471 - trunk/pvpgn/conf
+</A></li>
+        <LI>Next message: <A HREF="000747.html">[pvpgn-dev] r473 - trunk/pvpgn/conf
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#746">[ date ]</a>
+              <a href="thread.html#746">[ thread ]</a>
+              <a href="subject.html#746">[ subject ]</a>
+              <a href="author.html#746">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pandaemonium
+Date: 2008-07-17 16:28:05 +0200 (Thu, 17 Jul 2008)
+New Revision: 472
+
+Removed:
+   trunk/pvpgn/Makefile.am
+   trunk/pvpgn/Win32-Projects/
+   trunk/pvpgn/autogen.sh
+   trunk/pvpgn/configure.ac
+Log:
+remove obsoleted stuff so people don't report bugs cause they didn't use CMake
+
+Deleted: trunk/pvpgn/Makefile.am
+===================================================================
+--- trunk/pvpgn/Makefile.am	2008-07-17 11:26:25 UTC (rev 471)
++++ trunk/pvpgn/Makefile.am	2008-07-17 14:28:05 UTC (rev 472)
+@@ -1 +0,0 @@
+-SUBDIRS = src man conf docs Win32-Projects files
+
+Deleted: trunk/pvpgn/autogen.sh
+===================================================================
+--- trunk/pvpgn/autogen.sh	2008-07-17 11:26:25 UTC (rev 471)
++++ trunk/pvpgn/autogen.sh	2008-07-17 14:28:05 UTC (rev 472)
+@@ -1,6 +0,0 @@
+-#!/bin/sh
+-
+-aclocal-1.9
+-autoconf
+-autoheader
+-automake-1.9 --foreign -a
+
+Deleted: trunk/pvpgn/configure.ac
+===================================================================
+--- trunk/pvpgn/configure.ac	2008-07-17 11:26:25 UTC (rev 471)
++++ trunk/pvpgn/configure.ac	2008-07-17 14:28:05 UTC (rev 472)
+@@ -1,578 +0,0 @@
+-# This program is free software; you can redistribute it and/or
+-# modify it under the terms of the GNU General Public License
+-# as published by the Free Software Foundation; either version 2
+-# of the License, or (at your option) any later version.
+-#
+-# This program is distributed in the hope that it will be useful,
+-# but WITHOUT ANY WARRANTY; without even the implied warranty of
+-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-# GNU General Public License for more details.
+-#
+-# You should have received a copy of the GNU General Public License
+-# along with this program; if not, write to the Free Software
+-# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+-#
+-
+-# Process this file with autoconf to produce a configure script.
+-AUTOCONF_CONFIG_DIR=&quot;src/autoconf&quot;
+-AC_INIT(src/bnetd/handle_bnet.cpp)
+-AC_CONFIG_AUX_DIR(src/autoconf)
+-
+-AC_CANONICAL_SYSTEM
+-
+-AM_INIT_AUTOMAKE(pvpgn, 1.99.x-SVN)
+-AC_CONFIG_HEADER(config.h)
+-
+-builtin(include,src/autoconf/ccstdc.m4)
+-builtin(include,src/autoconf/mkdir.m4)
+-
+-# Checks for programs.
+-AC_PROG_CXX
+-AC_PROG_INSTALL
+-AC_PROG_RANLIB
+-
+-# Checks compiler.
+-AC_PROG_CPP
+-
+-AC_LANG(C++)
+-
+-# Check for sed
+-AC_CHECK_PROG(SED, sed, sed)
+-if test &quot;$SED&quot; != &quot;sed&quot;; then
+-	AC_MSG_ERROR([sed not found, please install sed])
+-fi
+-
+-# Check for cp
+-AC_CHECK_PROG(CP, cp, cp)
+-if test &quot;$CP&quot; != &quot;cp&quot;; then
+-	AC_MSG_ERROR([cp not found, please install cp])
+-fi
+-
+-# Checks for systems.
+-AC_AIX
+-AC_MINIX
+-
+-# Custom checks.
+-zwarnflags=&quot;&quot;
+-AC_ARG_WITH(warn, [  --with-warn             enable compiler warnings], [zwarnflags=&quot;-pedantic -Wall -W -Wshadow -Wpointer-arith -Wbad-function-cast -Wcast-qual -Wcast-align -Wwrite-strings -Wstrict-prototypes -Wmissing-declarations -Wredundant-decls -Wnested-externs -Wunreachable-code -Winline -Wpacked -Wno-sign-compare&quot;])
+-
+-zlangflags=&quot;&quot;
+-AC_ARG_WITH(ansi, [  --with-ansi             use strict ANSI C++98 mode], [zlangflags=&quot;-std=c++98 -pedantic&quot;])
+-
+-extra_include=&quot;&quot;
+-AC_ARG_WITH(includes, [  --with-includes=DIR     search include DIR for header files], [
+-case &quot;x$withval&quot; in
+-x/*|x.*)
+-  AC_MSG_RESULT([adding ${withval} to include search path])
+-  if test ! -d ${withval}; then
+-    AC_MSG_RESULT([Warning: directory ${withval} does not exist])
+-  fi
+-  extra_include=&quot;${extra_include} -I${withval}&quot;
+-  ;;
+-*)
+-  AC_MSG_RESULT([not adding any includes])
+-  ;;
+-esac])
+-
+-extra_lib_dir=&quot;&quot;
+-AC_ARG_WITH(libraries, [  --with-libraries=DIR    search library DIR for libraries], [
+-case &quot;x${withval}&quot; in
+-x/*|x.*)
+-  AC_MSG_RESULT([adding ${withval} to library search path])
+-  if test ! -d ${withval}; then
+-    AC_MSG_RESULT([Warning: directory ${withval} does not exist])
+-  fi
+-  extra_lib_dir=&quot;${extra_lib_dir} -L${withval}&quot;
+-  ;;
+-*)
+-  AC_MSG_RESULT([not adding any libs])
+-  ;;
+-esac])
+-
+-extra_lib=&quot;&quot;
+-AC_ARG_WITH(mysql, [  --with-mysql            include MySQL user accounts support])
+-
+-AC_ARG_WITH(pgsql, [  --with-pgsql            include PostgreSQL user accounts support])
+-
+-AC_ARG_WITH(mssql, [  --with-mssql            include MSSQL user accounts support (requires FreeTDS includes/libs)])
+-
+-AC_ARG_WITH(sqlite3, [  --with-sqlite3          include SQLite3 user accounts support ])
+-
+-AC_ARG_WITH(odbc, [  --with-odbc             include ODBC user accounts support ])
+-
+-extra_define=&quot;&quot;
+-dnl Enable poll()
+-AC_ARG_ENABLE(poll,
+-[  --enable-poll           Enable poll() instead of select().  Normally poll
+-                          is preferred over select, but configure knows poll
+-                          is broken on some platforms.  If you think you are
+-                          smarter than the configure script, you may enable
+-                          poll with this option.
+-  --disable-poll          Disable the use of poll().],
+-[
+-  case &quot;$enableval&quot; in
+-  yes)
+-    echo &quot;Forcing poll() to be enabled&quot;
+-    ac_cv_func_poll='yes'
+-    ;;
+-  no)
+-    echo &quot;Forcing poll() to be disabled&quot;
+-    ac_cv_func_poll='no'
+-    ;;
+-  esac
+-])
+-
+-dnl Shamesly stolen from squid 2.3 configure.in
+-dnl This has to be before AC_CHECK_FUNCS
+-# Disable poll() on certain platforms. Override by setting ac_cv_func_poll
+-# when running configure.
+-if test -z &quot;$ac_cv_func_poll&quot;; then
+-        case &quot;$host&quot; in
+-		[alpha-dec-osf3.*])
+-			# John Kay (<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">jkay at nlanr.net</A>) 19970818
+-			echo &quot;disabling poll for $host...&quot;
+-			ac_cv_func_poll='no'
+-			;;
+-		[*-hp-hpux*.*])
+-			# Duane Wessels
+-			echo &quot;disabling poll for $host...&quot;
+-			ac_cv_func_poll='no'
+-			;;
+-		[*-linux-*])
+-			# Henrik Nordstrom (<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">hno at hem.passagen.se</A>) 19980817
+-			# poll is problematic on Linux.  We disable it
+-			# by default until Linux gets it right.
+-			rev=`uname -r | awk -F. '{printf &quot;%03d%03d&quot;,$1,$2}'`
+-			if test $rev -lt 002002; then
+-			    echo &quot;disabling poll for $host &lt; 2.2...&quot;
+-			    ac_cv_func_poll='no'
+-			fi
+-			;;
+-		[powerpc-ibm-aix4.1.*])
+-			# Mike Laster (<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">mlaster at metavillage.com</A>) 19981021
+-			echo &quot;disabling poll for $host...&quot;
+-			ac_cv_func_poll='no'
+-			;;
+-		[*-pc-sco3.2*])
+-			# Robert Side &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">rside at aiinc.bc.ca</A>&gt;
+-			# Mon, 18 Jan 1999 17:48:00 GMT
+-			echo &quot;disabling poll for $host...&quot;
+-			ac_cv_func_poll='no'
+-			;;
+-	esac
+-fi
+-
+-# disable parts of the build process
+-AC_ARG_ENABLE(bnetd,
+-[  --enable-bnetd          Enable building of bnetd server (default)
+-  --disable-bnetd         Disable building of bnetd server])
+-AC_ARG_ENABLE(d2cs,
+-[  --enable-d2cs           Enable building of d2cs server (default)
+-  --disable-d2cs          Disable building of d2cs server])
+-AC_ARG_ENABLE(d2dbs,
+-[  --enable-d2dbs          Enable building of d2dbs server (default)
+-  --disable-d2dbs         Disable building of d2dbs server])
+-
+-LDFLAGS=&quot;${LDFLAGS} ${extra_lib_dir}&quot;
+-LIBS=&quot;${LIBS} ${extra_lib}&quot;
+-CFLAGS=&quot;${CFLAGS} ${zlangflags} ${zwarnflags}&quot;
+-DEFINES=&quot;${DEFINES} ${extra_define}&quot;
+-CPPFLAGS=&quot;${CPPFLAGS} ${extra_include} -fno-strict-aliasing&quot;
+-
+-# This is our invention so we have to substitute it ourselves
+-# autoconf uses DEFS
+-AC_SUBST(DEFINES)
+-AM_CONDITIONAL([COND_BNETD], [test -z &quot;$enable_bnetd&quot; -o x&quot;$enable_bnetd&quot; = xyes])
+-AM_CONDITIONAL([COND_D2CS], [test -z &quot;$enable_d2cs&quot; -o x&quot;$enable_d2cs&quot; = xyes])
+-AM_CONDITIONAL([COND_D2DBS], [test -z &quot;$enable_d2dbs&quot; -o x&quot;$enable_d2dbs&quot; = xyes])
+-
+-# Checks for libraries.
+-AC_CHECK_LIB(m, pow, [LIBS=&quot;$LIBS -lm&quot;])
+-
+-AC_CHECK_LIB(z, compress, [LIBS=&quot;$LIBS -lz&quot;], [AC_MSG_ERROR([not found, please install the zlib libraries])])
+-
+-mysql_include_path=&quot;&quot;
+-dnl Detecting mysql paths
+-if test &quot;$with_mysql&quot; = &quot;yes&quot; ; then
+-	AC_MSG_CHECKING([for mysql include path])
+-	mysql_try_includes=&quot;/usr/include /usr/include/mysql /usr/local/include /usr/local/include/mysql /usr/local/mysql/include /usr/local/mysql/include/mysql&quot;
+-	for i in `echo ${mysql_try_includes}`; do
+-	    if test -f &quot;${i}/mysql.h&quot; ; then
+-		CPPFLAGS=&quot;${CPPFLAGS} -I${i}&quot;
+-		mysql_include_path=${i}
+-		break
+-	    fi
+-	done
+-	if test -n &quot;$mysql_include_path&quot; ; then
+-	    AC_MSG_RESULT([found in $mysql_include_path])
+-	else
+-	    AC_MSG_ERROR([not found, please install the MySQL headers])
+-	fi
+-fi
+-
+-mysql_lib_path=&quot;&quot;
+-if test &quot;$with_mysql&quot; = &quot;yes&quot; ; then
+-    AC_CHECK_LIB(mysqlclient, mysql_init , [DEFINES=&quot;${DEFINES} -DWITH_SQL_MYSQL&quot; ; LIBS=&quot;${LIBS} -lmysqlclient&quot;], [
+-	AC_MSG_CHECKING([for mysql lib path])
+-	mysql_try_libs=&quot;/usr/lib /usr/lib/mysql /usr/local/lib /usr/local/lib/mysql /usr/local/mysql/lib /usr/local/mysql/lib/mysql&quot;
+-	found=&quot;&quot;
+-	for i in `echo ${mysql_try_libs}`; do
+-	    if test -f &quot;${i}/libmysqlclient.so&quot; -o -f &quot;${i}/libmysqlclient.a&quot; ; then
+-		save_ldflags=&quot;${LDFLAGS}&quot;
+-		LDFLAGS=&quot;${LDFLAGS} -L${i}&quot;
+-		AC_CHECK_LIB(mysqlclient, mysql_close , [DEFINES=&quot;${DEFINES} -DWITH_SQL_MYSQL&quot; ; LIBS=&quot;${LIBS} -lmysqlclient&quot; ; mysql_lib_path=&quot;${i}&quot;], [LDFLAGS=&quot;${save_ldflags}&quot;])
+-		break
+-	    fi
+-	done
+-	if test -n &quot;$mysql_lib_path&quot; ; then
+-	    AC_MSG_RESULT([found in $mysql_lib_path])
+-	else
+-	    AC_MSG_ERROR([not found, please install the MySQL libraries])
+-	fi
+-    ])
+-fi
+-
+-pgsql_include_path=&quot;&quot;
+-dnl Detecting pgsql paths
+-if test &quot;$with_pgsql&quot; = &quot;yes&quot; ; then
+-	AC_MSG_CHECKING([for pgsql include path])
+-	pgsql_try_includes=&quot;/usr/include /usr/include/pgsql /usr/local/include /usr/local/include/pgsql /usr/local/pgsql/include&quot;
+-	for i in `echo ${pgsql_try_includes}`; do
+-	    if test -f &quot;${i}/libpq-fe.h&quot; ; then
+-		CPPFLAGS=&quot;${CPPFLAGS} -I${i}&quot;
+-		pgsql_include_path=${i}
+-		break
+-	    fi
+-	done
+-	if test -n &quot;$pgsql_include_path&quot; ; then
+-	    AC_MSG_RESULT([found in $pgsql_include_path])
+-	else
+-	    AC_MSG_ERROR([not found, please install the PostgreSQL includes])
+-	fi
+-fi
+-
+-pgsql_lib_path=&quot;&quot;
+-if test &quot;$with_pgsql&quot; = &quot;yes&quot; ; then
+-     AC_CHECK_LIB(pq, PQsetdbLogin , [DEFINES=&quot;${DEFINES} -DWITH_SQL_PGSQL&quot; ; LIBS=&quot;${LIBS} -lpq&quot;], [
+-	AC_MSG_CHECKING([for pgsql lib path])
+-	pgsql_try_libs=&quot;/usr/lib /usr/lib/pgsql /usr/local/lib /usr/local/lib/pgsql /usr/local/pgsql/lib&quot;
+-	for i in `echo ${pgsql_try_libs}`; do
+-	    if test -f &quot;${i}/libpq.so&quot; -o -f &quot;${i}/libpq.a&quot; ; then
+-		save_ldflags=&quot;${LDFLAGS}&quot;
+-		LDFLAGS=&quot;${LDFLAGS} -L${i}&quot;
+-		AC_CHECK_LIB(pq, PQfinish , [DEFINES=&quot;${DEFINES} -DWITH_SQL_PGSQL&quot; ; LIBS=&quot;${LIBS} -lpq&quot; ; pgsql_lib_path=&quot;${i}&quot;], [LDFLAGS=&quot;${save_ldflags}&quot;])
+-		break
+-	    fi
+-	done
+-	if test -n &quot;$pgsql_lib_path&quot; ; then
+-	    AC_MSG_RESULT([found in $pgsql_lib_path])
+-	else
+-	    AC_MSG_ERROR([not found, please install the PostgreSQL libraries])
+-	fi
+-     ])
+-fi
+-
+-mssql_include_path=&quot;&quot;
+-dnl Detecting mssql paths
+-if test &quot;$with_mssql&quot; = &quot;yes&quot; ; then
+-	AC_MSG_CHECKING([for mssql/FreeTDS include path])
+-	mssql_try_includes=&quot;/usr/include /usr/include/freetds /usr/local/include /usr/local/include/freetds /usr/local/freetds/include&quot;
+-	for i in `echo ${mssql_try_includes}`; do
+-	    if test -f &quot;${i}/sqlfront.h&quot; ; then
+-		CPPFLAGS=&quot;${CPPFLAGS} -I${i}&quot;
+-		mssql_include_path=${i}
+-		break
+-	    fi
+-	done
+-	if test -n &quot;$mssql_include_path&quot; ; then
+-	    AC_MSG_RESULT([found in $mssql_include_path])
+-	else
+-	    AC_MSG_ERROR([not found, please install the FreeTDS includes])
+-	fi
+-fi
+-
+-mssql_lib_path=&quot;&quot;
+-if test &quot;$with_mssql&quot; = &quot;yes&quot; ; then
+-     AC_CHECK_LIB(sybdb, dbinit, [DEFINES=&quot;${DEFINES} -DWITH_SQL_MSSQL&quot; ; LIBS=&quot;${LIBS} -lsybdb&quot;], [
+-	AC_MSG_CHECKING([for mssql/FreeTDS lib path])
+-	mssql_try_libs=&quot;/usr/lib /usr/lib/freetds /usr/local/lib /usr/local/lib/freetds /usr/local/freetds/lib&quot;
+-	for i in `echo ${mssql_try_libs}`; do
+-	    if test -f &quot;${i}/libsybdb.so&quot; -o -f &quot;${i}/libsybdb.a&quot; ; then
+-		save_ldflags=&quot;${LDFLAGS}&quot;
+-		LDFLAGS=&quot;${LDFLAGS} -L${i}&quot;
+-		AC_CHECK_LIB(sybdb, dbclose, [DEFINES=&quot;${DEFINES} -DWITH_SQL_MSSQL&quot; ; LIBS=&quot;${LIBS} -lsybdb&quot; ; mssql_lib_path=&quot;${i}&quot;], [LDFLAGS=&quot;${save_ldflags}&quot;])
+-		break
+-	    fi
+-	done
+-	if test -n &quot;$mssql_lib_path&quot; ; then
+-	    AC_MSG_RESULT([found in $mssql_lib_path])
+-	else
+-	    AC_MSG_ERROR([not found, please install the FreeTDS libraries])
+-	fi
+-     ])
+-fi
+-
+-sqlite3_include_path=&quot;&quot;
+-dnl Detecting sqlite3 paths
+-if test &quot;$with_sqlite3&quot; = &quot;yes&quot; ; then
+-	AC_MSG_CHECKING([for SQLite3 include path])
+-	sqlite3_try_includes=&quot;/usr/include /usr/include/sqlite3 /usr/local/include /usr/local/include/sqlite3 /usr/local/sqlite3/include&quot;
+-	for i in `echo ${sqlite3_try_includes}`; do
+-	    if test -f &quot;${i}/sqlite3.h&quot; ; then
+-		CPPFLAGS=&quot;${CPPFLAGS} -I${i}&quot;
+-		sqlite3_include_path=${i}
+-		break
+-	    fi
+-	done
+-	if test -n &quot;$sqlite3_include_path&quot; ; then
+-	    AC_MSG_RESULT([found in $sqlite3_include_path])
+-	else
+-	    AC_MSG_ERROR([not found, please install the SQLite3 includes])
+-	fi
+-fi
+-
+-sqlite3_lib_path=&quot;&quot;
+-if test &quot;$with_sqlite3&quot; = &quot;yes&quot; ; then
+-     AC_CHECK_LIB(sqlite3, sqlite3_open, [DEFINES=&quot;${DEFINES} -DWITH_SQL_SQLITE3&quot; ; LIBS=&quot;${LIBS} -lsqlite3&quot;], [
+-	AC_MSG_CHECKING([for SQLite3 lib path])
+-	sqlite3_try_libs=&quot;/usr/lib /usr/lib/sqlite3 /usr/local/lib /usr/local/lib/sqlite3 /usr/local/sqlite3/lib&quot;
+-	for i in `echo ${sqlite3_try_libs}`; do
+-	    if test -f &quot;${i}/libsqlite3.so&quot; -o -f &quot;${i}/libsqlite3.a&quot; ; then
+-		save_ldflags=&quot;${LDFLAGS}&quot;
+-		LDFLAGS=&quot;${LDFLAGS} -L${i}&quot;
+-		AC_CHECK_LIB(sqlite3, sqlite3_close, [DEFINES=&quot;${DEFINES} -DWITH_SQL_SQLITE3&quot; ; LIBS=&quot;${LIBS} -lsqlite3&quot; ; sqlite3_lib_path=&quot;${i}&quot;], [LDFLAGS=&quot;${save_ldflags}&quot;])
+-		break
+-	    fi
+-	done
+-	if test -n &quot;$sqlite3_lib_path&quot; ; then
+-	    AC_MSG_RESULT([found in $sqlite3_lib_path])
+-	else
+-	    AC_MSG_ERROR([not found, please install the SQLite3 libraries])
+-	fi
+-     ])
+-fi
+-
+-odbc_include_path=&quot;&quot;
+-dnl Detecting odbc paths
+-if test &quot;$with_odbc&quot; = &quot;yes&quot; ; then
+-	AC_MSG_CHECKING([for odbc include path])
+-	odbc_try_includes=&quot;/usr/include /usr/include/odbc /usr/local/include /usr/local/include/odbc /usr/local/odbc/include&quot;
+-	for i in `echo ${odbc_try_includes}`; do
+-	    if test -f &quot;${i}/sqlext.h&quot; ; then
+-		CPPFLAGS=&quot;${CPPFLAGS} -I${i}&quot;
+-		odbc_include_path=${i}
+-		break
+-	    fi
+-	done
+-	if test -n &quot;$odbc_include_path&quot; ; then
+-	    AC_MSG_RESULT([found in $odbc_include_path])
+-	else
+-	    AC_MSG_ERROR([not found, please install the odbc includes])
+-	fi
+-fi
+-
+-odbc_lib_path=&quot;&quot;
+-if test &quot;$with_odbc&quot; = &quot;yes&quot; ; then
+-     AC_CHECK_LIB(odbc, SQLConnect, [DEFINES=&quot;${DEFINES} -DWITH_SQL_ODBC&quot; ; LIBS=&quot;${LIBS} -lodbc&quot;], [
+-	AC_MSG_CHECKING([for odbc lib path])
+-	odbc_try_libs=&quot;/usr/lib /usr/lib/odbc /usr/local/lib /usr/local/lib/odbc /usr/local/odbc/lib&quot;
+-	for i in `echo ${odbc_try_libs}`; do
+-	    if test -f &quot;${i}/libodbc.so&quot; -o -f &quot;${i}/libodbc.a&quot; ; then
+-		save_ldflags=&quot;${LDFLAGS}&quot;
+-		LDFLAGS=&quot;${LDFLAGS} -L${i}&quot;
+-		AC_CHECK_LIB(odbc, SQLDisconnect, [DEFINES=&quot;${DEFINES} -DWITH_SQL_ODBC&quot; ; LIBS=&quot;${LIBS} -lodbc&quot; ; odbc_lib_path=&quot;${i}&quot;], [LDFLAGS=&quot;${save_ldflags}&quot;])
+-		break
+-	    fi
+-	done
+-	if test -n &quot;$odbc_lib_path&quot; ; then
+-	    AC_MSG_RESULT([found in $odbc_lib_path])
+-	else
+-	    AC_MSG_ERROR([not found, please install the odbc libraries])
+-	fi
+-     ])
+-fi
+-
+-AC_CHECK_LIB(nsl, gethostbyname, [LIBS=&quot;$LIBS -lnsl&quot;])
+-AC_CHECK_LIB(socket, socket, [LIBS=&quot;$LIBS -lsocket&quot;])
+-AC_MSG_CHECKING([for select in -lws2_32])
+-save_libs=$LIBS
+-LIBS=&quot;$LIBS -lws2_32&quot;
+-AC_LINK_IFELSE(
+-	[AC_LANG_PROGRAM([[#include &lt;winsock2.h&gt;]],[[select(0,0,0,0,0);]])], 
+-	AC_MSG_RESULT( [yes] ) , 
+-	[ LIBS=$save_libs; AC_MSG_RESULT( [no] ) ] )
+-AC_CHECK_LIB(resolv, inet_aton, [LIBS=&quot;$LIBS -lresolv&quot;])
+-dnl BeOS BONE...
+-AC_CHECK_LIB(bind, __inet_aton, [LIBS=&quot;$LIBS -lbind&quot;])
+-case &quot;$host&quot; in
+-	[*-beos*])
+-		if test &quot;$ac_cv_lib_bind___inet_aton&quot; = &quot;yes&quot;; then
+-			dnl force things, AC_CHECK_FUNC will never get the mangled versions anyway.
+-			echo &quot;Forcing inet_aton() and inet_ntoa() to be enabled&quot;
+-			ac_cv_func_inet_aton='yes'
+-			ac_cv_func_inet_ntoa='yes'
+-		fi
+-		;;
+-esac
+-AC_CHECK_LIB(pcap, pcap_open_offline)
+-AM_CONDITIONAL([COND_BNPCAP], [test &quot;$ac_cv_lib_pcap_pcap_open_offline&quot; = &quot;yes&quot;])
+-
+-# Checks for header files.
+-AC_HEADER_DIRENT
+-AC_HEADER_STAT
+-dnl checking for STD C++98 + STD C90 headers, these are mandatory
+-AC_CHECK_HEADERS([\
+-	cassert \
+-	cctype \
+-	cerrno \
+-	climits \
+-	cmath \
+-	csignal \
+-	signal.h \
+-	cstdarg \
+-	cstddef \
+-	cstdio \
+-	cstdlib \
+-	cstring \
+-	ctime \
+-],, AC_MSG_ERROR(Standard C90/C++98 header missing, you need a fully standard compliant compiler/enviroment.))
+-
+-AC_CHECK_HEADERS([\
+-	fcntl.h \
+-	sys/time.h \
+-	sys/select.h \
+-	unistd.h \
+-	sys/utsname.h \
+-	sys/timeb.h \
+-	sys/socket.h \
+-	sys/param.h \
+-	netinet/in.h \
+-	arpa/inet.h \
+-	netdb.h \
+-	termios.h \
+-	sys/types.h \
+-	sys/wait.h \
+-	sys/ioctl.h \
+-	stdint.h \
+-	sys/file.h \
+-	poll.h \
+-	sys/poll.h \
+-	stropts.h \
+-	sys/stropts.h \
+-	sys/stat.h \
+-	pwd.h \
+-	grp.h \
+-	dir.h \
+-	direct.h \
+-	sys/mman.h \
+-	sys/event.h \
+-	sys/epoll.h \
+-	sys/resource.h \
+-	sqlite3.h \
+-	pcap.h \
+-])
+-
+-# Checks for typedefs and structures
+-AC_TYPE_PID_T
+-AC_TYPE_OFF_T
+-AC_CHECK_SIZEOF(unsigned char, 1)
+-AC_CHECK_SIZEOF(unsigned short, 2)
+-AC_CHECK_SIZEOF(unsigned int, 4)
+-AC_CHECK_SIZEOF(unsigned long, 4)
+-AC_CHECK_SIZEOF(unsigned long long, 0)
+-AC_CHECK_SIZEOF(signed char, 1)
+-AC_CHECK_SIZEOF(signed short, 2)
+-AC_CHECK_SIZEOF(signed int, 4)
+-AC_CHECK_SIZEOF(signed long, 4)
+-AC_CHECK_SIZEOF(signed long long, 0)
+-
+-# Checks for library functions.
+-AC_FUNC_MMAP
+-AC_FUNC_VPRINTF
+-AC_FUNC_CLOSEDIR_VOID
+-AC_FUNC_MKDIR_ARGS
+-AC_CHECK_FUNCS([\
+-	gethostname \
+-	gettimeofday \
+-	select \
+-	socket \
+-	strdup \
+-	strtoul \
+-	inet_aton \
+-	inet_ntoa \
+-	uname \
+-	recv \
+-	send \
+-	recvfrom \
+-	sendto \
+-	uname \
+-	fork \
+-	getpid \
+-	sigaction \
+-	sigprocmask \
+-	sigaddset \
+-	setpgid \
+-	ftime \
+-	strcasecmp \
+-	strncasecmp \
+-	stricmp \
+-	strnicmp \
+-	chdir \
+-	difftime \
+-	strchr \
+-	strrchr \
+-	index \
+-	rindex \
+-	wait \
+-	waitpid \
+-	pipe \
+-	getenv \
+-	ioctl \
+-	setsid \
+-	poll \
+-	gethostbyname \
+-	getservbyname \
+-	getlogin \
+-	getpwnam \
+-	getgrnam \
+-	getuid \
+-	getgid \
+-	setuid \
+-	setgid \
+-	mkdir \
+-	_mkdir \
+-	strsep \
+-	getopt \
+-	kqueue \
+-	setitimer \
+-	epoll_create \
+-	getrlimit \
+-	vsnprintf \
+-	_vsnprintf \
+-	snprintf \
+-	_snprintf \
+-])
+-AC_CHECK_FUNC([setpgrp], [AC_FUNC_SETPGRP])
+-
+-AC_OUTPUT([
+-	Makefile \
+-	src/Makefile \
+-	src/compat/Makefile \
+-	src/common/Makefile \
+-	src/tinycdb/Makefile \
+-	src/bnetd/Makefile \
+-	src/d2cs/Makefile \
+-	src/d2dbs/Makefile \
+-	src/bntrackd/Makefile \
+-	src/client/Makefile \
+-	src/bnpass/Makefile \
+-	src/bniutils/Makefile \
+-	src/bnpcap/Makefile \
+-	man/Makefile \
+-	conf/Makefile \
+-	docs/Makefile \
+-	Win32-Projects/Makefile \
+-	files/Makefile \
+-	src/autoconf/Makefile \
+-	src/win32/Makefile \
+-])
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000745.html">[pvpgn-dev] r471 - trunk/pvpgn/conf
+</A></li>
+	<LI>Next message: <A HREF="000747.html">[pvpgn-dev] r473 - trunk/pvpgn/conf
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#746">[ date ]</a>
+              <a href="thread.html#746">[ thread ]</a>
+              <a href="subject.html#746">[ subject ]</a>
+              <a href="author.html#746">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

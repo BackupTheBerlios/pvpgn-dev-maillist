@@ -1,0 +1,99 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r357 - trunk/pvpgn/files
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-August/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r357%20-%20trunk/pvpgn/files&In-Reply-To=%3C200708241001.l7OA1VvB010067%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000408.html">
+   <LINK REL="Next"  HREF="000410.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r357 - trunk/pvpgn/files</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r357%20-%20trunk/pvpgn/files&In-Reply-To=%3C200708241001.l7OA1VvB010067%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r357 - trunk/pvpgn/files">svn at svn.berlios.de
+       </A><BR>
+    <I>Fri Aug 24 12:01:31 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000408.html">[pvpgn-dev] [Bug #11841] CNC Renegade crashs when creating a game
+</A></li>
+        <LI>Next message: <A HREF="000410.html">[pvpgn-dev] r358 - in trunk/pvpgn: . conf
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#409">[ date ]</a>
+              <a href="thread.html#409">[ thread ]</a>
+              <a href="subject.html#409">[ subject ]</a>
+              <a href="author.html#409">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: d1zzy
+Date: 2007-08-24 12:01:30 +0200 (Fri, 24 Aug 2007)
+New Revision: 357
+
+Modified:
+   trunk/pvpgn/files/CMakeLists.txt
+Log:
+Added solution to create the empty directory structure (var/users, etc) that 
+bnetd needs.
+
+
+Modified: trunk/pvpgn/files/CMakeLists.txt
+===================================================================
+--- trunk/pvpgn/files/CMakeLists.txt	2007-08-24 09:13:17 UTC (rev 356)
++++ trunk/pvpgn/files/CMakeLists.txt	2007-08-24 10:01:30 UTC (rev 357)
+@@ -1,3 +1,21 @@
++# these lines create the empty directory structure pvpgn needs installed
++# in ./var and then installs it portably using install(DIRECTORY...)
++file(MAKE_DIRECTORY &quot;${CMAKE_CURRENT_BINARY_DIR}/var/users&quot;)
++file(MAKE_DIRECTORY &quot;${CMAKE_CURRENT_BINARY_DIR}/var/userscdb&quot;)
++file(MAKE_DIRECTORY &quot;${CMAKE_CURRENT_BINARY_DIR}/var/bnmail&quot;)
++file(MAKE_DIRECTORY &quot;${CMAKE_CURRENT_BINARY_DIR}/var/clans&quot;)
++file(MAKE_DIRECTORY &quot;${CMAKE_CURRENT_BINARY_DIR}/var/teams&quot;)
++file(MAKE_DIRECTORY &quot;${CMAKE_CURRENT_BINARY_DIR}/var/reports&quot;)
++file(MAKE_DIRECTORY &quot;${CMAKE_CURRENT_BINARY_DIR}/var/chanlogs&quot;)
++file(MAKE_DIRECTORY &quot;${CMAKE_CURRENT_BINARY_DIR}/var/charinfo&quot;)
++file(MAKE_DIRECTORY &quot;${CMAKE_CURRENT_BINARY_DIR}/var/charsave&quot;)
++file(MAKE_DIRECTORY &quot;${CMAKE_CURRENT_BINARY_DIR}/var/bak/charinfo&quot;)
++file(MAKE_DIRECTORY &quot;${CMAKE_CURRENT_BINARY_DIR}/var/bak/charsave&quot;)
++file(MAKE_DIRECTORY &quot;${CMAKE_CURRENT_BINARY_DIR}/var/ladders&quot;)
++file(MAKE_DIRECTORY &quot;${CMAKE_CURRENT_BINARY_DIR}/var/status&quot;)
++
++install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/var/ DESTINATION ${LOCALSTATEDIR})
++
+ install(FILES ad000001.mng ad000001.smk ad000002.mng ad000003.mng 
+     ad000004.mng ad000075.mng chathelp-war3-default.txt 
+     chathelp-war3-enUS.txt chathelp-war3-frFR.txt chathelp-war3-ruRU.txt 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000408.html">[pvpgn-dev] [Bug #11841] CNC Renegade crashs when creating a game
+</A></li>
+	<LI>Next message: <A HREF="000410.html">[pvpgn-dev] r358 - in trunk/pvpgn: . conf
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#409">[ date ]</a>
+              <a href="thread.html#409">[ thread ]</a>
+              <a href="subject.html#409">[ subject ]</a>
+              <a href="author.html#409">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

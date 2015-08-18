@@ -1,0 +1,93 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] pvpgn/Win32-Projects PvPGN.dev,1.8,1.9
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-December/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20pvpgn/Win32-Projects%20PvPGN.dev%2C1.8%2C1.9&In-Reply-To=%3C20071202161857.66E8312031C%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000595.html">
+   <LINK REL="Next"  HREF="000597.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] pvpgn/Win32-Projects PvPGN.dev,1.8,1.9</H1>
+    <B>pelish</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20pvpgn/Win32-Projects%20PvPGN.dev%2C1.8%2C1.9&In-Reply-To=%3C20071202161857.66E8312031C%40mail.berlios.de%3E"
+       TITLE="[pvpgn-dev] pvpgn/Win32-Projects PvPGN.dev,1.8,1.9">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sun Dec  2 17:18:57 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000595.html">[pvpgn-dev] [Bug #12591] PostgreSQL tables and columns in lowercase
+</A></li>
+        <LI>Next message: <A HREF="000597.html">[pvpgn-dev] pvpgn/conf channel.conf,1.3,1.4
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#596">[ date ]</a>
+              <a href="thread.html#596">[ thread ]</a>
+              <a href="subject.html#596">[ subject ]</a>
+              <a href="author.html#596">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/pvpgn/pvpgn/Win32-Projects
+In directory sheep:/tmp/cvs-serv4008/Win32-Projects
+
+Modified Files:
+	PvPGN.dev 
+Log Message:
+fixed warnings/errors rising in login process, fixed problems in WOL ladder support (added missing commands and conn_set_state(conn, conn_state_destroy) to body of functions since client wait to close connection) added DUNE2000 check to LIST of lobbyes. We support this client on 1.8.x now.
+
+Index: PvPGN.dev
+===================================================================
+RCS file: /cvsroot/pvpgn/pvpgn/Win32-Projects/PvPGN.dev,v
+retrieving revision 1.8
+retrieving revision 1.9
+diff -u -d -r1.8 -r1.9
+--- PvPGN.dev	31 Oct 2006 17:24:14 -0000	1.8
++++ PvPGN.dev	2 Dec 2007 16:17:54 -0000	1.9
+@@ -9,11 +9,11 @@
+ Libs=
+ ResourceIncludes=..\src
+ MakeIncludes=
+-Compiler=-DWIN32_GUI_@@_
++Compiler=-DWIN32_GUI_@@_-DWITH_SQL_MYSQL_@@_
+ CppCompiler=
+-Linker=-lws2_32_@@_
++Linker=-lws2_32_@@_C:/Dev-Cpp/lib/libmysql.a_@@_
+ IsCpp=0
+-Icon=PvPGN.ico
++Icon=
+ ExeOutput=..\bin
+ ObjectOutput=
+ OverrideOutput=0
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000595.html">[pvpgn-dev] [Bug #12591] PostgreSQL tables and columns in lowercase
+</A></li>
+	<LI>Next message: <A HREF="000597.html">[pvpgn-dev] pvpgn/conf channel.conf,1.3,1.4
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#596">[ date ]</a>
+              <a href="thread.html#596">[ thread ]</a>
+              <a href="subject.html#596">[ subject ]</a>
+              <a href="author.html#596">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

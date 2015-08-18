@@ -1,0 +1,326 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r559 - in trunk/pvpgn: . conf src/bnetd
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2009-July/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r559%20-%20in%20trunk/pvpgn%3A%20.%20conf%20src/bnetd&In-Reply-To=%3C200907082032.n68KWXdw024197%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001124.html">
+   <LINK REL="Next"  HREF="001126.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r559 - in trunk/pvpgn: . conf src/bnetd</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r559%20-%20in%20trunk/pvpgn%3A%20.%20conf%20src/bnetd&In-Reply-To=%3C200907082032.n68KWXdw024197%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r559 - in trunk/pvpgn: . conf src/bnetd">svn at svn.berlios.de
+       </A><BR>
+    <I>Wed Jul  8 22:32:33 CEST 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001124.html">[pvpgn-dev] [Bug #15935] PvPGN can only send 19 active custom games	for a list update
+</A></li>
+        <LI>Next message: <A HREF="001126.html">[pvpgn-dev] [Patch #2717] /mute /unmute - disable users chat	abilities
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1125">[ date ]</a>
+              <a href="thread.html#1125">[ thread ]</a>
+              <a href="subject.html#1125">[ subject ]</a>
+              <a href="author.html#1125">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pelish
+Date: 2009-07-08 22:32:29 +0200 (Wed, 08 Jul 2009)
+New Revision: 559
+
+Modified:
+   trunk/pvpgn/conf/command_groups.conf.in
+   trunk/pvpgn/conf/sql_DB_layout.conf.in
+   trunk/pvpgn/src/bnetd/account_wrap.cpp
+   trunk/pvpgn/src/bnetd/account_wrap.h
+   trunk/pvpgn/src/bnetd/channel.cpp
+   trunk/pvpgn/src/bnetd/command.cpp
+   trunk/pvpgn/version-history.txt
+Log:
+add of a little modified [ Patch #2717 ] /mute /unmute - disable users chat abilities. thanks goes to shakar
+
+Modified: trunk/pvpgn/conf/command_groups.conf.in
+===================================================================
+--- trunk/pvpgn/conf/command_groups.conf.in	2009-05-27 21:36:04 UTC (rev 558)
++++ trunk/pvpgn/conf/command_groups.conf.in	2009-07-08 20:32:29 UTC (rev 559)
+@@ -148,7 +148,7 @@
+ 
+ 3	/serverban /ipban
+ 
+-4	/kill /killsession /addacct /lockacct /unlockacct
++4	/kill /killsession /addacct /lockacct /unlockacct /muteacct /unmuteacct
+ 
+ 5	/ladderactivate
+ # 5 	/rank_all_accounts 
+
+Modified: trunk/pvpgn/conf/sql_DB_layout.conf.in
+===================================================================
+--- trunk/pvpgn/conf/sql_DB_layout.conf.in	2009-05-27 21:36:04 UTC (rev 558)
++++ trunk/pvpgn/conf/sql_DB_layout.conf.in	2009-07-08 20:32:29 UTC (rev 559)
+@@ -27,6 +27,7 @@
+ &quot;auth_operator varchar(16)&quot;,&quot;'false'&quot;
+ &quot;new_at_team_flag int&quot;,&quot;'0'&quot;
+ &quot;auth_lockk varchar(16)&quot;,&quot;'0'&quot;
++&quot;auth_mute varchar(16)&quot;,&quot;'0'&quot;
+ &quot;auth_command_groups varchar(128)&quot;,&quot;'1'&quot;
+ &quot;acct_lastlogin_time int&quot;,&quot;'0'&quot;
+ &quot;acct_lastlogin_owner varchar(128)&quot;,&quot;NULL&quot;
+
+Modified: trunk/pvpgn/src/bnetd/account_wrap.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/account_wrap.cpp	2009-05-27 21:36:04 UTC (rev 558)
++++ trunk/pvpgn/src/bnetd/account_wrap.cpp	2009-07-08 20:32:29 UTC (rev 559)
+@@ -371,8 +371,19 @@
+ }
+ 
+ 
++extern int account_set_auth_mute(t_account * account, int val)
++{
++	return account_set_boolattr(account,&quot;BNET\\auth\\mute&quot;,val);
++}
+ 
+ 
++extern int account_get_auth_mute(t_account * account)
++{
++	return account_get_boolattr(account,&quot;BNET\\auth\\mute&quot;);
++}
++
++
++
+ /****************************************************************/
+ 
+ 
+
+Modified: trunk/pvpgn/src/bnetd/account_wrap.h
+===================================================================
+--- trunk/pvpgn/src/bnetd/account_wrap.h	2009-05-27 21:36:04 UTC (rev 558)
++++ trunk/pvpgn/src/bnetd/account_wrap.h	2009-07-08 20:32:29 UTC (rev 559)
+@@ -79,6 +79,8 @@
+ extern int account_get_auth_joinladdergame(t_account * account);
+ extern int account_get_auth_lock(t_account * account);
+ extern int account_set_auth_lock(t_account * account, int val);
++extern int account_set_auth_mute(t_account * account, int val);
++extern int account_get_auth_mute(t_account * account);
+ 
+ /* profile */
+ extern char const * account_get_sex(t_account * account); /* the profile attributes are updated directly in bnetd.c */
+
+Modified: trunk/pvpgn/src/bnetd/channel.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/channel.cpp	2009-05-27 21:36:04 UTC (rev 558)
++++ trunk/pvpgn/src/bnetd/channel.cpp	2009-07-08 20:32:29 UTC (rev 559)
+@@ -675,6 +675,12 @@
+         if (type!=message_type_join &amp;&amp; type!=message_type_part)
+             return;
+ 
++	if (account_get_auth_mute(acc)==1)
++    {
++      message_send_text(me,message_type_error,me,&quot;Your account has been muted, you can't talk on the channel.&quot;);
++      return;
++    }  
++			
+     if(channel_get_flags(channel) &amp; channel_flags_moderated) // moderated channel - only admins,OPs and voices may talk
+     {
+ 	if (type==message_type_talk || type==message_type_emote)
+
+Modified: trunk/pvpgn/src/bnetd/command.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/command.cpp	2009-05-27 21:36:04 UTC (rev 558)
++++ trunk/pvpgn/src/bnetd/command.cpp	2009-07-08 20:32:29 UTC (rev 559)
+@@ -111,6 +111,12 @@
+     t_connection * dest_c;
+     char const *   tname;
+ 
++	if (account_get_auth_mute(conn_get_account(user_c))==1)
++	{
++      message_send_text(user_c,message_type_error,user_c,&quot;Your account has been muted, you can't whisper to other users.&quot;);
++      return;
++	}  
++	
+     if (!(dest_c = connlist_find_connection_by_name(dest,conn_get_realm(user_c))))
+     {
+ 	message_send_text(user_c,message_type_error,user_c,&quot;That user is not logged on.&quot;);
+@@ -334,6 +340,8 @@
+ static int _handle_quota_command(t_connection * c, char const * text);
+ static int _handle_lockacct_command(t_connection * c, char const * text);
+ static int _handle_unlockacct_command(t_connection * c, char const * text);
++static int _handle_muteacct_command(t_connection * c, char const * text);
++static int _handle_unmuteacct_command(t_connection * c, char const * text);
+ static int _handle_flag_command(t_connection * c, char const * text);
+ static int _handle_tag_command(t_connection * c, char const * text);
+ //static int _handle_ipban_command(t_connection * c, char const * text); Redirected to handle_ipban_command() in ipban.c [Omega]
+@@ -346,7 +354,6 @@
+ static int _handle_clearstats_command(t_connection * c, char const * text);
+ static int _handle_tos_command(t_connection * c, char const * text);
+ 
+-
+ static const t_command_table_row standard_command_table[] =
+ {
+ 	{ &quot;/clan&quot;		, _handle_clan_command },
+@@ -417,17 +424,17 @@
+ 	{ &quot;/con&quot;                , _handle_connections_command },
+ 	{ &quot;/finger&quot;             , _handle_finger_command },
+ 	{ &quot;/operator&quot;           , _handle_operator_command },
+-	{ &quot;/aop&quot;		, _handle_aop_command },
+-	{ &quot;/op&quot;           	, _handle_op_command },
++	{ &quot;/aop&quot;                , _handle_aop_command },
++	{ &quot;/op&quot;                 , _handle_op_command },
+ 	{ &quot;/tmpop&quot;           	, _handle_tmpop_command },
+ 	{ &quot;/deop&quot;           	, _handle_deop_command },
+-	{ &quot;/voice&quot;		, _handle_voice_command },
+-	{ &quot;/devoice&quot;		, _handle_devoice_command },
+-	{ &quot;/vop&quot;		, _handle_vop_command },
++	{ &quot;/voice&quot;              , _handle_voice_command },
++	{ &quot;/devoice&quot;            , _handle_devoice_command },
++	{ &quot;/vop&quot;                , _handle_vop_command },
+ 	{ &quot;/admins&quot;             , _handle_admins_command },
+ 	{ &quot;/logout&quot;             , _handle_quit_command },
+ 	{ &quot;/quit&quot;               , _handle_quit_command },
+-	{ &quot;/std::exit&quot;               , _handle_quit_command },
++	{ &quot;/exit&quot;               , _handle_quit_command },
+ 	{ &quot;/kill&quot;               , _handle_kill_command },
+ 	{ &quot;/killsession&quot;        , _handle_killsession_command },
+ 	{ &quot;/gameinfo&quot;           , _handle_gameinfo_command },
+@@ -442,6 +449,8 @@
+ 	{ &quot;/quota&quot;              , _handle_quota_command },
+ 	{ &quot;/lockacct&quot;           , _handle_lockacct_command },
+ 	{ &quot;/unlockacct&quot;         , _handle_unlockacct_command },
++	{ &quot;/muteacct&quot;           , _handle_muteacct_command },
++	{ &quot;/unmuteacct&quot;         , _handle_unmuteacct_command },
+ 	{ &quot;/flag&quot;               , _handle_flag_command },
+ 	{ &quot;/tag&quot;                , _handle_tag_command },
+ 	{ &quot;/help&quot;               , handle_help_command },
+@@ -452,11 +461,11 @@
+ 	{ &quot;/latency&quot;            , _handle_ping_command },
+ 	{ &quot;/ping&quot;               , _handle_ping_command },
+ 	{ &quot;/p&quot;                  , _handle_ping_command },
+-	{ &quot;/commandgroups&quot;	, _handle_commandgroups_command },
+-	{ &quot;/cg&quot;			, _handle_commandgroups_command },
+-	{ &quot;/topic&quot;		, _handle_topic_command },
+-	{ &quot;/moderate&quot;		, _handle_moderate_command },
+-	{ &quot;/clearstats&quot;		, _handle_clearstats_command },
++	{ &quot;/commandgroups&quot;      , _handle_commandgroups_command },
++	{ &quot;/cg&quot;	                , _handle_commandgroups_command },
++	{ &quot;/topic&quot;              , _handle_topic_command },
++	{ &quot;/moderate&quot;           , _handle_moderate_command },
++	{ &quot;/clearstats&quot;         , _handle_clearstats_command },
+ 
+         { NULL                  , NULL }
+ 
+@@ -4331,6 +4340,59 @@
+   return 0;
+ }
+ 
++
++static int _handle_muteacct_command(t_connection * c, char const *text)
++{
++  t_connection * user;
++  t_account *    account;
++
++  text = skip_command(text);
++
++  if (text[0]=='\0')
++    {
++      message_send_text(c,message_type_info,c,&quot;usage: /muteacct &lt;username&gt;&quot;);
++      return 0;
++    }
++
++  if (!(account = accountlist_find_account(text)))
++    {
++      message_send_text(c,message_type_error,c,&quot;Invalid user.&quot;);
++      return 0;
++    }
++  if ((user = connlist_find_connection_by_accountname(text)))
++    message_send_text(user,message_type_info,user,&quot;Your account has just been muted by admin.&quot;);
++
++  account_set_auth_mute(account,1);
++  message_send_text(c,message_type_error,c,&quot;That user account is now muted.&quot;);
++  return 0;
++}
++
++static int _handle_unmuteacct_command(t_connection * c, char const *text)
++{
++  t_connection * user;
++  t_account *    account;
++
++  text = skip_command(text);
++
++  if (text[0]=='\0')
++    {
++      message_send_text(c,message_type_info,c,&quot;usage: /unmuteacct &lt;username&gt;&quot;);
++      return 0;
++    }
++  if (!(account = accountlist_find_account(text)))
++    {
++      message_send_text(c,message_type_error,c,&quot;Invalid user.&quot;);
++      return 0;
++    }
++
++  if ((user = connlist_find_connection_by_accountname(text)))
++    message_send_text(user,message_type_info,user,&quot;Your account has just been unmuted by admin.&quot;);
++
++  account_set_auth_mute(account,0);
++  message_send_text(c,message_type_error,c,&quot;That user account is now unmuted.&quot;);
++  return 0;
++}
++
+ static int _handle_flag_command(t_connection * c, char const *text)
+ {
+   char         dest[32];
+
+Modified: trunk/pvpgn/version-history.txt
+===================================================================
+--- trunk/pvpgn/version-history.txt	2009-05-27 21:36:04 UTC (rev 558)
++++ trunk/pvpgn/version-history.txt	2009-07-08 20:32:29 UTC (rev 559)
+@@ -1,6 +1,6 @@
+ PvPGN Version History:
+ 
+- Changelog for SVN TRUNK (since 1.8.4)
++ Changelog for SVN TRUNK (since 1.8.5)
+ =========================================
+  -- The list of changes mentioned in here is most propably incomplete.
+  For more details also take a peek view into conversion-changelog.
+@@ -27,6 +27,7 @@
+   -- added support for passchange for SRP3 based accounts
+ 
+ [MISC]
++  -- added /muteacct and /unmuteacct commands for admins
+   -- added /clan whisper subcommand
+   -- added /clan create/invite/disband subcommands
+   -- added clan_min_invites to bnetd.conf for miminum accepted
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001124.html">[pvpgn-dev] [Bug #15935] PvPGN can only send 19 active custom games	for a list update
+</A></li>
+	<LI>Next message: <A HREF="001126.html">[pvpgn-dev] [Patch #2717] /mute /unmute - disable users chat	abilities
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1125">[ date ]</a>
+              <a href="thread.html#1125">[ thread ]</a>
+              <a href="subject.html#1125">[ subject ]</a>
+              <a href="author.html#1125">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

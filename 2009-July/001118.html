@@ -1,0 +1,99 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] [Bug #15674] Mailformatted output on long strings in	CHAT mode
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2009-July/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BBug%20%2315674%5D%20Mailformatted%20output%20on%20long%20strings%20in%0A%09CHAT%20mode&In-Reply-To=%3C200906302303.n5UN37YQ023086%40unicorn.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="001119.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] [Bug #15674] Mailformatted output on long strings in	CHAT mode</H1>
+    <B>admin at berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BBug%20%2315674%5D%20Mailformatted%20output%20on%20long%20strings%20in%0A%09CHAT%20mode&In-Reply-To=%3C200906302303.n5UN37YQ023086%40unicorn.berlios.de%3E"
+       TITLE="[pvpgn-dev] [Bug #15674] Mailformatted output on long strings in	CHAT mode">admin at berlios.de
+       </A><BR>
+    <I>Wed Jul  1 01:03:07 CEST 2009</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="001119.html">[pvpgn-dev] [Bug #15935] PvPGN can only send 19 active custom games	for a list update
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1118">[ date ]</a>
+              <a href="thread.html#1118">[ thread ]</a>
+              <a href="subject.html#1118">[ subject ]</a>
+              <a href="author.html#1118">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Bug #15674, was updated on 2009-May-12 23:24
+Here is a current snapshot of the bug.
+
+Project: Player vs Player Gaming Network
+Category: None
+Status: Open
+Resolution: None
+Bug Group: bnetd
+Priority: 5
+Submitted by: xpeh
+Assigned to : none
+Summary: Mailformatted output on long strings in CHAT mode
+
+Details: [01.04.2009 20:26:19] [Sent] /lusers
+[01.04.2009 20:26:19] [User Leave] Mellon
+[01.04.2009 20:26:19] [Info] Banned users: daimelyasavsex fatifast 2packforever nelox StarCraft_admin zaraza[u] garruz beggining beginning ye6an sirya RUSKIE_SUKI RUS=NEWB |||111II1I111II inkas91 neo_ban 87.254.0.0 87.254.143.237 bouh umbroxtc Boun garsh mmobko olegg ytu-I1018 INFO &quot; 
+                                                                           ^^^^ wtf?
+gialangosolo ter-_-an lalapta Nark Black[G] p3p fracture(KEM) [nyc]craft_man lovebest yeban faimOSU noobko Y-Lave_Lydey Limp zxc99 Lex_Luthor probe Mary_Jo-Lisa para-noir Max-Idiots Genesis_Ng Jarood grajj OOOOOOOOOOOOO1l OOOOOOOOOOOOIOl 230871018 INFO &quot; 123123123123123 pr100lsd p][toss gay-_- Gozzu -dieEasy _rastafan_ vsepidarasi fil23 rastofun appolo nobanplz olesya1 nomed yoba icw_team ko4et ica_team cccp addbot shprot petka_12 terminator44444 long_cock teslo --dieeasy- -dieeasy- ironbrew m1018 INFO &quot; imlearn newb cafter feelaret burn training_1x1 4me all list dejau_ joke123 no[z] rednoze s3rg3y aper_rubenovi4 lurker skill16 damsalam blyaebatnah kwon casual xel 18hgdm_)()ytms sephi[gosu] age ~hf neron_rzn {boom]neron _____dbj])[((]] ded0k
+
+
+Follow-Ups:
+
+Date: 2009-Jul-01 01:03
+By: xpeh
+
+Comment:
+If you want to reproduce the bug, just ban like 50 users, then type /lusers with chat client and watch for the traffic.
+
+Seems like you lose \n on long strings, which is mandatory. Probably strings are also cut.
+-------------------------------------------------------
+
+Date: 2009-Jun-28 18:54
+By: pelish
+
+Comment:
+I really do not understand whats wrong... If you know how it should works, give me please full information. I do not see what is diferent than you suppose.
+-------------------------------------------------------
+
+For detailed info, follow this link:
+<A HREF="http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=15674&amp;group_id=2291">http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=15674&amp;group_id=2291</A>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="001119.html">[pvpgn-dev] [Bug #15935] PvPGN can only send 19 active custom games	for a list update
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1118">[ date ]</a>
+              <a href="thread.html#1118">[ thread ]</a>
+              <a href="subject.html#1118">[ subject ]</a>
+              <a href="author.html#1118">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

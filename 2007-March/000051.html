@@ -1,0 +1,78 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] [Bug #10745] p2p connection problem with Tiberian Sun
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-March/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BBug%20%2310745%5D%20p2p%20connection%20problem%20with%20Tiberian%20Sun&In-Reply-To=%3C200703270950.l2R9ojiW011215%40unicorn.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000050.html">
+   <LINK REL="Next"  HREF="000052.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] [Bug #10745] p2p connection problem with Tiberian Sun</H1>
+    <B>admin at berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BBug%20%2310745%5D%20p2p%20connection%20problem%20with%20Tiberian%20Sun&In-Reply-To=%3C200703270950.l2R9ojiW011215%40unicorn.berlios.de%3E"
+       TITLE="[pvpgn-dev] [Bug #10745] p2p connection problem with Tiberian Sun">admin at berlios.de
+       </A><BR>
+    <I>Tue Mar 27 11:50:45 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000050.html">[pvpgn-dev] [Bug #10741] Tournaments
+</A></li>
+        <LI>Next message: <A HREF="000052.html">[pvpgn-dev] [Bug #10745] p2p connection problem with Tiberian Sun
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#51">[ date ]</a>
+              <a href="thread.html#51">[ thread ]</a>
+              <a href="subject.html#51">[ subject ]</a>
+              <a href="author.html#51">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Bug #10745, was updated on 2007-Mar-27 11:50
+Here is a current snapshot of the bug.
+
+Project: Player vs Player Gaming Network
+Category: Westwood Online
+Status: Open
+Resolution: None
+Bug Group: bnetd
+Priority: 5
+Submitted by: mixman
+Assigned to : none
+Summary: p2p connection problem with Tiberian Sun
+
+Details: &quot;Connection to player lost&quot; message appears after starting the game. Server connect/join works fine but then starting game player cant connect to another player. One player is connecting from outside another from inside network, ports are forwarded but outside player client gets invalid address another player &quot;10.0.0.2&quot; this is internal address of the network pc. On the gateway 10.0.0.1 is pvpgn server that handles both inside/outside connections. Starcraft works fine but wol doesnt. Pvpgn version is 1.8.0 i think problem is with adress translation at handle_irc.c.
+
+For detailed info, follow this link:
+<A HREF="http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=10745&amp;group_id=2291">http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=10745&amp;group_id=2291</A>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000050.html">[pvpgn-dev] [Bug #10741] Tournaments
+</A></li>
+	<LI>Next message: <A HREF="000052.html">[pvpgn-dev] [Bug #10745] p2p connection problem with Tiberian Sun
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#51">[ date ]</a>
+              <a href="thread.html#51">[ thread ]</a>
+              <a href="subject.html#51">[ subject ]</a>
+              <a href="author.html#51">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

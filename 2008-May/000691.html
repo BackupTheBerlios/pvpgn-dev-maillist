@@ -1,0 +1,130 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r447 - trunk/pvpgn/src/bnetd
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2008-May/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r447%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3Ceb9d4d380805050153o45ca54f3j38af2710947674ba%40mail.gmail.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000690.html">
+   <LINK REL="Next"  HREF="000688.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r447 - trunk/pvpgn/src/bnetd</H1>
+    <B>Pelish</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r447%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3Ceb9d4d380805050153o45ca54f3j38af2710947674ba%40mail.gmail.com%3E"
+       TITLE="[pvpgn-dev] r447 - trunk/pvpgn/src/bnetd">pelish at gmail.com
+       </A><BR>
+    <I>Mon May  5 10:53:24 CEST 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000690.html">[pvpgn-dev] r447 - trunk/pvpgn/src/bnetd
+</A></li>
+        <LI>Next message: <A HREF="000688.html">[pvpgn-dev] [Bug #13730] unable to join clan channel post game
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#691">[ date ]</a>
+              <a href="thread.html#691">[ thread ]</a>
+              <a href="subject.html#691">[ subject ]</a>
+              <a href="author.html#691">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Good point of view. Im not sure about battle.net. We need to find some one
+who will check it for us. Probalbly Saidin is possible to reproduce this on
+battle.net
+
+2008/5/5 dizzy &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">dizone at gmail.com</A>&gt;:
+
+&gt;<i> On Saturday 03 May 2008 01:52:08 <A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">svn at svn.berlios.de</A> wrote:
+</I>&gt;<i> &gt; Author: pelish
+</I>&gt;<i> &gt; Date: 2008-05-03 00:51:58 +0200 (Sat, 03 May 2008)
+</I>&gt;<i> &gt; New Revision: 447
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; Modified:
+</I>&gt;<i> &gt;    trunk/pvpgn/src/bnetd/connection.cpp
+</I>&gt;<i> &gt; Log:
+</I>&gt;<i> &gt; Fix for [ Bug #13730 ], thanks goes to saidin
+</I>&gt;<i> &gt;
+</I>&gt;<i> &gt; Modified: trunk/pvpgn/src/bnetd/connection.cpp
+</I>&gt;<i> &gt; ===================================================================
+</I>&gt;<i> &gt; --- trunk/pvpgn/src/bnetd/connection.cpp      2008-04-17 13:41:10 UTC
+</I>&gt;<i> (rev 446)
+</I>&gt;<i> &gt; +++ trunk/pvpgn/src/bnetd/connection.cpp      2008-05-02 22:51:58 UTC
+</I>&gt;<i> (rev 447)
+</I>&gt;<i> &gt; @@ -1882,9 +1882,15 @@
+</I>&gt;<i> &gt;          if (!channel)
+</I>&gt;<i> &gt;          {
+</I>&gt;<i> &gt;              char msgtemp[MAX_MESSAGE_LEN];
+</I>&gt;<i> &gt; -            std::sprintf(msgtemp, &quot;Unable to join channel %s, there is
+</I>&gt;<i> no
+</I>&gt;<i> &gt; member of that clan in the channel!&quot;, channelname); +
+</I>&gt;<i> &gt; std::snprintf(msgtemp, sizeof(msgtemp), &quot;Unable to join channel %s,
+</I>&gt;<i> there
+</I>&gt;<i> &gt; is no member of that clan in the channel!&quot;, channelname);
+</I>&gt;<i> &gt; message_send_text(c, message_type_error, c, msgtemp); -
+</I>&gt;<i>  return
+</I>&gt;<i> &gt; 0;
+</I>&gt;<i> &gt; +
+</I>&gt;<i> &gt; +            if (conn_get_game(c)) {  // fix for empty clan channels
+</I>&gt;<i> with
+</I>&gt;<i> &gt; preventing to join CHANNEL_NAME_BANNED when is used _handle_join_command
+</I>&gt;<i> +
+</I>&gt;<i> &gt;               std::snprintf(msgtemp, sizeof(msgtemp), &quot;You have been
+</I>&gt;<i> &gt; redirected to %s.&quot;, CHANNEL_NAME_BANNED); +
+</I>&gt;<i> &gt; message_send_text(c, message_type_error, c, msgtemp); +
+</I>&gt;<i> &gt; channel =
+</I>&gt;<i> &gt;
+</I>&gt;<i> channellist_find_channel_by_name(CHANNEL_NAME_BANNED,conn_get_country(c),re
+</I>&gt;<i> &gt;alm_get_name(conn_get_realm(c))); +            } else
+</I>&gt;<i> &gt; +                return 0;
+</I>&gt;<i> &gt;          }
+</I>&gt;<i> &gt;          else
+</I>&gt;<i> &gt;          {
+</I>&gt;<i>
+</I>&gt;<i> Did anyone first checked what happens on battle.net in the same situation?
+</I>&gt;<i> We
+</I>&gt;<i> should try to behave like them in such situations and not do some other
+</I>&gt;<i> workaround which will again be changed in the future by somebody with a
+</I>&gt;<i> patch
+</I>&gt;<i> and the cycle continues.
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> --
+</I>&gt;<i> Dizzy
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> pvpgn-dev mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">pvpgn-dev at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">https://lists.berlios.de/mailman/listinfo/pvpgn-dev</A>
+</I>&gt;<i>
+</I>-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: &lt;<A HREF="https://lists.berlios.de/pipermail/pvpgn-dev/attachments/20080505/78bf1a22/attachment.html">https://lists.berlios.de/pipermail/pvpgn-dev/attachments/20080505/78bf1a22/attachment.html</A>&gt;
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000690.html">[pvpgn-dev] r447 - trunk/pvpgn/src/bnetd
+</A></li>
+	<LI>Next message: <A HREF="000688.html">[pvpgn-dev] [Bug #13730] unable to join clan channel post game
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#691">[ date ]</a>
+              <a href="thread.html#691">[ thread ]</a>
+              <a href="subject.html#691">[ subject ]</a>
+              <a href="author.html#691">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

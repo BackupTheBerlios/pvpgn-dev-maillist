@@ -1,0 +1,3404 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r518 - in branches: . clan_refactorings/src/bnetd	clan_refactorings/src/client clan_refactorings/src/common
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2008-December/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r518%20-%20in%20branches%3A%20.%20clan_refactorings/src/bnetd%0A%09clan_refactorings/src/client%20clan_refactorings/src/common&In-Reply-To=%3C200812032124.mB3LOmHl000241%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000887.html">
+   <LINK REL="Next"  HREF="000889.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r518 - in branches: . clan_refactorings/src/bnetd	clan_refactorings/src/client clan_refactorings/src/common</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r518%20-%20in%20branches%3A%20.%20clan_refactorings/src/bnetd%0A%09clan_refactorings/src/client%20clan_refactorings/src/common&In-Reply-To=%3C200812032124.mB3LOmHl000241%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r518 - in branches: . clan_refactorings/src/bnetd	clan_refactorings/src/client clan_refactorings/src/common">svn at svn.berlios.de
+       </A><BR>
+    <I>Wed Dec  3 22:24:48 CET 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000887.html">[pvpgn-dev] r517 - branches
+</A></li>
+        <LI>Next message: <A HREF="000889.html">[pvpgn-dev] r519 - trunk/pvpgn/conf
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#888">[ date ]</a>
+              <a href="thread.html#888">[ thread ]</a>
+              <a href="subject.html#888">[ subject ]</a>
+              <a href="author.html#888">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pandaemonium
+Date: 2008-12-03 22:24:44 +0100 (Wed, 03 Dec 2008)
+New Revision: 518
+
+Added:
+   branches/clan_refactorings/
+   branches/clan_refactorings/src/client/bnchat.cpp
+   branches/clan_refactorings/src/common/bigint.cpp
+Removed:
+   branches/clan_refactorings/src/client/bnchat.cpp
+   branches/clan_refactorings/src/common/bigint.cpp
+Modified:
+   branches/clan_refactorings/src/bnetd/clan.cpp
+   branches/clan_refactorings/src/bnetd/handle_bnet.cpp
+   branches/clan_refactorings/src/common/bnet_protocol.h
+Log:
+
+
+Copied: branches/clan_refactorings (from rev 513, trunk/pvpgn)
+
+Modified: branches/clan_refactorings/src/bnetd/clan.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/clan.cpp	2008-11-12 23:04:23 UTC (rev 513)
++++ branches/clan_refactorings/src/bnetd/clan.cpp	2008-12-03 21:24:44 UTC (rev 518)
+@@ -467,92 +467,72 @@
+ 
+ extern int clan_get_possible_member(t_connection * c, t_packet const *const packet)
+ {
+-    t_packet * rpacket;
+-    t_channel *channel;
+-    t_connection *conn;
+-    char const *username;
+-    t_account * account;
++	t_packet * rpacket;
++	t_channel *channel;
++	t_connection *conn;
++	char const *username;
++	t_account * account;
+ 
+-    int friend_count = 0;
+-    t_clantag clantag;
+-    clantag = bn_int_get(packet-&gt;u.client_clan_createreq.clantag);
+-    if ((rpacket = packet_create(packet_class_bnet)) == NULL)
+-    {
+-	return -1;
+-    }
+-    packet_set_size(rpacket, sizeof(t_server_clan_createreply));
+-    packet_set_type(rpacket, SERVER_CLAN_CREATEREPLY);
+-    bn_int_set(&amp;rpacket-&gt;u.server_clan_createreply.count, bn_int_get(packet-&gt;u.client_clan_createreq.count));
+-    if (clanlist_find_clan_by_clantag(clantag) != NULL)
+-    {
+-	bn_byte_set(&amp;rpacket-&gt;u.server_clan_createreply.check_result, SERVER_CLAN_CREATEREPLY_CHECK_ALLREADY_IN_USE);
+-	bn_byte_set(&amp;rpacket-&gt;u.server_clan_createreply.friend_count, 0);
+-	conn_push_outqueue(c, rpacket);
+-	packet_del_ref(rpacket);
+-	return 0;
+-    }
+-    if ((account = conn_get_account(c)) &amp;&amp; (account_get_clan(account) != NULL || account_get_creating_clan(account) != NULL))
+-    {
+-	bn_byte_set(&amp;rpacket-&gt;u.server_clan_createreply.check_result, SERVER_CLAN_CREATEREPLY_CHECK_EXCEPTION);
+-	bn_byte_set(&amp;rpacket-&gt;u.server_clan_createreply.friend_count, 0);
+-	conn_push_outqueue(c, rpacket);
+-	packet_del_ref(rpacket);
+-	return 0;
+-    }
+-    bn_byte_set(&amp;rpacket-&gt;u.server_clan_createreply.check_result, SERVER_CLAN_CREATEREPLY_CHECK_OK);
+-    channel = conn_get_channel(c);
+-    if (channel_get_permanent(channel))
+-    {
+-	/* If not in a private channel, retreive number of mutual friend connected */
+-	t_list *flist = account_get_friends(conn_get_account(c));
+-	t_elem const *curr;
+-	t_friend *fr;
++	int friend_count = 0;
++	t_clantag clantag;
++	clantag = bn_int_get(packet-&gt;u.client_clan_createreq.clantag);
++	if (rpacket = packet_create(packet_class_bnet)) {
+ 
+-	LIST_TRAVERSE_CONST(flist, curr)
+-	{
+-	    if ((fr = (t_friend*)elem_get_data(curr)) != NULL)
+-	    {
+-		t_account *fr_acc = friend_get_account(fr);
+-		t_clienttag clienttag;
+-		if (fr-&gt;mutual
+-		    &amp;&amp; ((conn = connlist_find_connection_by_account(fr_acc)) != NULL)
+-		    &amp;&amp; (conn_get_channel(conn) == channel)
+-		    &amp;&amp; (!account_get_clan(fr_acc))
+-		    &amp;&amp; (!account_get_creating_clan(fr_acc))
+-		    &amp;&amp; (clienttag = conn_get_clienttag(conn))
+-		    &amp;&amp; ((clienttag == CLIENTTAG_WAR3XP_UINT) || (clienttag ==  CLIENTTAG_WARCRAFT3_UINT))
+-		    &amp;&amp; (username = account_get_name(fr_acc)))
+-		{
+-		    friend_count++;
+-		    packet_append_string(rpacket, username);
++		packet_set_size(rpacket, sizeof(t_server_clan_createreply));
++		packet_set_type(rpacket, SERVER_CLAN_CREATEREPLY);
++		bn_int_set(&amp;rpacket-&gt;u.server_clan_createreply.count, bn_int_get(packet-&gt;u.client_clan_createreq.count));
++		if (clanlist_find_clan_by_clantag(clantag) != NULL) {
++			bn_byte_set(&amp;rpacket-&gt;u.server_clan_createreply.check_result, CLAN_RESPONSE_FAIL);
++			bn_byte_set(&amp;rpacket-&gt;u.server_clan_createreply.friend_count, 0);
++			conn_push_outqueue(c, rpacket);
++			packet_del_ref(rpacket);
++			return 0;
+ 		}
+-	    }
+-	}
+-    } else
+-    {
+-	/* If in a private channel, retreive all non-clan war3/w3xp users in the channel */
+-	for (conn = channel_get_first(channel); conn; conn = channel_get_next())
+-	{
+-	    t_account * acc;
+-	    t_clienttag clienttag;
+-	    if ((conn != c)
+-		&amp;&amp; (acc = conn_get_account(conn))
+-		&amp;&amp; (!account_get_clan(acc))
+-		&amp;&amp; (!account_get_creating_clan(acc))
+-		&amp;&amp; (clienttag = conn_get_clienttag(conn))
+-		&amp;&amp; ((clienttag == CLIENTTAG_WAR3XP_UINT) || (clienttag ==  CLIENTTAG_WARCRAFT3_UINT))
+-	        &amp;&amp; (username = conn_get_username(conn)))
+-	    {
+-		friend_count++;
+-		packet_append_string(rpacket, username);
+-	    }
+-	}
+-    }
+-    bn_byte_set(&amp;rpacket-&gt;u.server_clan_createreply.friend_count, friend_count);
+-    conn_push_outqueue(c, rpacket);
+-    packet_del_ref(rpacket);
++		if ((account = conn_get_account(c)) &amp;&amp; (account_get_clanmember_forced(account))) {
++			bn_byte_set(&amp;rpacket-&gt;u.server_clan_createreply.check_result, CLAN_RESPONSE_DECLINED);
++			bn_byte_set(&amp;rpacket-&gt;u.server_clan_createreply.friend_count, 0);
++			conn_push_outqueue(c, rpacket);
++			packet_del_ref(rpacket);
++			return 0;
++		}
++		bn_byte_set(&amp;rpacket-&gt;u.server_clan_createreply.check_result, CLAN_RESPONSE_SUCCESS);
++		channel = conn_get_channel(c);
++		if (channel_get_permanent(channel)) {
++			/* If not in a private channel, retreive number of mutual friend connected */
++			t_list *flist = account_get_friends(conn_get_account(c));
++			t_elem const *curr;
++			t_friend *fr;
+ 
+-    return 0;
++			LIST_TRAVERSE_CONST(flist, curr)
++			{
++				if ((fr = (t_friend*) elem_get_data(curr)) != NULL) {
++					t_account *fr_acc = friend_get_account(fr);
++					t_clienttag clienttag;
++					if (fr-&gt;mutual &amp;&amp; ((conn = connlist_find_connection_by_account(fr_acc)) != NULL) &amp;&amp; (conn_get_channel(conn) == channel) &amp;&amp; (!account_get_clanmember_forced(fr_acc)) &amp;&amp; (clienttag = conn_get_clienttag(conn)) &amp;&amp;
++							((clienttag == CLIENTTAG_WAR3XP_UINT) || (clienttag == CLIENTTAG_WARCRAFT3_UINT)) &amp;&amp; (username = account_get_name(fr_acc))) {
++						friend_count++;
++						packet_append_string(rpacket, username);
++					}
++				}
++			}
++		}
++		else {
++			/* If in a private channel, retreive all non-clan war3/w3xp users in the channel */
++			for (conn = channel_get_first(channel); conn; conn = channel_get_next()) {
++				t_account * acc;
++				t_clienttag clienttag;
++				if ((conn != c) &amp;&amp; (acc = conn_get_account(conn)) &amp;&amp; (!account_get_clanmember_forced(acc)) &amp;&amp; (!account_get_creating_clan(acc)) &amp;&amp; (clienttag = conn_get_clienttag(conn)) &amp;&amp; ((clienttag == CLIENTTAG_WAR3XP_UINT) || (clienttag == CLIENTTAG_WARCRAFT3_UINT)) &amp;&amp; (username
++						= conn_get_username(conn))) {
++					friend_count++;
++					packet_append_string(rpacket, username);
++				}
++			}
++		}
++		bn_byte_set(&amp;rpacket-&gt;u.server_clan_createreply.friend_count, friend_count);
++		conn_push_outqueue(c, rpacket);
++		packet_del_ref(rpacket);
++	}
++	return 0;
+ }
+ 
+ extern int clanmember_on_change_status(t_clanmember * member)
+
+Modified: branches/clan_refactorings/src/bnetd/handle_bnet.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/handle_bnet.cpp	2008-11-12 23:04:23 UTC (rev 513)
++++ branches/clan_refactorings/src/bnetd/handle_bnet.cpp	2008-12-03 21:24:44 UTC (rev 518)
+@@ -4542,35 +4542,43 @@
+ 
+ static int _client_clan_disbandreq(t_connection * c, t_packet const *const packet)
+ {
+-    t_packet *rpacket;
++	t_packet *rpacket;
+ 
+-    if (packet_get_size(packet) &lt; sizeof(t_client_clan_disbandreq)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad CLAN_DISBANDREQ packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_clan_disbandreq), packet_get_size(packet));
+-	return -1;
+-    }
++	if (packet_get_size(packet) &lt; sizeof(t_client_clan_disbandreq)) {
++		eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad CLAN_DISBANDREQ packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_clan_disbandreq), packet_get_size(packet));
++		return -1;
++	}
+ 
+-    if ((rpacket = packet_create(packet_class_bnet))) {
+-	t_clan *clan;
+-	t_account *myacc;
+-	myacc = conn_get_account(c);
+-	clan = account_get_clan(myacc);
+-	packet_set_size(rpacket, sizeof(t_server_clan_disbandreply));
+-	packet_set_type(rpacket, SERVER_CLAN_DISBANDREPLY);
+-	bn_int_set(&amp;rpacket-&gt;u.server_clan_disbandreply.count, bn_int_get(packet-&gt;u.client_clan_disbandreq.count));
+-	if ((clanlist_remove_clan(clan) == 0) &amp;&amp; (clan_remove(clan_get_clantag(clan)) == 0)) {
+-	    bn_byte_set(&amp;rpacket-&gt;u.server_clan_disbandreply.result, SERVER_CLAN_DISBANDREPLY_RESULT_OK);
+-	    clan_close_status_window_on_disband(clan);
+-	    clan_send_packet_to_online_members(clan, rpacket);
+-	    packet_del_ref(rpacket);
+-	    clan_destroy(clan);
+-	} else {
+-	    bn_byte_set(&amp;rpacket-&gt;u.server_clan_disbandreply.result, SERVER_CLAN_DISBANDREPLY_RESULT_EXCEPTION);
+-	    conn_push_outqueue(c, rpacket);
+-	    packet_del_ref(rpacket);
++	if ((rpacket = packet_create(packet_class_bnet))) {
++		t_clan *clan;
++		t_clanmember *member;
++		t_account *account;
++
++		packet_set_size(rpacket, sizeof(t_server_clan_disbandreply));
++		packet_set_type(rpacket, SERVER_CLAN_DISBANDREPLY);
++		bn_int_set(&amp;rpacket-&gt;u.server_clan_disbandreply.count, bn_int_get(packet-&gt;u.client_clan_disbandreq.count));
++
++		if (!((account = conn_get_account(c)) &amp;&amp; (clan = account_get_clan(account)) &amp;&amp; (member = account_get_clanmember(account)) &amp;&amp; (clanmember_get_status(member) &gt;= CLAN_CHIEFTAIN))) {
++			eventlog(eventlog_level_warn, __FUNCTION__, &quot;[%d] got suspicious CLAN_DISBANDREQ packet (request without required privileges)&quot;, conn_get_socket(c));
++			bn_byte_set(&amp;rpacket-&gt;u.server_clan_disbandreply.result, CLAN_RESPONSE_NOT_AUTHORIZED);
++			conn_push_outqueue(c, rpacket);
++			packet_del_ref(rpacket);
++		}
++		else if ((clanlist_remove_clan(clan) == 0) &amp;&amp; (clan_remove(clan_get_clantag(clan)) == 0)) {
++			bn_byte_set(&amp;rpacket-&gt;u.server_clan_disbandreply.result, CLAN_RESPONSE_SUCCESS);
++			clan_close_status_window_on_disband(clan);
++			clan_send_packet_to_online_members(clan, rpacket);
++			packet_del_ref(rpacket);
++			clan_destroy(clan);
++		}
++		else {
++			bn_byte_set(&amp;rpacket-&gt;u.server_clan_disbandreply.result, CLAN_RESPONSE_FAIL);
++			conn_push_outqueue(c, rpacket);
++			packet_del_ref(rpacket);
++		}
+ 	}
+-    }
+ 
+-    return 0;
++	return 0;
+ }
+ 
+ static int _client_clan_createreq(t_connection * c, t_packet const *const packet)
+@@ -4587,79 +4595,80 @@
+ 
+ static int _client_clan_createinvitereq(t_connection * c, t_packet const *const packet)
+ {
+-    t_packet *rpacket;
+-    unsigned size;
+-    const char *clanname;
+-    const char *username;
+-    t_clantag clantag;
+-    unsigned offset;
+-    t_clan *clan;
++	t_packet *rpacket;
++	unsigned size;
++	const char *clanname;
++	const char *username;
++	t_clantag clantag;
++	unsigned offset;
++	t_clan *clan;
+ 
+-    if ((size = packet_get_size(packet)) &lt; sizeof(t_client_clan_createinvitereq)) {
+-        eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad CLAN_CREATEINVITEREQ packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_clan_createinvitereq), packet_get_size(packet));
+-        return -1;
+-    }
+-    offset = sizeof(t_client_clan_createinvitereq);
++	if ((size = packet_get_size(packet)) &lt; sizeof(t_client_clan_createinvitereq)) {
++		eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad CLAN_CREATEINVITEREQ packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_clan_createinvitereq), packet_get_size(packet));
++		return -1;
++	}
++	offset = sizeof(t_client_clan_createinvitereq);
+ 
+ 	if (!(clanname = packet_get_str_const(packet, offset, CLAN_NAME_MAX))) {
+-        eventlog(eventlog_level_error,__FUNCTION__, &quot;[%d] got bad CLAN_CREATEINVITEREQ packet (missing clanname)&quot;, conn_get_socket(c));
+-        return -1;
+-    }
++		eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad CLAN_CREATEINVITEREQ packet (missing clanname)&quot;, conn_get_socket(c));
++		return -1;
++	}
+ 	offset += (std::strlen(clanname) + 1);
+ 
+-	if (packet_get_size(packet) &lt; offset+4) { 
+-        eventlog(eventlog_level_error,__FUNCTION__, &quot;[%d] got bad CLAN_CREATEINVITEREQ packet (missing clantag)&quot;, conn_get_socket(c));
+-        return -1;
+-    }
+-    clantag = *((int *) packet_get_data_const(packet, offset, 4));
++	if (packet_get_size(packet) &lt; offset + 4) {
++		eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad CLAN_CREATEINVITEREQ packet (missing clantag)&quot;, conn_get_socket(c));
++		return -1;
++	}
++	clantag = *((int *) packet_get_data_const(packet, offset, 4));
+ 	offset += 4;
+ 
+-    if ((rpacket = packet_create(packet_class_bnet))) {
+-	if ((clan = clan_create(conn_get_account(c), clantag, clanname, NULL)) &amp;&amp; clanlist_add_clan(clan)) {
+-	    char membercount;
+-        if (packet_get_size(packet) &lt; offset+1) {
+-            eventlog(eventlog_level_error,__FUNCTION__, &quot;[%d] got bad CLAN_CREATEINVITEREQ packet (missing membercount)&quot;, conn_get_socket(c));
+-            return -1;
+-        }
+-        membercount = *((char *) packet_get_data_const(packet, offset, 1));
+-	    clan_set_created(clan, -membercount);                               /* FIXME: We should also check if membercount == count of names on end of this packet */
+-	    packet_set_size(rpacket, sizeof(t_server_clan_createinvitereq));
+-	    packet_set_type(rpacket, SERVER_CLAN_CREATEINVITEREQ);
+-	    bn_int_set(&amp;rpacket-&gt;u.server_clan_createinvitereq.count, bn_int_get(packet-&gt;u.client_clan_createinvitereq.count));
+-	    bn_int_set(&amp;rpacket-&gt;u.server_clan_createinvitereq.clantag, clantag);
+-	    packet_append_string(rpacket, clanname);
+-	    packet_append_string(rpacket, conn_get_username(c));
+-	    packet_append_data(rpacket, packet_get_data_const(packet, offset, size - offset), size - offset); /* Pelish: we will send bad packet if we got bad packet... */
+-	    offset++;
+-	    do {
+-		username = packet_get_str_const(packet, offset, MAX_USERNAME_LEN);
+-		if (username) {
+-		    t_connection *conn;
+-		    offset += (std::strlen(username) + 1);
+-		    if ((conn = connlist_find_connection_by_accountname(username)) != NULL) {
+-		    t_clanmember *clanmember;
+-			if (prefs_get_clan_newer_time() &gt; 0) {
+-			    clanmember = clan_add_member(clan, conn_get_account(conn), CLAN_NEW);
+-			    clanmember_set_fullmember(clanmember, 1);      /* FIXME: do only this here and no clan_add_member() */
+-            }
+-			else {
+-			    clanmember = clan_add_member(clan, conn_get_account(conn), CLAN_PEON);
+-			    clanmember_set_fullmember(clanmember, 1);      /* FIXME: do only this here and no clan_add_member() */
++	char membercount;
++	if (packet_get_size(packet) &lt; offset + 1) {
++		eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad CLAN_CREATEINVITEREQ packet (missing membercount)&quot;, conn_get_socket(c));
++		return -1;
++	}
++	membercount = *((char *) packet_get_data_const(packet, offset, 1));
++	offset++;
++
++	if ((rpacket = packet_create(packet_class_bnet))) {
++		if ((clan = clan_create(conn_get_account(c), clantag, clanname, NULL)) &amp;&amp; clanlist_add_clan(clan)) {
++			clan_set_created(clan, -membercount); /* FIXME: We should also check if membercount == count of names on end of this packet */
++			packet_set_size(rpacket, sizeof(t_server_clan_createinvitereq));
++			packet_set_type(rpacket, SERVER_CLAN_CREATEINVITEREQ);
++			bn_int_set(&amp;rpacket-&gt;u.server_clan_createinvitereq.count, bn_int_get(packet-&gt;u.client_clan_createinvitereq.count));
++			bn_int_set(&amp;rpacket-&gt;u.server_clan_createinvitereq.clantag, clantag);
++			packet_append_string(rpacket, clanname);
++			packet_append_string(rpacket, conn_get_username(c));
++			packet_append_data(rpacket, packet_get_data_const(packet, offset, size - offset), size - offset); /* Pelish: we will send bad packet if we got bad packet... */
++			do {
++				username = packet_get_str_const(packet, offset, MAX_USERNAME_LEN);
++				if (username) {
++					t_connection *conn;
++					offset += (std::strlen(username) + 1);
++					if ((conn = connlist_find_connection_by_accountname(username)) != NULL) {
++						t_clanmember *clanmember;
++						if (prefs_get_clan_newer_time() &gt; 0) {
++							clanmember = clan_add_member(clan, conn_get_account(conn), CLAN_NEW);
++						}
++						else {
++							clanmember = clan_add_member(clan, conn_get_account(conn), CLAN_PEON);
++						}
++						conn_push_outqueue(conn, rpacket);
++					}
++				}
+ 			}
+-			conn_push_outqueue(conn, rpacket);
+-		    }
++			while (username &amp;&amp; (offset &lt; size));
+ 		}
+-	    } while (username &amp;&amp; (offset &lt; size));
+-	} else {
+-	    packet_set_size(rpacket, sizeof(t_server_clan_createinvitereply));
+-	    packet_set_type(rpacket, SERVER_CLAN_CREATEINVITEREPLY);
+-	    bn_int_set(&amp;rpacket-&gt;u.server_clan_createinvitereply.count, bn_int_get(packet-&gt;u.client_clan_createinvitereply.count));
+-	    bn_byte_set(&amp;rpacket-&gt;u.server_clan_createinvitereply.status, 0);
++		else {
++			packet_set_size(rpacket, sizeof(t_server_clan_createinvitereply));
++			packet_set_type(rpacket, SERVER_CLAN_CREATEINVITEREPLY);
++			bn_int_set(&amp;rpacket-&gt;u.server_clan_createinvitereply.count, bn_int_get(packet-&gt;u.client_clan_createinvitereply.count));
++			bn_byte_set(&amp;rpacket-&gt;u.server_clan_createinvitereply.status, CLAN_RESPONSE_FAIL);
++		}
++		packet_del_ref(rpacket);
+ 	}
+-	packet_del_ref(rpacket);
+-    }
+ 
+-    return 0;
++	return 0;
+ }
+ 
+ static int _client_clan_createinvitereply(t_connection * c, t_packet const *const packet)
+@@ -4712,7 +4721,7 @@
+ 	    packet_set_size(rpacket, sizeof(t_server_clan_createinvitereply));
+ 	    packet_set_type(rpacket, SERVER_CLAN_CREATEINVITEREPLY);
+ 	    bn_int_set(&amp;rpacket-&gt;u.server_clan_createinvitereply.count, bn_int_get(packet-&gt;u.client_clan_createinvitereply.count));
+-	    bn_byte_set(&amp;rpacket-&gt;u.server_clan_createinvitereply.status, 0);
++	    bn_byte_set(&amp;rpacket-&gt;u.server_clan_createinvitereply.status, CLAN_RESPONSE_SUCCESS);
+ 	    packet_append_string(rpacket, &quot;&quot;);
+ 	    conn_push_outqueue(conn, rpacket);
+ 	    packet_del_ref(rpacket);
+@@ -4859,67 +4868,68 @@
+ 
+ static int _client_clan_invitereq(t_connection * c, t_packet const *const packet)
+ {
+-    t_packet *rpacket;
+-    t_account *account;
+-    t_clan *clan;
+-    t_clanmember *member;
+-    t_clantag clantag;
+-    const char *username;
+-    t_connection *conn;
+-    t_account *conn_account;
+-    char response_code;
++	t_packet *rpacket;
++	t_account *account;
++	t_clan *clan;
++	t_clanmember *member;
++	t_clantag clantag;
++	const char *username;
++	t_connection *conn;
++	t_account *conn_account;
++	char response_code;
+ 
+-    if (packet_get_size(packet) &lt; sizeof(t_client_clan_invitereq)) {
+-    	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad CLAN_INVITEREQ packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_clan_invitereq), packet_get_size(packet));
+-    	return -1;
+-    }
++	if (packet_get_size(packet) &lt; sizeof(t_client_clan_invitereq)) {
++		eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad CLAN_INVITEREQ packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_clan_invitereq), packet_get_size(packet));
++		return -1;
++	}
+ 
+ 	if (!(username = packet_get_str_const(packet, sizeof(t_client_clan_invitereq), MAX_USERNAME_LEN))) {
+-	    eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad CLAN_INVITEREQ packet (missing or too long username)&quot;, conn_get_socket(c));
+-	    return -1;
++		eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad CLAN_INVITEREQ packet (missing or too long username)&quot;, conn_get_socket(c));
++		return -1;
+ 	}
+ 
+-    if (rpacket = packet_create(packet_class_bnet)) {
++	if (rpacket = packet_create(packet_class_bnet)) {
+ 
+-    	// user not authorized
+-	    if (!((account = conn_get_account(c)) &amp;&amp;
+-	    		(clan = account_get_clan(account)) &amp;&amp;
+-	    		(member = account_get_clanmember(account)) &amp;&amp;
+-	    		(clanmember_get_status(member) &gt;= CLAN_SHAMAN) &amp;&amp;
+-	    		(clantag = clan_get_clantag(clan)))) {
+-	    	response_code = CLAN_RESPONSE_NOT_AUTHORIZED;
+-	    } else {
++		// user not authorized
++		if (!((account = conn_get_account(c)) &amp;&amp; (clan = account_get_clan(account)) &amp;&amp; (member = account_get_clanmember(account)) &amp;&amp; (clanmember_get_status(member) &gt;= CLAN_SHAMAN) &amp;&amp; (clantag = clan_get_clantag(clan)))) {
++			eventlog(eventlog_level_warn, __FUNCTION__, &quot;[%d] got suspicious CLAN_INVITEREQ packet (request without required privileges)&quot;, conn_get_socket(c));
++			response_code = CLAN_RESPONSE_NOT_AUTHORIZED;
++		}
++		else {
++			// target user not online
++			if (!((conn = connlist_find_connection_by_accountname(username)) &amp;&amp; (conn_account = conn_get_account(conn)))) {
++				response_code = CLAN_RESPONSE_NOT_FOUND;
+ 
+-	    	// target user not online
+-	    	if (!((conn = connlist_find_connection_by_accountname(username)) &amp;&amp;
+-	    			(conn_account = conn_get_account(conn)))) {
+-	    		response_code = CLAN_RESPONSE_NOT_FOUND;
+-
+-	    	// target user allready in a clan or creating a clan
+-	    	} else if (account_get_clanmember_forced(conn_get_account(conn))) {
++			}
++			// target user allready in a clan or creating a clan
++			else if (account_get_clanmember_forced(conn_get_account(conn))) {
+ 				response_code = CLAN_RESPONSE_NOT_FOUND;
+ 
++			}
+ 			// clan allready full
+-	    	} else if (clan_get_member_count(clan) &gt;= prefs_get_clan_max_members()) {
+-	    		response_code = CLAN_RESPONSE_CLAN_FULL;
++			else if (clan_get_member_count(clan) &gt;= prefs_get_clan_max_members()) {
++				response_code = CLAN_RESPONSE_CLAN_FULL;
+ 
+-	    	// valid invitereq
+-	    	} else {
+-                if (prefs_get_clan_newer_time() &gt; 0)
+-                    clan_add_member(clan, conn_account, CLAN_NEW);
+-                else
+-                    clan_add_member(clan, conn_account, CLAN_PEON);
+-	    		packet_set_size(rpacket, sizeof(t_server_clan_invitereq));
+-   				packet_set_type(rpacket, SERVER_CLAN_INVITEREQ);
+-   				bn_int_set(&amp;rpacket-&gt;u.server_clan_invitereq.count, bn_int_get(packet-&gt;u.client_clan_invitereq.count));
+-   				bn_int_set(&amp;rpacket-&gt;u.server_clan_invitereq.clantag, clantag);
++			}
++			// valid invitereq
++			else {
++				if (prefs_get_clan_newer_time() &gt; 0) {
++					clan_add_member(clan, conn_account, CLAN_NEW);
++				}
++				else {
++					clan_add_member(clan, conn_account, CLAN_PEON);
++				}
++				packet_set_size(rpacket, sizeof(t_server_clan_invitereq));
++				packet_set_type(rpacket, SERVER_CLAN_INVITEREQ);
++				bn_int_set(&amp;rpacket-&gt;u.server_clan_invitereq.count, bn_int_get(packet-&gt;u.client_clan_invitereq.count));
++				bn_int_set(&amp;rpacket-&gt;u.server_clan_invitereq.clantag, clantag);
+ 				packet_append_string(rpacket, clan_get_name(clan));
+ 				packet_append_string(rpacket, conn_get_username(c));
+ 				conn_push_outqueue(conn, rpacket);
+ 				packet_del_ref(rpacket);
+-	    		return 0;
+-	    	}
+-	    }
++				return 0;
++			}
++		}
+ 
+ 		packet_set_size(rpacket, sizeof(t_server_clan_invitereply));
+ 		packet_set_type(rpacket, SERVER_CLAN_INVITEREPLY);
+@@ -4928,9 +4938,9 @@
+ 
+ 		conn_push_outqueue(c, rpacket);
+ 		packet_del_ref(rpacket);
+-    }
++	}
+ 
+-    return 0;
++	return 0;
+ }
+ 
+ static int _client_clan_invitereply(t_connection * c, t_packet const *const packet)
+
+Deleted: branches/clan_refactorings/src/client/bnchat.cpp
+===================================================================
+--- trunk/pvpgn/src/client/bnchat.cpp	2008-11-12 23:04:23 UTC (rev 513)
++++ branches/clan_refactorings/src/client/bnchat.cpp	2008-12-03 21:24:44 UTC (rev 518)
+@@ -1,2072 +0,0 @@
+-/*
+- * Copyright (C) 1998,1999,2000,2001  Ross Combs (<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">rocombs at cs.nmsu.edu</A>)
+- * Copyright (C) 1999  Oleg Drokin (<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">green at ccssu.ccssu.crimea.ua</A>)
+- *
+- * This program is free software; you can redistribute it and/or
+- * modify it under the terms of the GNU General Public License
+- * as published by the Free Software Foundation; either version 2
+- * of the License, or (at your option) any later version.
+- *
+- * This program is distributed in the hope that it will be useful,
+- * but WITHOUT ANY WARRANTY; without even the implied warranty of
+- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+- * GNU General Public License for more details.
+- *
+- * You should have received a copy of the GNU General Public License
+- * along with this program; if not, write to the Free Software
+- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+- */
+-#include &quot;common/setup_before.h&quot;
+-#include &lt;cstring&gt;
+-#include &lt;cstdio&gt;
+-#include &lt;cctype&gt;
+-#include &lt;cstdarg&gt;
+-#include &lt;cstdlib&gt;
+-
+-#ifdef WIN32
+-# include &lt;conio.h&gt;
+-#endif
+-#ifdef HAVE_TERMIOS_H
+-# include &lt;termios.h&gt;
+-#endif
+-#ifdef HAVE_SIGACTION
+-# include &lt;signal.h&gt;
+-#endif
+-
+-#include &quot;compat/psock.h&quot;
+-#include &quot;compat/vsnprintf.h&quot;
+-#include &quot;compat/termios.h&quot;
+-#include &quot;compat/strcasecmp.h&quot;
+-#include &quot;common/field_sizes.h&quot;
+-#include &quot;common/bnet_protocol.h&quot;
+-#include &quot;common/packet.h&quot;
+-#include &quot;common/tag.h&quot;
+-#include &quot;common/file_protocol.h&quot;
+-#include &quot;common/bn_type.h&quot;
+-#include &quot;common/util.h&quot;
+-#include &quot;common/init_protocol.h&quot;
+-#include &quot;common/bnethash.h&quot;
+-#include &quot;common/bnethashconv.h&quot;
+-#include &quot;common/xalloc.h&quot;
+-#include &quot;common/network.h&quot;
+-#include &quot;common/hexdump.h&quot;
+-#include &quot;common/version.h&quot;
+-#ifdef CLIENTDEBUG
+-# include &quot;common/eventlog.h&quot;
+-#endif
+-#include &quot;ansi_term.h&quot;
+-#include &quot;client_connect.h&quot;
+-#include &quot;client.h&quot;
+-#include &quot;common/setup_after.h&quot;
+-
+-
+-#ifdef CLIENTDEBUG
+-# define dprintf printf
+-#else
+-# define dprintf if (0) printf
+-#endif
+-
+-#define CHANNEL_BNCHATBOT &quot;Chat&quot;
+-#define CHANNEL_STARCRAFT &quot;Starcraft&quot;
+-#define CHANNEL_BROODWARS &quot;Brood War&quot;
+-#define CHANNEL_SHAREWARE &quot;Starcraft Shareware&quot;
+-#define CHANNEL_DIABLORTL &quot;Diablo Retail&quot;
+-#define CHANNEL_DIABLOSHR &quot;Diablo Shareware&quot; /* FIXME: is this one right? */
+-#define CHANNEL_WARCIIBNE &quot;War2BNE&quot;
+-#define CHANNEL_DIABLO2DV &quot;Diablo II&quot;
+-#define CHANNEL_DIABLO2XP &quot;Diablo II&quot;
+-#define CHANNEL_WARCRAFT3 &quot;W3&quot;
+-#define CHANNEL_WAR3XP    &quot;W3&quot;
+-
+-using namespace pvpgn;
+-using namespace pvpgn::client;
+-
+-namespace
+-{
+-
+-volatile int handle_winch=0;
+-
+-typedef enum {
+-  mode_chat,
+-  mode_command,
+-  mode_waitstat,
+-  mode_waitgames,
+-  mode_waitladder,
+-  mode_gamename,
+-  mode_gamepass,
+-  mode_gamewait,
+-  mode_gamestop,
+-  mode_claninvite
+-} t_mode;
+-
+-typedef struct _client_state
+-{
+-    int 		useansi;
+-    int 		sd;
+-    struct sockaddr_in	saddr;
+-    unsigned int	sessionkey;
+-    unsigned int	sessionnum;
+-    unsigned int	currsize;
+-    unsigned int	commpos;
+-    struct termios	in_attr_old;
+-    struct termios	in_attr_new;
+-    int			changed_in;
+-    int			fd_stdin;
+-    unsigned int	screen_width,screen_height;
+-    int			munged;
+-    t_mode		mode;
+-    char		text[MAX_MESSAGE_LEN];
+-} t_client_state;
+-
+-typedef struct _user_info
+-{
+-    char const *	clienttag;
+-    char const *	archtag;
+-    char const *	gamelang;
+-    char		player[MAX_MESSAGE_LEN];
+-    char const *	cdowner;
+-    char const *	cdkey;
+-    char const *	channel;
+-    char		curr_gamename[MAX_GAMENAME_LEN];
+-    char		curr_gamepass[MAX_GAMEPASS_LEN];
+-    int			count, clantag;
+-    char const *	inviter;
+-
+-} t_user_info;
+-
+-
+-char const * mflags_get_str(unsigned int flags);
+-char const * cflags_get_str(unsigned int flags);
+-char const * mode_get_prompt(t_mode mode);
+-int print_file(struct sockaddr_in * saddr, char const * filename, char const * progname, char const * clienttag);
+-void usage(char const * progname);
+-#ifdef HAVE_SIGACTION
+-void winch_sig_handle(int unused);
+-#endif
+-
+-
+-#ifdef HAVE_SIGACTION
+-void winch_sig_handle(int unused)
+-{
+-    handle_winch = 1;
+-}
+-#endif
+-
+-
+-char const * mflags_get_str(unsigned int flags)
+-{
+-    static char buffer[32];
+-
+-    buffer[0]=buffer[1] = '\0';
+-    if (flags&amp;MF_BLIZZARD)
+-	std::strcat(buffer,&quot;,Blizzard&quot;);
+-    if (flags&amp;MF_GAVEL)
+-	std::strcat(buffer,&quot;,Gavel&quot;);
+-    if (flags&amp;MF_VOICE)
+-	std::strcat(buffer,&quot;,Megaphone&quot;);
+-    if (flags&amp;MF_BNET)
+-	std::strcat(buffer,&quot;,BNET&quot;);
+-    if (flags&amp;MF_PLUG)
+-	std::strcat(buffer,&quot;,Plug&quot;);
+-    if (flags&amp;MF_X)
+-	std::strcat(buffer,&quot;,X&quot;);
+-    if (flags&amp;MF_SHADES)
+-	std::strcat(buffer,&quot;,Shades&quot;);
+-    if (flags&amp;MF_PGLPLAY)
+-	std::strcat(buffer,&quot;,PGL_Player&quot;);
+-    if (flags&amp;MF_PGLOFFL)
+-	std::strcat(buffer,&quot;,PGL_Official&quot;);
+-    buffer[0] = '[';
+-    std::strcat(buffer,&quot;]&quot;);
+-
+-    return buffer;
+-}
+-
+-
+-char const * cflags_get_str(unsigned int flags)
+-{
+-    static char buffer[32];
+-
+-    buffer[0]=buffer[1] = '\0';
+-    if (flags&amp;CF_PUBLIC)
+-	std::strcat(buffer,&quot;,Public&quot;);
+-    if (flags&amp;CF_MODERATED)
+-	std::strcat(buffer,&quot;,Moderated&quot;);
+-    if (flags&amp;CF_RESTRICTED)
+-	std::strcat(buffer,&quot;,Restricted&quot;);
+-    if (flags&amp;CF_THEVOID)
+-	std::strcat(buffer,&quot;,The Void&quot;);
+-    if (flags&amp;CF_SYSTEM)
+-	std::strcat(buffer,&quot;,System&quot;);
+-    if (flags&amp;CF_OFFICIAL)
+-	std::strcat(buffer,&quot;,Official&quot;);
+-    buffer[0] = '[';
+-    std::strcat(buffer,&quot;]&quot;);
+-
+-    return buffer;
+-}
+-
+-
+-char const * mode_get_prompt(t_mode mode)
+-{
+-    switch (mode)
+-    {
+-    case mode_chat:
+-	return &quot;] &quot;;
+-    case mode_command:
+-	return &quot;command&gt; &quot;;
+-    case mode_waitstat:
+-    case mode_waitgames:
+-    case mode_waitladder:
+-    case mode_gamewait:
+-	return &quot;*please wait* &quot;;
+-    case mode_gamename:
+-	return &quot;Name: &quot;;
+-    case mode_gamepass:
+-	return &quot;Password: &quot;;
+-    case mode_gamestop:
+-	return &quot;[Return to kill game] &quot;;
+-    default:
+-	return &quot;? &quot;;
+-    }
+-}
+-
+-
+-int print_file(struct sockaddr_in * saddr, char const * filename, char const * progname, char const * clienttag)
+-{
+-    int          sd;
+-    t_packet *   ipacket;
+-    t_packet *   packet;
+-    t_packet *   rpacket;
+-    t_packet *   fpacket;
+-    unsigned int currsize;
+-    unsigned int filelen;
+-
+-    if (!saddr || !filename || !progname)
+-	return -1;
+-
+-    if ((sd = psock_socket(PSOCK_PF_INET,PSOCK_SOCK_STREAM,PSOCK_IPPROTO_TCP))&lt;0)
+-    {
+-	std::fprintf(stderr,&quot;%s: could not create socket (psock_socket: %s)\n&quot;,progname,std::strerror(psock_errno()));
+-	return -1;
+-    }
+-
+-    if (psock_connect(sd,(struct sockaddr *)saddr,sizeof(*saddr))&lt;0)
+-    {
+-	std::fprintf(stderr,&quot;%s: could not connect to server (psock_connect: %s)\n&quot;,progname,std::strerror(psock_errno()));
+-	return -1;
+-    }
+-
+-    if (!(ipacket = packet_create(packet_class_init)))
+-    {
+-	std::fprintf(stderr,&quot;%s: could not create packet\n&quot;,progname);
+-	return -1;
+-    }
+-    bn_byte_set(&amp;ipacket-&gt;u.client_initconn.cclass,CLIENT_INITCONN_CLASS_FILE);
+-    client_blocksend_packet(sd,ipacket);
+-    packet_del_ref(ipacket);
+-
+-    if (!(rpacket = packet_create(packet_class_file)))
+-    {
+-	std::fprintf(stderr,&quot;%s: could not create packet\n&quot;,progname);
+-	return -1;
+-    }
+-
+-    if (!(fpacket = packet_create(packet_class_raw)))
+-    {
+-	std::fprintf(stderr,&quot;%s: could not create packet\n&quot;,progname);
+-	return -1;
+-    }
+-
+-    if (!(packet = packet_create(packet_class_file)))
+-    {
+-	std::fprintf(stderr,&quot;%s: could not create packet\n&quot;,progname);
+-	return -1;
+-    }
+-    packet_set_size(packet,sizeof(t_client_file_req));
+-    packet_set_type(packet,CLIENT_FILE_REQ);
+-    bn_int_tag_set(&amp;packet-&gt;u.client_file_req.archtag,ARCHTAG_WINX86);
+-    bn_int_tag_set(&amp;packet-&gt;u.client_file_req.clienttag,clienttag);
+-    bn_int_set(&amp;packet-&gt;u.client_file_req.adid,0);
+-    bn_int_set(&amp;packet-&gt;u.client_file_req.extensiontag,0);
+-    bn_int_set(&amp;packet-&gt;u.client_file_req.startoffset,0);
+-    bn_long_set_a_b(&amp;packet-&gt;u.client_file_req.timestamp,0x00000000,0x00000000);
+-    packet_append_string(packet,filename);
+-    client_blocksend_packet(sd,packet);
+-    packet_del_ref(packet);
+-
+-    do
+-	if (client_blockrecv_packet(sd,rpacket)&lt;0)
+-	{
+-	    std::fprintf(stderr,&quot;%s: server closed file connection\n&quot;,progname);
+-	    packet_del_ref(fpacket);
+-	    packet_del_ref(rpacket);
+-	    return -1;
+-	}
+-    while (packet_get_type(rpacket)!=SERVER_FILE_REPLY);
+-
+-    filelen = bn_int_get(rpacket-&gt;u.server_file_reply.filelen);
+-    packet_del_ref(rpacket);
+-
+-    for (currsize=0; currsize+MAX_PACKET_SIZE&lt;=filelen; currsize+=MAX_PACKET_SIZE)
+-    {
+-	if (client_blockrecv_raw_packet(sd,fpacket,MAX_PACKET_SIZE)&lt;0)
+-	{
+-	    std::fflush(stdout);
+-	    std::fprintf(stderr,&quot;%s: server closed file connection\n&quot;,progname);
+-	    packet_del_ref(fpacket);
+-	    return -1;
+-	}
+-	str_print_term(stdout,(const char*)packet_get_raw_data_const(fpacket,0),MAX_PACKET_SIZE,1);
+-    }
+-    filelen -= currsize;
+-    if (filelen)
+-    {
+-	if (client_blockrecv_raw_packet(sd,fpacket,filelen)&lt;0)
+-	{
+-	    std::fflush(stdout);
+-	    std::fprintf(stderr,&quot;%s: server closed file connection\n&quot;,progname);
+-	    packet_del_ref(fpacket);
+-	    return -1;
+-	}
+-	str_print_term(stdout,(const char*)packet_get_raw_data_const(fpacket,0),filelen,1);
+-    }
+-    std::fflush(stdout);
+-
+-    psock_close(sd);
+-
+-    packet_del_ref(fpacket);
+-
+-    return 0;
+-}
+-
+-
+-void usage(char const * progname)
+-{
+-    std::fprintf(stderr,&quot;usage: %s [&lt;options&gt;] [&lt;servername&gt; [&lt;TCP portnumber&gt;]]\n&quot;,progname);
+-    std::fprintf(stderr,
+-	    &quot;    -a, --ansi-color            use ANSI colors\n&quot;
+-            &quot;    -n, --new-account           create a new account\n&quot;
+-            &quot;    -c, --change-password       change account password\n&quot;
+-            &quot;    --client=CHAT               report client as a chat bot\n&quot;
+-            &quot;    -b, --client=SEXP           report client as Brood Wars\n&quot;
+-            &quot;    -d, --client=DRTL           report client as Diablo Retail\n&quot;
+-            &quot;    --client=DSHR               report client as Diablo Shareware\n&quot;);
+-    std::fprintf(stderr,
+-            &quot;    -s, --client=STAR           report client as Starcraft (default)\n&quot;
+-            &quot;    --client=SSHR               report client as Starcraft Shareware\n&quot;
+-            &quot;    -w, --client=W2BN           report client as Warcraft II BNE\n&quot;
+-            &quot;    --client=D2DV               report client as Diablo II\n&quot;
+-            &quot;    --client=D2XP               report client as Diablo II: LoD\n&quot;
+-            &quot;    --client=WAR3               report client as Warcraft III\n&quot;
+-            &quot;    --client=W3XP               report client as Warcraft III Frozen Throne\n&quot;
+-            &quot;    --arch=IX86                 report architecture as Intel x86 (default)\n&quot;
+-            &quot;    --arch=PMAC                 report architecture as PowerPC MacOS\n&quot;
+-            &quot;    --arch=XMAC                 report architecture as PowerPC MacOSX\n&quot;);
+-    std::fprintf(stderr,
+-	    &quot;    -o NAME, --owner=NAME       report CD owner as NAME\n&quot;
+-	    &quot;    -k KEY, --cdkey=KEY         report CD key as KEY\n&quot;
+-	    &quot;    -l LANG --lang=LANG         report language as LANG (default \&quot;enUS\&quot;)\n&quot;
+-            &quot;    -h, --help, --usage         show this information and exit\n&quot;
+-            &quot;    -v, --version               print version number and exit\n&quot;);
+-    std::exit(EXIT_FAILURE);
+-}
+-
+-int read_commandline(int argc, char * * argv,
+-		     char const * * servname, unsigned short * servport,
+-		     char const * * clienttag,
+-		     char const * * archtag,
+-		     int * changepass, int * newacct,
+-		     char const * * channel,
+-		     char const * * cdowner,
+-		     char const * * cdkey,
+-		     char const * * gamelang,
+-		     int * useansi)
+-{
+-  int a;
+-
+-    if (argc&lt;1 || !argv || !argv[0])
+-    {
+-	std::fprintf(stderr,&quot;bad arguments\n&quot;);
+-	return EXIT_FAILURE;
+-    }
+-
+-    for (a=1; a&lt;argc; a++)
+-	if (*servname &amp;&amp; std::isdigit((int)argv[a][0]) &amp;&amp; a+1&gt;=argc)
+-	{
+-            if (str_to_ushort(argv[a],servport)&lt;0)
+-            {
+-                std::fprintf(stderr,&quot;%s: \&quot;%s\&quot; should be a positive integer\n&quot;,argv[0],argv[a]);
+-                usage(argv[0]);
+-            }
+-	}
+-	else if (!(*servname) &amp;&amp; argv[a][0]!='-' &amp;&amp; a+2&gt;=argc)
+-	    *servname = argv[a];
+-        else if (std::strcmp(argv[a],&quot;-a&quot;)==0 || std::strcmp(argv[a],&quot;--use-ansi&quot;)==0)
+-	    *useansi = 1;
+-        else if (std::strcmp(argv[a],&quot;-n&quot;)==0 || std::strcmp(argv[a],&quot;--new-account&quot;)==0)
+-	{
+-	    if (*changepass)
+-	    {
+-		std::fprintf(stderr,&quot;%s: can not create new account when changing passwords\n&quot;,argv[0]);
+-		usage(argv[0]);
+-	    }
+-	    *newacct = 1;
+-	}
+-        else if (std::strcmp(argv[a],&quot;-c&quot;)==0 || std::strcmp(argv[a],&quot;--change-password&quot;)==0)
+-	{
+-	    if (*newacct)
+-	    {
+-		std::fprintf(stderr,&quot;%s: can not change passwords when creating a new account\n&quot;,argv[0]);
+-		usage(argv[0]);
+-	    }
+-	    *changepass = 1;
+-	}
+-        else if (std::strcmp(argv[a],&quot;--client=CHAT&quot;)==0)
+-	{
+-	    if (*clienttag)
+-	    {
+-		std::fprintf(stderr,&quot;%s: client type was already specified as \&quot;%s\&quot;\n&quot;,argv[0],*clienttag);
+-		usage(argv[0]);
+-	    }
+-	    *clienttag = CLIENTTAG_BNCHATBOT;
+-	    *channel = CHANNEL_BNCHATBOT;
+-	}
+-        else if (std::strcmp(argv[a],&quot;-b&quot;)==0 || std::strcmp(argv[a],&quot;--client=SEXP&quot;)==0)
+-	{
+-	    if (*clienttag)
+-	    {
+-		std::fprintf(stderr,&quot;%s: client type was already specified as \&quot;%s\&quot;\n&quot;,argv[0],*clienttag);
+-		usage(argv[0]);
+-	    }
+-	    *clienttag = CLIENTTAG_BROODWARS;
+-	    *channel = CHANNEL_BROODWARS;
+-	}
+-        else if (std::strcmp(argv[a],&quot;-d&quot;)==0 || std::strcmp(argv[a],&quot;--client=DRTL&quot;)==0)
+-	{
+-	    if (*clienttag)
+-	    {
+-		std::fprintf(stderr,&quot;%s: client type was already specified as \&quot;%s\&quot;\n&quot;,argv[0],*clienttag);
+-		usage(argv[0]);
+-	    }
+-	    *clienttag = CLIENTTAG_DIABLORTL;
+-	    *channel = CHANNEL_DIABLORTL;
+-	}
+-        else if (std::strcmp(argv[a],&quot;--client=DSHR&quot;)==0)
+-	{
+-	    if (*clienttag)
+-	    {
+-		std::fprintf(stderr,&quot;%s: client type was already specified as \&quot;%s\&quot;\n&quot;,argv[0],*clienttag);
+-		usage(argv[0]);
+-	    }
+-	    *clienttag = CLIENTTAG_DIABLOSHR;
+-	    *channel = CHANNEL_DIABLOSHR;
+-	}
+-        else if (std::strcmp(argv[a],&quot;-s&quot;)==0 || std::strcmp(argv[a],&quot;--client=STAR&quot;)==0)
+-	{
+-	    if (*clienttag)
+-	    {
+-		std::fprintf(stderr,&quot;%s: client type was already specified as \&quot;%s\&quot;\n&quot;,argv[0],*clienttag);
+-		usage(argv[0]);
+-	    }
+-	    *clienttag = CLIENTTAG_STARCRAFT;
+-	    *channel = CHANNEL_STARCRAFT;
+-	}
+-        else if (std::strcmp(argv[a],&quot;--client=SSHR&quot;)==0)
+-	{
+-	    if (*clienttag)
+-	    {
+-		std::fprintf(stderr,&quot;%s: client type was already specified as \&quot;%s\&quot;\n&quot;,argv[0],*clienttag);
+-		usage(argv[0]);
+-	    }
+-	    *clienttag = CLIENTTAG_SHAREWARE;
+-	    *channel = CHANNEL_SHAREWARE;
+-	}
+-        else if (std::strcmp(argv[a],&quot;-w&quot;)==0 || std::strcmp(argv[a],&quot;--client=W2BN&quot;)==0)
+-	{
+-	    if (*clienttag)
+-	    {
+-		std::fprintf(stderr,&quot;%s: client type was already specified as \&quot;%s\&quot;\n&quot;,argv[0],*clienttag);
+-		usage(argv[0]);
+-	    }
+-	    *clienttag = CLIENTTAG_WARCIIBNE;
+-	    *channel = CHANNEL_WARCIIBNE;
+-	}
+-        else if (std::strcmp(argv[a],&quot;--client=D2DV&quot;)==0)
+-	{
+-	    if (*clienttag)
+-	    {
+-		std::fprintf(stderr,&quot;%s: client type was already specified as \&quot;%s\&quot;\n&quot;,argv[0],*clienttag);
+-		usage(argv[0]);
+-	    }
+-	    *clienttag = CLIENTTAG_DIABLO2DV;
+-	    *channel = CHANNEL_DIABLO2DV;
+-	}
+-        else if (std::strcmp(argv[a],&quot;--client=D2XP&quot;)==0)
+-	{
+-	    if (*clienttag)
+-	    {
+-		std::fprintf(stderr,&quot;%s: client type was already specified as \&quot;%s\&quot;\n&quot;,argv[0],*clienttag);
+-		usage(argv[0]);
+-	    }
+-	    *clienttag = CLIENTTAG_DIABLO2XP;
+-	    *channel = CHANNEL_DIABLO2XP;
+-	}
+-        else if (std::strcmp(argv[a],&quot;--client=WAR3&quot;)==0)
+-	{
+-	    if (*clienttag)
+-	    {
+-		std::fprintf(stderr,&quot;%s: client type was already specified as \&quot;%s\&quot;\n&quot;,argv[0],*clienttag);
+-		usage(argv[0]);
+-	    }
+-	    *clienttag = CLIENTTAG_WARCRAFT3;
+-	    *channel = CHANNEL_WARCRAFT3;
+-	}
+-        else if (std::strcmp(argv[a],&quot;--client=W3XP&quot;)==0)
+-	{
+-	    if (*clienttag)
+-	    {
+-		std::fprintf(stderr,&quot;%s: client type was already specified as \&quot;%s\&quot;\n&quot;,argv[0],*clienttag);
+-		usage(argv[0]);
+-	    }
+-	    *clienttag = CLIENTTAG_WAR3XP;
+-	    *channel = CHANNEL_WAR3XP;
+-	}
+-	else if (std::strncmp(argv[a],&quot;--client=&quot;,9)==0)
+-	{
+-	    std::fprintf(stderr,&quot;%s: unknown client tag \&quot;%s\&quot;\n&quot;,argv[0],&amp;argv[a][9]);
+-	    usage(argv[0]);
+-	}
+-        else if (std::strcmp(argv[a],&quot;--arch=IX86&quot;)==0)
+-	{
+-	    *archtag = ARCHTAG_WINX86;
+-	}
+-        else if (std::strcmp(argv[a],&quot;--arch=PMAC&quot;)==0)
+-	{
+-	    *archtag = ARCHTAG_MACPPC;
+-	}
+-        else if (std::strcmp(argv[a],&quot;--arch=XMAC&quot;)==0)
+-	{
+-	    *archtag = ARCHTAG_OSXPPC;
+-	}
+-	else if (std::strncmp(argv[a],&quot;--arch=&quot;,7)==0)
+-	{
+-	    std::fprintf(stderr,&quot;%s: unknown architecture tag \&quot;%s\&quot;\n&quot;,argv[0],&amp;argv[a][7]);
+-	    usage(argv[0]);
+-	}
+-	else if (std::strcmp(argv[a],&quot;-o&quot;)==0)
+-	{
+-	    if (a+1&gt;=argc)
+-            {
+-                std::fprintf(stderr,&quot;%s: option \&quot;%s\&quot; requires an argument\n&quot;,argv[0],argv[a]);
+-                usage(argv[0]);
+-            }
+-	    if (*cdowner)
+-	    {
+-		std::fprintf(stderr,&quot;%s: CD owner was already specified as \&quot;%s\&quot;\n&quot;,argv[0],*cdowner);
+-		usage(argv[0]);
+-	    }
+-	    *cdowner = argv[++a];
+-	}
+-	else if (std::strncmp(argv[a],&quot;--owner=&quot;,8)==0)
+-	{
+-	    if (*cdowner)
+-	    {
+-		std::fprintf(stderr,&quot;%s: CD owner was already specified as \&quot;%s\&quot;\n&quot;,argv[0],*cdowner);
+-		usage(argv[0]);
+-	    }
+-	    *cdowner = &amp;argv[a][8];
+-	}
+-	else if (std::strcmp(argv[a],&quot;-k&quot;)==0)
+-	{
+-	    if (a+1&gt;=argc)
+-            {
+-                std::fprintf(stderr,&quot;%s: option \&quot;%s\&quot; requires an argument\n&quot;,argv[0],argv[a]);
+-                usage(argv[0]);
+-            }
+-	    if (*cdkey)
+-	    {
+-		std::fprintf(stderr,&quot;%s: CD key was already specified as \&quot;%s\&quot;\n&quot;,argv[0],*cdkey);
+-		usage(argv[0]);
+-	    }
+-	    *cdkey = argv[++a];
+-	}
+-	else if (std::strncmp(argv[a],&quot;--cdkey=&quot;,8)==0)
+-	{
+-	    if (*cdkey)
+-	    {
+-		std::fprintf(stderr,&quot;%s: CD key was already specified as \&quot;%s\&quot;\n&quot;,argv[0],*cdkey);
+-		usage(argv[0]);
+-	    }
+-	    *cdkey = &amp;argv[a][8];
+-	}
+-	else if (std::strcmp(argv[a],&quot;-l&quot;)==0)
+-	{
+-	    if (a+1&gt;=argc)
+-            {
+-                std::fprintf(stderr,&quot;%s: option \&quot;%s\&quot; requires an argument\n&quot;,argv[0],argv[a]);
+-                usage(argv[0]);
+-            }
+-	    if (std::strlen(argv[a + 1]) != 4)
+-	    {
+-		std::fprintf(stderr,&quot;%s: language has to be 4 characters long\n&quot;,argv[0]);
+-		usage(argv[0]);
+-	    }
+-	    *gamelang = argv[++a];
+-	}
+-	else if (std::strncmp(argv[a],&quot;--lang=&quot;,7)==0)
+-	{
+-	    if (std::strlen(argv[a] + 7) != 4)
+-	    {
+-		std::fprintf(stderr,&quot;%s: language has to be 4 characters long\n&quot;,argv[0]);
+-		usage(argv[0]);
+-	    }
+-	    *gamelang = &amp;argv[a][7];
+-	}
+-	else if (std::strcmp(argv[a],&quot;-v&quot;)==0 || std::strcmp(argv[a],&quot;--version&quot;)==0)
+-	{
+-            std::printf(&quot;version &quot;PVPGN_VERSION&quot;\n&quot;);
+-            return EXIT_SUCCESS;
+-	}
+-	else if (std::strcmp(argv[a],&quot;-h&quot;)==0 || std::strcmp(argv[a],&quot;--help&quot;)==0 || std::strcmp(argv[a],&quot;--usage&quot;)==0)
+-            usage(argv[0]);
+-        else if (std::strcmp(argv[a],&quot;--client&quot;)==0 || std::strcmp(argv[a],&quot;--owner&quot;)==0 || std::strcmp(argv[a],&quot;--cdkey&quot;)==0)
+-	{
+-	    std::fprintf(stderr,&quot;%s: option \&quot;%s\&quot; requires an argument\n&quot;,argv[0],argv[a]);
+-	    usage(argv[0]);
+-	}
+-	else
+-	{
+-	    std::fprintf(stderr,&quot;%s: unknown option \&quot;%s\&quot;\n&quot;,argv[0],argv[a]);
+-	    usage(argv[0]);
+-	}
+-
+-    if (*servport==0)
+-	*servport = BNETD_SERV_PORT;
+-    if (!(*cdowner))
+-	*cdowner = BNETD_DEFAULT_OWNER;
+-    if (!(*cdkey))
+-	*cdkey = BNETD_DEFAULT_KEY;
+-    if (!(*clienttag))
+-    {
+-	*clienttag = CLIENTTAG_STARCRAFT;
+-	*channel = CHANNEL_STARCRAFT;
+-    }
+-    if (!(*servname))
+-	*servname = BNETD_DEFAULT_HOST;
+-
+-    return 0;
+-}
+-
+-void munge(t_client_state * client)
+-{
+-    if (!client-&gt;munged)
+-    {
+-	std::printf(&quot;\r&quot;);
+-	for (unsigned i=0; i&lt;std::strlen(mode_get_prompt(client-&gt;mode)); i++)
+-	    std::printf(&quot; &quot;);
+-	for (unsigned i=0; i&lt;std::strlen(client-&gt;text) &amp;&amp; i&lt;client-&gt;screen_width-std::strlen(mode_get_prompt(client-&gt;mode)); i++)
+-	    std::printf(&quot; &quot;);
+-	std::printf(&quot;\r&quot;);
+-	client-&gt;munged = 1;
+-    }
+-}
+-
+-void ansi_printf(t_client_state * client,int color, char const * fmt, ...)
+-{
+-    std::va_list		args;
+-    char		buffer[2048];
+-
+-    if (!(client))
+-        return;
+-
+-    if (!(fmt))
+-        return;
+-
+-    if (client-&gt;useansi)
+-        ansi_text_color_fore(color);
+-
+-    va_start(args,fmt);
+-    vsnprintf(buffer,2048,fmt,args);
+-    va_end(args);
+-
+-    str_print_term(stdout,buffer,0,1);
+-
+-    if (client-&gt;useansi)
+-        ansi_text_reset();
+-
+-    std::fflush(stdout);
+-
+-}
+-
+-}
+-
+-extern int main(int argc, char * argv[])
+-{
+-    int                newacct=0;
+-    int                changepass=0;
+-    t_client_state	client;
+-    t_user_info		user;
+-    t_packet *         packet;
+-    t_packet *         rpacket;
+-    char const *       servname=NULL;
+-    unsigned short     servport=0;
+-    char const * *     channellist;
+-    unsigned int       statsmatch=24; /* any random number that is rare in uninitialized fields */
+-
+-    std::memset(&amp;user,0,sizeof(t_user_info));
+-    std::memset(&amp;client,0,sizeof(t_client_state));
+-
+-    /* default values */
+-    user.archtag = ARCHTAG_WINX86;
+-    user.gamelang = CLIENT_COUNTRYINFO_109_GAMELANG;
+-
+-    read_commandline(argc,argv,&amp;servname,&amp;servport,&amp;user.clienttag,&amp;user.archtag,&amp;changepass,
+-                     &amp;newacct,&amp;user.channel,&amp;user.cdowner,&amp;user.cdkey,&amp;user.gamelang,&amp;client.useansi);
+-
+-    client.fd_stdin = fileno(stdin);
+-    if (tcgetattr(client.fd_stdin,&amp;client.in_attr_old)&gt;=0)
+-    {
+-        client.in_attr_new = client.in_attr_old;
+-        client.in_attr_new.c_lflag &amp;= ~(ECHO | ICANON); /* turn off ECHO and ICANON */
+-	client.in_attr_new.c_cc[VMIN]  = 0; /* don't require reads to return data */
+-        client.in_attr_new.c_cc[VTIME] = 1; /* timeout = .1 seconds */
+-        tcsetattr(client.fd_stdin,TCSANOW,&amp;client.in_attr_new);
+-        client.changed_in = 1;
+-    }
+-    else
+-    {
+-	std::fprintf(stderr,&quot;%s: could not set terminal attributes for stdin\n&quot;,argv[0]);
+-	client.changed_in = 0;
+-    }
+-
+-#ifdef HAVE_SIGACTION
+-    {
+-        struct sigaction winch_action;
+-
+-        winch_action.sa_handler = winch_sig_handle;
+-        sigemptyset(&amp;winch_action.sa_mask);
+-        winch_action.sa_flags = SA_RESTART;
+-
+-        sigaction(SIGWINCH,&amp;winch_action,NULL);
+-    }
+-#endif
+-
+-
+-    if (client_get_termsize(client.fd_stdin,&amp;client.screen_width,&amp;client.screen_height)&lt;0)
+-    {
+-	std::fprintf(stderr,&quot;%s: could not determine screen size\n&quot;,argv[0]);
+-	if (client.changed_in)
+-	    tcsetattr(client.fd_stdin,TCSAFLUSH,&amp;client.in_attr_old);
+-	return EXIT_FAILURE;
+-    }
+-
+-    if (client.useansi)
+-    {
+-	ansi_text_reset();
+-	ansi_screen_clear();
+-	ansi_cursor_move_home();
+-	std::fflush(stdout);
+-    }
+-
+-    if ((client.sd = client_connect(argv[0],
+-			     servname,servport,user.cdowner,user.cdkey,user.clienttag,
+-			     &amp;client.saddr,&amp;client.sessionkey,&amp;client.sessionnum,user.archtag,user.gamelang))&lt;0)
+-    {
+-	std::fprintf(stderr,&quot;%s: fatal error during handshake\n&quot;,argv[0]);
+-	if (client.changed_in)
+-	    tcsetattr(client.fd_stdin,TCSAFLUSH,&amp;client.in_attr_old);
+-	return EXIT_FAILURE;
+-    }
+-
+-    /* reuse this same packet over and over */
+-    if (!(rpacket = packet_create(packet_class_bnet)))
+-    {
+-	std::fprintf(stderr,&quot;%s: could not create packet\n&quot;,argv[0]);
+-	psock_close(client.sd);
+-	if (client.changed_in)
+-	    tcsetattr(client.fd_stdin,TCSAFLUSH,&amp;client.in_attr_old);
+-	return EXIT_FAILURE;
+-    }
+-
+-    if (!(packet = packet_create(packet_class_bnet)))
+-    {
+-	std::fprintf(stderr,&quot;%s: could not create packet\n&quot;,argv[0]);
+-	psock_close(client.sd);
+-	if (client.changed_in)
+-	    tcsetattr(client.fd_stdin,TCSAFLUSH,&amp;client.in_attr_old);
+-	return EXIT_FAILURE;
+-    }
+-    packet_set_size(packet,sizeof(t_client_fileinforeq));
+-    packet_set_type(packet,CLIENT_FILEINFOREQ);
+-    bn_int_set(&amp;packet-&gt;u.client_fileinforeq.type,CLIENT_FILEINFOREQ_TYPE_TOS);
+-    bn_int_set(&amp;packet-&gt;u.client_fileinforeq.unknown2,CLIENT_FILEINFOREQ_UNKNOWN2);
+-
+-    if ((user.clienttag == CLIENTTAG_DIABLO2DV) || (user.clienttag == CLIENTTAG_DIABLO2XP))
+-        packet_append_string(packet,CLIENT_FILEINFOREQ_FILE_TOSUNICODEUSA);
+-    else
+-        packet_append_string(packet,CLIENT_FILEINFOREQ_FILE_TOSUSA);
+-
+-    client_blocksend_packet(client.sd,packet);
+-    packet_del_ref(packet);
+-    do
+-        if (client_blockrecv_packet(client.sd,rpacket)&lt;0)
+-	{
+-	   std::fprintf(stderr,&quot;%s: server closed connection\n&quot;,argv[0]);
+-	   psock_close(client.sd);
+-	   if (client.changed_in)
+-	       tcsetattr(client.fd_stdin,TCSAFLUSH,&amp;client.in_attr_old);
+-	   return EXIT_FAILURE;
+-	}
+-    while (packet_get_type(rpacket)!=SERVER_FILEINFOREPLY);
+-
+-    /* real client would also send statsreq on past logins here */
+-
+-    std::printf(&quot;----\n&quot;);
+-    if (newacct)
+-    {
+-	if (client.useansi)
+-	    ansi_text_color_fore(ansi_text_color_red);
+-	std::printf(&quot;###### Terms Of Service ######\n&quot;);
+-	print_file(&amp;client.saddr,packet_get_str_const(rpacket,sizeof(t_server_fileinforeply),1024),argv[0],user.clienttag);
+-	std::printf(&quot;##############################\n\n&quot;);
+-	if (client.useansi)
+-	    ansi_text_reset();
+-    }
+-
+-    for (;;)
+-    {
+-        char         password[MAX_MESSAGE_LEN];
+-	unsigned int i;
+-	int          status;
+-
+-	if (newacct)
+-	{
+-	    char   passwordvrfy[MAX_MESSAGE_LEN];
+-            t_hash passhash1;
+-
+-	    std::printf(&quot;Enter information for your new account\n&quot;);
+-	    client.munged = 1;
+-	    client.commpos = 0;
+-	    user.player[0] = '\0';
+-	    while ((status = client_get_comm(&quot;Username: &quot;,user.player,MAX_MESSAGE_LEN,&amp;client.commpos,
+-	                                     1,client.munged,client.screen_width))==0)
+-		if (handle_winch)
+-		{
+-		    client_get_termsize(client.fd_stdin,&amp;client.screen_width,&amp;client.screen_height);
+-		    std::printf(&quot; \r&quot;);
+-		    client.munged = 1;
+-		    handle_winch = 0;
+-		}
+-		else
+-		    client.munged = 0;
+-	    std::printf(&quot;\n&quot;);
+-	    if (status&lt;0)
+-		continue;
+-	    if (std::strchr(user.player,' ')  || std::strchr(user.player,'\t') ||
+-		std::strchr(user.player,'\r') || std::strchr(user.player,'\n') )
+-	    {
+-		std::printf(&quot;Spaces are not allowed in usernames. Try again.\n&quot;);
+-		continue;
+-	    }
+-	    /* we could use std::strcspn() but it doesn't exist everywhere */
+-	    if (std::strchr(user.player,'#')  ||
+-		std::strchr(user.player,'%')  ||
+-		std::strchr(user.player,'&amp;')  ||
+-		std::strchr(user.player,'*')  ||
+-		std::strchr(user.player,'\\') ||
+-		std::strchr(user.player,'&quot;')  ||
+-		std::strchr(user.player,',')  ||
+-		std::strchr(user.player,'&lt;')  ||
+-		std::strchr(user.player,'/')  ||
+-		std::strchr(user.player,'&gt;')  ||
+-		std::strchr(user.player,'?'))
+-	    {
+-		std::printf(&quot;The special characters #%%&amp;*\\\&quot;,&lt;/&gt;? are not allowed in usernames. Try again.\n&quot;);
+-	    }
+-	    if (std::strlen(user.player)&gt;=MAX_USERNAME_LEN)
+-	    {
+-		std::printf(&quot;Usernames must not be more than %u characters long. Try again.\n&quot;,MAX_USERNAME_LEN-1);
+-		continue;
+-	    }
+-
+-	    client.munged = 1;
+-	    client.commpos = 0;
+-	    password[0] = '\0';
+-	    while ((status = client_get_comm(&quot;Password: &quot;,password,MAX_MESSAGE_LEN,&amp;client.commpos,0,
+-	                                     client.munged,client.screen_width))==0)
+-		if (handle_winch)
+-		{
+-		    client_get_termsize(client.fd_stdin,&amp;client.screen_width,&amp;client.screen_height);
+-		    std::printf(&quot; \r&quot;);
+-		    client.munged = 1;
+-		    handle_winch = 0;
+-		}
+-		else
+-		    client.munged = 0;
+-	    std::printf(&quot;\n&quot;);
+-	    if (status&lt;0)
+-		continue;
+-	    if (std::strlen(password)&gt;MAX_USERPASS_LEN)
+-	    {
+-		std::printf(&quot;password must not be more than %u characters long. Try again.\n&quot;,MAX_USERPASS_LEN);
+-		continue;
+-	    }
+-	    for (i=0; i&lt;std::strlen(password); i++)
+-		if (std::isupper((int)password[i]))
+-		    password[i] = std::tolower((int)password[i]);
+-
+-	    client.munged = 1;
+-	    client.commpos = 0;
+-	    passwordvrfy[0] = '\0';
+-	    while ((status = client_get_comm(&quot;Retype password: &quot;,passwordvrfy,MAX_MESSAGE_LEN,&amp;client.commpos,0,
+-	                                     client.munged,client.screen_width))==0)
+-		if (handle_winch)
+-		{
+-		    client_get_termsize(client.fd_stdin,&amp;client.screen_width,&amp;client.screen_height);
+-		    std::printf(&quot; \r&quot;);
+-		    client.munged = 1;
+-		    handle_winch = 0;
+-		}
+-		else
+-		    client.munged = 0;
+-	    std::printf(&quot;\n&quot;);
+-	    if (status&lt;0)
+-		continue;
+-	    for (i=0; i&lt;std::strlen(passwordvrfy); i++)
+-		passwordvrfy[i] = std::tolower((int)passwordvrfy[i]);
+-
+-	    if (std::strcmp(password,passwordvrfy)!=0)
+-	    {
+-		std::printf(&quot;Passwords do not match. Try again.\n&quot;);
+-		continue;
+-	    }
+-
+-	    bnet_hash(&amp;passhash1,std::strlen(password),password); /* do the single hash */
+-
+-	    if (!(packet = packet_create(packet_class_bnet)))
+-	    {
+-		std::fprintf(stderr,&quot;%s: could not create packet\n&quot;,argv[0]);
+-		psock_close(client.sd);
+-		if (client.changed_in)
+-		    tcsetattr(client.fd_stdin,TCSAFLUSH,&amp;client.in_attr_old);
+-		return EXIT_FAILURE;
+-	    }
+-	    packet_set_size(packet,sizeof(t_client_createacctreq1));
+-	    packet_set_type(packet,CLIENT_CREATEACCTREQ1);
+-	    hash_to_bnhash((t_hash const *)&amp;passhash1,packet-&gt;u.client_createacctreq1.password_hash1); /* avoid warning */
+-	    packet_append_string(packet,user.player);
+-            client_blocksend_packet(client.sd,packet);
+-	    packet_del_ref(packet);
+-
+-	    do
+-		if (client_blockrecv_packet(client.sd,rpacket)&lt;0)
+-		{
+-		   std::fprintf(stderr,&quot;%s: server closed connection\n&quot;,argv[0]);
+-		   psock_close(client.sd);
+-		   if (client.changed_in)
+-		       tcsetattr(client.fd_stdin,TCSAFLUSH,&amp;client.in_attr_old);
+-		   return EXIT_FAILURE;
+-		}
+-	    while (packet_get_type(rpacket)!=SERVER_CREATEACCTREPLY1);
+-	    dprintf(&quot;Got CREATEACCTREPLY1\n&quot;);
+-	    if (bn_int_get(rpacket-&gt;u.server_createacctreply1.result)==SERVER_CREATEACCTREPLY1_RESULT_NO)
+-	    {
+-		std::printf(&quot;Could not create an account under that name. Try another one.\n&quot;);
+-		continue;
+-	    }
+-	    std::printf(&quot;Account created.\n&quot;);
+-	}
+-	else if (changepass)
+-	{
+-	    char         passwordprev[MAX_MESSAGE_LEN];
+-	    char         passwordvrfy[MAX_MESSAGE_LEN];
+-            struct
+-            {
+-                bn_int ticks;
+-                bn_int sessionkey;
+-                bn_int passhash1[5];
+-            }            temp;
+-            t_hash       oldpasshash1;
+-            t_hash       oldpasshash2;
+-            t_hash       newpasshash1;
+-	    unsigned int ticks;
+-
+-            std::printf(&quot;Enter your old and new login information\n&quot;);
+-
+-	    client.munged = 1;
+-	    client.commpos = 0;
+-	    user.player[0] = '\0';
+-	    while ((status = client_get_comm(&quot;Username: &quot;,user.player,MAX_MESSAGE_LEN,&amp;client.commpos,1,
+-	                                     client.munged,client.screen_width))==0)
+-		if (handle_winch)
+-		{
+-		    client_get_termsize(client.fd_stdin,&amp;client.screen_width,&amp;client.screen_height);
+-		    std::printf(&quot; \r&quot;);
+-		    client.munged = 1;
+-		    handle_winch = 0;
+-		}
+-		else
+-		    client.munged = 0;
+-	    std::printf(&quot;\n&quot;);
+-	    if (status&lt;0)
+-		continue;
+-	    if (std::strchr(user.player,' '))
+-	    {
+-		std::printf(&quot;Spaces not allowed in username. Try again.\n&quot;);
+-		continue;
+-	    }
+-	    if (std::strlen(user.player)&gt;=MAX_USERNAME_LEN)
+-	    {
+-		std::printf(&quot;Usernames must not be more than %u characters long. Try again.\n&quot;,MAX_USERNAME_LEN-1);
+-		continue;
+-	    }
+-
+-	    client.munged = 1;
+-	    client.commpos = 0;
+-	    passwordprev[0] = '\0';
+-	    while ((status = client_get_comm(&quot;Old password: &quot;,passwordprev,MAX_MESSAGE_LEN,&amp;client.commpos,0,
+-	                                     client.munged,client.screen_width))==0)
+-		if (handle_winch)
+-		{
+-		    client_get_termsize(client.fd_stdin,&amp;client.screen_width,&amp;client.screen_height);
+-		    std::printf(&quot; \r&quot;);
+-		    client.munged = 1;
+-		    handle_winch = 0;
+-		}
+-		else
+-		    client.munged = 0;
+-	    std::printf(&quot;\n&quot;);
+-	    if (status&lt;0)
+-		continue;
+-	    for (i=0; i&lt;std::strlen(passwordprev); i++)
+-		passwordprev[i] = std::tolower((int)passwordprev[i]);
+-
+-	    client.munged = 1;
+-	    client.commpos = 0;
+-	    password[0] = '\0';
+-	    while ((status = client_get_comm(&quot;New password: &quot;,password,MAX_MESSAGE_LEN,&amp;client.commpos,0,
+-	                                     client.munged,client.screen_width))==0)
+-		if (handle_winch)
+-		{
+-		    client_get_termsize(client.fd_stdin,&amp;client.screen_width,&amp;client.screen_height);
+-		    std::printf(&quot; \r&quot;);
+-		    client.munged = 1;
+-		    handle_winch = 0;
+-		}
+-		else
+-		    client.munged = 0;
+-	    std::printf(&quot;\n&quot;);
+-	    if (status&lt;0)
+-		continue;
+-	    for (i=0; i&lt;std::strlen(password); i++)
+-		password[i] = std::tolower((int)password[i]);
+-
+-	    client.munged = 1;
+-	    client.commpos = 0;
+-	    passwordvrfy[0] = '\0';
+-	    while ((status = client_get_comm(&quot;Retype new password: &quot;,passwordvrfy,MAX_MESSAGE_LEN,&amp;client.commpos,0,
+-	                                     client.munged,client.screen_width))==0)
+-		if (handle_winch)
+-		{
+-		    client_get_termsize(client.fd_stdin,&amp;client.screen_width,&amp;client.screen_height);
+-		    std::printf(&quot; \r&quot;);
+-		    client.munged = 1;
+-		    handle_winch = 0;
+-		}
+-		else
+-		    client.munged = 0;
+-	    std::printf(&quot;\n&quot;);
+-	    if (status&lt;0)
+-		continue;
+-	    for (i=0; i&lt;std::strlen(passwordvrfy); i++)
+-		passwordvrfy[i] = std::tolower((int)passwordvrfy[i]);
+-
+-	    if (std::strcmp(password,passwordvrfy)!=0)
+-	    {
+-		std::printf(&quot;New passwords do not match. Try again.\n&quot;);
+-		continue;
+-	    }
+-
+-            ticks = 0; /* FIXME: what to use here? */
+-            bn_int_set(&amp;temp.ticks,ticks);
+-            bn_int_set(&amp;temp.sessionkey,client.sessionkey);
+-            bnet_hash(&amp;oldpasshash1,std::strlen(passwordprev),passwordprev); /* do the single hash for old */
+-            hash_to_bnhash((t_hash const *)&amp;oldpasshash1,temp.passhash1); /* avoid warning */
+-            bnet_hash(&amp;oldpasshash2,sizeof(temp),&amp;temp); /* do the double hash for old */
+-	    bnet_hash(&amp;newpasshash1,std::strlen(password),password); /* do the single hash for new */
+-
+-	    if (!(packet = packet_create(packet_class_bnet)))
+-	    {
+-		std::fprintf(stderr,&quot;%s: could not create packet\n&quot;,argv[0]);
+-		psock_close(client.sd);
+-		if (client.changed_in)
+-		    tcsetattr(client.fd_stdin,TCSAFLUSH,&amp;client.in_attr_old);
+-		return EXIT_FAILURE;
+-	    }
+-	    packet_set_size(packet,sizeof(t_client_changepassreq));
+-	    packet_set_type(packet,CLIENT_CHANGEPASSREQ);
+-	    bn_int_set(&amp;packet-&gt;u.client_changepassreq.ticks,ticks);
+-	    bn_int_set(&amp;packet-&gt;u.client_changepassreq.sessionkey,client.sessionkey);
+-	    hash_to_bnhash((t_hash const *)&amp;oldpasshash2,packet-&gt;u.client_changepassreq.oldpassword_hash2); /* avoid warning */
+-	    hash_to_bnhash((t_hash const *)&amp;newpasshash1,packet-&gt;u.client_changepassreq.newpassword_hash1); /* avoid warning */
+-	    packet_append_string(packet,user.player);
+-            client_blocksend_packet(client.sd,packet);
+-	    packet_del_ref(packet);
+-
+-	    do
+-		if (client_blockrecv_packet(client.sd,rpacket)&lt;0)
+-		{
+-		   std::fprintf(stderr,&quot;%s: server closed connection\n&quot;,argv[0]);
+-		   psock_close(client.sd);
+-		   if (client.changed_in)
+-		       tcsetattr(client.fd_stdin,TCSAFLUSH,&amp;client.in_attr_old);
+-		   return EXIT_FAILURE;
+-		}
+-	    while (packet_get_type(rpacket)!=SERVER_CHANGEPASSACK);
+-	    dprintf(&quot;Got CHANGEPASSACK\n&quot;);
+-	    if (bn_int_get(rpacket-&gt;u.server_changepassack.message)==SERVER_CHANGEPASSACK_MESSAGE_FAIL)
+-	    {
+-		std::printf(&quot;Could not change password. Try again.\n&quot;);
+-		continue;
+-	    }
+-	    std::printf(&quot;Password changed.\n&quot;);
+-	}
+-	else
+-	{
+-            std::printf(&quot;Enter your login information\n&quot;);
+-
+-	    client.munged = 1;
+-	    client.commpos = 0;
+-	    user.player[0] = '\0';
+-	    while ((status = client_get_comm(&quot;Username: &quot;,user.player,MAX_MESSAGE_LEN,&amp;client.commpos,1,
+-	                                     client.munged,client.screen_width))==0)
+-		if (handle_winch)
+-		{
+-		    client_get_termsize(client.fd_stdin,&amp;client.screen_width,&amp;client.screen_height);
+-		    std::printf(&quot; \r&quot;);
+-		    client.munged = 1;
+-		    handle_winch = 0;
+-		}
+-		else
+-		    client.munged = 0;
+-	    std::printf(&quot;\n&quot;);
+-	    if (status&lt;0)
+-		continue;
+-	    if (std::strchr(user.player,' '))
+-	    {
+-		std::printf(&quot;Spaces not allowed in username. Try again.\n&quot;);
+-		continue;
+-	    }
+-	    if (std::strlen(user.player)&gt;=MAX_USERNAME_LEN)
+-	    {
+-		std::printf(&quot;Usernames must not be more than %u characters long. Try again.\n&quot;,MAX_USERNAME_LEN-1);
+-		continue;
+-	    }
+-
+-	    client.munged = 1;
+-	    client.commpos = 0;
+-	    password[0] = '\0';
+-	    while ((status = client_get_comm(&quot;Password: &quot;,password,MAX_MESSAGE_LEN,&amp;client.commpos,0,
+-	                                     client.munged,client.screen_width))==0)
+-		if (handle_winch)
+-		{
+-		    client_get_termsize(client.fd_stdin,&amp;client.screen_width,&amp;client.screen_height);
+-		    std::printf(&quot; \r&quot;);
+-		    client.munged = 1;
+-		    handle_winch = 0;
+-		}
+-		else
+-		    client.munged = 0;
+-	    std::printf(&quot;\n&quot;);
+-	    if (status&lt;0)
+-		continue;
+-	    for (i=0; i&lt;std::strlen(password); i++)
+-		password[i] = std::tolower((int)password[i]);
+-	}
+-
+-	/* now login */
+-        {
+-            struct
+-            {
+-                bn_int ticks;
+-                bn_int sessionkey;
+-                bn_int passhash1[5];
+-            }            temp;
+-            t_hash       passhash1;
+-            t_hash       passhash2;
+-	    unsigned int ticks;
+-
+-            ticks = 0; /* FIXME: what to use here? */
+-            bn_int_set(&amp;temp.ticks,ticks);
+-            bn_int_set(&amp;temp.sessionkey,client.sessionkey);
+-            bnet_hash(&amp;passhash1,std::strlen(password),password); /* do the single hash */
+-            hash_to_bnhash((t_hash const *)&amp;passhash1,temp.passhash1); /* avoid warning */
+-            bnet_hash(&amp;passhash2,sizeof(temp),&amp;temp); /* do the double hash */
+-
+-	    if (!(packet = packet_create(packet_class_bnet)))
+-	    {
+-		std::fprintf(stderr,&quot;%s: could not create packet\n&quot;,argv[0]);
+-		psock_close(client.sd);
+-		if (client.changed_in)
+-		    tcsetattr(client.fd_stdin,TCSAFLUSH,&amp;client.in_attr_old);
+-		return EXIT_FAILURE;
+-	    }
+-	    packet_set_size(packet,sizeof(t_client_loginreq1));
+-	    packet_set_type(packet,CLIENT_LOGINREQ1);
+-	    bn_int_set(&amp;packet-&gt;u.client_loginreq1.ticks,ticks);
+-	    bn_int_set(&amp;packet-&gt;u.client_loginreq1.sessionkey,client.sessionkey);
+-	    hash_to_bnhash((t_hash const *)&amp;passhash2,packet-&gt;u.client_loginreq1.password_hash2); /* avoid warning */
+-	    packet_append_string(packet,user.player);
+-            client_blocksend_packet(client.sd,packet);
+-	    packet_del_ref(packet);
+-	}
+-
+-        do
+-            if (client_blockrecv_packet(client.sd,rpacket)&lt;0)
+-	    {
+-	       std::fprintf(stderr,&quot;%s: server closed connection\n&quot;,argv[0]);
+-	       psock_close(client.sd);
+-	       if (client.changed_in)
+-	           tcsetattr(client.fd_stdin,TCSAFLUSH,&amp;client.in_attr_old);
+-	       return EXIT_FAILURE;
+-	    }
+-        while (packet_get_type(rpacket)!=SERVER_LOGINREPLY1);
+-	if (bn_int_get(rpacket-&gt;u.server_loginreply1.message)==SERVER_LOGINREPLY1_MESSAGE_SUCCESS)
+-	    break;
+-	std::fprintf(stderr,&quot;Login incorrect.\n&quot;);
+-    }
+-
+-    std::fprintf(stderr,&quot;Logged in.\n&quot;);
+-    std::printf(&quot;----\n&quot;);
+-
+-    if (newacct &amp;&amp; (std::strcmp(user.clienttag,CLIENTTAG_DIABLORTL)==0 ||
+-		    std::strcmp(user.clienttag,CLIENTTAG_DIABLOSHR)==0))
+-    {
+-	if (!(packet = packet_create(packet_class_bnet)))
+-	{
+-	    std::fprintf(stderr,&quot;%s: could not create packet\n&quot;,argv[0]);
+-	    if (client.changed_in)
+-		tcsetattr(client.fd_stdin,TCSAFLUSH,&amp;client.in_attr_old);
+-	}
+-	else
+-	{
+-	    packet_set_size(packet,sizeof(t_client_playerinforeq));
+-	    packet_set_type(packet,CLIENT_PLAYERINFOREQ);
+-	    packet_append_string(packet,user.player);
+-	    packet_append_string(packet,&quot;LTRD 1 2 0 20 25 15 20 100 0&quot;); /* FIXME: don't hardcode */
+-	    client_blocksend_packet(client.sd,packet);
+-	    packet_del_ref(packet);
+-	}
+-    }
+-
+-    if (!(packet = packet_create(packet_class_bnet)))
+-    {
+-	std::fprintf(stderr,&quot;%s: could not create packet\n&quot;,argv[0]);
+-	psock_close(client.sd);
+-	if (client.changed_in)
+-	    tcsetattr(client.fd_stdin,TCSAFLUSH,&amp;client.in_attr_old);
+-	return EXIT_FAILURE;
+-    }
+-    packet_set_size(packet,sizeof(t_client_progident2));
+-    packet_set_type(packet,CLIENT_PROGIDENT2);
+-    bn_int_tag_set(&amp;packet-&gt;u.client_progident2.clienttag,user.clienttag);
+-    client_blocksend_packet(client.sd,packet);
+-    packet_del_ref(packet);
+-
+-    do
+-        if (client_blockrecv_packet(client.sd,rpacket)&lt;0)
+-	{
+-	    std::fprintf(stderr,&quot;%s: server closed connection\n&quot;,argv[0]);
+-	    psock_close(client.sd);
+-	    if (client.changed_in)
+-		tcsetattr(client.fd_stdin,TCSAFLUSH,&amp;client.in_attr_old);
+-	    return EXIT_FAILURE;
+-	}
+-    while (packet_get_type(rpacket)!=SERVER_CHANNELLIST);
+-
+-    {
+-	unsigned int i;
+-	unsigned int chann_off;
+-	char const * chann;
+-
+-	channellist = (const char**)xmalloc(sizeof(char*)*1);
+-	for (i=0,chann_off=sizeof(t_server_channellist);
+-	     (chann = packet_get_str_const(rpacket,chann_off,128));
+-	     i++,chann_off+=std::strlen(chann)+1)
+-        {
+-	    if (chann[0] == '\0') break;  /* channel list ends with a &quot;&quot; */
+-
+-	    channellist = (const char**)xrealloc(channellist,sizeof(char*)*(i+2));
+-	    channellist[i] = xstrdup(chann);
+-	}
+-	channellist[i] = NULL;
+-    }
+-
+-    if (!(packet = packet_create(packet_class_bnet)))
+-    {
+-	std::fprintf(stderr,&quot;%s: could not create packet\n&quot;,argv[0]);
+-	psock_close(client.sd);
+-	if (client.changed_in)
+-	    tcsetattr(client.fd_stdin,TCSAFLUSH,&amp;client.in_attr_old);
+-	return EXIT_FAILURE;
+-    }
+-    packet_set_size(packet,sizeof(t_client_joinchannel));
+-    packet_set_type(packet,CLIENT_JOINCHANNEL);
+-    bn_int_set(&amp;packet-&gt;u.client_joinchannel.channelflag,CLIENT_JOINCHANNEL_GENERIC);
+-    packet_append_string(packet,user.channel);
+-    client_blocksend_packet(client.sd,packet);
+-    packet_del_ref(packet);
+-
+-    if (psock_ctl(client.sd,PSOCK_NONBLOCK)&lt;0)
+-	std::fprintf(stderr,&quot;%s: could not set TCP socket to non-blocking mode (psock_ctl: %s)\n&quot;,argv[0],std::strerror(psock_errno()));
+-
+-    client.mode = mode_chat;
+-
+-    {
+-	unsigned int   i;
+-	int            highest_fd;
+-	t_psock_fd_set rfds;
+-#ifdef WIN32
+-    static struct timeval tv;
+-
+-	tv.tv_sec  = 50 / 1000;
+-	tv.tv_usec = 50 % 1000;
+-#endif
+-
+-	PSOCK_FD_ZERO(&amp;rfds);
+-
+-#ifndef WIN32
+-	highest_fd = client.fd_stdin;
+-	if (client.sd&gt;highest_fd)
+-#endif
+-	    highest_fd = client.sd;
+-
+-	client.currsize = 0;
+-
+-	client.munged = 1; /* == need to draw prompt */
+-	client.commpos = 0;
+-	client.text[0] = '\0';
+-
+-	for (;;)
+-	{
+-
+-
+-	    if (handle_winch)
+-	    {
+-		client_get_termsize(client.fd_stdin,&amp;client.screen_width,&amp;client.screen_height);
+-		handle_winch = 0;
+-		std::printf(&quot; \r&quot;);
+-		client.munged = 1;
+-	    }
+-
+-	    if (client.munged)
+-	    {
+-		std::printf(&quot;%s%s&quot;,mode_get_prompt(client.mode),client.text + ((client.screen_width &lt;= std::strlen(mode_get_prompt(client.mode)) + client.commpos ) ? std::strlen(mode_get_prompt(client.mode)) + client.commpos + 1 - client.screen_width : 0));
+-		std::fflush(stdout);
+-		client.munged = 0;
+-	    }
+-	    	PSOCK_FD_ZERO(&amp;rfds);
+-#ifndef WIN32
+-	    PSOCK_FD_SET(client.fd_stdin,&amp;rfds);
+-#endif
+-	    PSOCK_FD_SET(client.sd,&amp;rfds);
+-		errno = 0;
+-
+-#ifndef WIN32
+-	    if (psock_select(highest_fd+1,&amp;rfds,NULL,NULL,NULL)&lt;0)
+-#else
+-	    if (psock_select(highest_fd+1,&amp;rfds,NULL,NULL,&amp;tv)&lt;0)
+-#endif
+-	    {
+-			if (psock_errno()!=PSOCK_EINTR)
+-			{
+-				munge(&amp;client);
+-				std::printf(&quot;Select failed (select: %s)\n&quot;,std::strerror(psock_errno()));
+-			}
+-			continue;
+-	    }
+-#ifndef WIN32
+-	    if (PSOCK_FD_ISSET(client.fd_stdin,&amp;rfds)) /* got keyboard data */
+-#else
+-		if (kbhit())
+-#endif
+-	    {
+-		client.munged = 0;
+-
+-		switch (client_get_comm(mode_get_prompt(client.mode),client.text,MAX_MESSAGE_LEN,&amp;client.commpos,1,
+-		                        0,client.screen_width))
+-		{
+-		case -1: /* cancel */
+-		    munge(&amp;client);
+-		    if (client.mode==mode_command)
+-			client.mode = mode_chat;
+-		    else
+-			client.mode = mode_command;
+-		    client.commpos = 0;
+-		    client.text[0] = '\0';
+-		    break;
+-
+-		case 0: /* timeout */
+-		    break;
+-
+-		case 1:
+-		    switch (client.mode)
+-		    {
+-		    case mode_claninvite:
+-
+-		        std::printf(&quot;\n&quot;);
+-			client.munged = 1;
+-
+-			if ((client.text[0]!='\0') &amp;&amp; strcasecmp(client.text,&quot;yes&quot;) &amp;&amp; strcasecmp(client.text,&quot;no&quot;))
+-			{
+-			    std::printf(&quot;Do you want to accept invitation (yes/no) ? [yes] &quot;);
+-			    break;
+-			}
+-
+-			if (!(packet = packet_create(packet_class_bnet)))
+-			{
+-			    std::printf(&quot;Packet creation failed.\n&quot;);
+-			}
+-			else
+-			{
+-			    char result;
+-
+-			    packet_set_size(packet,sizeof(t_client_clan_invitereply));
+-			    packet_set_type(packet,CLIENT_CLAN_INVITEREPLY);
+-			    bn_int_set(&amp;packet-&gt;u.client_clan_invitereply.count,user.count);
+-			    bn_int_set(&amp;packet-&gt;u.client_clan_invitereply.clantag,user.clantag);
+-			    packet_append_string(packet,user.inviter);
+-
+-			    if (!strcasecmp(client.text,&quot;no&quot;))
+-			        result = CLAN_RESPONSE_DECLINED;
+-			    else
+-			        result = CLAN_RESPONSE_ACCEPT;
+-
+-			    packet_append_data(packet,&amp;result,1);
+-
+-			    client_blocksend_packet(client.sd,packet);
+-			    packet_del_ref(packet);
+-
+-			    if (user.inviter)
+-			        xfree((void *)user.inviter);
+-			    user.inviter = NULL;
+-
+-			}
+-
+-
+-			client.mode = mode_chat;
+-		        break;
+-
+-		    case mode_gamename:
+-			if (client.text[0]=='\0')
+-			{
+-		            munge(&amp;client);
+-			    std::printf(&quot;Games must have a name.\n&quot;);
+-			    break;
+-			}
+-			std::printf(&quot;\n&quot;);
+-			client.munged = 1;
+-			std::strncpy(user.curr_gamename,client.text,sizeof(user.curr_gamename));
+-			user.curr_gamename[sizeof(user.curr_gamename)-1] = '\0';
+-			client.mode = mode_gamepass;
+-			break;
+-		    case mode_gamepass:
+-			std::printf(&quot;\n&quot;);
+-			client.munged = 1;
+-			std::strncpy(user.curr_gamepass,client.text,sizeof(user.curr_gamepass));
+-			user.curr_gamepass[sizeof(user.curr_gamepass)-1] = '\0';
+-
+-			if (!(packet = packet_create(packet_class_bnet)))
+-			{
+-			    std::printf(&quot;Packet creation failed.\n&quot;);
+-			    client.mode = mode_command;
+-			}
+-			else
+-			{
+-			    packet_set_size(packet,sizeof(t_client_startgame4));
+-			    packet_set_type(packet,CLIENT_STARTGAME4);
+-			    bn_short_set(&amp;packet-&gt;u.client_startgame4.status,CLIENT_STARTGAME4_STATUS_INIT);
+-			    bn_short_set(&amp;packet-&gt;u.client_startgame4.flag,0x0000);
+-			    bn_int_set(&amp;packet-&gt;u.client_startgame4.unknown2,CLIENT_STARTGAME4_UNKNOWN2);
+-			    bn_short_set(&amp;packet-&gt;u.client_startgame4.gametype,CLIENT_GAMELISTREQ_MELEE);
+-			    bn_short_set(&amp;packet-&gt;u.client_startgame4.option,CLIENT_STARTGAME4_OPTION_MELEE_NORMAL);
+-			    bn_int_set(&amp;packet-&gt;u.client_startgame4.unknown4,CLIENT_STARTGAME4_UNKNOWN4);
+-			    bn_int_set(&amp;packet-&gt;u.client_startgame4.unknown5,CLIENT_STARTGAME4_UNKNOWN5);
+-			    packet_append_string(packet,user.curr_gamename);
+-			    packet_append_string(packet,user.curr_gamepass);
+-			    packet_append_string(packet,&quot;,,,,1,3,1,3e37a84c,7,Player\rAshrigo\r&quot;);
+-			    client_blocksend_packet(client.sd,packet);
+-			    packet_del_ref(packet);
+-			    client.mode = mode_gamewait;
+-			}
+-			break;
+-		    case mode_gamestop:
+-			std::printf(&quot;\n&quot;);
+-			client.munged = 1;
+-
+-			if (!(packet = packet_create(packet_class_bnet)))
+-			    std::printf(&quot;Packet creation failed.\n&quot;);
+-			else
+-			{
+-			    packet_set_size(packet,sizeof(t_client_closegame));
+-			    packet_set_type(packet,CLIENT_CLOSEGAME);
+-			    client_blocksend_packet(client.sd,packet);
+-			    packet_del_ref(packet);
+-			    std::printf(&quot;Game closed.\n&quot;);
+-			    client.mode = mode_command;
+-			}
+-			break;
+-		    case mode_command:
+-			if (client.text[0]=='\0')
+-			    break;
+-			std::printf(&quot;\n&quot;);
+-			client.munged = 1;
+-			if (strstart(client.text,&quot;channel&quot;)==0)
+-			{
+-			    std::printf(&quot;Available channels:\n&quot;);
+-			    if (client.useansi)
+-				ansi_text_color_fore(ansi_text_color_yellow);
+-			    for (i=0; channellist[i]; i++)
+-				std::printf(&quot; %s\n&quot;,channellist[i]);
+-			    if (client.useansi)
+-				ansi_text_reset();
+-			}
+-			else if (strstart(client.text,&quot;create&quot;)==0)
+-			{
+-			    std::printf(&quot;Enter new game information\n&quot;);
+-			    client.mode = mode_gamename;
+-			}
+-			else if (strstart(client.text,&quot;join&quot;)==0)
+-			{
+-			    std::printf(&quot;Not implemented yet.\n&quot;);
+-			}
+-			else if (strstart(client.text,&quot;ladder&quot;)==0)
+-			{
+-			    std::printf(&quot;Not implemented yet.\n&quot;);
+-			}
+-			else if (strstart(client.text,&quot;stats&quot;)==0)
+-			{
+-			    std::printf(&quot;Not implemented yet.\n&quot;);
+-			}
+-			else if (strstart(client.text,&quot;help&quot;)==0 || std::strcmp(client.text,&quot;?&quot;)==0)
+-			{
+-			    std::printf(&quot;Available commands:\n&quot;
+-				   &quot; channel        - join or create a channel\n&quot;
+-				   &quot; create         - create a new game\n&quot;
+-				   &quot; join           - list current games\n&quot;
+-				   &quot; ladder         - list ladder rankings\n&quot;
+-				   &quot; help           - show this text\n&quot;
+-				   &quot; info &lt;PLAYER&gt;  - print a player's profile\n&quot;
+-				   &quot; chinfo         - modify your profile\n&quot;
+-				   &quot; quit           - exit bnchat\n&quot;
+-				   &quot; stats &lt;PLAYER&gt; - print a player's game record\n&quot;
+-				   &quot; invite &lt;PLAYER&gt; - invite a player to your clan\n&quot;
+-				   &quot;Use the escape key to toggle between chat and command modes.\n&quot;);
+-			}
+-			else if (strstart(client.text,&quot;invite&quot;)==0)
+-			{
+-			    for (i=6; client.text[i]==' ' || client.text[i]=='\t'; i++);
+-			    if (client.text[i]=='\0')
+-			    {
+-			        ansi_printf(&amp;client,ansi_text_color_red,&quot;You must specify the player.\n&quot;);
+-			    }
+-			    else
+-			    {
+-				if (!(packet = packet_create(packet_class_bnet)))
+-				    std::fprintf(stderr,&quot;%s: could not create packet\n&quot;,argv[0]);
+-				else
+-				{
+-				    std::printf(&quot;Inviting:  %s\n&quot;,&amp;client.text[i]);
+-				    packet_set_size(packet,sizeof(t_client_clan_invitereq));
+-				    packet_set_type(packet,CLIENT_CLAN_INVITEREQ);
+-				    bn_int_set(&amp;packet-&gt;u.client_clan_invitereq.count,1);
+-				    packet_append_string(packet,&amp;client.text[i]);
+-				    client_blocksend_packet(client.sd,packet);
+-				    packet_del_ref(packet);
+-				}
+-			    }
+-			}
+-			else if (strstart(client.text,&quot;info&quot;)==0)
+-			{
+-			    for (i=4; client.text[i]==' ' || client.text[i]=='\t'; i++);
+-			    if (client.text[i]=='\0')
+-			    {
+-			        ansi_printf(&amp;client,ansi_text_color_red,&quot;You must specify the player.\n&quot;);
+-			    }
+-			    else
+-			    {
+-				if (!(packet = packet_create(packet_class_bnet)))
+-				    std::fprintf(stderr,&quot;%s: could not create packet\n&quot;,argv[0]);
+-				else
+-				{
+-				    std::printf(&quot;Profile info for %s:\n&quot;,&amp;client.text[i]);
+-				    packet_set_size(packet,sizeof(t_client_statsreq));
+-				    packet_set_type(packet,CLIENT_STATSREQ);
+-				    bn_int_set(&amp;packet-&gt;u.client_statsreq.name_count,1);
+-				    bn_int_set(&amp;packet-&gt;u.client_statsreq.key_count,4);
+-				    statsmatch = (unsigned int)std::time(NULL);
+-				    bn_int_set(&amp;packet-&gt;u.client_statsreq.requestid,statsmatch);
+-				    packet_append_string(packet,&amp;client.text[i]);
+-#if 0
+-				    packet_append_string(packet,&quot;BNET\\acct\\username&quot;);
+-				    packet_append_string(packet,&quot;BNET\\acct\\userid&quot;);
+-#endif
+-				    packet_append_string(packet,&quot;profile\\sex&quot;);
+-				    packet_append_string(packet,&quot;profile\\age&quot;);
+-				    packet_append_string(packet,&quot;profile\\location&quot;);
+-				    packet_append_string(packet,&quot;profile\\description&quot;);
+-				    client_blocksend_packet(client.sd,packet);
+-				    packet_del_ref(packet);
+-
+-				    client.mode = mode_waitstat;
+-				}
+-			    }
+-			}
+-			else if (strstart(client.text,&quot;chinfo&quot;)==0)
+-			{
+-			    std::printf(&quot;Not implemented yet.\n&quot;);
+-			}
+-			else if (strstart(client.text,&quot;quit&quot;)==0)
+-			{
+-			    psock_close(client.sd);
+-			    if (client.changed_in)
+-				tcsetattr(client.fd_stdin,TCSAFLUSH,&amp;client.in_attr_old);
+-			    return EXIT_SUCCESS;
+-			}
+-			else
+-			{
+-			    ansi_printf(&amp;client,ansi_text_color_red,&quot;Unknown local command \&quot;%s\&quot;.\n&quot;,client.text);
+-			}
+-			break;
+-
+-		    case mode_chat:
+-			if (client.text[0]=='\0')
+-			    break;
+-			if (client.text[0]=='/')
+-			{
+-		            munge(&amp;client);
+-			}
+-			else
+-			{
+-			    ansi_printf(&amp;client,ansi_text_color_blue,&quot;\r&lt;%s&gt;&quot;,user.player);
+-			    std::printf(&quot; &quot;);
+-			    str_print_term(stdout,client.text,0,0);
+-			    std::printf(&quot;\n&quot;);
+-			    client.munged = 1;
+-			}
+-
+-			if (!(packet = packet_create(packet_class_bnet)))
+-			{
+-			    std::fprintf(stderr,&quot;%s: could not create packet\n&quot;,argv[0]);
+-			    psock_close(client.sd);
+-			    if (client.changed_in)
+-				tcsetattr(client.fd_stdin,TCSAFLUSH,&amp;client.in_attr_old);
+-			    return EXIT_FAILURE;
+-			}
+-			packet_set_size(packet,sizeof(t_client_message));
+-			packet_set_type(packet,CLIENT_MESSAGE);
+-			packet_append_string(packet,client.text);
+-			client_blocksend_packet(client.sd,packet);
+-			packet_del_ref(packet);
+-			break;
+-
+-		    default:
+-			/* one of the wait states; erase what they typed */
+-		        munge(&amp;client);
+-			break;
+-		    }
+-
+-		    client.commpos = 0;
+-		    client.text[0] = '\0';
+-		    break;
+-		}
+-	    }
+-
+-	    if (PSOCK_FD_ISSET(client.sd,&amp;rfds)) /* got network data */
+-	    {
+-		/* rpacket is from server, packet is from client */
+-		switch (net_recv_packet(client.sd,rpacket,&amp;client.currsize))
+-		{
+-		case 0: /* nothing */
+-		    break;
+-
+-		case 1:
+-		    switch (packet_get_type(rpacket))
+-		    {
+-		    case SERVER_ECHOREQ: /* might as well support it */
+-			if (packet_get_size(rpacket)&lt;sizeof(t_server_echoreq))
+-			{
+-		            munge(&amp;client);
+-			    std::printf(&quot;Got bad SERVER_ECHOREQ packet (expected %lu bytes, got %u)\n&quot;,sizeof(t_server_echoreq),packet_get_size(rpacket));
+-			    break;
+-			}
+-
+-			if (!(packet = packet_create(packet_class_bnet)))
+-			{
+-		            munge(&amp;client);
+-			    std::fprintf(stderr,&quot;%s: could not create packet\n&quot;,argv[0]);
+-			    psock_close(client.sd);
+-			    if (client.changed_in)
+-				tcsetattr(client.fd_stdin,TCSAFLUSH,&amp;client.in_attr_old);
+-			    return EXIT_FAILURE;
+-			}
+-			packet_set_size(packet,sizeof(t_client_echoreply));
+-			packet_set_type(packet,CLIENT_ECHOREPLY);
+-			bn_int_set(&amp;packet-&gt;u.client_echoreply.ticks,bn_int_get(rpacket-&gt;u.server_echoreq.ticks));
+-			client_blocksend_packet(client.sd,packet);
+-			packet_del_ref(packet);
+-
+-			break;
+-
+-		    case SERVER_STARTGAME4_ACK:
+-			if (client.mode==mode_gamewait)
+-			{
+-		            munge(&amp;client);
+-
+-			    if (bn_int_get(rpacket-&gt;u.server_startgame4_ack.reply)==SERVER_STARTGAME4_ACK_OK)
+-			    {
+-				std::printf(&quot;Game created.\n&quot;);
+-				client.mode = mode_gamestop;
+-			    }
+-			    else
+-			    {
+-				std::printf(&quot;Game could not be created, try another name.\n&quot;);
+-				client.mode = mode_gamename;
+-			    }
+-			}
+-			break;
+-
+-		    case SERVER_CLAN_INVITEREQ:
+-			if (packet_get_size(rpacket)&lt;sizeof(t_server_clan_invitereq))
+-			{
+-		            munge(&amp;client);
+-			    std::printf(&quot;Got bad SERVER_CLAN_INVITEREQ packet (expected %lu bytes, got %u)\n&quot;,sizeof(t_server_clan_invitereq),packet_get_size(rpacket));
+-			    break;
+-			}
+-
+-			{
+-			    char const * clan;
+-			    char const * inviter;
+-			    int offset;
+-
+-			    offset = sizeof(t_server_clan_invitereq);
+-			    if (!(clan = packet_get_str_const(rpacket,offset,MAX_CLANNAME_LEN)))
+-			    {
+-				munge(&amp;client);
+-				std::printf(&quot;Got SERVER_CLAN_INVITEREQ with bad or missing clanname\n&quot;);
+-				break;
+-			    }
+-			    offset+=std::strlen(clan)+1;
+-			    if (!(inviter = packet_get_str_const(rpacket,offset,MAX_USERNAME_LEN)))
+-			    {
+-				munge(&amp;client);
+-				std::printf(&quot;Got SERVER_CLAN_INVITEREQ with bad or missing inviter\n&quot;);
+-				break;
+-			    }
+-			    user.count   = bn_int_get(rpacket-&gt;u.server_clan_invitereq.count);
+-			    user.clantag = bn_int_get(rpacket-&gt;u.server_clan_invitereq.clantag);
+-			    if (user.inviter)
+-			    	xfree((void *)user.inviter);
+-			    user.inviter = xstrdup(inviter);
+-
+-			    munge(&amp;client);
+-			    std::printf(&quot;%s invited you to Clan %s\n&quot;,inviter,clan);
+-			    std::printf(&quot;Do you want to accept invitation (yes/no) ? [yes] &quot;);
+-
+-			    client.mode = mode_claninvite;
+-			    break;
+-			}
+-
+-		    case SERVER_CLAN_INVITEREPLY:
+-			if (packet_get_size(rpacket)&lt;sizeof(t_server_clan_invitereply))
+-			{
+-		            munge(&amp;client);
+-			    std::printf(&quot;Got bad SERVER_CLAN_INVITEREPLY packet (expected %lu bytes, got %u)\n&quot;,sizeof(t_server_clan_invitereply),packet_get_size(rpacket));
+-			    break;
+-			}
+-
+-			{
+-			    char result = bn_byte_get(rpacket-&gt;u.server_clan_invitereply.result);
+-			    std::printf(&quot;Recieved result: %i\n&quot;,result);
+-			    break;
+-			}
+-
+-
+-		    case SERVER_CLANMEMBERUPDATE:
+-			if (packet_get_size(rpacket)&lt;sizeof(t_server_clanmemberupdate))
+-			{
+-		            munge(&amp;client);
+-			    std::printf(&quot;Got bad SERVER_CLANMEMBERUPDATE packet (expected %lu bytes, got %u)\n&quot;,sizeof(t_server_clanmemberupdate),packet_get_size(rpacket));
+-			    break;
+-			}
+-
+-			if (client.mode == mode_claninvite)
+-			    break;
+-
+-			{
+-			    char const * member;
+-			    char rank, online;
+-			    char const * rank_p;
+-			    char const * online_p;
+-			    char const * append_str;
+-			    int offset;
+-			    char const * rank_str;
+-			    char const * online_str;
+-
+-			    offset = sizeof(t_server_clanmemberupdate);
+-			    if (!(member = packet_get_str_const(rpacket,offset,MAX_USERNAME_LEN)))
+-			    {
+-				munge(&amp;client);
+-				std::printf(&quot;Got SERVER_CLANMEMBERUPDATE with bad or missing member\n&quot;);
+-				break;
+-			    }
+-			    offset+=std::strlen(member)+1;
+-			    if (!(rank_p = (char *)packet_get_data_const(rpacket,offset,1)))
+-			    {
+-				munge(&amp;client);
+-				std::printf(&quot;Got SERVER_CLANMEMBERUPDATE with bad or missing rank\n&quot;);
+-				break;
+-			    }
+-			    rank = *rank_p;
+-			    offset+=1;
+-			    if (!(online_p = (char *)packet_get_data_const(rpacket,offset,1)))
+-			    {
+-				munge(&amp;client);
+-				std::printf(&quot;Got SERVER_CLAN_MEMBERUPDATE with bad or missing online status\n&quot;);
+-				break;
+-			    }
+-			    online = *online_p;
+-			    offset+=1;
+-			    if (!(append_str = packet_get_str_const(rpacket,offset,MAX_USERNAME_LEN)))
+-			    {
+-				munge(&amp;client);
+-				std::printf(&quot;Got SERVER_CLANMEMBERUPDATE with bad or missing append_str\n&quot;);
+-				break;
+-			    }
+-
+-			    switch (rank)
+-			    {
+-				case SERVER_CLAN_MEMBER_NEW:
+-					rank_str = &quot;New clan member&quot;;
+-					break;
+-				case SERVER_CLAN_MEMBER_PEON:
+-					rank_str = &quot;Peon&quot;;
+-					break;
+-				case SERVER_CLAN_MEMBER_GRUNT:
+-					rank_str = &quot;Grunt&quot;;
+-					break;
+-				case SERVER_CLAN_MEMBER_SHAMAN:
+-					rank_str = &quot;Shaman&quot;;
+-					break;
+-				case SERVER_CLAN_MEMBER_CHIEFTAIN:
+-					rank_str = &quot;Chieftain&quot;;
+-					break;
+-				default:
+-					rank_str = &quot;&quot;;
+-
+-			    }
+-
+-			    switch (online)
+-			    {
+-				case SERVER_CLAN_MEMBER_OFFLINE:
+-					online_str = &quot;offline&quot;;
+-					break;
+-				case SERVER_CLAN_MEMBER_ONLINE:
+-					online_str = &quot;online&quot;;
+-					break;
+-				case SERVER_CLAN_MEMBER_CHANNEL:
+-					online_str = &quot;in channel&quot;;
+-					break;
+-				case SERVER_CLAN_MEMBER_GAME:
+-					online_str = &quot;in game&quot;;
+-					break;
+-				case SERVER_CLAN_MEMBER_PRIVATE_GAME:
+-					online_str = &quot;in private game&quot;;
+-					break;
+-				default:
+-					online_str = &quot;&quot;;
+-			    }
+-
+-			    munge(&amp;client);
+-			    std::printf(&quot;%s %s  is now %s %s\n&quot;,rank_str,member,online_str,append_str);
+-			}
+-
+-
+-		    case SERVER_STATSREPLY:
+-			if (client.mode==mode_waitstat)
+-			{
+-			    unsigned int names,keys;
+-			    unsigned int match;
+-			    unsigned int strpos;
+-			    char const * temp;
+-
+-		            munge(&amp;client);
+-
+-			    names = bn_int_get(rpacket-&gt;u.server_statsreply.name_count);
+-			    keys  = bn_int_get(rpacket-&gt;u.server_statsreply.key_count);
+-			    match = bn_int_get(rpacket-&gt;u.server_statsreply.requestid);
+-
+-			    if (names!=1 || keys!=4 || match!=statsmatch)
+-				std::printf(&quot;mangled reply (name_count=%u key_count=%u unknown1=%u)\n&quot;,
+-				       names,keys,match);
+-
+-			    strpos = sizeof(t_server_statsreply);
+-			    if ((temp = packet_get_str_const(rpacket,strpos,256)))
+-			    {
+-				std::printf(&quot; Sex: &quot;);
+-				ansi_printf(&amp;client,ansi_text_color_yellow,&quot;%s\n&quot;,temp);
+-				strpos += std::strlen(temp)+1;
+-			    }
+-			    if ((temp = packet_get_str_const(rpacket,strpos,256)))
+-			    {
+-				std::printf(&quot; Age: &quot;);
+-				ansi_printf(&amp;client,ansi_text_color_yellow,&quot;%s\n&quot;,temp);
+-				strpos += std::strlen(temp)+1;
+-			    }
+-			    if ((temp = packet_get_str_const(rpacket,strpos,256)))
+-			    {
+-				std::printf(&quot; Location: &quot;);
+-				ansi_printf(&amp;client,ansi_text_color_yellow,&quot;%s\n&quot;,temp);
+-				strpos += std::strlen(temp)+1;
+-			    }
+-			    if ((temp = packet_get_str_const(rpacket,strpos,256)))
+-			    {
+-				char   msgtemp[1024];
+-				char * tok;
+-
+-				std::printf(&quot; Description: \n&quot;);
+-				if (client.useansi)
+-				    ansi_text_color_fore(ansi_text_color_yellow);
+-				std::strncpy(msgtemp,temp,sizeof(msgtemp));
+-				msgtemp[sizeof(msgtemp)-1] = '\0';
+-				for (tok=std::strtok(msgtemp,&quot;\r\n&quot;); tok; tok=std::strtok(NULL,&quot;\r\n&quot;))
+-				    std::printf(&quot;  %s\n&quot;,tok);
+-				if (client.useansi)
+-				    ansi_text_reset();
+-				strpos += std::strlen(temp)+1;
+-			    }
+-
+-			    if (match==statsmatch)
+-				client.mode = mode_command;
+-			}
+-			break;
+-
+-		    case SERVER_PLAYERINFOREPLY: /* hmm. we didn't ask for one... */
+-			break;
+-
+-		    case SERVER_MESSAGE:
+-			if (packet_get_size(rpacket)&lt;sizeof(t_server_message))
+-			{
+-		            munge(&amp;client);
+-			    std::printf(&quot;Got bad SERVER_MESSAGE packet (expected %lu bytes, got %u)&quot;,sizeof(t_server_message),packet_get_size(rpacket));
+-			    break;
+-			}
+-
+-			{
+-			    char const * speaker;
+-			    char const * message;
+-
+-			    if (!(speaker = packet_get_str_const(rpacket,sizeof(t_server_message),32)))
+-			    {
+-		                munge(&amp;client);
+-				std::printf(&quot;Got SERVER_MESSAGE packet with bad or missing speaker\n&quot;);
+-				break;
+-			    }
+-			    if (!(message = packet_get_str_const(rpacket,sizeof(t_server_message)+std::strlen(speaker)+1,1024)))
+-			    {
+-		                munge(&amp;client);
+-				std::printf(&quot;Got SERVER_MESSAGE packet with bad or missing message (speaker=\&quot;%s\&quot; start=%lu len=%u)\n&quot;,speaker,sizeof(t_server_message)+std::strlen(speaker)+1,packet_get_size(rpacket));
+-				break;
+-			    }
+-
+-			    switch (bn_int_get(rpacket-&gt;u.server_message.type))
+-			    {
+-			    case SERVER_MESSAGE_TYPE_JOIN:
+-		                munge(&amp;client);
+-				ansi_printf(&amp;client,ansi_text_color_green,&quot;\&quot;%s\&quot; %s enters\n&quot;,speaker,
+-				            mflags_get_str(bn_int_get(rpacket-&gt;u.server_message.flags)));
+-				break;
+-			    case SERVER_MESSAGE_TYPE_CHANNEL:
+-		                munge(&amp;client);
+-				ansi_printf(&amp;client,ansi_text_color_green,&quot;Joining channel :\&quot;%s\&quot; %s\n&quot;,message,
+-				            cflags_get_str(bn_int_get(rpacket-&gt;u.server_message.flags)));
+-				break;
+-			    case SERVER_MESSAGE_TYPE_ADDUSER:
+-		                munge(&amp;client);
+-				ansi_printf(&amp;client,ansi_text_color_green,&quot;\&quot;%s\&quot; %s is here\n&quot;,speaker,
+-				            mflags_get_str(bn_int_get(rpacket-&gt;u.server_message.flags)));
+-				break;
+-			    case SERVER_MESSAGE_TYPE_USERFLAGS:
+-				break;
+-			    case SERVER_MESSAGE_TYPE_PART:
+-		                munge(&amp;client);
+-				ansi_printf(&amp;client,ansi_text_color_green,&quot;\&quot;%s\&quot; %s leaves\n&quot;,speaker,
+-				            mflags_get_str(bn_int_get(rpacket-&gt;u.server_message.flags)));
+-				break;
+-			    case SERVER_MESSAGE_TYPE_WHISPER:
+-		                munge(&amp;client);
+-				ansi_printf(&amp;client,ansi_text_color_blue,&quot;&lt;From: %s&gt;&quot;,speaker);
+-				std::printf(&quot; &quot;);
+-				str_print_term(stdout,message,0,0);
+-				std::printf(&quot;\n&quot;);
+-				break;
+-			    case SERVER_MESSAGE_TYPE_WHISPERACK:
+-		                munge(&amp;client);
+-				ansi_printf(&amp;client,ansi_text_color_blue,&quot;&lt;To: %s&gt;&quot;,speaker);
+-				std::printf(&quot; &quot;);
+-				str_print_term(stdout,message,0,0);
+-				std::printf(&quot;\n&quot;);
+-				break;
+-			    case SERVER_MESSAGE_TYPE_BROADCAST:
+-		                munge(&amp;client);
+-				ansi_printf(&amp;client,ansi_text_color_yellow,&quot;&lt;Broadcast %s&gt; %s\n&quot;,speaker,message);
+-				break;
+-			    case SERVER_MESSAGE_TYPE_ERROR:
+-		                munge(&amp;client);
+-				ansi_printf(&amp;client,ansi_text_color_red,&quot;&lt;Error&gt; %s\n&quot;,message);
+-				break;
+-			    case SERVER_MESSAGE_TYPE_INFO:
+-		                munge(&amp;client);
+-				ansi_printf(&amp;client,ansi_text_color_yellow,&quot;&lt;Info&gt; %s\n&quot;,message);
+-				break;
+-			    case SERVER_MESSAGE_TYPE_EMOTE:
+-		                munge(&amp;client);
+-				ansi_printf(&amp;client,ansi_text_color_yellow,&quot;&lt;%s %s&gt;\n&quot;,speaker,message);
+-				break;
+-			    default:
+-			    case SERVER_MESSAGE_TYPE_TALK:
+-		                munge(&amp;client);
+-				ansi_printf(&amp;client,ansi_text_color_yellow,&quot;&lt;%s&gt;&quot;,speaker);
+-				std::printf(&quot; &quot;);
+-				str_print_term(stdout,message,0,0);
+-				std::printf(&quot;\n&quot;);
+-			    }
+-			}
+-			break;
+-
+-		    default:
+-		        munge(&amp;client);
+-			std::printf(&quot;Unsupported server packet type 0x%04x\n&quot;,packet_get_type(rpacket));
+-			hexdump(stdout,packet_get_data_const(rpacket,0,packet_get_size(rpacket)),packet_get_size(rpacket));
+-			std::printf(&quot;\n&quot;);
+-		    }
+-
+-		    client.currsize = 0;
+-		    break;
+-
+-		case -1: /* error (probably connection closed) */
+-		default:
+-		    munge(&amp;client);
+-		    std::printf(&quot;----\nConnection closed by server.\n&quot;);
+-		    psock_close(client.sd);
+-		    if (client.changed_in)
+-			tcsetattr(client.fd_stdin,TCSAFLUSH,&amp;client.in_attr_old);
+-		    return EXIT_SUCCESS;
+-		}
+-	    }
+-	}
+-    }
+-
+-    /* not reached */
+-}
+
+Copied: branches/clan_refactorings/src/client/bnchat.cpp (from rev 515, trunk/pvpgn/src/client/bnchat.cpp)
+
+Deleted: branches/clan_refactorings/src/common/bigint.cpp
+===================================================================
+--- trunk/pvpgn/src/common/bigint.cpp	2008-11-12 23:04:23 UTC (rev 513)
++++ branches/clan_refactorings/src/common/bigint.cpp	2008-12-03 21:24:44 UTC (rev 518)
+@@ -1,683 +0,0 @@
+-/*
+- * Class for simple, arbitrary size unsigned integer math.
+- * Note that some method implementations might lack features that weren't required so far!
+- *
+- * Copyright (C) 2008 - Olaf Freyer
+- *
+- * This program is free software; you can redistribute it and/or
+- * modify it under the terms of the GNU Affero General Public License
+- * as published by the Free Software Foundation; either version 3
+- * of the License, or (at your option) any later version.
+- *
+- * This program is distributed in the hope that it will be useful,
+- * but WITHOUT ANY WARRANTY; without even the implied warranty of
+- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+- * GNU Affero General Public License for more details.
+- */
+-
+-#include &quot;common/setup_before.h&quot;
+-#include &lt;iostream&gt;
+-#include &lt;sstream&gt;
+-#include &lt;stdexcept&gt;
+-#include &lt;cstdlib&gt;
+-#include &lt;cstring&gt;
+-#include &lt;cstdio&gt;
+-#include &lt;cassert&gt;
+-
+-#include &quot;bigint.h&quot;
+-#include &quot;common/xalloc.h&quot;
+-
+-#include &quot;compat/uint.h&quot;
+-
+-#include &quot;common/setup_after.h&quot;
+-
+-namespace pvpgn
+-{
+-
+-static const char small_digits[] = &quot;0123456789abcdef&quot;;
+-
+-BigInt::BigInt()
+-{
+-  segment_count = 1;
+-  segment = (bigint_base*)xmalloc(segment_count * sizeof(bigint_base));
+-  segment[0] = 0;
+-}
+-
+-BigInt::BigInt(t_uint8 input)
+-{
+-  segment_count = 1;
+-  segment = (bigint_base*)xmalloc(segment_count * sizeof(bigint_base));
+-  segment[0] = input;
+-}
+-
+-BigInt::BigInt(t_uint16 input)
+-{
+-  segment_count = 1;
+-  segment = (bigint_base*)xmalloc(segment_count * sizeof(bigint_base));
+-  segment[0] = input;
+-}
+-
+-BigInt::BigInt(t_uint32 input)
+-{
+-#ifndef HAVE_UINT64_T
+-  int i;
+-#endif
+-  segment_count = sizeof(t_uint32)/sizeof(bigint_base);
+-  segment = (bigint_base*)xmalloc(segment_count * sizeof(bigint_base));
+-#ifdef HAVE_UINT64_T
+-  segment[0] = input;
+-#else
+-  for (i=0; i&lt;segment_count; i++){
+-    segment[i] = input &amp; bigint_base_mask;
+-    input&gt;&gt;=bigint_base_bitcount;
+-  }
+-#endif
+-}
+-
+-#ifdef HAVE_UINT64_T
+-BigInt::BigInt(t_uint64 input)
+-{
+-  int i;
+-  segment_count = sizeof(t_uint64)/sizeof(bigint_base);
+-  segment = (bigint_base*)xmalloc(segment_count * sizeof(bigint_base));
+-  for (i=0; i&lt;segment_count; i++){
+-    segment[i] = input &amp; bigint_base_mask;
+-    input&gt;&gt;=bigint_base_bitcount;
+-  }
+-}
+-#endif
+-
+-BigInt::BigInt(const BigInt&amp; input)
+-:segment_count(input.segment_count)
+-{
+-  segment = (bigint_base*)xmalloc(segment_count * sizeof(bigint_base));
+-  std::memcpy(segment, input.segment, segment_count * sizeof(bigint_base));
+-}
+-
+-BigInt&amp; 
+-BigInt::operator=(const BigInt&amp; input)
+-{
+- if (&amp;input != this) {
+-    segment_count = input.segment_count;
+-    segment = (bigint_base*)xrealloc(segment, segment_count * sizeof(bigint_base));
+-    std::memcpy(segment, input.segment, segment_count * sizeof(bigint_base));
+-  }
+-  return *this;
+-}
+-
+-BigInt::BigInt(unsigned char const * input, int input_size, int blockSize, bool bigEndian)
+-{
+-  int i,j;
+-  unsigned char *in;
+-  unsigned char *inPointer;
+-
+-  if (bigEndian){
+-    in = (unsigned char*)input;
+-    inPointer = (unsigned char*)in;
+-  } else {
+-    in = (unsigned char*)xmalloc(input_size);
+-    inPointer = (unsigned char*)in+input_size-1;
+-    if (blockSize==1)
+-      std::memcpy(in,input,input_size);
+-    else {
+-      assert(blockSize%2==0);
+-      for(i=0; i&lt;input_size; i+=blockSize)
+-      {
+-        for(j=0; j&lt;blockSize/2; j++)
+-        {
+-	  in[i+j] = input[i+blockSize-(j+1)];
+-  	  in[i+blockSize-(j+1)] = input[i+j];
+-        }
+-      }
+-    }
+-  }
+-
+-  segment_count = input_size / sizeof(bigint_base);
+-  if (input_size % sizeof(bigint_base))
+-    segment_count++;
+-  segment = (bigint_base*)xmalloc(segment_count * sizeof(bigint_base));
+-  std::memset(segment, 0, segment_count * sizeof(bigint_base));
+-
+-  
+-  for (i=input_size-1; i&gt;=0; i--)
+-  {
+-    j = i/sizeof(bigint_base);
+-    segment[j]&lt;&lt;= 8;
+-    if (bigEndian)
+-      segment[j]+= *(inPointer++);
+-    else
+-      segment[j]+= *(inPointer--);
+-  }
+-
+-  if (!bigEndian)
+-    xfree(in);
+-}
+-
+-BigInt::~BigInt() throw()
+-{
+-  if (segment)
+-    xfree(segment);
+-}
+-
+-bool
+-BigInt::operator== (const BigInt&amp; right) const
+-{
+-  int i;
+-  bool result;
+-  
+-  result = (segment_count == right.segment_count);
+-  for (i=0; (i&lt;segment_count) &amp;&amp; result; i++)
+-    result = result &amp;&amp; (segment[i] == right.segment[i]);
+-
+-  return result;
+-}
+-
+-bool
+-BigInt::operator&lt; (const BigInt&amp; right) const
+-{
+-  if ( segment_count &lt; right.segment_count) {
+-    return true;
+-  } else if (segment_count &gt; right.segment_count){
+-    return false;
+-  } else {
+-    int i;
+-    for (i=segment_count-1; i&gt;=0; i--) {
+-      if (segment[i]&lt;right.segment[i])
+-        return true;
+-      else if (segment[i]&gt;right.segment[i])
+-        return false;
+-    }
+-  }
+-
+-  return false;
+-}
+-bool
+-BigInt::operator&gt; (const BigInt&amp; right) const
+-{
+-  if ( segment_count &gt; right.segment_count) {
+-    return true;
+-  } else if (segment_count &lt; right.segment_count){
+-    return false;
+-  } else {
+-    int i;
+-    for (i=segment_count-1; i&gt;=0; i--) {
+-      if (segment[i]&gt;right.segment[i])
+-        return true;
+-      else if (segment[i]&lt;right.segment[i])
+-        return false;
+-    }
+-  }
+-
+-  return false;
+-}
+-
+-BigInt
+-BigInt::operator+ (const BigInt&amp; right) const
+-{
+-  int i, max_segment_count;
+-  bigint_extended sum;
+-  bigint_extended lhs, rhs;
+-  bigint_base carry = 0;
+-  BigInt result;
+-
+-  max_segment_count = std::max(segment_count,right.segment_count);
+-  result.segment_count = max_segment_count+1;
+-  result.segment = (bigint_base*)xrealloc(result.segment, result.segment_count * sizeof(bigint_base));
+-
+-  for (i=0; i&lt;max_segment_count; i++)
+-  {
+-    lhs = (i&lt;      segment_count)?      segment[i]:0;
+-    rhs = (i&lt;right.segment_count)?right.segment[i]:0;
+-    sum = lhs + rhs + carry;
+-    result.segment[i] = sum &amp; bigint_base_mask;
+-    carry = sum&gt;&gt;bigint_base_bitcount;
+-  }
+-
+-  result.segment[i] = carry;
+-
+-  for (max_segment_count=result.segment_count-1; max_segment_count&gt;0; max_segment_count--) {
+-    if (result.segment[max_segment_count]!=0)
+-      break;
+-  }
+-
+-  if (result.segment_count != max_segment_count+1)
+-  {
+-    result.segment_count = max_segment_count+1;
+-    result.segment = (bigint_base*)xrealloc(result.segment, result.segment_count * sizeof(bigint_base));
+-  }
+-
+-  return result;
+-}
+-
+-BigInt
+-BigInt::operator- (const BigInt&amp; right) const
+-{
+-  int i, max_segment_count;
+-  bigint_base diff;
+-  bigint_base lhs, rhs;
+-  bigint_base carry = 0;
+-  BigInt result;
+-
+-  // Currently we only implement unsigned math
+-  // so we can either throw exception or simply return 0.
+-  if (!(this-&gt;operator&gt;(right)))
+-  {
+-    return result;
+-  }
+-
+-  result.segment_count = segment_count;
+-  result.segment = (bigint_base*)xrealloc(result.segment, result.segment_count * sizeof(bigint_base));
+-  for (i=0; i&lt;result.segment_count; i++)
+-  {
+-    lhs = (i&lt;      segment_count)?      segment[i]:0;
+-    rhs = (i&lt;right.segment_count)?right.segment[i]:0;
+-    rhs+= carry;
+-    if (lhs&lt;rhs)
+-    {
+-      diff = (bigint_extended_carry+lhs) - rhs;
+-      carry = 1;
+-    }
+-    else
+-    {
+-      diff = (lhs) - rhs;
+-      carry = 0;
+-    }
+-    result.segment[i] = diff;
+-  }
+-
+-  for (max_segment_count=result.segment_count-1; max_segment_count&gt;0; max_segment_count--) {
+-    if (result.segment[max_segment_count]!=0)
+-      break;
+-  }
+-
+-  if (result.segment_count != max_segment_count+1)
+-  {
+-    result.segment_count = max_segment_count+1;
+-    result.segment = (bigint_base*)xrealloc(result.segment, result.segment_count * sizeof(bigint_base));
+-  }
+-
+-  return result;
+-}
+-
+-BigInt
+-BigInt::operator* (const BigInt&amp; right) const
+-{
+-  int i, j, index, max_segment_count;
+-  bigint_extended prod, sum;
+-  bigint_extended lhs, rhs;
+-  bigint_base carry = 0;
+-  BigInt result;
+-
+-  if ((segment_count==1 &amp;&amp; segment[0]==0) || (right.segment_count==1 &amp;&amp; right.segment[0]==0))
+-    return result;
+-
+-  result.segment_count = segment_count+right.segment_count;
+-  result.segment = (bigint_base*)xrealloc(result.segment, result.segment_count * sizeof(bigint_base));
+-  std::memset(result.segment, 0, result.segment_count * sizeof(bigint_base));
+-  for (i=0; i&lt;segment_count; i++)
+-  {
+-    for (j=0; j&lt;right.segment_count; j++)
+-    {
+-      lhs = (i&lt;      segment_count)?      segment[i]:0;
+-      rhs = (j&lt;right.segment_count)?right.segment[j]:0;
+-      prod = lhs * rhs;
+-      index = i+j;
+-      sum = result.segment[index] + prod + carry;
+-      result.segment[index] = sum &amp; bigint_base_mask;
+-      carry = sum&gt;&gt;bigint_base_bitcount;
+-    }
+-
+-    if (carry) {
+-      index = i+j;
+-      sum = result.segment[index] + carry;
+-      result.segment[index] = sum &amp; bigint_base_mask;
+-      carry = sum&gt;&gt;bigint_base_bitcount;
+-    }
+-  }
+-
+-  result.segment[i+j-1]+= carry;
+-
+-  for (max_segment_count=result.segment_count-1; max_segment_count&gt;0; max_segment_count--) {
+-    if (result.segment[max_segment_count]!=0)
+-      break;
+-  }
+-
+-  if (result.segment_count != max_segment_count+1)
+-  {
+-    result.segment_count = max_segment_count+1;
+-    result.segment = (bigint_base*)xrealloc(result.segment, result.segment_count * sizeof(bigint_base));
+-  }
+-
+-  return result;
+-}
+-
+-BigInt
+-BigInt::operator/ (const BigInt&amp; right) const
+-{
+-  int i, j, max_segment_count;
+-  BigInt quotient;
+-  BigInt remainder;
+-  BigInt m;
+-  BigInt q;
+-  BigInt p;
+-  bigint_extended n,d, qest;
+-
+-
+-  if (this-&gt;operator&lt;(right)){
+-    return quotient;
+-  }
+-
+-  quotient.segment_count = (segment_count - right.segment_count)+1;
+-  quotient.segment = (bigint_base*)xrealloc(quotient.segment, quotient.segment_count*sizeof(bigint_base));
+-  std::memset(quotient.segment, 0, quotient.segment_count * sizeof(bigint_base));
+-
+-  remainder.segment_count = right.segment_count+1;
+-  remainder.segment = (bigint_base*)xrealloc(remainder.segment, remainder.segment_count*sizeof(bigint_base));
+-  std::memset(remainder.segment, 0, remainder.segment_count * sizeof(bigint_base));
+-
+-  for (j=0; j&lt;right.segment_count; j++){
+-    remainder.segment[j] = segment[(segment_count-right.segment_count)+j];
+-  }
+-
+-  n=0;
+-  for (i=segment_count; i&gt;=right.segment_count; i--){
+-    //now do some &quot;educated guessing&quot;
+-    //qest=n/q
+-    //calculate qest*right
+-    // adjust by +/-1 until in target range
+-    n=remainder.segment[right.segment_count];
+-    n&lt;&lt;=bigint_base_bitcount;
+-    n+=remainder.segment[right.segment_count-1];
+-    d=right.segment[right.segment_count-1];
+-
+-    qest = n/d;
+-    p = BigInt(qest) * right;
+-    while (1) {
+-      if (p==remainder) {
+-        break;
+-      } else if (p &lt; remainder) {
+-        if ((remainder-p) &gt; right) {
+-          qest++;
+-          p = p + right;
+-        }
+-        else
+-        {
+-          break;
+-        }
+-      } else {
+-        qest--;
+-        p = p - right;
+-      }
+-    };
+-
+-    quotient.segment[i-right.segment_count] = qest &amp; bigint_base_mask;
+-    remainder = remainder - p;
+-
+-    if (i&gt;right.segment_count) {
+-      remainder = remainder &lt;&lt; sizeof(bigint_base);
+-      remainder.segment[0] = segment[i-(right.segment_count+1)];
+-    }
+-  }
+-
+-  for (max_segment_count=quotient.segment_count-1; max_segment_count&gt;0; max_segment_count--) {
+-    if (quotient.segment[max_segment_count]!=0)
+-      break;
+-  }
+-
+-  if (quotient.segment_count != max_segment_count+1)
+-  {
+-    quotient.segment_count = max_segment_count+1;
+-    quotient.segment = (bigint_base*)xrealloc(quotient.segment, quotient.segment_count * sizeof(bigint_base));
+-  }
+-
+-  return quotient;
+-}
+-
+-BigInt
+-BigInt::operator% (const BigInt&amp; right) const
+-{
+-   int i, j, max_segment_count;
+-  BigInt remainder;
+-  BigInt m;
+-  BigInt q;
+-  BigInt p;
+-  bigint_extended n,d, qest;
+-
+-
+-  if (this-&gt;operator&lt;(right)){
+-    return *this;
+-  }
+-
+-  remainder.segment_count = right.segment_count+1;
+-  remainder.segment = (bigint_base*)xrealloc(remainder.segment, remainder.segment_count*sizeof(bigint_base));
+-  std::memset(remainder.segment, 0, remainder.segment_count * sizeof(bigint_base));
+-
+-  for (j=0; j&lt;right.segment_count; j++){
+-    remainder.segment[j] = segment[(segment_count-right.segment_count)+j];
+-  }
+-
+-  n=0;
+-  for (i=segment_count; i&gt;=right.segment_count; i--){
+-    //now do some &quot;educated guessing&quot;
+-    //qest=n/q
+-    //calculate qest*right
+-    // adjust by +/-1 until in target range
+-    n=remainder.segment[right.segment_count];
+-    n&lt;&lt;=bigint_base_bitcount;
+-    n+=remainder.segment[right.segment_count-1];
+-    d=right.segment[right.segment_count-1];
+-
+-    qest = n/d;
+-    p = BigInt(qest) * right;
+-    while (1) {
+-      if (p==remainder) {
+-        break;
+-      } else if (p &lt; remainder) {
+-        if ((remainder-p) &gt; right) {
+-          qest++;
+-          p = p + right;
+-        }
+-        else
+-        {
+-          break;
+-        }
+-      } else {
+-        qest--;
+-        p = p - right;
+-      }
+-    };
+-
+-
+-    remainder = remainder - p;
+-
+-    if (i&gt;right.segment_count) {
+-      remainder = remainder &lt;&lt; sizeof(bigint_base);
+-      remainder.segment[0] = segment[i-(right.segment_count+1)];
+-    }
+-  }
+-
+-  return remainder;
+-}
+-
+-BigInt 
+-BigInt::operator&lt;&lt; (int bytesToShift) const {
+-  int i;
+-  BigInt result;
+-  assert(bytesToShift&gt;=0);
+-  //currently we only implement (and need) segmentwise shifting
+-  assert(bytesToShift%sizeof(bigint_base)==0);
+-
+-  if (bytesToShift == 0)
+-    return result;
+-
+-  int segmentsToShift = bytesToShift / sizeof(bigint_base);
+-  result.segment_count = segment_count + segmentsToShift;
+-  result.segment = (bigint_base*)xrealloc(result.segment, result.segment_count * sizeof(bigint_base));
+-  
+-  for (i=segment_count-1; i &gt;=0; i--) {
+-      result.segment[i+segmentsToShift] = segment[i];
+-  }
+-
+-  for (i=0; i&lt;segmentsToShift; i++) {
+-    result.segment[i] = 0;
+-  }
+-
+-  return result;
+-}
+-
+-BigInt 
+-BigInt::random(int size)
+-{
+-  BigInt result;
+-  int i, j;
+-  unsigned int r;
+-
+-  assert(size&gt;0);
+-  assert(size%sizeof(bigint_base)==0);
+-
+-  result.segment_count=size/sizeof(bigint_base);
+-  result.segment=(bigint_base*)xrealloc(result.segment, result.segment_count * sizeof(bigint_base));
+-
+-  for(i=0; i&lt;result.segment_count; i++){
+-    result.segment[i]=0;
+-    for (j=0; j&lt;sizeof(bigint_base); j+=sizeof(unsigned int)){
+-      r = rand();
+-      result.segment[i]&lt;&lt;(sizeof(unsigned int));
+-      result.segment[i] = result.segment[i]+r;
+-    }
+-  }
+-
+-  return result; 
+-}
+-
+-BigInt
+-BigInt::powm(const BigInt&amp; exp, const BigInt&amp; mod) const
+-{
+-  if (exp.segment_count==1)
+-  {
+-    if (exp.segment[0]==0x02)
+-    {
+-      return (*this * *this) % mod;
+-    }
+-    else if (exp.segment[0]==0x01)
+-    {
+-      return *this;
+-    }
+-    else if (exp.segment[0]==0x00)
+-    {
+-      return BigInt((t_uint8)0x01);
+-    }
+-  }
+-
+-  //trying a divide&amp;conquer approach
+-  if (exp.segment[0]%2==0) 
+-  {
+-    // exp is even
+-    BigInt half = exp / (BigInt((t_uint8)0x02));
+-    BigInt halfpow = this-&gt;powm(half, mod);
+-    return (halfpow * halfpow) % mod;
+-  } 
+-  else 
+-  {
+-    // exp is odd
+-    BigInt half = exp / (BigInt((t_uint8)0x02));
+-    BigInt halfpow = this-&gt;powm(half, mod);
+-    return (((halfpow * halfpow) % mod) * *this ) % mod;
+-  }
+-}
+-
+-unsigned char* 
+-BigInt::getData(int byteCount, int blockSize, bool bigEndian) const
+-{
+-  unsigned char* result;
+-
+-  result = (unsigned char*)xmalloc(byteCount);
+-  getData(result, byteCount, blockSize, bigEndian);
+-
+-  return result;
+-}
+-
+-void 
+-BigInt::getData(unsigned char* out, int byteCount, int blockSize, bool bigEndian) const
+-{
+-  int i, j, s;
+-  unsigned char* pos;
+-
+-  std::memset(out,0,byteCount);
+-  pos = out+(byteCount-1);
+-
+-  for(i=0; i&lt;segment_count; i++)
+-  {
+-    bigint_base data;
+-    data = segment[segment_count-(i+1)];
+-    for(j=0; j&lt;sizeof(bigint_base); j++)
+-    {
+-      if (pos &lt; out)
+-        break;
+-      *pos =  data &amp; 0xff;
+-
+-      pos--;
+-      data&gt;&gt;=8;
+-    }
+-  }
+-
+-  if (!bigEndian &amp;&amp; blockSize&gt;1) {
+-    unsigned char val;
+-    assert(blockSize%2==0);
+-    for(i=0; i&lt;byteCount; i+=blockSize)
+-    {
+-      for(j=0; j&lt;blockSize/2; j++)
+-      {
+-        val = out[i+j];
+-	out[i+j] = out[i+blockSize-(j+1)];
+-	out[i+blockSize-(j+1)] = val;
+-      }
+-    }
+-  }
+-}
+-
+-std::string
+-BigInt::toHexString() const
+-{
+-  int i;
+-  char data;
+-  std::ostringstream result;
+-  bigint_base* src;
+-
+-  // handle most significant segment
+-  src = &amp;segment[segment_count-1];
+-  if (segment_count == 1 &amp;&amp; *src == 0) 
+-  {
+-    result &lt;&lt; &quot;00&quot;;
+-  }
+-  else
+-  {
+-    int sum=0;
+-    for (i=sizeof(bigint_base)-1; i&gt;=0; i--)
+-    {
+-      data = ((*src) &amp; (0xff &lt;&lt; (i*8))) &gt;&gt; (i*8);
+-      sum+= data;
+-      if (sum)
+-      {
+-        result &lt;&lt; small_digits[(data &amp; 0xf0) &gt;&gt; 4];
+-        result &lt;&lt; small_digits[(data &amp; 0x0f)];
+-      }
+-    }
+-
+-    // handle rest
+-    for (src=&amp;segment[segment_count-2]; src&gt;=segment; src--)
+-    {
+-      for (i=sizeof(bigint_base)-1; i&gt;=0; i--)
+-      {
+-        data = ((*src) &amp; (0xff &lt;&lt; (i*8))) &gt;&gt; (i*8);
+-        result &lt;&lt; small_digits[(data &amp; 0xf0) &gt;&gt; 4];
+-        result &lt;&lt; small_digits[(data &amp; 0x0f)];
+-      }
+-    }
+-  }
+-
+-  return result.str();
+-
+-}
+-
+-}
+
+Copied: branches/clan_refactorings/src/common/bigint.cpp (from rev 514, trunk/pvpgn/src/common/bigint.cpp)
+
+Modified: branches/clan_refactorings/src/common/bnet_protocol.h
+===================================================================
+--- trunk/pvpgn/src/common/bnet_protocol.h	2008-11-12 23:04:23 UTC (rev 513)
++++ branches/clan_refactorings/src/common/bnet_protocol.h	2008-12-03 21:24:44 UTC (rev 518)
+@@ -3903,7 +3903,7 @@
+   bn_int               count;
+   bn_int               clantag;
+   /*Clan_Name (\0 terminated)
+-  Player_Name invited (\0 terminated) */
++  Player_Name inviter (\0 terminated) */
+ } PACKED_ATTR() t_server_clan_invitereq;
+ 
+ #define CLIENT_CLAN_INVITEREPLY 0x79ff
+@@ -3911,7 +3911,7 @@
+   t_bnet_header        h;
+   bn_int               count;
+   bn_int               clantag;
+-  /*Player_Name invited (\0 terminated)
++  /*Player_Name inviter (\0 terminated)
+   bn_byte            reply */
+ } PACKED_ATTR() t_client_clan_invitereply;
+ 
+@@ -3934,13 +3934,13 @@
+  */
+ 
+ #define CLAN_RESPONSE_SUCCESS 		0x00
+-#define CLAN_RESPONSE_IN_USE  		0x01
++#define CLAN_RESPONSE_FAIL		0x01
+ #define CLAN_RESPONSE_TOO_SOON 		0x02
+ #define CLAN_RESPONSE_TOO_SMALL 	0x03
+ #define CLAN_RESPONSE_DECLINED 		0x04
+ #define CLAN_RESPONSE_DECLINE 		0x05
+ #define CLAN_RESPONSE_ACCEPT 		0x06
+-#define CLAN_RESPONSE_NOT_AUTHORIZED 0x07
++#define CLAN_RESPONSE_NOT_AUTHORIZED	0x07
+ #define CLAN_RESPONSE_NOT_FOUND 	0x08
+ #define CLAN_RESPONSE_CLAN_FULL 	0x09
+ #define CLAN_RESPONSE_BAD_TAG		0x0a
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000887.html">[pvpgn-dev] r517 - branches
+</A></li>
+	<LI>Next message: <A HREF="000889.html">[pvpgn-dev] r519 - trunk/pvpgn/conf
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#888">[ date ]</a>
+              <a href="thread.html#888">[ thread ]</a>
+              <a href="subject.html#888">[ subject ]</a>
+              <a href="author.html#888">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,132 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r455 - trunk/pvpgn/src/common
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2008-June/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r455%20-%20trunk/pvpgn/src/common&In-Reply-To=%3C200806091817.m59IHLEI011975%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000709.html">
+   <LINK REL="Next"  HREF="000711.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r455 - trunk/pvpgn/src/common</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r455%20-%20trunk/pvpgn/src/common&In-Reply-To=%3C200806091817.m59IHLEI011975%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r455 - trunk/pvpgn/src/common">svn at svn.berlios.de
+       </A><BR>
+    <I>Mon Jun  9 20:17:21 CEST 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000709.html">[pvpgn-dev] r454 - trunk/pvpgn/src/bnetd
+</A></li>
+        <LI>Next message: <A HREF="000711.html">[pvpgn-dev] r456 - trunk/pvpgn/src/common
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#710">[ date ]</a>
+              <a href="thread.html#710">[ thread ]</a>
+              <a href="subject.html#710">[ subject ]</a>
+              <a href="author.html#710">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pandaemonium
+Date: 2008-06-09 20:17:21 +0200 (Mon, 09 Jun 2008)
+New Revision: 455
+
+Modified:
+   trunk/pvpgn/src/common/bnet_protocol.h
+Log:
+add additional package definitions
+
+Modified: trunk/pvpgn/src/common/bnet_protocol.h
+===================================================================
+--- trunk/pvpgn/src/common/bnet_protocol.h	2008-06-09 18:12:31 UTC (rev 454)
++++ trunk/pvpgn/src/common/bnet_protocol.h	2008-06-09 18:17:21 UTC (rev 455)
+@@ -1700,13 +1700,55 @@
+    bn_int	response;
+    bn_int	server_password_proof[5];
+ } PACKED_ATTR() t_server_logonproofreply;
+-#define SERVER_LOGONPROOFREPLY_RESPONSE_OK 0x00000000
++#define SERVER_LOGONPROOFREPLY_RESPONSE_OK      0x00000000
+ #define SERVER_LOGONPROOFREPLY_RESPONSE_BADPASS 0x00000002
+ #define SERVER_LOGONPROOFREPLY_RESPONSE_EMAIL   0x0000000E
+ #define SERVER_LOGONPROOFREPLY_RESPONSE_CUSTOM  0x0000000F
+ /******************************************************/
+ 
+ /******************************************************/
++#define CLIENT_PASSCHANGEREQ 0x55ff
++typedef struct
++{
++   t_bnet_header h;
++   bn_byte client_public_key[32];
++   /* username */
++} PACKED_ATTR() t_client_passchangereq;
++
++#define SERVER_PASSCHANGEREPLY 0x55ff
++typedef struct
++{
++   t_bnet_header h;
++   bn_int        message;
++   bn_byte       salt[32];
++   bn_byte       server_public_key[32];
++} PACKED_ATTR() t_server_passchangereply;
++#define SERVER_PASSCHANGEREPLY_MESSAGE_ACCEPT 0x00000000
++#define SERVER_PASSCHANGEREPLY_MESSAGE_REJECT 0x00000001 /* No such account */
++/******************************************************/
++
++/******************************************************/
++#define CLIENT_PASSCHANGEPROOFREQ 0x56ff
++typedef struct
++{
++   t_bnet_header h;
++   bn_byte       client_password_proof[20];
++   bn_byte       salt[32];
++   bn_byte       password_verifier[32];
++} PACKED_ATTR() t_client_passchangeproofreq;
++
++#define SERVER_PASSCHANGEPROOFREPLY 0x56ff
++typedef struct
++{
++   t_bnet_header h;
++   bn_int	response;
++   bn_byte       server_password_proof[20];
++} PACKED_ATTR() t_server_passchangeproofreply;
++#define SERVER_PASSCHANGEPROOFREPLY_RESPONSE_OK      0x00000000
++#define SERVER_PASSCHANGEPROOFREPLY_RESPONSE_BADPASS 0x00000002
++/******************************************************/
++
++/******************************************************/
+ /*
+ # 13 packet from client: type=0x52ff(unknown) length=83 class=bnet
+ 0000:   FF 52 53 00 2B 63 B9 05   CA F3 E1 BA 58 5C ED 65    .RS.+c......X\.e
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000709.html">[pvpgn-dev] r454 - trunk/pvpgn/src/bnetd
+</A></li>
+	<LI>Next message: <A HREF="000711.html">[pvpgn-dev] r456 - trunk/pvpgn/src/common
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#710">[ date ]</a>
+              <a href="thread.html#710">[ thread ]</a>
+              <a href="subject.html#710">[ subject ]</a>
+              <a href="author.html#710">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

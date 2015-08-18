@@ -1,0 +1,246 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] [Bug #15373] [svn r554] PvPGN became very unstable (?)
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2009-March/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BBug%20%2315373%5D%20%5Bsvn%20r554%5D%20PvPGN%20became%20very%20unstable%20%28%3F%29&In-Reply-To=%3C200903231714.n2NHEUua008488%40unicorn.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001090.html">
+   <LINK REL="Next"  HREF="001092.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] [Bug #15373] [svn r554] PvPGN became very unstable (?)</H1>
+    <B>admin at berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BBug%20%2315373%5D%20%5Bsvn%20r554%5D%20PvPGN%20became%20very%20unstable%20%28%3F%29&In-Reply-To=%3C200903231714.n2NHEUua008488%40unicorn.berlios.de%3E"
+       TITLE="[pvpgn-dev] [Bug #15373] [svn r554] PvPGN became very unstable (?)">admin at berlios.de
+       </A><BR>
+    <I>Mon Mar 23 18:14:30 CET 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001090.html">[pvpgn-dev] r557 - trunk/pvpgn/src/bnetd
+</A></li>
+        <LI>Next message: <A HREF="001092.html">[pvpgn-dev] [Bug #15373] [svn r554] PvPGN became very unstable (?)
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1091">[ date ]</a>
+              <a href="thread.html#1091">[ thread ]</a>
+              <a href="subject.html#1091">[ subject ]</a>
+              <a href="author.html#1091">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Bug #15373, was updated on 2009-Mar-13 11:09
+Here is a current snapshot of the bug.
+
+Project: Player vs Player Gaming Network
+Category: Westwood Online
+Status: Open
+Resolution: None
+Bug Group: bnetd
+Priority: 5
+Submitted by: justabaka
+Assigned to : pelish
+Summary: [svn r554] PvPGN became very unstable (?)
+
+Details: I use Monit to auto restart most of the game servers, including pvpgn.
+
+Here's the log:
+[NOVT Mar 12 04:03:15] error    : 'pvpgn' process is not running
+[NOVT Mar 12 04:03:15] info     : 'pvpgn' trying to restart
+[NOVT Mar 12 04:03:15] info     : 'pvpgn' start: /usr/bin/sudo
+[NOVT Mar 12 04:04:16] info     : 'pvpgn' process is running with pid 16872
+[NOVT Mar 12 14:35:21] error    : 'pvpgn' process is not running
+[NOVT Mar 12 14:35:21] info     : 'pvpgn' trying to restart
+[NOVT Mar 12 14:35:21] info     : 'pvpgn' start: /usr/bin/sudo
+[NOVT Mar 12 14:36:22] info     : 'pvpgn' process is running with pid 23353
+[NOVT Mar 12 17:57:24] error    : 'pvpgn' process is not running
+[NOVT Mar 12 17:57:24] info     : 'pvpgn' trying to restart
+[NOVT Mar 12 17:57:24] info     : 'pvpgn' start: /usr/bin/sudo
+[NOVT Mar 12 17:58:25] info     : 'pvpgn' process is running with pid 25379
+[NOVT Mar 12 18:02:25] error    : 'pvpgn' process is not running
+[NOVT Mar 12 18:02:25] info     : 'pvpgn' trying to restart
+[NOVT Mar 12 18:02:25] info     : 'pvpgn' start: /usr/bin/sudo
+[NOVT Mar 12 18:03:26] info     : 'pvpgn' process is running with pid 25409
+[NOVT Mar 12 18:27:27] error    : 'pvpgn' process is not running
+[NOVT Mar 12 18:27:27] info     : 'pvpgn' trying to restart
+[NOVT Mar 12 18:27:27] info     : 'pvpgn' start: /usr/bin/sudo
+[NOVT Mar 12 18:28:28] info     : 'pvpgn' process is running with pid 25567
+[NOVT Mar 12 20:14:29] error    : 'pvpgn' process is not running
+[NOVT Mar 12 20:14:29] info     : 'pvpgn' trying to restart
+[NOVT Mar 12 20:14:29] info     : 'pvpgn' start: /usr/bin/sudo
+[NOVT Mar 12 20:15:30] info     : 'pvpgn' process is running with pid 27053
+[NOVT Mar 12 23:35:33] error    : 'pvpgn' process is not running
+[NOVT Mar 12 23:35:33] info     : 'pvpgn' trying to restart
+[NOVT Mar 12 23:35:33] info     : 'pvpgn' start: /usr/bin/sudo
+[NOVT Mar 12 23:36:34] info     : 'pvpgn' process is running with pid 29021
+[NOVT Mar 12 23:48:35] error    : 'pvpgn' process is not running
+[NOVT Mar 12 23:48:35] info     : 'pvpgn' trying to restart
+[NOVT Mar 12 23:48:35] info     : 'pvpgn' start: /usr/bin/sudo
+[NOVT Mar 12 23:49:36] info     : 'pvpgn' process is running with pid 29061
+
+That's happening like every day... I'm turning on debug logging and will supply additional information ASAP.
+
+Follow-Ups:
+
+Date: 2009-Mar-23 18:14
+By: pandaemonium
+
+Comment:
+I did some little debugging with Pelish and we resolved at least one issue - so anyone willing to test is welcome.
+-------------------------------------------------------
+
+Date: 2009-Mar-19 19:54
+By: pandaemonium
+
+Comment:
+Hi pelish,
+
+frop me a line if you have some time for testing - then I'll get the WOL clients installed and we can test with multiple players on your box. (Presuming you have a linux box and some valgrinding-foo.)
+-------------------------------------------------------
+
+Date: 2009-Mar-19 10:18
+By: pelish
+
+Comment:
+Are you able to run PvPGN through valgrind? log from that will be realy usefull for me. For more info look into README.DEV - Appendix B in SVN/CVS repository.
+
+Thank you
+-------------------------------------------------------
+
+Date: 2009-Mar-17 09:10
+By: justabaka
+
+Comment:
+That's just weird, still crashing. Red Alert 2: Yuri's Revenge causes this, other games not tested yet. What additional info should I provide?
+
+Mar 17 10:58:50 [info ] sd_accept: [55] accepted connection from xxx.xxx.xxx.xxx:3691 on my.server.addr:4005
+Mar 17 10:58:50 [info ] conn_create: [55][-1] sessionkey=0x0dbf1dc3 sessionnum=0x00000142
+Mar 17 10:58:50 [debug] sd_accept: [55] client connected to a wolv2 listening address
+Mar 17 10:58:50 [debug] handle_irc_common_line: [55] got &quot;&quot; &quot;CVERS&quot; [&quot;11020&quot; &quot;3072&quot;] &quot;&quot;
+Mar 17 10:58:50 [debug] handle_irc_common_set_class: Got WOL packet
+Mar 17 10:58:50 [debug] irc_send_ping: [55] sent &quot;PING :6025536&quot;
+Mar 17 10:58:50 [info ] conn_set_clienttag: [55] setting client type to &quot;RNGD&quot;
+Mar 17 10:58:50 [debug] handle_irc_common_line: [55] got &quot;&quot; &quot;PASS&quot; [&quot;&lt;skip&gt;&quot;] &quot;&quot;
+Mar 17 10:58:50 [debug] handle_irc_common_line: [55] got &quot;&quot; &quot;NICK&quot; [&quot;Lex&quot;] &quot;&quot;
+Mar 17 10:58:50 [debug] handle_irc_common_line: [55] got &quot;&quot; &quot;apgar&quot; [&quot;KaGBauYa&quot; &quot;0&quot;] &quot;&quot;
+Mar 17 10:58:50 [debug] handle_irc_common_line: [55] got &quot;&quot; &quot;SERIAL&quot; [] &quot;&quot;
+Mar 17 10:58:50 [debug] handle_irc_common_line: [55] got &quot;&quot; &quot;USER&quot; [&quot;UserName&quot; &quot;HostName&quot; &quot;irc.westwood.com&quot;] &quot;RealName&quot;
+Mar 17 10:58:50 [debug] _handle_user_command: [55][** WOL **] got USER: user=&quot;Lex&quot;
+Mar 17 10:58:50 [debug] irc_send_cmd: [55] sent &quot;:my.server.addr 375 Lex :- Hello Lex, welcome to PvPGN Server!&quot;
+&lt;skip&gt;
+Mar 17 10:58:50 [debug] irc_send_cmd: [55] sent &quot;:my.server.addr 376 Lex :End of /MOTD command&quot;
+Mar 17 10:58:50 [debug] handle_irc_common_line: [55] got &quot;&quot; &quot;verchk&quot; [&quot;32512&quot; &quot;720916&quot;] &quot;&quot;
+Mar 17 10:58:50 [debug] _handle_verchk_command: [** WOL **] VERCHK :none none none 1 32512 NONREQ
+Mar 17 10:58:50 [debug] irc_send_cmd: [55] sent &quot;:my.server.addr 379 Lex :none none none 1 32512 NONREQ&quot;
+Mar 17 10:58:50 [debug] handle_irc_common_line: [55] got &quot;&quot; &quot;SETOPT&quot; [&quot;17,33&quot;] &quot;&quot;
+Mar 17 10:58:50 [debug] handle_irc_common_line: [55] got &quot;&quot; &quot;PONG&quot; [] &quot;6025536&quot;
+Mar 17 10:58:50 [debug] _handle_pong_command: [55] latency is now 58 (6025594-6025536)
+Mar 17 10:58:50 [debug] handle_irc_common_line: [55] got &quot;&quot; &quot;SETOPT&quot; [&quot;17,33&quot;] &quot;&quot;
+Mar 17 10:58:50 [debug] handle_irc_common_line: [55] got &quot;&quot; &quot;GETINSIDER&quot; [&quot;Lex&quot;] &quot;&quot;
+Mar 17 10:58:50 [debug] irc_send_cmd: [55] sent &quot;:my.server.addr 399 Lex Lex`0&quot;
+Mar 17 10:58:50 [debug] handle_irc_common_line: [55] got &quot;&quot; &quot;TIME&quot; [] &quot;&quot;
+Mar 17 10:58:50 [debug] irc_send_cmd: [55] sent &quot;:my.server.addr 391 Lex my.server.addr :1237265930&quot;
+Mar 17 10:58:50 [debug] handle_irc_common_line: [55] got &quot;&quot; &quot;SETCODEPAGE&quot; [&quot;1251&quot;] &quot;&quot;
+Mar 17 10:58:50 [debug] irc_send_cmd: [55] sent &quot;:my.server.addr 329 Lex 1251&quot;
+Mar 17 10:58:50 [debug] handle_irc_common_line: [55] got &quot;&quot; &quot;LIST&quot; [&quot;12&quot; &quot;12&quot;] &quot;&quot;
+Mar 17 10:58:50 [debug] irc_send_cmd: [55] sent &quot;:my.server.addr 321 Lex Channel :Users Names&quot;
+Mar 17 10:58:50 [debug] _handle_list_command: [** WOL **] LIST [Game]
+-------------------------------------------------------
+
+Date: 2009-Mar-17 01:19
+By: justabaka
+
+Comment:
+Thank you, testing :)
+-------------------------------------------------------
+
+Date: 2009-Mar-17 00:04
+By: pelish
+
+Comment:
+Now should works properly. Finally should be fixed all potential bugs in gamelist. Testing still welcome.
+Regards
+Pelish
+-------------------------------------------------------
+
+Date: 2009-Mar-16 17:15
+By: justabaka
+
+Comment:
+Nope, not fixed.
+
+Mar 16 22:06:07 [debug] handle_irc_common_line: [36] got &quot;&quot; &quot;LIST&quot; [&quot;41&quot; &quot;41&quot;] &quot;&quot;
+Mar 16 22:06:07 [debug] irc_send_cmd: [36] sent &quot;:server.addr 321 Delfin-S Channel :Users Names&quot;
+Mar 16 22:06:07 [debug] _handle_list_command: [** WOL **] LIST [Game]
+-------------------------------------------------------
+
+Date: 2009-Mar-16 13:04
+By: justabaka
+
+Comment:
+Seems like the bug is gone, thanks. Actively testing atm ;)
+-------------------------------------------------------
+
+Date: 2009-Mar-15 22:53
+By: pelish
+
+Comment:
+So should be fixed on SVN 555. Testing welcome!
+-------------------------------------------------------
+
+Date: 2009-Mar-15 22:36
+By: pelish
+
+Comment:
+Thank you for your reporting. I will finally take a look over that issue this week. I was totally busy for about 3 weeks. I have one idea where should be that bug.
+-------------------------------------------------------
+
+Date: 2009-Mar-14 12:04
+By: justabaka
+
+Comment:
+Sounds like the problem is almost located:
+
+Mar 13 22:51:41 [debug] handle_irc_common_line: [23] got &quot;&quot; &quot;LIST&quot; [&quot;37&quot; &quot;37&quot;] &quot;&quot;
+Mar 13 22:51:41 [debug] irc_send_cmd: [23] sent &quot;:my.server.addr 321 LLlyPuK Channel :Users Names&quot;
+Mar 13 22:51:41 [debug] _handle_list_command: [** WOL **] LIST [Game]
+Mar 13 22:51:41 [warn ] channel_get_name: got NULL channel
+Mar 13 22:51:41 [debug] append_game_info: [23] not listing because game is for a different client
+
+Mar 13 22:40:28 [debug] handle_irc_common_line: [95] got &quot;&quot; &quot;LIST&quot; [&quot;37&quot; &quot;37&quot;] &quot;&quot;
+Mar 13 22:40:28 [debug] irc_send_cmd: [95] sent &quot;:my.server.addr 321 LLlyPuK Channel :Users Names&quot;
+Mar 13 22:40:28 [debug] _handle_list_command: [** WOL **] LIST [Game]
+-------------------------------------------------------
+
+For detailed info, follow this link:
+<A HREF="http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=15373&amp;group_id=2291">http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=15373&amp;group_id=2291</A>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001090.html">[pvpgn-dev] r557 - trunk/pvpgn/src/bnetd
+</A></li>
+	<LI>Next message: <A HREF="001092.html">[pvpgn-dev] [Bug #15373] [svn r554] PvPGN became very unstable (?)
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1091">[ date ]</a>
+              <a href="thread.html#1091">[ thread ]</a>
+              <a href="subject.html#1091">[ subject ]</a>
+              <a href="author.html#1091">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

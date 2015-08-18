@@ -1,0 +1,105 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] [Bug #12134] SC Bug!
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-October/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BBug%20%2312134%5D%20SC%20Bug%21&In-Reply-To=%3C200710090821.l998LDeH011002%40unicorn.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000498.html">
+   <LINK REL="Next"  HREF="000501.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] [Bug #12134] SC Bug!</H1>
+    <B>admin at berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BBug%20%2312134%5D%20SC%20Bug%21&In-Reply-To=%3C200710090821.l998LDeH011002%40unicorn.berlios.de%3E"
+       TITLE="[pvpgn-dev] [Bug #12134] SC Bug!">admin at berlios.de
+       </A><BR>
+    <I>Tue Oct  9 10:21:13 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000498.html">[pvpgn-dev] [Bug #12134] SC Bug!
+</A></li>
+        <LI>Next message: <A HREF="000501.html">[pvpgn-dev] pvpgn/src/bnetd handle_bnet.c,1.249,1.250
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#499">[ date ]</a>
+              <a href="thread.html#499">[ thread ]</a>
+              <a href="subject.html#499">[ subject ]</a>
+              <a href="author.html#499">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Bug #12134, was updated on 2007-Oct-08 13:13
+Here is a current snapshot of the bug.
+
+Project: Player vs Player Gaming Network
+Category: Starcraft Series
+Status: Open
+Resolution: None
+Bug Group: bnetd
+Priority: 5
+Submitted by: relix
+Assigned to : none
+Summary: SC Bug!
+
+Details: in Starcraft: Brood war, at pressing the Button friends, game takes off. (disconnect)
+ 
+[error] account_get_friend: could not find friend (friendno: 0 of ' maestro ') in log pvpgn.
+
+ Run at  Pvpgn+Mysql 
+Ver. pvpgn 1.81 
+ver. mysql 5.0
+ver. Sc 1.14
+
+but if you have a friend game don't takes off. 
+
+Follow-Ups:
+
+Date: 2007-Oct-09 11:21
+By: d1zzy
+
+Comment:
+Well I assume that SC/BW use the same protocol for friend list query (like Warcraft3) otherwise it wouldn't work even when you got a friend. Now it is rather strange that we didn't got the same report for Warcraft3. Maybe someone should double check that this bug really does not show on Warcraft3. In any case the solution is to join battlenet (when you got no friends) with Starcraft (or Warcraft3 if the problem persists there too) and packet dump the reply packet from battle.net when you query your friends and have none. Then compare it with a similar packet dump from pvpgn (or just look in the source about what packet pvpgn sends).
+
+Or you could just try to lookup this reply packet from the vL's BnetDocs.
+-------------------------------------------------------
+
+Date: 2007-Oct-08 21:51
+By: pelish
+
+Comment:
+Tested on PvPGN 1.8.1/SEXP 1.15.1 and is the same situation like have relix... Im trying to find-out solution.
+-------------------------------------------------------
+
+For detailed info, follow this link:
+<A HREF="http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=12134&amp;group_id=2291">http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=12134&amp;group_id=2291</A>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000498.html">[pvpgn-dev] [Bug #12134] SC Bug!
+</A></li>
+	<LI>Next message: <A HREF="000501.html">[pvpgn-dev] pvpgn/src/bnetd handle_bnet.c,1.249,1.250
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#499">[ date ]</a>
+              <a href="thread.html#499">[ thread ]</a>
+              <a href="subject.html#499">[ subject ]</a>
+              <a href="author.html#499">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

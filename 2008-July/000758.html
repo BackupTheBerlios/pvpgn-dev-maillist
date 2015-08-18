@@ -1,0 +1,165 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r476 - trunk/pvpgn/src/bnetd
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2008-July/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r476%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200807252134.m6PLY92v003769%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000757.html">
+   <LINK REL="Next"  HREF="000759.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r476 - trunk/pvpgn/src/bnetd</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r476%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200807252134.m6PLY92v003769%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r476 - trunk/pvpgn/src/bnetd">svn at svn.berlios.de
+       </A><BR>
+    <I>Fri Jul 25 23:34:09 CEST 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000757.html">[pvpgn-dev] r475 - in trunk/pvpgn/src: bnetd client common
+</A></li>
+        <LI>Next message: <A HREF="000759.html">[pvpgn-dev] r477 - in trunk/pvpgn/src: bnetd common
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#758">[ date ]</a>
+              <a href="thread.html#758">[ thread ]</a>
+              <a href="subject.html#758">[ subject ]</a>
+              <a href="author.html#758">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pandaemonium
+Date: 2008-07-25 23:34:07 +0200 (Fri, 25 Jul 2008)
+New Revision: 476
+
+Modified:
+   trunk/pvpgn/src/bnetd/channel.cpp
+   trunk/pvpgn/src/bnetd/connection.cpp
+Log:
+fix warning about invalid clienttag when STAR/SEXP client is added to clan_get_channel_type, fix NULL channel issue after being kicked out of a clan
+
+Modified: trunk/pvpgn/src/bnetd/channel.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/channel.cpp	2008-07-25 20:43:27 UTC (rev 475)
++++ trunk/pvpgn/src/bnetd/channel.cpp	2008-07-25 21:34:07 UTC (rev 476)
+@@ -413,7 +413,7 @@
+     return -1;
+ 
+   chname=xstrdup(temp);
+-  conn_set_channel(conn, NULL);
++  conn_part_channel(conn);
+   if (conn_set_channel(conn,chname)&lt;0)
+     conn_set_channel(conn,CHANNEL_NAME_BANNED);
+   xfree((void *)chname);
+@@ -643,12 +643,12 @@
+     t_connection * c;
+     unsigned int   heard;
+ 	char const *   tname;
+-    t_message *    message1; //send to people with clienttag matching channel clienttag 
++    t_message *    message1; //send to people with clienttag matching channel clienttag
+                              // or everyone when channel has no clienttag set
+ 	t_message *    message2; //send to people with clienttag not matching channel clienttag
+ 	t_message *    message_to_send;
+-    
+ 
++
+     if (!channel)
+     {
+ 	eventlog(eventlog_level_error,__FUNCTION__,&quot;got NULL channel&quot;);
+
+Modified: trunk/pvpgn/src/bnetd/connection.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/connection.cpp	2008-07-25 20:43:27 UTC (rev 475)
++++ trunk/pvpgn/src/bnetd/connection.cpp	2008-07-25 21:34:07 UTC (rev 476)
+@@ -1875,7 +1875,7 @@
+         eventlog(eventlog_level_error,__FUNCTION__,&quot;got NULL channelname&quot;);
+         return -1;
+     }
+-                
++
+ 	oldchannel=c-&gt;protocol.chat.channel;
+ 
+ 	channel = channellist_find_channel_by_name(channelname,conn_get_country(c),realm_get_name(conn_get_realm(c)));
+@@ -1894,11 +1894,11 @@
+             snprintf(msgtemp, sizeof(msgtemp), &quot;Unable to join channel %s, there is no member of that clan in the channel!&quot;, channelname);
+             message_send_text(c, message_type_error, c, msgtemp);
+ 
+-            if (conn_get_game(c)) {
++            if (conn_get_game(c) || c-&gt;protocol.chat.channel==NULL) {
+                 // FIXME: This is not tested to be according to battle.net!!
+                 // This is fix for empty clan channels with preventing to join CHANNEL_NAME_BANNED when is used _handle_join_command
+                 snprintf(msgtemp, sizeof(msgtemp), &quot;You have been redirected to %s.&quot;, CHANNEL_NAME_BANNED);
+-                message_send_text(c, message_type_error, c, msgtemp);    
++                message_send_text(c, message_type_error, c, msgtemp);
+                 channel = channellist_find_channel_by_name(CHANNEL_NAME_BANNED,conn_get_country(c),realm_get_name(conn_get_realm(c)));
+             } else
+                 return 0;
+@@ -2041,7 +2041,7 @@
+         ERROR0(&quot;client want to KICK channel but is not in channel! c-&gt;protocol.chat.channel == NULL&quot;);
+         return -1;
+     }
+-   
++
+     channel_del_connection(c-&gt;protocol.chat.channel,c,message_type_kick,text);
+     c-&gt;protocol.chat.channel = NULL;
+ 
+@@ -2061,7 +2061,7 @@
+         ERROR0(&quot;client want to QUIT channel but is not in channel! c-&gt;protocol.chat.channel == NULL&quot;);
+         return -1;
+     }
+-   
++
+     channel_del_connection(c-&gt;protocol.chat.channel,c,message_type_quit,text);
+     c-&gt;protocol.chat.channel = NULL;
+ 
+@@ -3624,11 +3624,16 @@
+ 	return -1;
+     }
+ 
++    clienttag = c-&gt;protocol.client.clienttag;
++
++	if (!((clienttag==CLIENTTAG_WARCRAFT3_UINT) ||
++			(clienttag==CLIENTTAG_WAR3XP_UINT))){
++		return 0;
++	}
++
+     std::strncpy(revtag, tag_uint_to_str(clienttag_str,conn_get_fake_clienttag(c)),5); revtag[4] = '\0';
+     strreverse(revtag);
+ 
+-    clienttag = c-&gt;protocol.client.clienttag;
+-
+     acctlevel = account_get_highestladderlevel(account,clienttag);
+     account_get_raceicon(account, &amp;raceicon, &amp;raceiconnumber, &amp;wins, clienttag);
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000757.html">[pvpgn-dev] r475 - in trunk/pvpgn/src: bnetd client common
+</A></li>
+	<LI>Next message: <A HREF="000759.html">[pvpgn-dev] r477 - in trunk/pvpgn/src: bnetd common
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#758">[ date ]</a>
+              <a href="thread.html#758">[ thread ]</a>
+              <a href="subject.html#758">[ subject ]</a>
+              <a href="author.html#758">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

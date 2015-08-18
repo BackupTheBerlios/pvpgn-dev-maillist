@@ -1,0 +1,213 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r376 - in trunk/pvpgn: . conf
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-August/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r376%20-%20in%20trunk/pvpgn%3A%20.%20conf&In-Reply-To=%3C200708281508.l7SF82pp003667%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000431.html">
+   <LINK REL="Next"  HREF="000433.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r376 - in trunk/pvpgn: . conf</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r376%20-%20in%20trunk/pvpgn%3A%20.%20conf&In-Reply-To=%3C200708281508.l7SF82pp003667%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r376 - in trunk/pvpgn: . conf">svn at svn.berlios.de
+       </A><BR>
+    <I>Tue Aug 28 17:08:02 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000431.html">[pvpgn-dev] pvpgn UPDATE,1.59,1.60
+</A></li>
+        <LI>Next message: <A HREF="000433.html">[pvpgn-dev] r377 - trunk/pvpgn/cmake/Modules
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#432">[ date ]</a>
+              <a href="thread.html#432">[ thread ]</a>
+              <a href="subject.html#432">[ subject ]</a>
+              <a href="author.html#432">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pelish
+Date: 2007-08-28 17:07:57 +0200 (Tue, 28 Aug 2007)
+New Revision: 376
+
+Modified:
+   trunk/pvpgn/conf/versioncheck.conf.in
+   trunk/pvpgn/version-history.txt
+Log:
+add SC/BW IX86 1.15.1 version check entries
+
+Modified: trunk/pvpgn/conf/versioncheck.conf.in
+===================================================================
+--- trunk/pvpgn/conf/versioncheck.conf.in	2007-08-28 14:06:45 UTC (rev 375)
++++ trunk/pvpgn/conf/versioncheck.conf.in	2007-08-28 15:07:57 UTC (rev 376)
+@@ -173,40 +173,39 @@
+  0x41e223a3 \
+  D2DV_109D
+ 
+-# Starcraft - Broodwar (Expansion) 1.15 - (Broodwar mode)
++# Starcraft - Broodwar (Expansion) 1.15.1 - (Broodwar mode)
+ &quot;A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B&quot; \
+  &quot;IX86ver1.mpq&quot; \
+  IX86 \
+  SEXP \
+- &quot;starcraft.exe 05/08/07 19:13:26 1220608&quot; \
++ &quot;starcraft.exe 07/19/07 02:30:05 1220608&quot; \
+  0x000000d1 \
+- 1.15.0.1 \
+- 0xc9ca8bc3 \
+- SEXP_115
++ 1.15.1.0 \
++ 0x61f028c1 \
++ SEXP_1151
+ 
+-# Starcraft - Broodwar (Expansion) 1.15 - (Starcraft mode)
++# Starcraft - Broodwar (Expansion) 1.15.1 - (Starcraft mode)
+ &quot;A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B&quot; \
+  &quot;IX86ver1.mpq&quot; \
+  IX86 \
+  STAR \
+- &quot;starcraft.exe 05/08/07 19:13:26 1220608&quot; \
++ &quot;starcraft.exe 07/19/07 02:30:05 1220608&quot; \
+  0x000000d1 \
+- 1.15.0.1 \
+- 0xc9ca8bc3 \
+- STAR_115
++ 1.15.1.0 \
++ 0x61f028c1 \
++ STAR_1151
+ 
+-# Starcraft (Standalone) 1.15
++# Starcraft (Standalone) 1.15.1
+ &quot;A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B&quot; \
+  &quot;IX86ver1.mpq&quot; \
+  IX86 \
+  STAR \
+- &quot;starcraft.exe 05/08/07 19:14:08 1220608&quot; \
++ &quot;starcraft.exe 07/19/07 02:30:53 1220608&quot; \
+  0x000000d1 \
+- 1.15.0.0 \
+- 0x79b1b06e \
+- STAR_115
++ 1.15.1.0 \
++ 0xc3199b84 \
++ STAR_1151
+ 
+-
+ ##### Mac OS X (XMAC) ########################################################
+ 
+ # -=-=-=-=-=-=- Latest Versions -=-=-=-=-=-=- No Update Required -=-=-=-=-=-=-
+@@ -1036,6 +1035,28 @@
+ 
+ # ==================== StarCraft Broodwar entries ============================
+ 
++# Starcraft - Broodwar (Expansion) 1.15 - (Broodwar mode)
++&quot;A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B&quot; \
++ &quot;IX86ver1.mpq&quot; \
++ IX86 \
++ SEXP \
++ &quot;starcraft.exe 05/08/07 19:13:26 1220608&quot; \
++ 0x000000d1 \
++ 1.15.0.1 \
++ 0xc9ca8bc3 \
++ SEXP_115
++
++# Starcraft - Broodwar (Expansion) 1.15 - (Starcraft mode)
++&quot;A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B&quot; \
++ &quot;IX86ver1.mpq&quot; \
++ IX86 \
++ STAR \
++ &quot;starcraft.exe 05/08/07 19:13:26 1220608&quot; \
++ 0x000000d1 \
++ 1.15.0.1 \
++ 0xc9ca8bc3 \
++ STAR_115
++
+ # Starcraft Broodwar (Expansion) 1.14 - (Broodwar mode)
+ &quot;A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B&quot; \
+  &quot;IX86ver1.mpq&quot; \
+@@ -1482,6 +1503,17 @@
+ 
+ # ==================== StarCraft (original) entries ==========================
+ 
++# Starcraft (Standalone) 1.15
++&quot;A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B&quot; \
++ &quot;IX86ver1.mpq&quot; \
++ IX86 \
++ STAR \
++ &quot;starcraft.exe 05/08/07 19:14:08 1220608&quot; \
++ 0x000000d1 \
++ 1.15.0.0 \
++ 0x79b1b06e \
++ STAR_115
++
+ # Starcraft (Standalone) 1.14
+ &quot;A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B&quot; \
+  &quot;IX86ver1.mpq&quot; \
+
+Modified: trunk/pvpgn/version-history.txt
+===================================================================
+--- trunk/pvpgn/version-history.txt	2007-08-28 14:06:45 UTC (rev 375)
++++ trunk/pvpgn/version-history.txt	2007-08-28 15:07:57 UTC (rev 376)
+@@ -1,6 +1,6 @@
+ PvPGN Version History:
+ 
+- Changelog for SVN TRUNK (since 1.8.1)
++ Changelog for SVN TRUNK (since 1.8.2)
+ =========================================
+  -- The list of changes mentioned in here is most propably incomplete.
+  For more details also take a peek view into conversion-changelog.
+@@ -12,11 +12,19 @@
+   -- added support for battle clans
+   -- added various protocol related fixes
+   -- added apireg support
+-  -- added support for BattleClans
+ 
+ [MISC]
+   -- added /clan whisper subcommand
+ 
++ ChangeLog for 1.8.2 (since 1.8.1)
++=========================================
++
++[WOL]
++  -- fixed possible server crash on raw list command
++
++[VCHECK]
++  -- added SC/BW IX86 1.15.1 version check entries
++
+  ChangeLog for 1.8.1 (since 1.8.0)
+ =========================================
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000431.html">[pvpgn-dev] pvpgn UPDATE,1.59,1.60
+</A></li>
+	<LI>Next message: <A HREF="000433.html">[pvpgn-dev] r377 - trunk/pvpgn/cmake/Modules
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#432">[ date ]</a>
+              <a href="thread.html#432">[ thread ]</a>
+              <a href="subject.html#432">[ subject ]</a>
+              <a href="author.html#432">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

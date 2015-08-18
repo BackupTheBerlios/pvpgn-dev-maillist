@@ -1,0 +1,122 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] [Bug #15058] Security exploit - disconnect users trying	to view cg list
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2009-February/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BBug%20%2315058%5D%20Security%20exploit%20-%20disconnect%20users%20trying%0A%09to%20view%20cg%20list&In-Reply-To=%3C200902062057.n16KvAF8012524%40unicorn.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000958.html">
+   <LINK REL="Next"  HREF="000960.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] [Bug #15058] Security exploit - disconnect users trying	to view cg list</H1>
+    <B>admin at berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BBug%20%2315058%5D%20Security%20exploit%20-%20disconnect%20users%20trying%0A%09to%20view%20cg%20list&In-Reply-To=%3C200902062057.n16KvAF8012524%40unicorn.berlios.de%3E"
+       TITLE="[pvpgn-dev] [Bug #15058] Security exploit - disconnect users trying	to view cg list">admin at berlios.de
+       </A><BR>
+    <I>Fri Feb  6 21:57:10 CET 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000958.html">[pvpgn-dev] [Bug #15058] Security exploit - disconnect users trying	to view cg list
+</A></li>
+        <LI>Next message: <A HREF="000960.html">[pvpgn-dev] [Patch #2575] Sets windows service privilages to	NetworkService
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#959">[ date ]</a>
+              <a href="thread.html#959">[ thread ]</a>
+              <a href="subject.html#959">[ subject ]</a>
+              <a href="author.html#959">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Bug #15058, was updated on 2009-Jan-14 14:24
+Here is a current snapshot of the bug.
+
+Project: Player vs Player Gaming Network
+Category: Warcraft Series
+Status: Closed
+Resolution: Fixed
+Bug Group: bnetd
+Priority: 5
+Submitted by: u-238
+Assigned to : pandaemonium
+Summary: Security exploit - disconnect users trying to view cg list
+
+Details: This security exploit involves using a hosting bot to create a custom game where the game map path is longer than 128 characters.
+
+This causes all Warcraft III clients to crash when they attempt to view the custom game list.
+
+We have successfully fixed this exploit on Bored Aussie, as described below:
+
+
+In &quot;common/field_sizes.h&quot;:
+
+Change:
+
+const int MAX_GAMEINFO_LEN = 256;
+
+To:
+
+const int MAX_GAMEINFO_LEN = 128;
+
+
+This prevents anyone from using the exploit.
+
+
+For older versions, I believe the line is in the same file but it is this:
+
+#define GAME_INFO_LEN 256
+
+change to:
+
+#define GAME_INFO_LEN 128
+
+
+Follow-Ups:
+
+Date: 2009-Feb-06 21:56
+By: pandaemonium
+
+Comment:
+Thanks alot for the report and the patch. Fixed in SVN and CVS.
+-------------------------------------------------------
+
+Date: 2009-Feb-06 21:54
+By: pandaemonium
+
+Comment:
+Thanks alot for the report and the patch. Fixed in SVN and CVS.
+-------------------------------------------------------
+
+For detailed info, follow this link:
+<A HREF="http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=15058&amp;group_id=2291">http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=15058&amp;group_id=2291</A>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000958.html">[pvpgn-dev] [Bug #15058] Security exploit - disconnect users trying	to view cg list
+</A></li>
+	<LI>Next message: <A HREF="000960.html">[pvpgn-dev] [Patch #2575] Sets windows service privilages to	NetworkService
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#959">[ date ]</a>
+              <a href="thread.html#959">[ thread ]</a>
+              <a href="subject.html#959">[ subject ]</a>
+              <a href="author.html#959">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

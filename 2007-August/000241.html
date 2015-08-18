@@ -1,0 +1,125 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r294 - trunk/pvpgn/src/bnetd
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-August/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r294%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200708062116.l76LGxqq001242%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000240.html">
+   <LINK REL="Next"  HREF="000242.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r294 - trunk/pvpgn/src/bnetd</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r294%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200708062116.l76LGxqq001242%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r294 - trunk/pvpgn/src/bnetd">svn at svn.berlios.de
+       </A><BR>
+    <I>Mon Aug  6 23:16:59 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000240.html">[pvpgn-dev] [Patch #2129] WOL JOIN message format fix
+</A></li>
+        <LI>Next message: <A HREF="000242.html">[pvpgn-dev] [Patch #2129] WOL JOIN message format fix
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#241">[ date ]</a>
+              <a href="thread.html#241">[ thread ]</a>
+              <a href="subject.html#241">[ subject ]</a>
+              <a href="author.html#241">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pandaemonium
+Date: 2007-08-06 23:16:58 +0200 (Mon, 06 Aug 2007)
+New Revision: 294
+
+Modified:
+   trunk/pvpgn/src/bnetd/irc.cpp
+Log:
+more fixes for JOIN problems I introduced &amp; fixes by pelish for proper WOL JOIN handling
+
+Modified: trunk/pvpgn/src/bnetd/irc.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/irc.cpp	2007-08-06 19:46:23 UTC (rev 293)
++++ trunk/pvpgn/src/bnetd/irc.cpp	2007-08-06 21:16:58 UTC (rev 294)
+@@ -650,7 +650,7 @@
+ 
+         channel = conn_get_channel(me);
+ 
+-	if((conn_get_wol(me) == 1) &amp;&amp; (conn_get_clienttag(me) != CLIENTTAG_WCHAT_UINT))
++	if((conn_get_wol(dst) == 1) &amp;&amp; (conn_get_clienttag(dst) != CLIENTTAG_WCHAT_UINT))
+ 	{
+             char temp[MAX_IRC_MESSAGE_LEN];
+     	    t_clan * clan;
+@@ -670,7 +670,7 @@
+             std::sprintf(temp,&quot;:%u,%u&quot;,clanid,conn_get_addr(me));
+     	    msg = irc_message_preformat(&amp;from,&quot;JOIN&quot;,temp,irc_convert_channel(channel));
+         }
+-        else if (conn_get_clienttag(me) == CLIENTTAG_WCHAT_UINT) {
++        else if (conn_get_clienttag(dst) == CLIENTTAG_WCHAT_UINT) {
+             char temp[MAX_IRC_MESSAGE_LEN];
+     	    std::memset(temp,0,sizeof(temp));
+ 
+@@ -686,7 +686,8 @@
+         else {
+             msg = irc_message_preformat(&amp;from,&quot;JOIN&quot;,&quot;\r&quot;,irc_convert_channel(channel));
+         }
+-        irc_send_rpl_namreply(me,channel);
++        if (me==dst)
++	    irc_send_rpl_namreply(dst,channel);
+     	conn_unget_chatname(me,from.nick);
+     }
+     	break;
+@@ -906,8 +907,11 @@
+ 	eventlog(eventlog_level_warn,__FUNCTION__,&quot;maximum message length exceeded&quot;);
+ 	return -1;
+     }
++
++eventlog(eventlog_level_debug,__FUNCTION__,&quot;about to add users&quot;);
++
+     /* FIXME: Add per user flags (@(op) and +(voice))*/
+-    if (!channel_get_flags(channel) &amp; channel_flags_thevoid)
++    if (!(channel_get_flags(channel) &amp; channel_flags_thevoid))
+     for (m = channel_get_first(channel);m;m = channel_get_next()) {
+ 	char const * name = conn_get_chatname(m);
+ 	char flg[5] = &quot;&quot;;
+@@ -977,7 +981,7 @@
+ 	    return -1;
+         }
+         irc_send_rpl_namreply_internal(c, channel);
+-        std:sprintf(temp, &quot;%32s :End of NAMES list&quot;, ircname);
++        std:sprintf(temp, &quot;%.32s :End of NAMES list&quot;, ircname);
+     } else {
+         t_elem const * curr;
+         LIST_TRAVERSE_CONST(channellist(),curr)
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000240.html">[pvpgn-dev] [Patch #2129] WOL JOIN message format fix
+</A></li>
+	<LI>Next message: <A HREF="000242.html">[pvpgn-dev] [Patch #2129] WOL JOIN message format fix
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#241">[ date ]</a>
+              <a href="thread.html#241">[ thread ]</a>
+              <a href="subject.html#241">[ subject ]</a>
+              <a href="author.html#241">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,155 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] pvpgn/src/client client_connect.h,1.7,1.8
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2008-June/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20pvpgn/src/client%20client_connect.h%2C1.7%2C1.8&In-Reply-To=%3C20080612195518.E38BF144B67%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000725.html">
+   <LINK REL="Next"  HREF="000727.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] pvpgn/src/client client_connect.h,1.7,1.8</H1>
+    <B>pelish</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20pvpgn/src/client%20client_connect.h%2C1.7%2C1.8&In-Reply-To=%3C20080612195518.E38BF144B67%40mail.berlios.de%3E"
+       TITLE="[pvpgn-dev] pvpgn/src/client client_connect.h,1.7,1.8">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Thu Jun 12 21:55:18 CEST 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000725.html">[pvpgn-dev] r465 - trunk/pvpgn/src/bnetd
+</A></li>
+        <LI>Next message: <A HREF="000727.html">[pvpgn-dev] undefined reference to BigInt
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#726">[ date ]</a>
+              <a href="thread.html#726">[ thread ]</a>
+              <a href="subject.html#726">[ subject ]</a>
+              <a href="author.html#726">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/pvpgn/pvpgn/src/client
+In directory sheep:/tmp/cvs-serv31314
+
+Modified Files:
+	client_connect.h 
+Log Message:
+backporing pandaes changes on client_con.h (add the lastest client vchecks, modifed vchecks to be according in new mpq file
+
+Index: client_connect.h
+===================================================================
+RCS file: /cvsroot/pvpgn/pvpgn/src/client/client_connect.h,v
+retrieving revision 1.7
+retrieving revision 1.8
+diff -u -d -r1.7 -r1.8
+--- client_connect.h	10 Oct 2006 20:16:46 -0000	1.7
++++ client_connect.h	12 Jun 2008 19:55:16 -0000	1.8
+@@ -41,13 +41,13 @@
+ #define CLIENT_VERSIONID_DRTL   0x0000002a
+ #define CLIENT_GAMEVERSION_DRTL 0x01000902
+ #define CLIENT_EXEINFO_DRTL     &quot;Diablo.exe 05/18/01 23:10:57 767760&quot;
+-#define CLIENT_CHECKSUM_DRTL    0xac337ef9
++#define CLIENT_CHECKSUM_DRTL    0x23135c73 
+ 
+-//plain Starcraft 1.13f
+-#define CLIENT_VERSIONID_STAR   0x000000cd
+-#define CLIENT_GAMEVERSION_STAR 0x0101030a
+-#define CLIENT_EXEINFO_STAR     &quot;starcraft.exe 01/13/06 05:46:36 1146939&quot;
+-#define CLIENT_CHECKSUM_STAR    0xcddd4cf8
++//plain Starcraft 1.15.2
++#define CLIENT_VERSIONID_STAR   0x000000d1
++#define CLIENT_GAMEVERSION_STAR 0x010f0200
++#define CLIENT_EXEINFO_STAR     &quot;StarCraft.exe 01/08/08 23:45:36 1220608&quot;
++#define CLIENT_CHECKSUM_STAR    0x91c0f907
+ 
+ 
+ #define CLIENT_VERSIONID_SSHR   0x000000a5 /* FIXME: wrong? */
+@@ -55,35 +55,35 @@
+ #define CLIENT_EXEINFO_SSHR     &quot;starcraft.exe 03/08/99 22:41:50 1042432&quot; /* FIXME: wrong */
+ #define CLIENT_CHECKSUM_SSHR    0x12345678
+ 
+-//Broodwar 1.13f
+-#define CLIENT_VERSIONID_SEXP   0x000000cd
+-#define CLIENT_GAMEVERSION_SEXP 0x0101030b
+-#define CLIENT_EXEINFO_SEXP     &quot;starcraft.exe 01/13/06 05:42:48 1146939&quot;
+-#define CLIENT_CHECKSUM_SEXP    0x8fed1d6d
++//Broodwar 1.15.2
++#define CLIENT_VERSIONID_SEXP   0x000000d1
++#define CLIENT_GAMEVERSION_SEXP 0x010f0201
++#define CLIENT_EXEINFO_SEXP     &quot;StarCraft.exe 01/10/08 20:23:42 1220608&quot;
++#define CLIENT_CHECKSUM_SEXP    0x8fbdf18d
+ 
+ //Warcraft 2 Battle.Net Edition 2.02b
+ #define CLIENT_VERSIONID_W2BN   0x0000004f
+ #define CLIENT_GAMEVERSION_W2BN 0x02000201
+ #define CLIENT_EXEINFO_W2BN     &quot;Warcraft II BNE.exe 05/21/01 21:52:22 712704&quot;
+-#define CLIENT_CHECKSUM_W2BN    0xf144a97e
++#define CLIENT_CHECKSUM_W2BN    0xff0d4c4a
+ 
+-//Diablo 2 1.10
+-#define CLIENT_VERSIONID_D2DV   0x0000000a
+-#define CLIENT_GAMEVERSION_D2DV 0x01000a00
+-#define CLIENT_EXEINFO_D2DV     &quot;Game.exe 10/13/03 08:34:46 1194761&quot;
+-#define CLIENT_CHECKSUM_D2DV    0x3132dda6
++//Diablo 2 1.11b
++#define CLIENT_VERSIONID_D2DV   0x0000000b
++#define CLIENT_GAMEVERSION_D2DV 0x01000b00
++#define CLIENT_EXEINFO_D2DV     &quot;Game.exe 08/17/05 01:11:43 2125824&quot;
++#define CLIENT_CHECKSUM_D2DV    0x602f8323
+ 
+-//Diable 2 Expansion 1.10
+-#define CLIENT_VERSIONID_D2XP   0x0000000a
+-#define CLIENT_GAMEVERSION_D2XP 0x01000a00
+-#define CLIENT_EXEINFO_D2XP     &quot;Game.exe 10/13/03 08:35:30 1198857&quot;
+-#define CLIENT_CHECKSUM_D2XP    0x210126ec
++//Diable 2 Expansion 1.11b
++#define CLIENT_VERSIONID_D2XP   0x0000000b
++#define CLIENT_GAMEVERSION_D2XP 0x01000b00
++#define CLIENT_EXEINFO_D2XP     &quot;Game.exe 08/17/05 01:12:38 2129920&quot;
++#define CLIENT_CHECKSUM_D2XP    0xbfc36199
+ 
+-//Warcraft 3 1.16 and Warcraft 3 Frozen Throne 1.20e
+-#define CLIENT_VERSIONID_WAR3   0x00000014
+-#define CLIENT_GAMEVERSION_WAR3 0x0114047e
+-#define CLIENT_EXEINFO_WAR3     &quot;war3.exe 06/13/06 06:13:05 1572307&quot;
+-#define CLIENT_CHECKSUM_WAR3    0x8771b225
++//Warcraft 3 1.21b and Warcraft 3 Frozen Throne 1.21b
++#define CLIENT_VERSIONID_WAR3   0x00000015
++#define CLIENT_GAMEVERSION_WAR3 0x0115019c
++#define CLIENT_EXEINFO_WAR3     &quot;war3.exe 07/19/07 18:41:12 409660&quot;
++#define CLIENT_CHECKSUM_WAR3    0x1b735294
+ 
+ #define CLIENT_COUNTRYINFO_109_PROTOCOL            0x00000000
+ #define CLIENT_COUNTRYINFO_109_VERSIONID_D2DV      0x00000009
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000725.html">[pvpgn-dev] r465 - trunk/pvpgn/src/bnetd
+</A></li>
+	<LI>Next message: <A HREF="000727.html">[pvpgn-dev] undefined reference to BigInt
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#726">[ date ]</a>
+              <a href="thread.html#726">[ thread ]</a>
+              <a href="subject.html#726">[ subject ]</a>
+              <a href="author.html#726">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

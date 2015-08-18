@@ -1,0 +1,83 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r551 - trunk/pvpgn/src/bnetd
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2009-February/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r551%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200902252143.n1PLhqgp029531%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001008.html">
+   <LINK REL="Next"  HREF="001010.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r551 - trunk/pvpgn/src/bnetd</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r551%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200902252143.n1PLhqgp029531%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r551 - trunk/pvpgn/src/bnetd">svn at svn.berlios.de
+       </A><BR>
+    <I>Wed Feb 25 22:43:52 CET 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001008.html">[pvpgn-dev] r550 - trunk/pvpgn/src/bnetd
+</A></li>
+        <LI>Next message: <A HREF="001010.html">[pvpgn-dev] r552 - in trunk/pvpgn: conf src/bnetd src/common
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1009">[ date ]</a>
+              <a href="thread.html#1009">[ thread ]</a>
+              <a href="subject.html#1009">[ subject ]</a>
+              <a href="author.html#1009">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pandaemonium
+Date: 2009-02-25 22:43:52 +0100 (Wed, 25 Feb 2009)
+New Revision: 551
+
+Modified:
+   trunk/pvpgn/src/bnetd/sql_mysql.cpp
+Log:
+make things compile with -pedantic 
+
+Modified: trunk/pvpgn/src/bnetd/sql_mysql.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/sql_mysql.cpp	2009-02-25 20:31:20 UTC (rev 550)
++++ trunk/pvpgn/src/bnetd/sql_mysql.cpp	2009-02-25 21:43:52 UTC (rev 551)
+@@ -18,6 +18,7 @@
+ 
+ #ifdef WITH_SQL_MYSQL
+ #include &quot;common/setup_before.h&quot;
++#define NO_CLIENT_LONG_LONG
+ #include &quot;sql_mysql.h&quot;
+ 
+ #ifdef HAVE_WINDOWS_H
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001008.html">[pvpgn-dev] r550 - trunk/pvpgn/src/bnetd
+</A></li>
+	<LI>Next message: <A HREF="001010.html">[pvpgn-dev] r552 - in trunk/pvpgn: conf src/bnetd src/common
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1009">[ date ]</a>
+              <a href="thread.html#1009">[ thread ]</a>
+              <a href="subject.html#1009">[ subject ]</a>
+              <a href="author.html#1009">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

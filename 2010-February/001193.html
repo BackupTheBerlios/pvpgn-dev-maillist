@@ -1,0 +1,204 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r570 - trunk/pvpgn/src/bnetd
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2010-February/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r570%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C201002041627.o14GRrDM006954%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="001194.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r570 - trunk/pvpgn/src/bnetd</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r570%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C201002041627.o14GRrDM006954%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r570 - trunk/pvpgn/src/bnetd">svn at svn.berlios.de
+       </A><BR>
+    <I>Thu Feb  4 17:27:53 CET 2010</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="001194.html">[pvpgn-dev] r571 - trunk/pvpgn/src/bnetd
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1193">[ date ]</a>
+              <a href="thread.html#1193">[ thread ]</a>
+              <a href="subject.html#1193">[ subject ]</a>
+              <a href="author.html#1193">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pelish
+Date: 2010-02-04 17:27:51 +0100 (Thu, 04 Feb 2010)
+New Revision: 570
+
+Modified:
+   trunk/pvpgn/src/bnetd/handle_wol.cpp
+Log:
+add support for WOL passworded games
+
+Modified: trunk/pvpgn/src/bnetd/handle_wol.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/handle_wol.cpp	2010-01-28 22:10:56 UTC (rev 569)
++++ trunk/pvpgn/src/bnetd/handle_wol.cpp	2010-02-04 16:27:51 UTC (rev 570)
+@@ -1010,12 +1010,9 @@
+ 	*   Heres the output expected:
+ 	*   user!<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">WWOL at hostname</A> JOINGAME [MinPlayers] [MaxPlayers] [channelType] unknown clanID [longIP] [gameIsTournament] :[#Game_channel_name]
+ 	*/
+-	if((numparams==2)) {
++	if((numparams==2) || (numparams==3)) {
+ 	    char ** e;
+ 
+-	    eventlog(eventlog_level_debug,__FUNCTION__,&quot;[** WOL **] JOINGAME: * Join * (%s, %s)&quot;,
+-		     params[0],params[1]);
+-
+ 	    e = irc_get_listelems(params[0]);
+ 	    if ((e)&amp;&amp;(e[0])) {
+             char const * gamename = irc_convert_ircname(e[0]);
+@@ -1024,38 +1021,63 @@
+ 	   	 	t_game_type gametype;
+             t_channel * channel;
+ 	   	 	t_channel * old_channel = conn_get_channel(conn);
++	   	 	char * gamepass;
+ 
++            if ((conn_get_clienttag(conn) == CLIENTTAG_REDALERT_UINT)
++                &amp;&amp; (channellist_find_channel_by_name(gamename, NULL, NULL) != NULL)
++                &amp;&amp; (gamelist_find_game_available(gamename, conn_get_clienttag(conn), game_type_all) == NULL)) {
++                /* BUG in Red Alert 1 v3.03e - forwarding to _handle_join_command */
++                DEBUG0(&quot;BUG in RA1 v3.03e - forwarding to _handle_join_command&quot;);
++                _handle_join_command(conn, numparams, params, text);
++                if (e)
++                    irc_unget_listelems(e);
++     	        return 0;
++            }
++
+             if (!(gamename) || !(game = gamelist_find_game_available(gamename, conn_get_clienttag(conn), game_type_all))) {
+-			     snprintf(_temp, sizeof(_temp), &quot;%s :Game channel has closed&quot;,e[0]);
+-			     irc_send(conn,ERR_GAMEHASCLOSED,_temp);
+-			     if (e)
+-		             irc_unget_listelems(e);
+-     	         return 0;
++    		    snprintf(_temp, sizeof(_temp), &quot;%s :Game channel has closed&quot;,e[0]);
++			    irc_send(conn,ERR_GAMEHASCLOSED,_temp);
++                if (e)
++                    irc_unget_listelems(e);
++     	        return 0;
+             }
+ 
+             channel = game_get_channel(game);
+ 
+             if (game_get_ref(game) == game_get_maxplayers(game)) {
+-	   	 	     snprintf(_temp, sizeof(_temp), &quot;%s :Channel is full&quot;,e[0]);
+-                 irc_send(conn,ERR_CHANNELISFULL,_temp);
+-			     if (e)
+-		             irc_unget_listelems(e);
+-			     return 0;
++                snprintf(_temp, sizeof(_temp), &quot;%s :Channel is full&quot;, e[0]);
++                irc_send(conn,ERR_CHANNELISFULL,_temp);
++                if (e)
++                    irc_unget_listelems(e);
++     	        return 0;
+             }
+ 
+             if (channel_check_banning(channel,conn)) {
+-	   	 	     snprintf(_temp, sizeof(_temp), &quot;%s :You are banned from that channel.&quot;,e[0]);
+-	   	 	     irc_send(conn,ERR_BANNEDFROMCHAN,_temp);
+-	   	 	     if (e)
+-	   	 	         irc_unget_listelems(e);
+-	   	 	     return 0;
++                snprintf(_temp, sizeof(_temp), &quot;%s :You are banned from that channel.&quot;, e[0]);
++	   	 	    irc_send(conn,ERR_BANNEDFROMCHAN,_temp);
++                if (e)
++                    irc_unget_listelems(e);
++     	        return 0;
+             }
+ 
++            if (std::strcmp(game_get_pass(game),&quot;&quot;) != 0) {
++                if ((params[2]) &amp;&amp; (std::strcmp(params[2], game_get_pass(game)) == 0))
++                    gamepass = params[2];
++                else {
++                    snprintf(_temp, sizeof(_temp), &quot;%s :Bad password&quot;, e[0]);
++                    irc_send(conn,ERR_BADCHANNELKEY,_temp);
++                    if (e)
++                        irc_unget_listelems(e);
++     	            return 0;
++                }
++            }
++            else
++                gamepass = &quot;&quot;;
++
+ 			conn_wol_set_ingame(conn,1);
+-
+ 	   	 	gametype = game_get_type(game);
+ 
+-			if ((conn_set_game(conn, gamename, &quot;&quot;, &quot;&quot;, gametype, 0))&lt;0) {
++			if ((conn_set_game(conn, gamename, gamepass, &quot;&quot;, gametype, 0))&lt;0) {
+ 				irc_send(conn,ERR_NOSUCHCHANNEL,&quot;:JOINGAME failed&quot;);
+ 				conn_wol_set_ingame(conn,0);
+ 			}
+@@ -1102,13 +1124,6 @@
+ 		    irc_unget_listelems(e);
+     	    return 0;
+ 	}
+-	/**
+-	* HACK: Check for 3 params, because in that case we must be running RA1
+-	* then just forward to _handle_join_command
+-	*/
+-	else if((numparams==3)) {
+-	    _handle_join_command(conn,numparams,params,text);
+-	}
+ 	else if((numparams&gt;=7)) {
+ 	    char ** e;
+ 
+@@ -1136,6 +1151,7 @@
+ 	    if ((e)&amp;&amp;(e[0])) {
+     		char const * gamename = irc_convert_ircname(e[0]);
+     		t_game_type gametype;
++            char * gamepass;
+     		
+     		if (std::atoi(params[6]) == 1)
+     		    gametype = game_type_ladder;
+@@ -1143,7 +1159,12 @@
+     		    gametype = game_type_ffa;		    
+ //    		    gametype = game_type_none;
+ 
+-			if ((!(gamename)) || ((conn_set_game(conn, gamename, &quot;&quot;, &quot;&quot;, gametype, 0))&lt;0)) {
++            if (params[8])
++                gamepass = params[8];
++            else
++                gamepass = &quot;&quot;;
++
++			if ((!(gamename)) || ((conn_set_game(conn, gamename, gamepass, &quot;&quot;, gametype, 0))&lt;0)) {
+ 				irc_send(conn,ERR_NOSUCHCHANNEL,&quot;:JOINGAME failed&quot;); /* FIXME: be more precise; what is the real error code for that? */
+ 			}
+             else {
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="001194.html">[pvpgn-dev] r571 - trunk/pvpgn/src/bnetd
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1193">[ date ]</a>
+              <a href="thread.html#1193">[ thread ]</a>
+              <a href="subject.html#1193">[ subject ]</a>
+              <a href="author.html#1193">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

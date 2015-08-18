@@ -1,0 +1,292 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r540 - branches/clan_refactorings/src/bnetd
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2009-February/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r540%20-%20branches/clan_refactorings/src/bnetd&In-Reply-To=%3C200902162055.n1GKtnEr012570%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000990.html">
+   <LINK REL="Next"  HREF="000992.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r540 - branches/clan_refactorings/src/bnetd</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r540%20-%20branches/clan_refactorings/src/bnetd&In-Reply-To=%3C200902162055.n1GKtnEr012570%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r540 - branches/clan_refactorings/src/bnetd">svn at svn.berlios.de
+       </A><BR>
+    <I>Mon Feb 16 21:55:49 CET 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000990.html">[pvpgn-dev] [Bug #15266] users not in a clan receive clan whispers
+</A></li>
+        <LI>Next message: <A HREF="000992.html">[pvpgn-dev] r541 - trunk/pvpgn/src/bnetd
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#991">[ date ]</a>
+              <a href="thread.html#991">[ thread ]</a>
+              <a href="subject.html#991">[ subject ]</a>
+              <a href="author.html#991">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pandaemonium
+Date: 2009-02-16 21:55:49 +0100 (Mon, 16 Feb 2009)
+New Revision: 540
+
+Modified:
+   branches/clan_refactorings/src/bnetd/clan.cpp
+   branches/clan_refactorings/src/bnetd/clan.h
+Log:
+commit of some basic design ideas of the new API - still incomplete and work in progress that might change again
+
+Modified: branches/clan_refactorings/src/bnetd/clan.cpp
+===================================================================
+--- branches/clan_refactorings/src/bnetd/clan.cpp	2009-02-16 20:40:54 UTC (rev 539)
++++ branches/clan_refactorings/src/bnetd/clan.cpp	2009-02-16 20:55:49 UTC (rev 540)
+@@ -1469,6 +1469,97 @@
+ 	return tagstr;
+ }
+ 
++/*
++ * Classes for clan list and member management.
++ *
++ * Copyright (C) 2009 - Olaf Freyer
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU Affero General Public License
++ * as published by the Free Software Foundation; either version 3
++ * of the License, or (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU Affero General Public License for more details.
++ */
++
++Clans clans;
++
++ClanKey::ClanKey(t_clantag clantag_)
++:clantag(clantag_)
++{
++	// TODO: convert clantag to lowercase clankey
+ }
+ 
++ClanKey::~ClanKey() throw ()
++{
+ }
++
++bool
++ClanKey::operator== (const ClanKey&amp; right) const
++{
++	return (clankey == right.clankey);
++}
++
++
++bool
++ClanKey::operator&lt; (const ClanKey&amp; right) const
++{
++	return (clankey &lt; right.clankey);
++}
++
++
++ClanMember::ClanMember(Clan *clan_, t_account *account_, t_clan_rank rank_, std::time_t join_time_)
++:clan(clan_), account(account_), rank(rank_), join_time(join_time_)
++{
++}
++
++ClanMember::~ClanMember() throw ()
++{
++}
++
++
++Clan::Clan(ClanKey clanKey_, t_account *creator_)
++:clanKey(clanKey_)
++{
++	if (creator_ != NULL) {
++		ClanMember creator = ClanMember(this, creator_, chieftain);
++		members.push_back(creator);
++	}
++}
++
++Clan::~Clan() throw ()
++{
++}
++
++const ClanMember&amp;
++Clan::invite(t_account *invitee_)
++{
++	ClanMember *member = new ClanMember(this, invitee_);
++	invitees.push_back(*member);
++	return *member;
++}
++
++
++Clans::Clans()
++{
++}
++
++Clans::~Clans() throw ()
++{
++}
++
++Clan&amp;
++Clans::createClan(ClanKey clanKey_, t_account *creator_)
++{
++	Clan *clan = new Clan(clanKey_, creator_);
++	// TODO: also add clanMember to account !!!
++	emergingClans.insert(std::make_pair(clanKey_, *clan));
++	return *clan;
++}
++
++}
++
++}
+
+Modified: branches/clan_refactorings/src/bnetd/clan.h
+===================================================================
+--- branches/clan_refactorings/src/bnetd/clan.h	2009-02-16 20:40:54 UTC (rev 539)
++++ branches/clan_refactorings/src/bnetd/clan.h	2009-02-16 20:55:49 UTC (rev 540)
+@@ -17,6 +17,9 @@
+ #ifndef INCLUDED_CLAN_TYPES
+ #define INCLUDED_CLAN_TYPES
+ 
++#include &lt;vector&gt;
++#include &lt;map&gt;
++
+ #include &quot;common/tag.h&quot;
+ #ifdef JUST_NEED_TYPES
+ # include &quot;common/bn_type.h&quot;
+@@ -193,6 +196,102 @@
+ extern t_clantag str_to_clantag(const char *str);
+ extern const char* clantag_to_str(t_clantag tag);
+ 
++/*
++ * Classes for clan list and member management.
++ *
++ * Copyright (C) 2009 - Olaf Freyer
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU Affero General Public License
++ * as published by the Free Software Foundation; either version 3
++ * of the License, or (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU Affero General Public License for more details.
++ */
++
++// defined and maintained in server.cpp
++extern std::time_t now;
++
++// foreward decalaration due to cyclic dependencies
++class Clan;
++
++// definition of all clan ranks
++typedef enum {
++	chieftain	=  4,
++	shaman		=  3,
++	grunt		=  2,
++	peon		=  1,
++	apprentice	=  0,
++	invitee		= -1
++} t_clan_rank;
++
++// basically just the lower case version of the clantag
++// required so we can easily assure case insensitive uniqueness of clan tags
++class ClanKey {
++public:
++	ClanKey(t_clantag clantag_);
++	~ClanKey() throw ();
++	bool operator== (const ClanKey&amp; right) const;
++	bool operator&lt; (const ClanKey&amp; right) const;
++	t_clantag getClantag() const;
++	t_tag getClanKey() const;
++private:
++	t_clantag clantag;
++	t_tag clankey;
++};
++
++// a member or invitee of a clan
++class ClanMember {
++public:
++	// create a clan member, omit 3rd and 4th parameter during normal invitations
++	ClanMember(Clan *clan_, t_account *account_, t_clan_rank rank_=invitee, std::time_t join_time_=now);
++	~ClanMember() throw ();
++	t_account* getAccount() const;
++	t_clan_rank getRank() const;
++	const Clan&amp; getClan() const;
++private:
++	Clan		*clan;
++	t_account	*account;
++    t_clan_rank	rank;
++    std::time_t	join_time;
++};
++
++// a clan with all its members and invitees
++class Clan {
++public:
++	// create a Clan, omit 2nd parameter when used to load a clan
++	explicit Clan(ClanKey clanKey_, t_account *creator_=NULL);
++	~Clan() throw ();
++	const ClanKey&amp; getClanKey() const;
++	const ClanMember&amp; invite(t_account *invitee);
++private:
++	typedef std::vector&lt;ClanMember&gt; CMList;
++	ClanKey clanKey;
++	CMList members;
++	CMList invitees;
++};
++
++// all established(permanent) and emerging(transient) clans
++class Clans {
++public:
++	Clans();
++	~Clans() throw ();
++	Clan&amp; createClan(ClanKey clanKey_, t_account *creator_);
++	Clan&amp; getClan(ClanKey clanKey) const;
++private:
++	typedef std::map&lt;ClanKey, Clan&gt; KeyClanMap;
++
++	// collection of established clans
++	KeyClanMap establishedClans;
++	// collection of clans currently in the process of creation
++	KeyClanMap emergingClans;
++};
++
++extern Clans clans;
++
+ }
+ 
+ }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000990.html">[pvpgn-dev] [Bug #15266] users not in a clan receive clan whispers
+</A></li>
+	<LI>Next message: <A HREF="000992.html">[pvpgn-dev] r541 - trunk/pvpgn/src/bnetd
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#991">[ date ]</a>
+              <a href="thread.html#991">[ thread ]</a>
+              <a href="subject.html#991">[ subject ]</a>
+              <a href="author.html#991">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

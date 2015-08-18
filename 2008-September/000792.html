@@ -1,0 +1,134 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] d2cl, a character list backend to d2cs
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2008-September/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20d2cl%2C%20a%20character%20list%20backend%20to%20d2cs&In-Reply-To=%3Ceb9d4d380809141148g1a0584e3w9b3d4f5e7befdbdd%40mail.gmail.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000791.html">
+   <LINK REL="Next"  HREF="000797.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] d2cl, a character list backend to d2cs</H1>
+    <B>Pelish</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20d2cl%2C%20a%20character%20list%20backend%20to%20d2cs&In-Reply-To=%3Ceb9d4d380809141148g1a0584e3w9b3d4f5e7befdbdd%40mail.gmail.com%3E"
+       TITLE="[pvpgn-dev] d2cl, a character list backend to d2cs">pelish at gmail.com
+       </A><BR>
+    <I>Sun Sep 14 20:48:50 CEST 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000791.html">[pvpgn-dev] r495 - trunk/pvpgn
+</A></li>
+        <LI>Next message: <A HREF="000797.html">[pvpgn-dev] d2cl, a character list backend to d2cs
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#792">[ date ]</a>
+              <a href="thread.html#792">[ thread ]</a>
+              <a href="subject.html#792">[ subject ]</a>
+              <a href="author.html#792">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Good day tweek!
+Im interested of your work arround PvPGN (D2CS). Because I have not any
+expirience with Diablo II (since Im not owner of this game) I cant look over
+your work from coding/ideas point of wiev. But I can probably give you some
+feedback about other things.
+
+PvPGN have at this moment two branches. First, based on CVS, is 1.8.x. We
+call this branch &quot;the satble&quot; and we doing only back-porting of bug fixes
+from the developmant branch. Developmant is based on SVN and is 1.99.x.
+The bigest task of 1.99.x branch is recoding C code to CPP code (means using
+OOP). Anyways all of new features coding we doing on 1.99.x.
+
+1) So first of all I want to request you to backporting your patche into SVN
+code. There is not highly needed to recoding it into OOP (well - it will be
+cool when you do), just meake your code C++ compilable.
+
+2) For patches we have patches tracker at
+<A HREF="https://developer.berlios.de/patch/?group_id=2291">https://developer.berlios.de/patch/?group_id=2291</A> This place is the best for
+your patche because we will never lost it and we can much more simpler give
+you feedback or you can make updates for your work. Please upload your patch
+to this patch tracker.
+
+3) You can meet us online on irc.pvpgn.org - Join channel #pvpgndev and be
+arround. The project coordinator is D1zzy so maybe you will be possible give
+him a touch.
+
+4) You can try to discuse your work with PvPGN comunity on forums.pvpgn.org
+
+
+Thank you for your work. I hope that you will make more usefull stuff for
+PvPGN ;)
+
+Regards
+Pelish
+
+
+2008/8/28 tweek &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">tweek.20k at gmail.com</A>&gt;
+
+&gt;<i> Greetings. First-time poster.
+</I>&gt;<i>
+</I>&gt;<i> I've been working on a patch that will allow users to connect to D2CS
+</I>&gt;<i> directly to figure out whether a specific character is currently
+</I>&gt;<i> logged in and playing a game. Here's what I have so far:
+</I>&gt;<i>
+</I>&gt;<i> <A HREF="http://tweek.no-ip.org/stuff/patch-d2cl.patch">http://tweek.no-ip.org/stuff/patch-d2cl.patch</A>
+</I>&gt;<i>
+</I>&gt;<i> You can add that patch either to /usr/ports/games/pvpgn/files if
+</I>&gt;<i> you're using FreeBSD and simply rebuild the port, or copy it to
+</I>&gt;<i> pvpgn-1.8.3/src/ and use patch -p0 &lt; patch-d2cl.patch otherwise.
+</I>&gt;<i> Here's a test client, a simple example using BSD sockets to merely
+</I>&gt;<i> send the user's input into D2CL and print its response.
+</I>&gt;<i>
+</I>&gt;<i> <A HREF="http://tweek.no-ip.org/stuff/network.c">http://tweek.no-ip.org/stuff/network.c</A>
+</I>&gt;<i>
+</I>&gt;<i> I tried to follow the general PvPGN code style, and I think I have all
+</I>&gt;<i> the right calls in place, though I'm not entirely sure. D2CS runs on
+</I>&gt;<i> every platform I've tested so far (haven't tried Windows) and I'm
+</I>&gt;<i> currently using it on my server. I need this in order to tell whether
+</I>&gt;<i> or not it's safe to mess around with a charsave. To use this you'd
+</I>&gt;<i> connect to D2CS on port 6113 (or wherever it's listening) and send the
+</I>&gt;<i> byte 5 to indicate a D2CL connection, then you send a simple
+</I>&gt;<i> null-terminated string embedded within a buffer that's 19 bytes long
+</I>&gt;<i> for each name you want to check, then listen for the 'yes\n' or 'no\n'
+</I>&gt;<i> response.
+</I>&gt;<i>
+</I>&gt;<i> Feedback appreciated!
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> pvpgn-dev mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">pvpgn-dev at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">https://lists.berlios.de/mailman/listinfo/pvpgn-dev</A>
+</I>&gt;<i>
+</I>-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: &lt;<A HREF="https://lists.berlios.de/pipermail/pvpgn-dev/attachments/20080914/1f59ef6d/attachment.html">https://lists.berlios.de/pipermail/pvpgn-dev/attachments/20080914/1f59ef6d/attachment.html</A>&gt;
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000791.html">[pvpgn-dev] r495 - trunk/pvpgn
+</A></li>
+	<LI>Next message: <A HREF="000797.html">[pvpgn-dev] d2cl, a character list backend to d2cs
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#792">[ date ]</a>
+              <a href="thread.html#792">[ thread ]</a>
+              <a href="subject.html#792">[ subject ]</a>
+              <a href="author.html#792">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

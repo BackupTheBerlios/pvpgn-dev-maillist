@@ -1,0 +1,193 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] undefined reference to BigInt
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2008-June/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20undefined%20reference%20to%20BigInt&In-Reply-To=%3C4852F42C.5020400%40d2maniacs.org%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000726.html">
+   <LINK REL="Next"  HREF="000728.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] undefined reference to BigInt</H1>
+    <B>JEBs</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20undefined%20reference%20to%20BigInt&In-Reply-To=%3C4852F42C.5020400%40d2maniacs.org%3E"
+       TITLE="[pvpgn-dev] undefined reference to BigInt">jebs at d2maniacs.org
+       </A><BR>
+    <I>Sat Jun 14 00:26:52 CEST 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000726.html">[pvpgn-dev] pvpgn/src/client client_connect.h,1.7,1.8
+</A></li>
+        <LI>Next message: <A HREF="000728.html">[pvpgn-dev] undefined reference to BigInt
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#727">[ date ]</a>
+              <a href="thread.html#727">[ thread ]</a>
+              <a href="subject.html#727">[ subject ]</a>
+              <a href="author.html#727">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Nice greetings (and a delayed happy new year ^^).
+
+Not important for me now... but should be fixed somewhen.
+
+
+g++  -g -O2   -o bnetd  account.o account_wrap.o adbanner.o 
+alias_command.o anongame.o anongame_gameresult.o anongame_infos.o 
+anongame_maplists.o attrgroup.o attrlayer.o autoupdate.o channel.o 
+channel_conv.o character.o clan.o cmdline.o command.o command_groups.o 
+connection.o file.o file_cdb.o file_plain.o friends.o game.o game_conv.o 
+handle_anongame.o handle_bnet.o handle_bot.o handle_d2cs.o handle_file.o 
+handle_init.o handle_irc.o handle_telnet.o handle_udp.o helpfile.o 
+ipban.o irc.o ladder.o ladder_calc.o mail.o main.o message.o news.o 
+output.o prefs.o realm.o runprog.o server.o sql_dbcreator.o sql_mysql.o 
+sql_odbc.o sql_pgsql.o sql_sqlite3.o storage.o storage_file.o 
+storage_sql.o support.o team.o tick.o timer.o topic.o tournament.o 
+tracker.o udptest_send.o versioncheck.o watch.o storage_sql2.o 
+sql_common.o handle_wol.o handle_irc_common.o handle_apireg.o 
+handle_wserv.o ../../src/common/libcommon.a ../../src/compat/libcompat.a 
+../../src/tinycdb/libtinycdb.a ../../src/win32/libwin32.a -lm -lz 
+-lmysqlclient -lnsl -lresolv
+handle_bnet.o: In function 
+`pvpgn::bnetd::_client_loginreqw3(pvpgn::bnetd::connection*, 
+pvpgn::t_packet const*)':
+/usr/src/pvpgn/d2m.20080614/src/bnetd/handle_bnet.cpp:1784: undefined 
+reference to `pvpgn::BigInt::BigInt(unsigned char const*, int, int, bool)'
+/usr/src/pvpgn/d2m.20080614/src/bnetd/handle_bnet.cpp:1785: undefined 
+reference to `pvpgn::BigInt::BigInt(unsigned char const*, int, int, bool)'
+/usr/src/pvpgn/d2m.20080614/src/bnetd/handle_bnet.cpp:1786: undefined 
+reference to `pvpgn::BnetSRP3::BnetSRP3(char const*, pvpgn::BigInt&amp;)'
+/usr/src/pvpgn/d2m.20080614/src/bnetd/handle_bnet.cpp:1788: undefined 
+reference to `pvpgn::BigInt::BigInt(unsigned char const*, int, int, bool)'
+/usr/src/pvpgn/d2m.20080614/src/bnetd/handle_bnet.cpp:1789: undefined 
+reference to `pvpgn::BnetSRP3::getServerSessionPublicKey(pvpgn::BigInt&amp;)'
+/usr/src/pvpgn/d2m.20080614/src/bnetd/handle_bnet.cpp:1791: undefined 
+reference to `pvpgn::BigInt::getData(unsigned char*, int, int, bool) const'
+/usr/src/pvpgn/d2m.20080614/src/bnetd/handle_bnet.cpp:1793: undefined 
+reference to `pvpgn::BnetSRP3::getHashedServerSecret(pvpgn::BigInt&amp;, 
+pvpgn::BigInt&amp;)'
+/usr/src/pvpgn/d2m.20080614/src/bnetd/handle_bnet.cpp:1794: undefined 
+reference to `pvpgn::BnetSRP3::getClientPasswordProof(pvpgn::BigInt&amp;, 
+pvpgn::BigInt&amp;, pvpgn::BigInt&amp;) const'
+/usr/src/pvpgn/d2m.20080614/src/bnetd/handle_bnet.cpp:1795: undefined 
+reference to `pvpgn::BnetSRP3::getServerPasswordProof(pvpgn::BigInt&amp;, 
+pvpgn::BigInt&amp;, pvpgn::BigInt&amp;) const'
+/usr/src/pvpgn/d2m.20080614/src/bnetd/handle_bnet.cpp:1797: undefined 
+reference to `pvpgn::BigInt::getData(int, int, bool) const'
+/usr/src/pvpgn/d2m.20080614/src/bnetd/handle_bnet.cpp:1798: undefined 
+reference to `pvpgn::BigInt::getData(int, int, bool) const'
+/usr/src/pvpgn/d2m.20080614/src/bnetd/handle_bnet.cpp:1810: undefined 
+reference to `pvpgn::BigInt::~BigInt()'
+/usr/src/pvpgn/d2m.20080614/src/bnetd/handle_bnet.cpp:1810: undefined 
+reference to `pvpgn::BigInt::~BigInt()'
+/usr/src/pvpgn/d2m.20080614/src/bnetd/handle_bnet.cpp:1810: undefined 
+reference to `pvpgn::BigInt::~BigInt()'
+/usr/src/pvpgn/d2m.20080614/src/bnetd/handle_bnet.cpp:1810: undefined 
+reference to `pvpgn::BigInt::~BigInt()'
+/usr/src/pvpgn/d2m.20080614/src/bnetd/handle_bnet.cpp:1810: undefined 
+reference to `pvpgn::BigInt::~BigInt()'
+/usr/src/pvpgn/d2m.20080614/src/bnetd/handle_bnet.cpp:1810: undefined 
+reference to `pvpgn::BnetSRP3::~BnetSRP3()'
+/usr/src/pvpgn/d2m.20080614/src/bnetd/handle_bnet.cpp:1810: undefined 
+reference to `pvpgn::BigInt::~BigInt()'
+/usr/src/pvpgn/d2m.20080614/src/bnetd/handle_bnet.cpp:1810: undefined 
+reference to `pvpgn::BigInt::~BigInt()'
+/usr/src/pvpgn/d2m.20080614/src/bnetd/handle_bnet.cpp:1810: undefined 
+reference to `pvpgn::BigInt::~BigInt()'
+/usr/src/pvpgn/d2m.20080614/src/bnetd/handle_bnet.cpp:1810: undefined 
+reference to `pvpgn::BigInt::~BigInt()'
+/usr/src/pvpgn/d2m.20080614/src/bnetd/handle_bnet.cpp:1810: undefined 
+reference to `pvpgn::BigInt::~BigInt()'
+handle_bnet.o:/usr/src/pvpgn/d2m.20080614/src/bnetd/handle_bnet.cpp:1810: 
+more undefined references to `pvpgn::BigInt::~BigInt()' follow
+handle_bnet.o: In function 
+`pvpgn::bnetd::_client_loginreqw3(pvpgn::bnetd::connection*, 
+pvpgn::t_packet const*)':
+/usr/src/pvpgn/d2m.20080614/src/bnetd/handle_bnet.cpp:1810: undefined 
+reference to `pvpgn::BnetSRP3::~BnetSRP3()'
+/usr/src/pvpgn/d2m.20080614/src/bnetd/handle_bnet.cpp:1810: undefined 
+reference to `pvpgn::BigInt::~BigInt()'
+/usr/src/pvpgn/d2m.20080614/src/bnetd/handle_bnet.cpp:1810: undefined 
+reference to `pvpgn::BigInt::~BigInt()'
+handle_bnet.o: In function 
+`pvpgn::bnetd::_client_createaccountw3(pvpgn::bnetd::connection*, 
+pvpgn::t_packet const*)':
+/usr/src/pvpgn/d2m.20080614/src/bnetd/handle_bnet.cpp:735: undefined 
+reference to `pvpgn::BigInt::BigInt(unsigned char const*, int, int, bool)'
+/usr/src/pvpgn/d2m.20080614/src/bnetd/handle_bnet.cpp:736: undefined 
+reference to `pvpgn::BnetSRP3::BnetSRP3(char const*, char const*)'
+/usr/src/pvpgn/d2m.20080614/src/bnetd/handle_bnet.cpp:737: undefined 
+reference to `pvpgn::BigInt::BigInt(pvpgn::BigInt const&amp;)'
+/usr/src/pvpgn/d2m.20080614/src/bnetd/handle_bnet.cpp:737: undefined 
+reference to `pvpgn::BnetSRP3::setSalt(pvpgn::BigInt)'
+/usr/src/pvpgn/d2m.20080614/src/bnetd/handle_bnet.cpp:737: undefined 
+reference to `pvpgn::BigInt::~BigInt()'
+/usr/src/pvpgn/d2m.20080614/src/bnetd/handle_bnet.cpp:738: undefined 
+reference to `pvpgn::BnetSRP3::getVerifier() const'
+/usr/src/pvpgn/d2m.20080614/src/bnetd/handle_bnet.cpp:739: undefined 
+reference to `pvpgn::BigInt::getData(int, int, bool) const'
+/usr/src/pvpgn/d2m.20080614/src/bnetd/handle_bnet.cpp:739: undefined 
+reference to `pvpgn::BigInt::~BigInt()'
+/usr/src/pvpgn/d2m.20080614/src/bnetd/handle_bnet.cpp:739: undefined 
+reference to `pvpgn::BnetSRP3::~BnetSRP3()'
+/usr/src/pvpgn/d2m.20080614/src/bnetd/handle_bnet.cpp:739: undefined 
+reference to `pvpgn::BigInt::~BigInt()'
+/usr/src/pvpgn/d2m.20080614/src/bnetd/handle_bnet.cpp:739: undefined 
+reference to `pvpgn::BigInt::~BigInt()'
+/usr/src/pvpgn/d2m.20080614/src/bnetd/handle_bnet.cpp:739: undefined 
+reference to `pvpgn::BnetSRP3::~BnetSRP3()'
+/usr/src/pvpgn/d2m.20080614/src/bnetd/handle_bnet.cpp:739: undefined 
+reference to `pvpgn::BigInt::~BigInt()'
+collect2: ld returned 1 exit status
+make[3]: *** [bnetd] Fehler 1
+make[3]: Leaving directory `/usr/src/pvpgn/d2m.20080614/src/bnetd'
+make[2]: *** [all-recursive] Fehler 1
+make[2]: Leaving directory `/usr/src/pvpgn/d2m.20080614/src'
+make[1]: *** [all-recursive] Fehler 1
+make[1]: Leaving directory `/usr/src/pvpgn/d2m.20080614'
+make: *** [all] Fehler 2
+erni:/usr/src/pvpgn/d2m.20080614# gcc --version
+gcc (GCC) 4.1.2 20061115 (prerelease) (Debian 4.1.1-21)
+Copyright (C) 2006 Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+erni:/usr/src/pvpgn/d2m.20080614# uname -r
+2.6.22-3-amd64
+
+
+Cya
+
+  JEBs
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000726.html">[pvpgn-dev] pvpgn/src/client client_connect.h,1.7,1.8
+</A></li>
+	<LI>Next message: <A HREF="000728.html">[pvpgn-dev] undefined reference to BigInt
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#727">[ date ]</a>
+              <a href="thread.html#727">[ thread ]</a>
+              <a href="subject.html#727">[ subject ]</a>
+              <a href="author.html#727">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

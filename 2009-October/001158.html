@@ -1,0 +1,193 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r562 - trunk/pvpgn/src/bnetd
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2009-October/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r562%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200910122133.n9CLXhmT021541%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001157.html">
+   <LINK REL="Next"  HREF="001159.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r562 - trunk/pvpgn/src/bnetd</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r562%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200910122133.n9CLXhmT021541%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r562 - trunk/pvpgn/src/bnetd">svn at svn.berlios.de
+       </A><BR>
+    <I>Mon Oct 12 23:33:44 CEST 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001157.html">[pvpgn-dev] Color , country and maps,	the players repaired - Code 	tested!!!
+</A></li>
+        <LI>Next message: <A HREF="001159.html">[pvpgn-dev] r563 - in trunk/pvpgn: . conf src/bnetd
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1158">[ date ]</a>
+              <a href="thread.html#1158">[ thread ]</a>
+              <a href="subject.html#1158">[ subject ]</a>
+              <a href="author.html#1158">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pelish
+Date: 2009-10-12 23:33:42 +0200 (Mon, 12 Oct 2009)
+New Revision: 562
+
+Modified:
+   trunk/pvpgn/src/bnetd/anongame_wol.cpp
+   trunk/pvpgn/src/bnetd/anongame_wol.h
+Log:
+fix for WOL anongame bug and added new functions for future colour/side support 
+
+Modified: trunk/pvpgn/src/bnetd/anongame_wol.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/anongame_wol.cpp	2009-10-11 18:26:23 UTC (rev 561)
++++ trunk/pvpgn/src/bnetd/anongame_wol.cpp	2009-10-12 21:33:42 UTC (rev 562)
+@@ -56,11 +56,15 @@
+ 
+ static int _handle_address_tag(t_anongame_wol_player * player, char * param);
+ static int _handle_port_tag(t_anongame_wol_player * player, char * param);
++static int _handle_country_tag(t_anongame_wol_player * player, char * param);
++static int _handle_colour_tag(t_anongame_wol_player * player, char * param);
+ 
+ static const t_wol_anongame_tag_table_row t_wol_anongame_tag_table[] =
+ {
+     { MATCHTAG_ADDRESS   , _handle_address_tag },
+     { MATCHTAG_PORT      , _handle_port_tag },
++    { MATCHTAG_COUNTRY   , _handle_country_tag },
++    { MATCHTAG_COLOUR    , _handle_colour_tag },
+ 
+     { NULL                        , NULL }
+ };
+@@ -172,6 +176,52 @@
+ 	return 0;
+ }
+ 
++static int anongame_wol_player_get_country(t_anongame_wol_player const * player)
++{
++    if (!player) {
++        ERROR0(&quot;got NULL player&quot;);
++        return -1;
++    }
++
++    return player-&gt;country;
++}
++
++static int _handle_country_tag(t_anongame_wol_player * player, char * param)
++{
++    if (!player) {
++        ERROR0(&quot;got NULL player&quot;);
++        return -1;
++    }
++
++	if (param)
++        player-&gt;country = std::atoi(param);
++
++    return 0;
++}
++
++static int anongame_wol_player_get_colour(t_anongame_wol_player const * player)
++{
++    if (!player) {
++        ERROR0(&quot;got NULL player&quot;);
++        return -1;
++    }
++
++    return player-&gt;colour;
++}
++
++static int _handle_colour_tag(t_anongame_wol_player * player, char * param)
++{
++    if (!player) {
++        ERROR0(&quot;got NULL player&quot;);
++        return -1;
++    }
++
++	if (param)
++        player-&gt;colour = std::atoi(param);
++
++    return 0;
++}
++
+ /* Matchlist functions:*/
+ 
+ extern int anongame_wol_matchlist_create(void)
+@@ -301,9 +351,9 @@
+     * Expected start message is
+     *
+     * Red Alert 2:
+-    * :Start [rand_num],0,0,[credits],0,1,0,1,1,0,1,x,2,1,[mapsize_kilobytes],[mapname],1:
+-    *     [nick1_name],[nick1_loc],[nick1_rat],[nick1_addr_hex],[nick1_nat],[nick1_prt_hex],
+-    *     [nick2_name],[nick2_loc],[nick2_rat],[nick2_addr_hex],[nick2_nat],[nick2_prt_hex]
++    * :Start [rand_num],0,0,[credits],0,1,[super_weapon],1,1,0,1,x,2,1,[mapsize_kilobytes],[mapname],1:
++    *     [nick1_name],[nick1_country],[nick1_colour],[nick1_addr_hex],[nick1_nat],[nick1_prt_hex],
++    *     [nick2_name],[nick2_country],[nick2_colour],[nick2_addr_hex],[nick2_nat],[nick2_prt_hex]
+     *
+     * Yuris Revenge Quick game:
+     * 
+@@ -452,9 +502,8 @@
+      * :user!<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">YURI at host</A> PRIVMSG matchbot :Pings nickname,2;
+      */
+ 
+-    line = (char *) xmalloc(std::strlen(text)+1);
+-    std::memset(line,0,sizeof(line));
+-    snprintf(line, sizeof(line), &quot;%s&quot;, text);
++    line = (char *) xmalloc(std::strlen(text)+2);
++    strcpy(line, text);
+ 
+     command = line;
+ 	if (!(temp = strchr(command,' '))) {
+
+Modified: trunk/pvpgn/src/bnetd/anongame_wol.h
+===================================================================
+--- trunk/pvpgn/src/bnetd/anongame_wol.h	2009-10-11 18:26:23 UTC (rev 561)
++++ trunk/pvpgn/src/bnetd/anongame_wol.h	2009-10-12 21:33:42 UTC (rev 562)
+@@ -30,7 +30,7 @@
+ #define MATCHTAG_ADDRESS           &quot;ADR&quot;
+ #define MATCHTAG_PORT              &quot;PRT&quot;
+ #define MATCHTAG_COUNTRY           &quot;COU&quot;
+-#define MATCHTAG_COLOR             &quot;COL&quot;
++#define MATCHTAG_COLOUR            &quot;COL&quot;
+ #define MATCHTAG_MATCHRESOLUTION   &quot;MBR&quot;
+ #define MATCHTAG_LOCATION          &quot;LOC&quot;
+ #define MATCHTAG_SCREENRESOLUTION  &quot;RES&quot;
+@@ -55,6 +55,8 @@
+     /* Red Alert 2 and Yuri's Revnenge */
+     int                  address;
+     int                  port;
++    int                  country;
++    int                  colour;
+ }
+ #endif
+ t_anongame_wol_player;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001157.html">[pvpgn-dev] Color , country and maps,	the players repaired - Code 	tested!!!
+</A></li>
+	<LI>Next message: <A HREF="001159.html">[pvpgn-dev] r563 - in trunk/pvpgn: . conf src/bnetd
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1158">[ date ]</a>
+              <a href="thread.html#1158">[ thread ]</a>
+              <a href="subject.html#1158">[ subject ]</a>
+              <a href="author.html#1158">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

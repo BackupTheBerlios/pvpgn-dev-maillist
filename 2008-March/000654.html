@@ -1,0 +1,1011 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r437 - in trunk/pvpgn: conf src/bnetd src/common
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2008-March/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r437%20-%20in%20trunk/pvpgn%3A%20conf%20src/bnetd%20src/common&In-Reply-To=%3C200803260944.m2Q9iZXa030048%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000653.html">
+   <LINK REL="Next"  HREF="000655.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r437 - in trunk/pvpgn: conf src/bnetd src/common</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r437%20-%20in%20trunk/pvpgn%3A%20conf%20src/bnetd%20src/common&In-Reply-To=%3C200803260944.m2Q9iZXa030048%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r437 - in trunk/pvpgn: conf src/bnetd src/common">svn at svn.berlios.de
+       </A><BR>
+    <I>Wed Mar 26 10:44:35 CET 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000653.html">[pvpgn-dev] r436 - trunk/pvpgn/src/bnetd
+</A></li>
+        <LI>Next message: <A HREF="000655.html">[pvpgn-dev] r438 - in trunk/pvpgn: . src/bnetd
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#654">[ date ]</a>
+              <a href="thread.html#654">[ thread ]</a>
+              <a href="subject.html#654">[ subject ]</a>
+              <a href="author.html#654">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pelish
+Date: 2008-03-26 10:44:33 +0100 (Wed, 26 Mar 2008)
+New Revision: 437
+
+Modified:
+   trunk/pvpgn/conf/autoupdate.conf.in
+   trunk/pvpgn/conf/bnetd.conf.in
+   trunk/pvpgn/src/bnetd/autoupdate.cpp
+   trunk/pvpgn/src/bnetd/autoupdate.h
+   trunk/pvpgn/src/bnetd/clan.cpp
+   trunk/pvpgn/src/bnetd/connection.cpp
+   trunk/pvpgn/src/bnetd/connection.h
+   trunk/pvpgn/src/bnetd/handle_bnet.cpp
+   trunk/pvpgn/src/bnetd/handle_wol.cpp
+   trunk/pvpgn/src/bnetd/handle_wserv.cpp
+   trunk/pvpgn/src/bnetd/irc.cpp
+   trunk/pvpgn/src/common/irc_protocol.h
+   trunk/pvpgn/src/common/tag.cpp
+   trunk/pvpgn/src/common/tag.h
+Log:
+add suport autoupdate for WOLv2 clients, cleaned conn_get_gametype() which is unusefull - defined tag_channeltype_to_uint() for these purposes, defined tag_check_wolv1()/wolv2()
+
+Modified: trunk/pvpgn/conf/autoupdate.conf.in
+===================================================================
+--- trunk/pvpgn/conf/autoupdate.conf.in	2008-03-20 22:08:18 UTC (rev 436)
++++ trunk/pvpgn/conf/autoupdate.conf.in	2008-03-26 09:44:33 UTC (rev 437)
+@@ -23,6 +23,9 @@
+ # number, checksum, clienttag, etc.  The autoupdate then uses the arch tag,  #
+ # client tag and version tag to find the needed update file.                 #
+ #                                                                            #
++##############################################################################
++# Battle.net related informations                                            #
++#----------------------------------------------------------------------------#
+ # War3 and War3x clients have different mpq files for the different game     #
+ # languages.  This is accounted for by the server, and the client will get   #
+ # the correct file.  Only one entry is needed per arch, client, and version  #
+@@ -47,6 +50,48 @@
+ # archtag  clienttag  versiontag  -----update file-----                      #
+ #                                                                            #
+ ##############################################################################
++# Westwood Online related informations                                       #
++#----------------------------------------------------------------------------#
++# For WOL autoupdate is used standart FTP protocol which is not included in  #
++# PvPGN. The default WOL autoupdate entryes are writed according to          #
++# westwood's autoupdate FTP server settings (username, password, filepath).  #
++#                                                                            #
++# WOLv2 using diferent rtp files for the diferent SKUs. This is accounted    #
++# for by the server, and the client will get the correct file. Only one      #
++# entry is needed per arch, client, and version tag.                         #
++#                                                                            #
++# Example: With the following line:                                          #
++# IX86    TSUN     65536         131075_65536.rtp     tibsun                 #
++#                                                                            #
++# TibSun clients with SKU 4608 will receive the file &quot;131075_65536_4608.rtp&quot; #
++# TibSun clients with SKU 4610 will receive the file &quot;131075_65536_4610.rtp&quot; #
++#                                                                            #
++# The avaliable clients, theirs tags and SKUs are:                           #
++#                                                                            #
++# Client name     CTag     SKUs                                              #
++# ---------------------------------------------------                        #
++# Renegade        RNGD     3072 3074 3075 3078 3081 3082                     #
++# Dune 2000       DN2K     3584 3586 3587 3589 3591                          #
++# Nox             NOXX     4096 4098 4099 4101 4102 4105                     #
++# Tiberian Sun    TSUN     4608 4610 4611 4615                               #
++# Red Alert 1v3   RALT     5376 5378 5379                                    #
++# Lands of Lore 3 LOR3     6400 6401 6402 6403 6405                          #
++# Tiberian Sun XP TSXP     7168 7170 7171 7175 7424 7426 7427 7431           #
++# Emperor: BDF    EBFD     7936 7938 7939 7945 7946                          #
++# Red Alert 2     RAL2     8448 8450 8451 8457 8458 8960 8962 8963 8969 8970 #
++# Nox Quest       NOXQ     9472 9474 9475 9477 9478 9481                     #
++# Yuri's Revenge  YURI     10496 10498 10499 10505 10506                     #
++# Renegade Server RFDS     12288                                             #
++# WOL API         WWOL     32512                                             #
++#                                                                            #
++# Note: WOL update entry must including file path according to FTP server.   #
++# All WOL entries using archtag IX86.                                        #
++#                                                                            #
++# The format of this file is as follows:                                     #
++#                                                                            #
++# archtag  clienttag  versiontag  -----update file-----      file path       #
++#                                                                            #
++##############################################################################
+ 
+ ##### Intel (IX86) ###########################################################
+ 
+@@ -330,3 +375,117 @@
+ 
+ # The next one is a Brood War wildcard entry.
+ #PMAC    STAR   STAR_1xx        STAR_PMAC_1xx_113E.mpq
++
++##### Westwood Online update entries #########################################
++
++# ========================== Westwood Online API ============================
++
++#IX86    WWOL     65536         65551_65536.rtp      wolapi
++#IX86    WWOL     65537         65551_65537.rtp      wolapi
++#IX86    WWOL     65538         65551_65538.rtp      wolapi
++#IX86    WWOL     65539         65551_65539.rtp      wolapi
++#IX86    WWOL     65540         65551_65540.rtp      wolapi
++#IX86    WWOL     65541         65551_65541.rtp      wolapi
++#IX86    WWOL     65542         65551_65542.rtp      wolapi
++#IX86    WWOL     65543         65551_65543.rtp      wolapi
++#IX86    WWOL     65544         65551_65544.rtp      wolapi
++#IX86    WWOL     65545         65551_65545.rtp      wolapi
++#IX86    WWOL     65546         65551_65546.rtp      wolapi
++#IX86    WWOL     65547         65551_65547.rtp      wolapi
++#IX86    WWOL     65548         65551_65548.rtp      wolapi
++#IX86    WWOL     65549         65551_65549.rtp      wolapi
++#IX86    WWOL     65550         65551_65550.rtp      wolapi
++#IX86    WWOL     65555         65556_65555.rtp      wolapi
++
++# =============================== Renegade ==================================
++
++#IX86    RNGD     65538         65573_65538.rtp      renegade
++#IX86    RNGD     65550         65573_65538.rtp      renegade
++#IX86    RNGD     65551         65573_65538.rtp      renegade
++#IX86    RNGD     65566         65573_65538.rtp      renegade
++#IX86    RNGD     65567         65573_65538.rtp      renegade
++#IX86    RNGD     65568         65573_65538.rtp      renegade
++#IX86    RNGD     65570         65573_65570.rtp      renegade
++#IX86    RNGD     65571         65573_65571.rtp      renegade
++#IX86    RNGD     65572         65573_65572.rtp      renegade
++
++# ==================== Renegade Free Dedicated Server =======================
++
++#IX86    RFDS     65538         65572_65538.rtp      renegade
++#IX86    RFDS     65550         65572_65550.rtp      renegade
++#IX86    RFDS     65551         65572_65551.rtp      renegade
++#IX86    RFDS     65553         65572_65553.rtp      renegade
++#IX86    RFDS     65554         65572_65554.rtp      renegade
++#IX86    RFDS     65566         65572_65566.rtp      renegade
++#IX86    RFDS     65568         65572_65568.rtp      renegade
++#IX86    RFDS     65570         65572_65570.rtp      renegade
++#IX86    RFDS     65571         65572_65571.rtp      renegade
++#IX86    RFDS     65572         65573_65572.rtp      renegade
++
++# ============================= Tiberian Sun ================================
++
++#IX86    TSUN     65536         131075_65536.rtp     tibsun
++#IX86    TSUN     65541         131075_65536.rtp     tibsun
++#IX86    TSUN     65542         131075_65536.rtp     tibsun
++#IX86    TSUN     65543         131075_65536.rtp     tibsun
++#IX86    TSUN     65544         131075_65536.rtp     tibsun
++#IX86    TSUN     65545         131075_65536.rtp     tibsun
++#IX86    TSUN     65546         131075_65536.rtp     tibsun
++#IX86    TSUN     65547         131075_65536.rtp     tibsun
++#IX86    TSUN     65548         131075_65548.rtp     tibsun
++#IX86    TSUN     131072        131075_65548.rtp     tibsun
++#IX86    TSUN     131074        131075_131074.rtp    tibsun
++
++# ======================= Tiberian Sun: FireStorm ===========================
++
++#IX86    TSXP     131072        131074_131072.rtp    tibsun
++#IX86    TSXP     131074        131075_131074.rtp    tibsun
++
++# =============================== Dune 2000 =================================
++
++#IX86    DN2K     65536         65542.rtp            dune2k/1.006/1.000
++#IX86    DN2K     65537         65542_65537.rtp      dune2k/1.006/1.001
++
++# ================================== NOX ====================================
++
++#IX86    NOXX     65536         65538_65536.rtp      nox
++#IX86    NOXX     65537         65538_65537.rtp      nox
++
++# =============================== NOX: Quest ================================
++
++#IX86    NOXQ     65536         65538_65536.rtp      nox
++#IX86    NOXQ     65537         65538_65537.rtp      nox
++#IX86    NOXQ     65538         65540_65538.rtp      nox
++#IX86    NOXQ     65539         65540_65539.rtp      nox
++
++# ======================= Emperor: Battle for Dune ==========================
++
++#IX86    EBFD         1         65545_1.rtp          emperor
++#IX86    EBFD     65536         65545_65536.rtp      emperor
++#IX86    EBFD     65537         65545_65537.rtp      emperor
++#IX86    EBFD     65538         65545_65538.rtp      emperor
++#IX86    EBFD     65539         65545_65539.rtp      emperor
++#IX86    EBFD     65540         65545_65540.rtp      emperor
++#IX86    EBFD     65541         65545_65541.rtp      emperor
++#IX86    EBFD     65542         65545_65542.rtp      emperor
++#IX86    EBFD     65543         65545_65543.rtp      emperor
++#IX86    EBFD     65544         65545_65544.rtp      emperor
++
++# ============================= Red Alert 2 =================================
++
++#IX86    RAL2     65536         65542_65536.rtp      ra2
++#IX86    RAL2     65537         65542_65537.rtp      ra2
++#IX86    RAL2     65538         65542_65538.rtp      ra2
++#IX86    RAL2     65539         65542_65539.rtp      ra2
++#IX86    RAL2     65540         65542_65540.rtp      ra2
++#IX86    RAL2     65541         65542_65541.rtp      ra2
++
++# ============================= Yuri's Revenge ==============================
++
++#IX86    YURI     65536         65537_65536.rtp      yuri
++
++# ============================= Lands of Lore 3 =============================
++
++#IX86    LOR3     65536         65539_65536.rtp      lore3/1.003
++#IX86    LOR3     65537         65539_65537.rtp      lore3/1.003
++#IX86    LOR3     65538         65539_65538.rtp      lore3/1.003
+
+Modified: trunk/pvpgn/conf/bnetd.conf.in
+===================================================================
+--- trunk/pvpgn/conf/bnetd.conf.in	2008-03-20 22:08:18 UTC (rev 436)
++++ trunk/pvpgn/conf/bnetd.conf.in	2008-03-26 09:44:33 UTC (rev 437)
+@@ -191,8 +191,9 @@
+ # noxx : client type Nox
+ # noxq : client type Nox Quest
+ # rngd : client type Renegade
++# rfds : client type Renegade Free Dedicated Server
+ # yuri : client type Yuri's Revenge
+-# empr : client type Emperor: Battle for Dune
++# ebfd : client type Emperor: Battle for Dune
+ #
+ # Example: allowed_clients = war3,w3xp
+ allowed_clients = all
+
+Modified: trunk/pvpgn/src/bnetd/autoupdate.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/autoupdate.cpp	2008-03-20 22:08:18 UTC (rev 436)
++++ trunk/pvpgn/src/bnetd/autoupdate.cpp	2008-03-26 09:44:33 UTC (rev 437)
+@@ -2,6 +2,7 @@
+  * Copyright (C) 2000 Rob Crittenden (<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">rcrit at greyoak.com</A>)
+  * Copyright (C) 2002 Gianluigi Tiesi (<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">sherpya at netfarm.it</A>)
+  * Copyright (C) 2004 CreepLord (<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">creeplord at pvpgn.org</A>)
++ * Copyright (C) 2008 Pelish (<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">pelish at gmail.com</A>)
+  *
+  * This program is free software; you can redistribute it and/or
+  * modify it under the terms of the GNU General Public License
+@@ -62,8 +63,9 @@
+     char *         temp;
+     char const *   archtag;
+     char const *   clienttag;
+-    char const *   mpqfile;
++    char const *   updatefile;
+     char const *   versiontag;
++    char const *   path;
+     t_autoupdate * entry;
+ 
+     if (!filename) {
+@@ -108,10 +110,13 @@
+ 	    eventlog(eventlog_level_error,__FUNCTION__,&quot;missing versiontag on line %u of file \&quot;%s\&quot;&quot;,line,filename);
+ 	    continue;
+ 	}
+-	if (!(mpqfile = std::strtok(NULL,&quot; \t&quot;))) {
+-	    eventlog(eventlog_level_error,__FUNCTION__,&quot;missing mpqfile on line %u of file \&quot;%s\&quot;&quot;,line,filename);
++	if (!(updatefile = std::strtok(NULL,&quot; \t&quot;))) {
++	    eventlog(eventlog_level_error,__FUNCTION__,&quot;missing updatefile on line %u of file \&quot;%s\&quot;&quot;,line,filename);
+ 	    continue;
+ 	}
++	if ((!(path = std::strtok(NULL,&quot; \t&quot;))) &amp;&amp; tag_check_wolv1(tag_str_to_uint(clienttag)) &amp;&amp; tag_check_wolv2(tag_str_to_uint(clienttag))) { /* Only in WOL is needed to have path*/
++	    eventlog(eventlog_level_error,__FUNCTION__,&quot;missing path on line %u of file \&quot;%s\&quot;&quot;,line,filename);
++	}
+ 
+ 	entry = (t_autoupdate*)xmalloc(sizeof(t_autoupdate));
+ 
+@@ -126,9 +131,11 @@
+ 	    continue;
+ 	}
+ 	entry-&gt;versiontag = xstrdup(versiontag);
+-	entry-&gt;mpqfile = xstrdup(mpqfile);
++	entry-&gt;updatefile = xstrdup(updatefile);
++	if (path)
++	    entry-&gt;path = xstrdup(path);
+ 
+-	eventlog(eventlog_level_debug,__FUNCTION__,&quot;update '%s' version '%s' with file %s&quot;,clienttag,versiontag,mpqfile);
++	eventlog(eventlog_level_debug,__FUNCTION__,&quot;update '%s' version '%s' with file %s&quot;,clienttag,versiontag,updatefile);
+ 
+ 	list_append_data(autoupdate_head,entry);
+     }
+@@ -152,7 +159,9 @@
+ 		eventlog(eventlog_level_error,__FUNCTION__,&quot;found NULL entry in list&quot;);
+ 	    else {
+ 		xfree((void *)entry-&gt;versiontag);	/* avoid warning */
+-		xfree((void *)entry-&gt;mpqfile);		/* avoid warning */
++		xfree((void *)entry-&gt;updatefile);	/* avoid warning */
++		if (entry-&gt;path)
++		    xfree((void *)entry-&gt;path);		/* avoid warning */
+ 		xfree(entry);
+ 	    }
+ 	    list_remove_elem(autoupdate_head,&amp;curr);
+@@ -170,7 +179,7 @@
+  *  retrun NULL if no update exists
+  */
+ 
+-extern char * autoupdate_check(t_tag archtag, t_tag clienttag, t_tag gamelang, char const * versiontag)
++extern char * autoupdate_check(t_tag archtag, t_tag clienttag, t_tag gamelang, char const * versiontag,  char const * sku)
+ {
+     if (autoupdate_head) {
+ 	t_elem const * curr;
+@@ -191,28 +200,36 @@
+ 	    if (std::strcmp(entry-&gt;versiontag, versiontag) != 0)
+ 		continue;
+ 
+-	    /* if we have a gamelang then add it to the mpq file name */
+-	    if ((gamelang) &amp;&amp; // so far only WAR3 uses gamelang specific MPQs!
+-	        ((clienttag == CLIENTTAG_WARCRAFT3_UINT) || (clienttag == CLIENTTAG_WAR3XP_UINT))){
++	    /* if we have a gamelang or SKU then add it to the update file name */
++	    // so far only WAR3 uses gamelang specific MPQs!
++	    if (((gamelang) &amp;&amp; ((clienttag == CLIENTTAG_WARCRAFT3_UINT) || (clienttag == CLIENTTAG_WAR3XP_UINT)))
++            || ((sku) &amp;&amp; (tag_check_wolv2(clienttag)))) {
+ 		char gltag[5];
+ 		char * tempmpq;
+ 		char * extention;
++		char const * path = entry-&gt;path;
+ 
+-		tag_uint_to_str(gltag,gamelang);
+-		tempmpq = xstrdup(entry-&gt;mpqfile);
++		tempmpq = xstrdup(entry-&gt;updatefile);
+ 
+-		temp = (char*)xmalloc(std::strlen(tempmpq)+6);
+-
+ 		extention = std::strrchr(tempmpq,'.');
+ 		*extention = '\0';
+ 		extention++;
+ 
+-		std::sprintf(temp, &quot;%s_%s.%s&quot;, tempmpq, gltag, extention);
++		if ((clienttag == CLIENTTAG_WARCRAFT3_UINT) || (clienttag == CLIENTTAG_WAR3XP_UINT)) {
++		    tag_uint_to_str(gltag,gamelang);
+ 
++		    temp = (char*)xmalloc(std::strlen(tempmpq)+6);
++		    std::sprintf(temp, &quot;%s_%s.%s&quot;, tempmpq, gltag, extention);
++		}
++		else {
++		    temp = (char*)xmalloc(std::strlen(path)+std::strlen(tempmpq)+std::strlen(sku)+7);
++		    std::sprintf(temp, &quot;%s %s_%s.%s&quot;, path, tempmpq, sku, extention);
++		}
++
+ 		xfree((void *)tempmpq);
+ 		return temp;
+ 	    }
+-	    temp = xstrdup(entry-&gt;mpqfile);
++	    temp = xstrdup(entry-&gt;updatefile);
+ 	    return temp;
+ 	}
+     }
+
+Modified: trunk/pvpgn/src/bnetd/autoupdate.h
+===================================================================
+--- trunk/pvpgn/src/bnetd/autoupdate.h	2008-03-20 22:08:18 UTC (rev 436)
++++ trunk/pvpgn/src/bnetd/autoupdate.h	2008-03-26 09:44:33 UTC (rev 437)
+@@ -2,6 +2,7 @@
+  * Copyright (C) 2000  Rob Crittenden (<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">rcrit at greyoak.com</A>)
+  * Copyright (C) 2002 Gianluigi Tiesi (<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">sherpya at netfarm.it</A>)
+  * Copyright (C) 2004 CreepLord (<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">creeplord at pvpgn.org</A>)
++ * Copyright (C) 2008 Pelish (<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">pelish at gmail.com</A>)
+  *
+  * This program is free software; you can redistribute it and/or
+  * modify it under the terms of the GNU General Public License
+@@ -34,7 +35,8 @@
+     t_tag         archtag;
+     t_tag         clienttag;
+     char const *  versiontag;
+-    char const *  mpqfile;
++    char const *  updatefile;  /* used for bnet *.mpq file or wol *.rtp file */
++    char const *  path;        /* Used only for WOL FTP update */
+ } t_autoupdate;
+ #endif
+ 
+@@ -58,7 +60,7 @@
+ 
+ extern int autoupdate_load(char const * filename);
+ extern int autoupdate_unload(void);
+-extern char * autoupdate_check(t_tag archtag, t_tag clienttag, t_tag gamelang, char const * versiontag);
++extern char * autoupdate_check(t_tag archtag, t_tag clienttag, t_tag gamelang, char const * versiontag, char const * sku);
+ 
+ }
+ 
+
+Modified: trunk/pvpgn/src/bnetd/clan.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/clan.cpp	2008-03-20 22:08:18 UTC (rev 436)
++++ trunk/pvpgn/src/bnetd/clan.cpp	2008-03-26 09:44:33 UTC (rev 437)
+@@ -76,7 +76,7 @@
+ extern int clan_send_message_to_online_members(t_clan * clan, t_message_type type, t_connection * me, char const * text)
+ {
+     /* PELISH: Send message to online clan_members
+-       returns: an eroor == -1, done but no one heard == 0, done with message sended == 1 */
++       returns: an error == -1, done but no one heard == 0, done with message sended == 1 */
+     t_list * cl_member_list;
+     t_elem * curr;
+     t_clanmember * dest_member;
+
+Modified: trunk/pvpgn/src/bnetd/connection.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/connection.cpp	2008-03-20 22:08:18 UTC (rev 436)
++++ trunk/pvpgn/src/bnetd/connection.cpp	2008-03-26 09:44:33 UTC (rev 437)
+@@ -414,7 +414,6 @@
+     temp-&gt;protocol.wol.ingame			         = 0;
+ 
+     temp-&gt;protocol.wol.codepage	                 = 0;
+-    temp-&gt;protocol.wol.gameType                  = 0;
+     temp-&gt;protocol.wol.pageme                    = 33;
+     temp-&gt;protocol.wol.findme                    = 17;
+ 
+@@ -3921,28 +3920,6 @@
+     return c-&gt;protocol.wol.codepage;
+ }
+ 
+-extern void conn_wol_set_game_type(t_connection * c, int gameType)
+-{
+-    if (!c)
+-    {
+-        eventlog(eventlog_level_error,__FUNCTION__,&quot;got NULL connection&quot;);
+-        return;
+-    }
+-
+-    c-&gt;protocol.wol.gameType = gameType;
+-}
+-
+-extern int conn_wol_get_game_type(t_connection * c)
+-{
+-    if (!c)
+-    {
+-    	eventlog(eventlog_level_error,__FUNCTION__,&quot;got NULL conn&quot;);
+-    	return -1;
+-    }
+-
+-    return c-&gt;protocol.wol.gameType;
+-}
+-
+ extern void conn_wol_set_findme(t_connection * c, int findme)
+ {
+     if (!c)
+
+Modified: trunk/pvpgn/src/bnetd/connection.h
+===================================================================
+--- trunk/pvpgn/src/bnetd/connection.h	2008-03-20 22:08:18 UTC (rev 436)
++++ trunk/pvpgn/src/bnetd/connection.h	2008-03-26 09:44:33 UTC (rev 437)
+@@ -198,7 +198,6 @@
+ 	struct {
+ 	    int ingame;				        /* Are we in a game channel? */
+ 	    int codepage;
+-	    int gameType;
+ 	    int findme;                     /* Allow others to find me? */
+ 	    int pageme;                     /* Allow others to page me? */
+ 	    char const * apgar;			    /* WOL User Password (encrypted) */
+@@ -448,8 +447,6 @@
+ extern char const * conn_wol_get_apgar(t_connection * c);
+ extern void conn_wol_set_codepage(t_connection * c, int codepage);
+ extern int conn_wol_get_codepage(t_connection * c);
+-extern void conn_wol_set_game_type(t_connection * c, int gameType);
+-extern int conn_wol_get_game_type(t_connection * c);
+ extern void conn_wol_set_findme(t_connection * c, int findme);
+ extern int conn_wol_get_findme(t_connection * c);
+ extern void conn_wol_set_pageme(t_connection * c, int pageme);
+
+Modified: trunk/pvpgn/src/bnetd/handle_bnet.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/handle_bnet.cpp	2008-03-20 22:08:18 UTC (rev 436)
++++ trunk/pvpgn/src/bnetd/handle_bnet.cpp	2008-03-26 09:44:33 UTC (rev 437)
+@@ -1009,7 +1009,7 @@
+ 	    } else {
+ 		char *mpqfilename;
+ 
+-		mpqfilename = autoupdate_check(conn_get_archtag(c), conn_get_clienttag(c), conn_get_gamelang(c), versiontag);
++		mpqfilename = autoupdate_check(conn_get_archtag(c), conn_get_clienttag(c), conn_get_gamelang(c), versiontag, NULL);
+ 
+ 		/* Only handle updates when there is an update file available. */
+ 		if (mpqfilename != NULL) {
+@@ -1116,7 +1116,7 @@
+ 	    } else {
+ 		char *mpqfilename;
+ 
+-		mpqfilename = autoupdate_check(conn_get_archtag(c), conn_get_clienttag(c), conn_get_gamelang(c), versiontag);
++		mpqfilename = autoupdate_check(conn_get_archtag(c), conn_get_clienttag(c), conn_get_gamelang(c), versiontag, NULL);
+ 
+ 		/* Only handle updates when there is an update file available. */
+ 		if (mpqfilename != NULL) {
+
+Modified: trunk/pvpgn/src/bnetd/handle_wol.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/handle_wol.cpp	2008-03-20 22:08:18 UTC (rev 436)
++++ trunk/pvpgn/src/bnetd/handle_wol.cpp	2008-03-26 09:44:33 UTC (rev 437)
+@@ -538,16 +538,14 @@
+ 
+     irc_send(conn,RPL_LISTSTART,&quot;Channel :Users Names&quot;); /* backward compatibility */
+ 
+-    if ((numparams == 0) ||
+-        ((std::strcmp(params[0], &quot;0&quot;) == 0) || (std::strcmp(params[0], &quot;-1&quot;) == 0))) {
+-        /* LIST all chat channels */
+-        /* Emperor sends as params[0] == -1 if want QuickMatch channels too, 0 if not.
+-         * This sends also NOX but we dunno why. */
++    if ((numparams == 0) || ((params[0]) &amp;&amp; (params[1]) &amp;&amp; (std::strcmp(params[0], params[1]) != 0))) {
++        /**
++         * LIST all chat channels 
++         * Emperor sends as params[0] == -1 if want QuickMatch channels too, 0 if not.
++         * This sends also NOX but we dunno why.
++         * DUNE 2000 use params[0] to determine channels by channeltype
++         */
+ 
+-        /* HACK: Currently, this is the best way to set the game type... */
+-        if (params)
+-            conn_wol_set_game_type(conn,std::atoi(params[1]));
+-
+         LIST_TRAVERSE_CONST(channellist(),curr) {
+    	         t_channel const * channel = (const t_channel*)elem_get_data(curr);
+              char const * tempname;
+@@ -563,7 +561,7 @@
+                     std::strcat(temp,&quot;0&quot;);  /* User channel */
+ 
+                 if (conn_get_clienttag(conn)==CLIENTTAG_WCHAT_UINT)
+-                    std::strcat(temp,&quot;:&quot;);    /* WOLv1 ends by &quot;:&quot; */
++                    std::strcat(temp,&quot;:&quot;);     /* WOLv1 ends by &quot;:&quot; */
+                 else
+                     std::strcat(temp,&quot; 388&quot;);  /* WOLv2 ends by &quot;388&quot; */
+ 
+@@ -582,16 +580,7 @@
+     *  21 = Red Alert 1 v 3.03 channels, 31 = Emperor: Battle for Dune, 33 = Red Alert 2,
+     *  37 = Nox Quest channels, 38,39,40 = Quickgame channels, 41 = Yuri's Revenge
+ 	*/
+-    if ((numparams == 0) ||
+-       (std::strcmp(params[0], &quot;12&quot;) == 0) ||
+-       (std::strcmp(params[0], &quot;14&quot;) == 0) ||
+-       (std::strcmp(params[0], &quot;16&quot;) == 0) ||
+-       (std::strcmp(params[0], &quot;18&quot;) == 0) ||
+-       (std::strcmp(params[0], &quot;21&quot;) == 0) ||
+-       (std::strcmp(params[0], &quot;31&quot;) == 0) ||
+-       (std::strcmp(params[0], &quot;33&quot;) == 0) ||
+-       (std::strcmp(params[0], &quot;37&quot;) == 0) ||
+-       (std::strcmp(params[0], &quot;41&quot;) == 0)) {
++    if ((numparams == 0) || ((params[0]) &amp;&amp; (params[1]) &amp;&amp; (std::strcmp(params[0], params[1]) == 0))) {
+    		    eventlog(eventlog_level_debug,__FUNCTION__,&quot;[** WOL **] LIST [Game]&quot;);
+        	    LIST_TRAVERSE_CONST(channellist(),curr)
+             {
+@@ -604,7 +593,7 @@
+         	    
+ 				if((channel_wol_get_game_type(channel) != 0)) {
+ 					m = channel_get_first(channel);
+-					if((channel_wol_get_game_type(channel) == conn_wol_get_game_type(conn)) || ((numparams == 0))) {
++					if((tag_channeltype_to_uint(channel_wol_get_game_type(channel)) == conn_get_clienttag(conn)) || ((numparams == 0))) {
+ 						eventlog(eventlog_level_debug,__FUNCTION__,&quot;[** WOL **] List [Channel: \&quot;_game\&quot;] %s %u 0 %u %u %s %u 128::&quot;,tempname,
+ 									 channel_get_length(channel),channel_wol_get_game_type(channel),channel_wol_get_game_tournament(channel),
+ 									 channel_wol_get_game_extension(channel),channel_wol_get_game_ownerip(channel));
+@@ -618,7 +607,7 @@
+                             *
+ 							*   #game_channel_name users isofficial gameType gameIsTournment gameExtension longIP locked::topic
+ 							*   by isofficial is used always 0 (its backward compatibility with chat channels)
+-							*   locked can be 128 = unlocked or 384 = locked
++							*   locked can be 128==unlocked or 384==locked
+ 							*   gameExtension is used for game_sorting, i.e. in RedAlert1v3 or TSUN/TSXP for spliting
+ 							*   extension pack, also is used for spliting Clan_game or quick_match from normal game
+ 							*/
+@@ -641,7 +630,6 @@
+ 				}
+ 			}
+ 		}
+-
+     	irc_send(conn,RPL_LISTEND,&quot;:End of LIST command&quot;);
+     	return 0;
+ }
+@@ -930,15 +918,15 @@
+ 	*  the same...input and output of JOINGAME is listed below. By the way, there is a
+ 	*  hack in here, for Red Alert 1, it use's JOINGAME for some reason to join a lobby channel.
+ 	*
+-	*   Here is the input expected for WCHAT:
+-    *   JOINGAME [#Game_channel] 2 [NumberOfPlayers] [gameType] 1 1 [gameIsTournament]
+-    *   Knowed GameTypes (0-chat, 1-cnc, 2-ra1, 3-racs, 4-raam, 5-solsurv)
++	*   Here is WOLv1 input expected:
++    *   JOINGAME [#Game_channel_name] [MinPlayers] [MaxPlayers] [channelType] 1 1 [gameIsTournament]
++    *   Knowed channelTypes (0-chat, 1-cnc, 2-ra1, 3-racs, 4-raam, 5-solsurv... listed in tag.cpp)
+     *
+-	*   Here is the input expected:
+-	*   JOINGAME #user's_game MinOfPlayers MaxOfPlayers gameType unknown unknown gameIsTournament gameExtension password
++	*   Here is WOLv2 input expected:
++	*   JOINGAME [#Game_channel_name] [MinPlayers] [MaxPlayers] [channelType] unknown unknown [gameIsTournament] [gameExtension] [password_optional]
+ 	*
+ 	*   Heres the output expected:
+-	*   user!<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">WWOL at hostname</A> JOINGAME MinOfPlayers MaxOfPlayers gameType unknown clanID longIP gameIsTournament :#game_channel_name
++	*   user!<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">WWOL at hostname</A> JOINGAME [MinPlayers] [MaxPlayers] [channelType] unknown clanID [longIP] [gameIsTournament] :[#Game_channel_name]
+ 	*/
+ 	if((numparams==2)) {
+ 	    char ** e;
+
+Modified: trunk/pvpgn/src/bnetd/handle_wserv.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/handle_wserv.cpp	2008-03-20 22:08:18 UTC (rev 436)
++++ trunk/pvpgn/src/bnetd/handle_wserv.cpp	2008-03-26 09:44:33 UTC (rev 437)
+@@ -41,6 +41,7 @@
+ #include &quot;message.h&quot;
+ #include &quot;tick.h&quot;
+ #include &quot;server.h&quot;
++#include &quot;autoupdate.h&quot;
+ #include &quot;common/setup_after.h&quot;
+ 
+ namespace pvpgn
+@@ -89,6 +90,7 @@
+ {
+     char temp[MAX_IRC_MESSAGE_LEN];
+     t_clienttag clienttag;
++    char *filestring;
+ 
+    /**
+     *  Heres the imput expected:
+@@ -97,20 +99,23 @@
+     *  Here is output expected for ServServ server:
+     *  1) Update non-existant:
+     *  :[servername] 602 [username] :Update record non-existant
+-    *  2) Update existant):
+-    *  :[servername] 606 [username] :[ftpserveraddr] [ftpusername] [ftppaswd] [directori] [file.rtp] [newversion] [SKU] REQ
++    *  2) Update existant:
++    *  :[servername] 606 [username] :[ftpserveraddr] [ftpusername] [ftppaswd] [path] [file.rtp] [newversion] [SKU] REQ
+     *  :[servername] 603 [username] :You must update before connecting!
+     */
+ 
+-    // FIXME: We send only update non-existant now!
+-    // THIS is point for autoupdate!!!
+-
+     clienttag = tag_sku_to_uint(std::atoi(params[0]));
+ 
+     if (clienttag != CLIENTTAG_WWOL_UINT)
+         conn_set_clienttag(conn,clienttag);
+ 
+-    irc_send(conn,RPL_UPDATE_NONEX,&quot;:Update record non-existant&quot;);
++    if (filestring = autoupdate_check(ARCHTAG_WINX86_UINT, clienttag, TAG_UNKNOWN_UINT, params[1], params[0])) {
++        //:westwood-patch.ea.com update world96 lore3/1.003 65539_65536_6400.rtp 65539 6400 REQ
++        snprintf(temp, sizeof(temp), &quot;:westwood-patch.ea.com update world96 %s 131075 %s REQ&quot;, filestring, params[0]);
++        irc_send(conn,RPL_UPDATE_FTP,temp);
++    }
++    else
++        irc_send(conn,RPL_UPDATE_NONEX,&quot;:Update record non-existant&quot;);
+ 
+     return 0;
+ }
+@@ -143,22 +148,24 @@
+         wolip = addr_num_to_ip_str(addr);
+     }
+ 
+-    /* Check if it's an allowed client type */
++   irc_send(conn,RPL_UPDATE_EXIST,&quot;:Unsapported game client&quot;);
++
++    // Check if it's an allowed client type
+     if (!tag_check_in_list(conn_get_clienttag(conn), prefs_get_allowed_clients())) {
+-        /*  This is for anyone game but not for Emperor */
++        //  This is for anyone game but not for Emperor
+         if (conn_get_clienttag(conn) != CLIENTTAG_EMPERORBD_UINT) {
+             snprintf(temp, sizeof(temp), &quot;:%s %d '0:%s' %s %s %s&quot;, wolip, BNETD_WSERV_PORT, wolname, woltimezone, wollong, wollat);
+             irc_send(conn,RPL_WOLSERV,temp);
+         }
+ 
+-        /*  Only for Emperor: Battle for Dune */
++        //  Only for Emperor: Battle for Dune
+         if (conn_get_clienttag(conn) == CLIENTTAG_EMPERORBD_UINT) {
+             snprintf(temp, sizeof(temp), &quot;:%s %d '0:Emperor %s' %s %s %s&quot;, wolip, BNETD_WSERV_PORT, wolname, woltimezone, wollong, wollat);
+             irc_send(conn,RPL_WOLSERV,temp);
+         }
+ 
+-        /*  Only for CnC Renegade */
+-        if (conn_get_clienttag(conn) == CLIENTTAG_RENEGADE_UINT) {
++        //  Only for CnC Renegade
++        if ((conn_get_clienttag(conn) == CLIENTTAG_RENEGADE_UINT) || (conn_get_clienttag(conn) == CLIENTTAG_RENGDFDS_UINT)) {
+             snprintf(temp, sizeof(temp), &quot;:%s 0 'Ping server' %s %s %s&quot;, wolip, woltimezone, wollong, wollat);
+             irc_send(conn,RPL_PINGSERVER,temp);
+             //I dont know for what is this server...? (used in renegade and yuri)
+@@ -168,17 +175,17 @@
+             //:noxchat1.wol.abn-sjc.ea.com 613 UserName :ea4.str.ea.com 0 '0,1,2,3,4,5,6,7,8,9,10:EA Ticket Server' -8 36.1083 -115.0582
+         }
+ 
+-        /*  There are servers for anyone game */
++        //  There are servers for anyone game
+         snprintf(temp, sizeof(temp), &quot;:%s %d 'Live chat server' %s %s %s&quot;, wolip, BNETD_WOL_PORT, woltimezone, wollong, wollat);
+         irc_send(conn,RPL_WOLSERV,temp);
+     }
+ 
+-    /* If game is not allowed than we still send this servers */
++    // If game is not allowed than we still send this servers 
+     snprintf(temp, sizeof(temp), &quot;:%s %d 'Gameres server' %s %s %s&quot;, wolip, BNETD_WGAMERES_PORT, woltimezone, wollong, wollat);
+     irc_send(conn,RPL_GAMERESSERV,temp);
+     snprintf(temp, sizeof(temp), &quot;:%s %d 'Ladder server' %s %s %s&quot;, wolip, BNETD_WOL_PORT, woltimezone, wollong, wollat);
+     irc_send(conn,RPL_LADDERSERV,temp);
+-    /* There is Word Domination Tour server for Firestorm (maybe for future coding) */
++    // There is Word Domination Tour server for Firestorm (maybe for future coding)
+     //snprintf(temp, sizeof(temp), &quot;:%s %d 'WDT server' %s %s %s&quot;, wolip, BNETD_WOL_PORT, woltimezone, wollong, wollat); //I dont know for what is this server...?
+     //irc_send(conn,RPL_WDTSERV,temp);
+ 
+
+Modified: trunk/pvpgn/src/bnetd/irc.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/irc.cpp	2008-03-20 22:08:18 UTC (rev 436)
++++ trunk/pvpgn/src/bnetd/irc.cpp	2008-03-26 09:44:33 UTC (rev 437)
+@@ -635,7 +635,7 @@
+ 
+         channel = conn_get_channel(me);
+ 
+-        if((conn_get_wol(dst) == 1) &amp;&amp; (conn_get_clienttag(dst) != CLIENTTAG_WCHAT_UINT)) {
++        if (tag_check_wolv2(conn_get_clienttag(dst))) {
+             char temp[MAX_IRC_MESSAGE_LEN];
+     	    t_clan * clan;
+     	    unsigned int clanid = 0;
+@@ -707,10 +707,11 @@
+ 
+ 	    /* &quot;\001ACTION &quot; + text + &quot;\001&quot; + \0 */
+ 
+-        /* PELISH: WOLv1 (wchat atm), DUNE2000 and RENEGADE shows emotes automaticaly to self */
+-	    if ((me==dst) &amp;&amp; ((conn_get_clienttag(dst) == CLIENTTAG_WCHAT_UINT) || 
++        /* PELISH: WOLv1, DUNE2000 and RENEGADE shows emotes automaticaly to self */
++	    if ((me==dst) &amp;&amp; ((tag_check_wolv1(conn_get_clienttag(dst))) || 
+                           (conn_get_clienttag(dst) == CLIENTTAG_DUNE2000_UINT) ||
+-                          (conn_get_clienttag(dst) == CLIENTTAG_RENEGADE_UINT)))
++                          (conn_get_clienttag(dst) == CLIENTTAG_RENEGADE_UINT) ||
++                          (conn_get_clienttag(dst) == CLIENTTAG_RENGDFDS_UINT)))
+ 	        break;
+ 
+ 	    if ((8+std::strlen(text)+1+1)&lt;=MAX_IRC_MESSAGE_LEN) {
+@@ -736,7 +737,7 @@
+         char temp_[MAX_IRC_MESSAGE_LEN];
+         std::sprintf(temp,&quot;:%s&quot;,text);
+         if (conn_get_wol(dst) == 1) {
+-           if ((conn_get_clienttag(dst) != CLIENTTAG_WCHAT_UINT) &amp;&amp; (type == message_type_broadcast)) {
++           if ((tag_check_wolv2(conn_get_clienttag(dst))) &amp;&amp; (type == message_type_broadcast)) {
+                /* Pelish: WOLv2 have special announce message code */
+                std::sprintf(temp,&quot;:- %s&quot;,text);
+                std::sprintf(temp_,&quot;%u&quot;,RPL_ANNOUNCE,NULL);
+@@ -853,7 +854,7 @@
+         from.nick = conn_get_chatname(me);
+         from.user = ctag;
+         from.host = addr_num_to_ip_str(conn_get_addr(me));
+-        msg = irc_message_preformat(&amp;from,&quot;INVMSG&quot;,conn_get_loggeduser(dst),text);
++        msg = irc_message_preformat(&amp;from,&quot;INVMSG&quot;,NULL,text);
+         conn_unget_chatname(me,from.nick);
+     	break;
+     case message_type_page:
+@@ -892,7 +893,7 @@
+         from.nick = conn_get_chatname(me);
+         from.user = ctag;
+         from.host = addr_num_to_ip_str(conn_get_addr(me));
+-        msg = irc_message_preformat(&amp;from,&quot;STARTG&quot;,conn_get_loggeduser(dst),text);
++        msg = irc_message_preformat(&amp;from,&quot;STARTG&quot;,NULL,text);
+         conn_unget_chatname(me,from.nick);
+         break;
+     case message_wol_advertr:
+@@ -972,7 +973,7 @@
+                    	if (flags &amp; MF_BLIZZARD)
+ 		               std::strcat(temp,&quot;@&quot;);
+                 }
+-                if (conn_get_clienttag(c) != CLIENTTAG_WCHAT_UINT) {
++                if (tag_check_wolv2(conn_get_clienttag(c))) {
+                     /* BATTLECLAN Support */
+                     char _temp[MAX_IRC_MESSAGE_LEN];
+                     std::memset(_temp,0,sizeof(_temp));
+
+Modified: trunk/pvpgn/src/common/irc_protocol.h
+===================================================================
+--- trunk/pvpgn/src/common/irc_protocol.h	2008-03-20 22:08:18 UTC (rev 436)
++++ trunk/pvpgn/src/common/irc_protocol.h	2008-03-26 09:44:33 UTC (rev 437)
+@@ -351,6 +351,7 @@
+ #define RPL_FIND_USER_EX     398
+ #define RPL_GET_INSIDER      399
+ 
++/* Westwood Online servserv replies are in range 600 - 615 */
+ #define RPL_UPDATE_NONEX     602  /* for servserv */
+ #define RPL_UPDATE_EXIST     603  /* for servserv */
+ 
+
+Modified: trunk/pvpgn/src/common/tag.cpp
+===================================================================
+--- trunk/pvpgn/src/common/tag.cpp	2008-03-20 22:08:18 UTC (rev 436)
++++ trunk/pvpgn/src/common/tag.cpp	2008-03-26 09:44:33 UTC (rev 437)
+@@ -1,7 +1,7 @@
+ /*
+  * Copyright (C) 2004	Aaron
+  * Copyright (C) 2004	CreepLord (<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">creeplord at pvpgn.org</A>)
+- * Copyright (C) 2007	Pelish (<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">pelish at gmail.com</A>)
++ * Copyright (C) 2007,2008	Pelish (<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">pelish at gmail.com</A>)
+  *
+  * This program is free software; you can redistribute it and/or
+  * modify it under the terms of the GNU General Public License
+@@ -95,6 +95,8 @@
+              return CLIENTTAG_NOXQUEST;
+         case CLIENTTAG_RENEGADE_UINT:
+              return CLIENTTAG_RENEGADE;
++        case CLIENTTAG_RENGDFDS_UINT:
++             return CLIENTTAG_RENGDFDS;
+         case CLIENTTAG_YURISREV_UINT:
+              return CLIENTTAG_YURISREV;
+         case CLIENTTAG_EMPERORBD_UINT:
+@@ -221,6 +223,7 @@
+     case CLIENTTAG_NOX_UINT:
+     case CLIENTTAG_NOXQUEST_UINT:
+     case CLIENTTAG_RENEGADE_UINT:
++    case CLIENTTAG_RENGDFDS_UINT:
+     case CLIENTTAG_YURISREV_UINT:
+     case CLIENTTAG_EMPERORBD_UINT:
+     case CLIENTTAG_LOFLORE3_UINT:
+@@ -253,6 +256,38 @@
+     }
+ }
+ 
++extern int tag_check_wolv1(t_tag tag_uint)
++{
++    switch (tag_uint) {
++        case CLIENTTAG_WCHAT_UINT:
++            return 1;
++        default:
++            return 0;
++    }
++}
++
++extern int tag_check_wolv2(t_tag tag_uint)
++{
++    switch (tag_uint) {
++        case CLIENTTAG_TIBERNSUN_UINT:
++        case CLIENTTAG_TIBSUNXP_UINT:
++        case CLIENTTAG_REDALERT_UINT:
++        case CLIENTTAG_REDALERT2_UINT:
++        case CLIENTTAG_DUNE2000_UINT:
++        case CLIENTTAG_NOX_UINT:
++        case CLIENTTAG_NOXQUEST_UINT:
++        case CLIENTTAG_RENEGADE_UINT:
++        case CLIENTTAG_RENGDFDS_UINT:
++        case CLIENTTAG_YURISREV_UINT:
++        case CLIENTTAG_EMPERORBD_UINT:
++        case CLIENTTAG_LOFLORE3_UINT:
++        case CLIENTTAG_WWOL_UINT:
++            return 1;
++        default:
++            return 0;
++    }
++}
++
+ extern char const * clienttag_get_title(t_clienttag clienttag)
+ {
+    switch (clienttag)
+@@ -301,6 +336,8 @@
+         return &quot;Nox Quest&quot;;
+       case CLIENTTAG_RENEGADE_UINT:
+         return &quot;Renegade&quot;;
++      case CLIENTTAG_RENGDFDS_UINT:
++        return &quot;Renegade Free Dedicated Server&quot;;
+       case CLIENTTAG_YURISREV_UINT:
+         return &quot;Yuri's Revenge&quot;;
+       case CLIENTTAG_EMPERORBD_UINT:
+@@ -355,15 +392,14 @@
+     return 0;
+ }
+ 
+-extern t_clienttag tag_sku_to_uint (int sku)
++extern t_clienttag tag_sku_to_uint(int sku)
+ {
+   /**
+    *  Here is table of Westwood Online SKUs and by this SKU returning CLIENTTAG
+    *  SKUs are from Autoupdate FTP and from windows registry
+    */
+     
+-   if (!sku)
+-   {
++   if (!sku) {
+         ERROR0(&quot;got NULL sku&quot;);
+         return CLIENTTAG_UNKNOWN_UINT;
+    }
+@@ -459,7 +495,7 @@
+       case 10506:
+            return CLIENTTAG_YURISREV_UINT;
+       case 12288:  /* C&amp;C Renegade Free Dedicated Server */
+-           return CLIENTTAG_RENEGADE_UINT; //FIXME: SET NEW CLIENTTAG FOR RENEGADE FDS
++           return CLIENTTAG_RENGDFDS_UINT;
+       case 32512:  /* Westwood Online API */
+            return CLIENTTAG_WWOL_UINT;
+       default:  /* Unknown Westwood Online game -&gt; is anyone SKU that we havent??? */
+@@ -467,4 +503,50 @@
+    }
+ }
+ 
++extern t_clienttag tag_channeltype_to_uint(int channeltype)
++{
++   /**
++    *  This is used to convert WOL channel type to t_clienttag
++    */
++
++    if (!channeltype) {
++        ERROR0(&quot;got NULL channeltype&quot;);
++        return CLIENTTAG_UNKNOWN_UINT;
++    }
++
++    switch (channeltype) {
++        case 0:   /* Westwood Chat channels */
++        case 1:   /* Command &amp; Conquer Win95 channels */
++        case 2:   /* Red Alert Win95 channels */
++        case 3:   /* Red Alert Win95 Counterstrike channels */
++        case 4:   /* Red Alert Win95 The Aftermath channels */
++        case 5:   /* Command &amp; Conquer: Sole Survivor channels */
++            return CLIENTTAG_WCHAT_UINT;
++        case 12:  /* Command &amp; Conquer: Renegade channels */
++            return CLIENTTAG_RENEGADE_UINT;
++        case 14:  /* Dune 2000 channels */
++            return CLIENTTAG_DUNE2000_UINT;
++        case 16:  /* Nox channels */
++            return CLIENTTAG_NOX_UINT;
++        case 18:  /* Tiberian Sun channels */
++            return CLIENTTAG_TIBERNSUN_UINT;
++        case 21:  /* Red Alert 1 v 3.03 channels */
++            return CLIENTTAG_REDALERT_UINT;
++        case 31:  /* Emperor: Battle for Dune channels */
++            return CLIENTTAG_EMPERORBD_UINT;
++        case 33:  /* Red Alert 2 channels */
++            return CLIENTTAG_REDALERT2_UINT;
++        case 37:  /* Nox Quest channels */
++            return CLIENTTAG_NOXQUEST_UINT;
++        case 38:  /* QuickMatch channels */
++        case 39:
++        case 40:
++            return CLIENTTAG_WWOL_UINT;
++        case 41:  /* Yuri's Revenge channels */
++            return CLIENTTAG_YURISREV_UINT;
++        default:
++            return CLIENTTAG_WWOL_UINT;
++    }
+ }
++
++}
+
+Modified: trunk/pvpgn/src/common/tag.h
+===================================================================
+--- trunk/pvpgn/src/common/tag.h	2008-03-20 22:08:18 UTC (rev 436)
++++ trunk/pvpgn/src/common/tag.h	2008-03-26 09:44:33 UTC (rev 437)
+@@ -98,12 +98,14 @@
+ #define CLIENTTAG_NOX_UINT          0x4E4F5858
+ #define CLIENTTAG_NOXQUEST          &quot;NOXQ&quot; /* NOX Quest*/
+ #define CLIENTTAG_NOXQUEST_UINT     0x4E4F5851
+-#define CLIENTTAG_RENEGADE          &quot;RNGD&quot; /* C&amp;C Renegade */
++#define CLIENTTAG_RENEGADE          &quot;RNGD&quot; /* Renegade */
+ #define CLIENTTAG_RENEGADE_UINT     0x524E4744
++#define CLIENTTAG_RENGDFDS          &quot;RFDS&quot; /* Renegade Free Dedicated Server */
++#define CLIENTTAG_RENGDFDS_UINT     0x52464453
+ #define CLIENTTAG_YURISREV          &quot;YURI&quot; /* Yuri's Revenge */
+ #define CLIENTTAG_YURISREV_UINT     0x59555249
+-#define CLIENTTAG_EMPERORBD         &quot;EMPR&quot; /* Emperor: Battle for Dune */
+-#define CLIENTTAG_EMPERORBD_UINT    0x454D5052
++#define CLIENTTAG_EMPERORBD         &quot;EBFD&quot; /* Emperor: Battle for Dune */
++#define CLIENTTAG_EMPERORBD_UINT    0x45424644
+ #define CLIENTTAG_LOFLORE3          &quot;LOR3&quot; /* Lands of Lore 3 */
+ #define CLIENTTAG_LOFLORE3_UINT     0x4C4F5233
+ #define CLIENTTAG_WWOL              &quot;WWOL&quot; /* Other Westwood Online games */
+@@ -163,8 +165,11 @@
+ extern int	tag_check_arch(t_tag tag_uint);
+ extern int	tag_check_client(t_tag tag_uint);
+ extern int	tag_check_gamelang(t_tag tag_uint);
++extern int	tag_check_wolv1(t_tag tag_uint);
++extern int	tag_check_wolv2(t_tag tag_uint);
+ extern int	tag_check_in_list(t_clienttag clienttag,const char * list);
+-extern t_clienttag tag_sku_to_uint (int sku);
++extern t_clienttag tag_sku_to_uint(int sku);
++extern t_clienttag tag_channeltype_to_uint(int channeltype);
+ 
+ }
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000653.html">[pvpgn-dev] r436 - trunk/pvpgn/src/bnetd
+</A></li>
+	<LI>Next message: <A HREF="000655.html">[pvpgn-dev] r438 - in trunk/pvpgn: . src/bnetd
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#654">[ date ]</a>
+              <a href="thread.html#654">[ thread ]</a>
+              <a href="subject.html#654">[ subject ]</a>
+              <a href="author.html#654">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

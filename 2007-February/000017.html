@@ -1,0 +1,133 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] [Patch #1643] support for Emperor and Red Alert 1 v3.03
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-February/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BPatch%20%231643%5D%20support%20for%20Emperor%20and%20Red%20Alert%201%20v3.03&In-Reply-To=%3C200702122146.l1CLkaU6015693%40unicorn.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000016.html">
+   <LINK REL="Next"  HREF="000018.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] [Patch #1643] support for Emperor and Red Alert 1 v3.03</H1>
+    <B>admin at berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BPatch%20%231643%5D%20support%20for%20Emperor%20and%20Red%20Alert%201%20v3.03&In-Reply-To=%3C200702122146.l1CLkaU6015693%40unicorn.berlios.de%3E"
+       TITLE="[pvpgn-dev] [Patch #1643] support for Emperor and Red Alert 1 v3.03">admin at berlios.de
+       </A><BR>
+    <I>Mon Feb 12 22:46:36 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000016.html">[pvpgn-dev] [Patch #1643] support for Emperor and Red Alert 1 v3.03
+</A></li>
+        <LI>Next message: <A HREF="000018.html">[pvpgn-dev] Some question for deverloper technical ...
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#17">[ date ]</a>
+              <a href="thread.html#17">[ thread ]</a>
+              <a href="subject.html#17">[ subject ]</a>
+              <a href="author.html#17">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Patch #1643 has been updated. 
+
+Project: pvpgn
+Category: 1.99.x
+Status: Open
+Submitted by: pelish
+Assigned to : d1zzy
+Summary: support for Emperor and Red Alert 1 v3.03
+
+Follow-Ups:
+
+Date: 2007-Feb-12 23:46
+By: d1zzy
+
+Comment:
+I have the following questions:
+1. in channels.h/cpp you add the gameExtension information for each channel, I supose this is to identify the game used in WOL; but isn't this game identified by the clienttag ? if so maybe the clienttag field can be used ? 
+
+I see it's a string while your game extension is an &quot;int&quot;. 
+2. This is another issue, if the game type is a fixed integral length type (say a 4 bytes integer) then you shouldn't use an &quot;int&quot; in the first place, ISO C++ says nothing about the size of an &quot;int&quot; (which depends on every platform, pvpgn runs on platforms on which an &quot;int&quot; may be 8 bytes long won't it break on those ?) So if your game extension is a fixed 4 bytes long integer then just use a t_tag type which is just that (guaranteed on any platform to be that).
+
+Also I noticed there are a lot of WOL only data fields to the t_channel structure. All these fields are actually game specific and not channel specific. Now I know that a WOL game creates a channel for it and in this case, instead of duplicating the whole contents of the t_game structure inside t_channel you should just add a pointer in t_channel to a t_game that represents the game corresponding to the channel.
+
+3. in message.h/cpp you have these new message types for WOL and you named them all with wol in name. I don't think this is a good design decision. Ok you added joingame, page, advert, etc message types that are for WOL but you must think ahead, what if we add in the future some protocol that has similar message types ? Actually all these types should not contain WOL in their name unless the feature is completely WOL specific and would be impossible to exist for any other gaming protocol. It is later in the code that it decides based on the message type AND the client tag what to do with the message and how to handle it (ie a joingame message does some thing for WOL and another for other possible protocols).
+
+While 1 and 3 are design issues and might take longer to fix and I don't want to delay your already delayed patch too long the second issue with int used for game type should be solved (or maybe I don't understand what it does).
+
+-------------------------------------------------------
+
+Date: 2006-Dec-16 19:58
+By: pelish
+
+Comment:
+FIXED bug where Yuri's game channels not be showed.
+FIXED bug where didnt be seted maximum alowed users.
+
+more small fixes and changes...
+-------------------------------------------------------
+
+Date: 2006-Dec-07 22:19
+By: pelish
+
+Comment:
+Completed BUDDYES commands
+added commands: USERIP TIME KICK MODE
+-------------------------------------------------------
+
+Date: 2006-Nov-27 00:53
+By: pelish
+
+Comment:
+please wait for new release of this patche. I found any small bugs in WOL and I want to implement any missing commands/features (for exemple buddyes, operator rights...)
+-------------------------------------------------------
+
+Date: 2006-Nov-19 00:11
+By: pelish
+
+Comment:
+Completed support for:
+Emperor: Battle for Dune v1.09
+Red Alert v3.03
+
+Optimised STARTG function (for both protocol versions)
+Completed FINDUSER FINDUSEREX and PAGE functions
+Added GAMERES server for all games resolution - Now is hendled by hendle_wol.cpp but in future will be handled in the other handle file. This is because we can captured packet on port 4807 and clients dont give errors.
+
+-------------------------------------------------------
+
+-------------------------------------------------------
+For more info, visit:
+
+<A HREF="http://developer.berlios.de/patch/?func=detailpatch&amp;patch_id=1643&amp;group_id=2291">http://developer.berlios.de/patch/?func=detailpatch&amp;patch_id=1643&amp;group_id=2291</A>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000016.html">[pvpgn-dev] [Patch #1643] support for Emperor and Red Alert 1 v3.03
+</A></li>
+	<LI>Next message: <A HREF="000018.html">[pvpgn-dev] Some question for deverloper technical ...
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#17">[ date ]</a>
+              <a href="thread.html#17">[ thread ]</a>
+              <a href="subject.html#17">[ subject ]</a>
+              <a href="author.html#17">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

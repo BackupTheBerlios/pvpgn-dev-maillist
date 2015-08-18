@@ -1,0 +1,111 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] [Bug #11959] IRC Ban
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-September/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BBug%20%2311959%5D%20IRC%20Ban&In-Reply-To=%3C200709142115.l8ELFma0012365%40unicorn.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000452.html">
+   <LINK REL="Next"  HREF="000454.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] [Bug #11959] IRC Ban</H1>
+    <B>admin at berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BBug%20%2311959%5D%20IRC%20Ban&In-Reply-To=%3C200709142115.l8ELFma0012365%40unicorn.berlios.de%3E"
+       TITLE="[pvpgn-dev] [Bug #11959] IRC Ban">admin at berlios.de
+       </A><BR>
+    <I>Fri Sep 14 23:15:48 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000452.html">[pvpgn-dev] [Bug #10811] User with cg 6 able to send oversize	message.
+</A></li>
+        <LI>Next message: <A HREF="000454.html">[pvpgn-dev] [Bug #12002] Diablo 2 Client String
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#453">[ date ]</a>
+              <a href="thread.html#453">[ thread ]</a>
+              <a href="subject.html#453">[ subject ]</a>
+              <a href="author.html#453">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Bug #11959, was updated on 2007-Sep-08 23:21
+Here is a current snapshot of the bug.
+
+Project: Player vs Player Gaming Network
+Category: IRC
+Status: Open
+Resolution: None
+Bug Group: bnetd
+Priority: 5
+Submitted by: riffruff
+Assigned to : pelish
+Summary: IRC Ban
+
+Details: When someone is banned on IRC, they are not exactly &quot;kicked&quot; out of the channel...
+
+I was on IRC, and tried kicking myself via Starcraft Brood War game.  When kicked, on IRC, I still saw everyone in the channel, and there was no indication I was kicked.  I didn't recieve messages sent from anyone anymore though.
+
+If I sent a message, it would still display in the channel I was previously in.
+
+Now, on Starcraft brood war, it said I was kicked, as it should, and it didn't show me in channel anymore, yet I could still see text from the IRC of me being displayed in the channel.
+
+Follow-Ups:
+
+Date: 2007-Sep-14 23:15
+By: pelish
+
+Comment:
+Im trying to find the best solution in KICK/BAN problematic on PvPGN ritght now. Anyways tp_moonstar - If you know about another bugs on IRC then start new bug reports for them. It will be practical for me.
+-------------------------------------------------------
+
+Date: 2007-Sep-14 17:57
+By: tp_moonstar
+
+Comment:
+Let me add more info about the irc problem :
+
+In some cases when you join a channel/server with irc you aren't really connected it's hard to explain with words but whathever you kick/ban the user id aint kicked no matter what and you got to kill his connection from server in order to remove him from the channel.
+
+Take our server for example (eurobattle.net) we hosted irc base chat in our forum and whathever a user join in channel with IRC we cant really kick or ban then with /kick or /ban commands and they are invulnerable to quota.
+I mean they are able to send infinite messages whiout getting the red message.
+
+This possible happens cause when you connect with irc from the forum you're using forum IP not your IP and you're using a unique ID not your own one.
+
+There are more bugs with irc so i sugest you disable irc in your server while it's fixed here.
+
+
+-------------------------------------------------------
+
+For detailed info, follow this link:
+<A HREF="http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=11959&amp;group_id=2291">http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=11959&amp;group_id=2291</A>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000452.html">[pvpgn-dev] [Bug #10811] User with cg 6 able to send oversize	message.
+</A></li>
+	<LI>Next message: <A HREF="000454.html">[pvpgn-dev] [Bug #12002] Diablo 2 Client String
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#453">[ date ]</a>
+              <a href="thread.html#453">[ thread ]</a>
+              <a href="subject.html#453">[ subject ]</a>
+              <a href="author.html#453">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

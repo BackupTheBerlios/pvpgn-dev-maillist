@@ -1,0 +1,176 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] pvpgn/src/bnetd tracker.c,1.4,1.5
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-August/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20pvpgn/src/bnetd%20tracker.c%2C1.4%2C1.5&In-Reply-To=%3C20070816014128.C620B102E0B%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000321.html">
+   <LINK REL="Next"  HREF="000324.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] pvpgn/src/bnetd tracker.c,1.4,1.5</H1>
+    <B>pandaemonium</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20pvpgn/src/bnetd%20tracker.c%2C1.4%2C1.5&In-Reply-To=%3C20070816014128.C620B102E0B%40mail.berlios.de%3E"
+       TITLE="[pvpgn-dev] pvpgn/src/bnetd tracker.c,1.4,1.5">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Thu Aug 16 03:41:28 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000321.html">[pvpgn-dev] pvpgn version-history.txt,1.269,1.270
+</A></li>
+        <LI>Next message: <A HREF="000324.html">[pvpgn-dev] pvpgn/src/bntrackd bntrackd.c,1.13,1.14
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#322">[ date ]</a>
+              <a href="thread.html#322">[ thread ]</a>
+              <a href="subject.html#322">[ subject ]</a>
+              <a href="author.html#322">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/pvpgn/pvpgn/src/bnetd
+In directory sheep:/tmp/cvs-serv12535/src/bnetd
+
+Modified Files:
+	tracker.c 
+Log Message:
+fix for bug [ #11671 ] bnetd on 64bit sends currupt packets to tracker
+
+Index: tracker.c
+===================================================================
+RCS file: /cvsroot/pvpgn/pvpgn/src/bnetd/tracker.c,v
+retrieving revision 1.4
+retrieving revision 1.5
+diff -u -d -r1.4 -r1.5
+--- tracker.c	30 Nov 2004 20:19:07 -0000	1.4
++++ tracker.c	16 Aug 2007 01:41:05 -0000	1.5
+@@ -79,6 +79,7 @@
+ #include &quot;common/addr.h&quot;
+ #include &quot;common/list.h&quot;
+ #include &quot;common/tracker.h&quot;
++#include &quot;common/bn_type.h&quot;
+ #include &quot;common/setup_after.h&quot;
+ 
+ 
+@@ -133,53 +134,56 @@
+     
+     if (addrlist_get_length(track_servers)&gt;0)
+     {
+-	packet.packet_version = htons((unsigned short)TRACK_VERSION);
++        memset(&amp;packet,0,sizeof(packet));
++	bn_short_nset(&amp;packet.packet_version,(unsigned short)TRACK_VERSION);
+ 	/* packet.port is set below */
+-	packet.flags = 0;
+-	strncpy(packet.server_location,
++	bn_int_nset(&amp;packet.flags, 0);
++	strncpy((char *)packet.server_location,
+ 		prefs_get_location(),
+ 		sizeof(packet.server_location));
+-	packet.server_location[sizeof(packet.server_location)-1] = '\0';
+-	strncpy(packet.software,
++	bn_byte_set(&amp;packet.server_location[sizeof(packet.server_location)-1],'\0');
++	strncpy((char *)packet.software,
+ 		PVPGN_SOFTWARE,
+ 		sizeof(packet.software));
+-	strncpy(packet.version,
++	bn_byte_set(&amp;packet.software[sizeof(packet.software)-1],'\0');
++	strncpy((char *)packet.version,
+ 		PVPGN_VERSION,
+ 		sizeof(packet.version));
+-	strncpy(packet.server_desc,
++	bn_byte_set(&amp;packet.version[sizeof(packet.version)-1],'\0');
++	strncpy((char *)packet.server_desc,
+ 		prefs_get_description(),
+ 		sizeof(packet.server_desc));
+-	packet.server_desc[sizeof(packet.server_desc)-1] = '\0';
+-	strncpy(packet.server_url,
++	bn_byte_set(&amp;packet.server_desc[sizeof(packet.server_desc)-1],'\0');
++	strncpy((char *)packet.server_url,
+ 		prefs_get_url(),
+ 		sizeof(packet.server_url));
+-	packet.server_url[sizeof(packet.server_url)-1] = '\0';
+-	strncpy(packet.contact_name,
++	bn_byte_set(&amp;packet.server_url[sizeof(packet.server_url)-1],'\0');
++	strncpy((char *)packet.contact_name,
+ 		prefs_get_contact_name(),
+ 		sizeof(packet.contact_name));
+-	packet.contact_name[sizeof(packet.contact_name)-1] = '\0';
+-	strncpy(packet.contact_email,
++	bn_byte_set(&amp;packet.contact_name[sizeof(packet.contact_name)-1],'\0');
++	strncpy((char *)packet.contact_email,
+ 		prefs_get_contact_email(),
+ 		sizeof(packet.contact_email));
+-	packet.contact_email[sizeof(packet.contact_email)-1] = '\0';
+-	packet.users = htonl(connlist_login_get_length());
+-	packet.channels = htonl(channellist_get_length());
+-	packet.games = htonl(gamelist_get_length());
+-	packet.uptime = htonl(server_get_uptime());
+-	packet.total_logins = htonl(connlist_total_logins());
+-	packet.total_games = htonl(gamelist_total_games());
+-	
++	bn_byte_set(&amp;packet.contact_email[sizeof(packet.contact_email)-1],'\0');
++	bn_int_nset(&amp;packet.users,connlist_login_get_length());
++	bn_int_nset(&amp;packet.channels,channellist_get_length());
++	bn_int_nset(&amp;packet.games,gamelist_get_length());
++	bn_int_nset(&amp;packet.uptime,server_get_uptime());
++	bn_int_nset(&amp;packet.total_logins,connlist_total_logins());
++	bn_int_nset(&amp;packet.total_games,gamelist_total_games());
++
+ 	if (uname(&amp;utsbuf)&lt;0)
+ 	{
+ 	    eventlog(eventlog_level_warn,__FUNCTION__,&quot;could not get platform info (uname: %s)&quot;,pstrerror(errno));
+-	    strncpy(packet.platform,&quot;&quot;,sizeof(packet.platform));
++	    strncpy((char *)packet.platform,&quot;&quot;,sizeof(packet.platform));
+ 	}
+ 	else
+ 	{
+-	    strncpy(packet.platform,
++	    strncpy((char *)packet.platform,
+ 		    utsbuf.sysname,
+ 		    sizeof(packet.platform));
+-	    packet.platform[sizeof(packet.platform)-1] = '\0';
++	    bn_byte_set(&amp;packet.platform[sizeof(packet.platform)-1],'\0');
+ 	}
+ 	
+ 	LIST_TRAVERSE_CONST(laddrs,currl)
+@@ -194,7 +198,7 @@
+ 	    if (laddr_info-&gt;type!=laddr_type_bnet)
+ 		continue; /* don't report IRC, telnet, and other non-game ports */
+ 	    
+-	    packet.port = htons(addr_get_port(addrl));
++	    bn_short_nset(&amp;packet.port,addr_get_port(addrl));
+ 	    
+ 	    LIST_TRAVERSE_CONST(track_servers,currt)
+ 	    {
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000321.html">[pvpgn-dev] pvpgn version-history.txt,1.269,1.270
+</A></li>
+	<LI>Next message: <A HREF="000324.html">[pvpgn-dev] pvpgn/src/bntrackd bntrackd.c,1.13,1.14
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#322">[ date ]</a>
+              <a href="thread.html#322">[ thread ]</a>
+              <a href="subject.html#322">[ subject ]</a>
+              <a href="author.html#322">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

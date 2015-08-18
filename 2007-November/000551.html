@@ -1,0 +1,105 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] [Bug #12174] local ip address didn't get translated.
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-November/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BBug%20%2312174%5D%20local%20ip%20address%20didn%27t%20get%20translated.&In-Reply-To=%3C200711101123.lAABN2gl018849%40unicorn.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000550.html">
+   <LINK REL="Next"  HREF="000552.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] [Bug #12174] local ip address didn't get translated.</H1>
+    <B>admin at berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BBug%20%2312174%5D%20local%20ip%20address%20didn%27t%20get%20translated.&In-Reply-To=%3C200711101123.lAABN2gl018849%40unicorn.berlios.de%3E"
+       TITLE="[pvpgn-dev] [Bug #12174] local ip address didn't get translated.">admin at berlios.de
+       </A><BR>
+    <I>Sat Nov 10 12:23:02 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000550.html">[pvpgn-dev] [Bug #12173] Game with same name is merged (It didn't	get fixed)
+</A></li>
+        <LI>Next message: <A HREF="000552.html">[pvpgn-dev] [Bug #12352] [error]
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#551">[ date ]</a>
+              <a href="thread.html#551">[ thread ]</a>
+              <a href="subject.html#551">[ subject ]</a>
+              <a href="author.html#551">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Bug #12174, was updated on 2007-Oct-15 06:05
+Here is a current snapshot of the bug.
+
+Project: Player vs Player Gaming Network
+Category: Warcraft Series
+Status: Closed
+Resolution: Invalid
+Bug Group: bnetd
+Priority: 5
+Submitted by: megablue
+Assigned to : none
+Summary: local ip address didn't get translated.
+
+Details: I'm considering it as a bug because of the official battle.net does able to do the public ip -&gt; private ip NAT for the custom games. Most of the low cost routers in the market doesn't support loop-back NAT. 
+
+local ip is located at client-&gt;server 0x50 packet 
+offset 24 to offset 27
+
+suggested solution:
+1. parse the local ip and store to conn list
+2. translate all the public ip address which matched the game requester public ip address to the host's local ip address for the game requester only. otherwise leave it as default.
+
+
+
+
+Follow-Ups:
+
+Date: 2007-Nov-10 13:23
+By: d1zzy
+
+Comment:
+You may confuse here a few things. First of all battle.net routes game traffic through their servers, this alone solves ANY NAT problems you might have as long as the servers that route the game traffic are reachable. So if you compare battle.net war3/w3tft with pvpgn then it is this issue, we don't do that, someone has to implement the whole routing thing which is a big task not some simple bug report.
+
+Then battle.net are externally reachable servers while pvpgn is run by people behind NAT in which situations they surely need to portforward and it's nothing we can do about it.
+
+As for that local IP field you mention that doesn't help much, the router still needs to be able to forward UDP (for non W3 clients, W3 clients use server routed game traffic as I explained above) packets back to the user and if that is not supported by the router NOTHING can help (not even parsing and using that local IP field).
+
+That local IP field just helps (assuming it is sent properly by the game) in some situations to autodetermine some translations that need to be done, so it helps people with pvpgn configuration of address_translation.conf but it cannot help in any way people who are behind a NAT and want to host games and can't get the packets through the NAT to them.
+
+So I'm marking this invalid (if you want a w3 game traffic router then ask it in feature requests but also look to see if there isn't one asked already).
+-------------------------------------------------------
+
+For detailed info, follow this link:
+<A HREF="http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=12174&amp;group_id=2291">http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=12174&amp;group_id=2291</A>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000550.html">[pvpgn-dev] [Bug #12173] Game with same name is merged (It didn't	get fixed)
+</A></li>
+	<LI>Next message: <A HREF="000552.html">[pvpgn-dev] [Bug #12352] [error]
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#551">[ date ]</a>
+              <a href="thread.html#551">[ thread ]</a>
+              <a href="subject.html#551">[ subject ]</a>
+              <a href="author.html#551">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

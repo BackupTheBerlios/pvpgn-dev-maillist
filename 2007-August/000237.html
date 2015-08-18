@@ -1,0 +1,84 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r293 - trunk/pvpgn/src/bnetd
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-August/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r293%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200708061946.l76JkNG2027438%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000236.html">
+   <LINK REL="Next"  HREF="000238.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r293 - trunk/pvpgn/src/bnetd</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r293%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200708061946.l76JkNG2027438%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r293 - trunk/pvpgn/src/bnetd">svn at svn.berlios.de
+       </A><BR>
+    <I>Mon Aug  6 21:46:23 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000236.html">[pvpgn-dev] r292 - trunk/pvpgn/src/bnetd
+</A></li>
+        <LI>Next message: <A HREF="000238.html">[pvpgn-dev] [Patch #2127] one SUPER hendle file for all IRC based	protocols
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#237">[ date ]</a>
+              <a href="thread.html#237">[ thread ]</a>
+              <a href="subject.html#237">[ subject ]</a>
+              <a href="author.html#237">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pandaemonium
+Date: 2007-08-06 21:46:23 +0200 (Mon, 06 Aug 2007)
+New Revision: 293
+
+Modified:
+   trunk/pvpgn/src/bnetd/irc.cpp
+Log:
+remove debug output
+
+Modified: trunk/pvpgn/src/bnetd/irc.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/irc.cpp	2007-08-06 19:45:53 UTC (rev 292)
++++ trunk/pvpgn/src/bnetd/irc.cpp	2007-08-06 19:46:23 UTC (rev 293)
+@@ -893,8 +893,6 @@
+ 	return -1;
+     }
+ 
+-    eventlog(eventlog_level_debug,__FUNCTION__,&quot;got called&quot;);
+-
+     std::memset(temp,0,sizeof(temp));
+     ircname = irc_convert_channel(channel);
+     if (!ircname) {
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000236.html">[pvpgn-dev] r292 - trunk/pvpgn/src/bnetd
+</A></li>
+	<LI>Next message: <A HREF="000238.html">[pvpgn-dev] [Patch #2127] one SUPER hendle file for all IRC based	protocols
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#237">[ date ]</a>
+              <a href="thread.html#237">[ thread ]</a>
+              <a href="subject.html#237">[ subject ]</a>
+              <a href="author.html#237">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

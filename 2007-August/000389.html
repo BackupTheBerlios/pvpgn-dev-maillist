@@ -1,0 +1,129 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r339 - trunk/pvpgn/cmake/Modules
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-August/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r339%20-%20trunk/pvpgn/cmake/Modules&In-Reply-To=%3C200708211021.l7LALM3U025753%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000388.html">
+   <LINK REL="Next"  HREF="000390.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r339 - trunk/pvpgn/cmake/Modules</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r339%20-%20trunk/pvpgn/cmake/Modules&In-Reply-To=%3C200708211021.l7LALM3U025753%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r339 - trunk/pvpgn/cmake/Modules">svn at svn.berlios.de
+       </A><BR>
+    <I>Tue Aug 21 12:21:22 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000388.html">[pvpgn-dev] r338 - in trunk/pvpgn/src: bniutils client common	compat d2cs d2dbs tinycdb win32
+</A></li>
+        <LI>Next message: <A HREF="000390.html">[pvpgn-dev] r340 - in trunk/pvpgn: . cmake/Modules
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#389">[ date ]</a>
+              <a href="thread.html#389">[ thread ]</a>
+              <a href="subject.html#389">[ subject ]</a>
+              <a href="author.html#389">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: d1zzy
+Date: 2007-08-21 12:21:22 +0200 (Tue, 21 Aug 2007)
+New Revision: 339
+
+Added:
+   trunk/pvpgn/cmake/Modules/FindZLIB.cmake
+Log:
+Added our own FindZLIB for find_package(ZLIB). This should be looked up 
+before the system installed version (tested on Linux at least). It's 
+exactly like the original FindZLIB only that it also should look inside 
+the &quot;zlib&quot; directory of the project source directory (thus on win32 one 
+can put zdll and zlib.h in there and it should detect them, needs 
+testing).
+
+
+Added: trunk/pvpgn/cmake/Modules/FindZLIB.cmake
+===================================================================
+--- trunk/pvpgn/cmake/Modules/FindZLIB.cmake	2007-08-21 09:55:43 UTC (rev 338)
++++ trunk/pvpgn/cmake/Modules/FindZLIB.cmake	2007-08-21 10:21:22 UTC (rev 339)
+@@ -0,0 +1,47 @@
++# - Find zlib
++# Find the native ZLIB includes and library
++#
++#  ZLIB_INCLUDE_DIR - where to find zlib.h, etc.
++#  ZLIB_LIBRARIES   - List of libraries when using zlib.
++#  ZLIB_FOUND       - True if zlib found.
++
++
++IF (ZLIB_INCLUDE_DIR)
++  # Already in cache, be silent
++  SET(ZLIB_FIND_QUIETLY TRUE)
++ENDIF (ZLIB_INCLUDE_DIR)
++
++FIND_PATH(ZLIB_INCLUDE_DIR zlib.h
++  /usr/local/include
++  /usr/include
++)
++
++SET(ZLIB_NAMES z zlib zdll)
++FIND_LIBRARY(ZLIB_LIBRARY
++  NAMES ${ZLIB_NAMES}
++  PATHS /usr/lib /usr/local/lib ${CMAKE_SOURCE_DIR}/zlib
++)
++
++IF (ZLIB_INCLUDE_DIR AND ZLIB_LIBRARY)
++   SET(ZLIB_FOUND TRUE)
++    SET( ZLIB_LIBRARIES ${ZLIB_LIBRARY} )
++ELSE (ZLIB_INCLUDE_DIR AND ZLIB_LIBRARY)
++   SET(ZLIB_FOUND FALSE)
++   SET( ZLIB_LIBRARIES )
++ENDIF (ZLIB_INCLUDE_DIR AND ZLIB_LIBRARY)
++
++IF (ZLIB_FOUND)
++   IF (NOT ZLIB_FIND_QUIETLY)
++      MESSAGE(STATUS &quot;Found ZLIB: ${ZLIB_LIBRARY}&quot;)
++   ENDIF (NOT ZLIB_FIND_QUIETLY)
++ELSE (ZLIB_FOUND)
++   IF (ZLIB_FIND_REQUIRED)
++      MESSAGE(STATUS &quot;Looked for Z libraries named ${ZLIBS_NAMES}.&quot;)
++      MESSAGE(FATAL_ERROR &quot;Could NOT find z library&quot;)
++   ENDIF (ZLIB_FIND_REQUIRED)
++ENDIF (ZLIB_FOUND)
++
++MARK_AS_ADVANCED(
++  ZLIB_LIBRARY
++  ZLIB_INCLUDE_DIR
++  )
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000388.html">[pvpgn-dev] r338 - in trunk/pvpgn/src: bniutils client common	compat d2cs d2dbs tinycdb win32
+</A></li>
+	<LI>Next message: <A HREF="000390.html">[pvpgn-dev] r340 - in trunk/pvpgn: . cmake/Modules
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#389">[ date ]</a>
+              <a href="thread.html#389">[ thread ]</a>
+              <a href="subject.html#389">[ subject ]</a>
+              <a href="author.html#389">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

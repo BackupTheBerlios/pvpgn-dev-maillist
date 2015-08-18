@@ -1,0 +1,1080 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r342 - trunk/pvpgn/conf
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-August/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r342%20-%20trunk/pvpgn/conf&In-Reply-To=%3C200708220923.l7M9NISk023542%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000391.html">
+   <LINK REL="Next"  HREF="000393.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r342 - trunk/pvpgn/conf</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r342%20-%20trunk/pvpgn/conf&In-Reply-To=%3C200708220923.l7M9NISk023542%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r342 - trunk/pvpgn/conf">svn at svn.berlios.de
+       </A><BR>
+    <I>Wed Aug 22 11:23:18 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000391.html">[pvpgn-dev] r341 - in trunk/pvpgn: . conf files man src/bnetd	src/bniutils src/bnpass src/bnpcap src/bntrackd src/client	src/d2cs src/d2dbs src/tinycdb
+</A></li>
+        <LI>Next message: <A HREF="000393.html">[pvpgn-dev] r343 - trunk/pvpgn/conf
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#392">[ date ]</a>
+              <a href="thread.html#392">[ thread ]</a>
+              <a href="subject.html#392">[ subject ]</a>
+              <a href="author.html#392">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: d1zzy
+Date: 2007-08-22 11:23:17 +0200 (Wed, 22 Aug 2007)
+New Revision: 342
+
+Added:
+   trunk/pvpgn/conf/bnetd.conf.cmake
+   trunk/pvpgn/conf/d2cs.conf.cmake
+   trunk/pvpgn/conf/d2dbs.conf.cmake
+Log:
+Forgot to add these files. I don't really like having both bnetd.conf.in 
+and bnetd.conf.cmake, I will look into merging them. Also if at some 
+point we decide that for win32 we support only the cmake build then we 
+can also drop bnetd.conf.win, d2cs.conf.win etc versions because they 
+will be built as on POSIX from the input versions by cmake.
+
+
+Copied: trunk/pvpgn/conf/bnetd.conf.cmake (from rev 341, trunk/pvpgn/conf/bnetd.conf.in)
+===================================================================
+--- trunk/pvpgn/conf/bnetd.conf.in	2007-08-21 19:43:03 UTC (rev 341)
++++ trunk/pvpgn/conf/bnetd.conf.cmake	2007-08-22 09:23:17 UTC (rev 342)
+@@ -0,0 +1,627 @@
++##############################################################################
++# bnetd.conf  -  Configuration file for the main PvPGN service               #
++#----------------------------------------------------------------------------#
++#                                                                            #
++# ############ READ THIS ######### READ THIS ########## READ THIS ############
++# This file is an example configuration that should work UNMODIFIED for most #
++# of the PvPGN setups and may require modification to suit your needs.       #
++# Blank lines and everything after a &quot;#&quot; are ignored.  Use quotes around     #
++# values that contain spaces.                                                #
++#                                                                            #
++##############################################################################
++
++
++##############################################################################
++# Privileges to work under                                                   #
++# Use either the names from the corresponding files or numerical id's (with  #
++# a leading '#').  If none are specified, the userid will not be changed.    #
++#----------------------------------------------------------------------------#
++
++#effective_user  = games
++#effective_group = games
++
++# effective_user  = #12
++# effective_group = #20
++
++#                                                                            #
++##############################################################################
++
++##############################################################################
++# Storage section                                                            #
++# storage_path will tell pvpgn how and where from/to to read/write accounts  #
++# right now it supports 2 &quot;drivers&quot; : file and sql                           #
++#                                                                            #
++# Syntax:                                                                    #
++# * for plain file driver:                                                   #
++#  storage_path = file:mode=plain;dir=&lt;path_to_user_files&gt;;clan=&lt;path_to_clan_files&gt;;default=/path/to/default/account #
++# * for cdb file driver:                                                     #
++#  storage_path = file:mode=cdb;dir=&lt;path_to_cdb_files&gt;;clan=&lt;path_to_clan_files&gt;;default=/path/to/default/account   #
++# * for sql/sql2 driver:                                                     #
++#  storage_path = sql:variable=value;...;default=0 (0 is the default uid)    #
++# or storage_path = sql2:variable=value;...;default=0 (0 is the default uid) #
++#                                                                            #
++# Variables for sql/sql2 can be:                                             #
++# - &quot;mode&quot; : tells PVPGN the sql mode you will use (mysql/pgsql/etc..)       #
++# - &quot;host&quot; : the database host                                               #
++# - &quot;port&quot; : the TCP/IP port if needed                                       #
++# - &quot;socket&quot; : the UNIX local socket if needed                               #
++# - &quot;name&quot; : database name                                                   #
++# - &quot;user&quot; : db username                                                     #
++# - &quot;pass&quot; : db password                                                     #
++# - &quot;default&quot; : specify the UID to use for the default account data          #
++# - &quot;prefix&quot; : prefix to use for all pvpgn tables (default &quot;&quot;)               #
++#                                                                            #
++# Examples:                                                                  #
++# storage_path = file:mode=plain;dir=${LOCALSTATEDIR}/users;clan=${LOCALSTATEDIR}/clans;team=${LOCALSTATEDIR}/teams;default=${SYSCONFDIR}/bnetd_default_user.plain
++# storage_path = file:mode=cdb;dir=${LOCALSTATEDIR}/userscdb;clan=${LOCALSTATEDIR}/clans;team=${LOCALSTATEDIR}/teams;default=${SYSCONFDIR}/bnetd_default_user.cdb
++# storage_path = sql:mode=mysql;host=127.0.0.1;name=PVPGN;user=pvpgn;pass=pvpgnrocks;default=0;prefix=pvpgn_
++# storage_path = sql:mode=pgsql;host=127.0.0.1;name=pvpgn;user=pvpgn;pass=pvpgnrocks;default=0;prefix=pvpgn_
++# storage_path = sql:mode=sqlite3;name=${LOCALSTATEDIR}/users.db;default=0;prefix=pvpgn_
++# storage_path = sql:mode=odbc;name=PVPGN;prefix=pvpgn_
++#
++# WARNING!! you MUST change &quot;DBlayoutfile&quot; bellow configuration directive to 
++# sql_DB_layout2.conf to be able to use &quot;sql2&quot; !!!
++# storage_path = sql2:mode=mysql;host=127.0.0.1;name=PVPGN;user=pvpgn;pass=pvpgnrocks;default=0;prefix=pvpgn2_
++# storage_path = sql2:mode=pgsql;host=127.0.0.1;name=pvpgn;user=pvpgn;pass=pvpgnrocks;default=0;prefix=pvpgn2_
++# storage_path = sql2:mode=sqlite3;name=${LOCALSTATEDIR}/users.db;default=0;prefix=pvpgn2_
++# storage_path = sql2:mode=odbc;name=PVPGN;prefix=pvpgn2_
++#----------------------------------------------------------------------------#
++
++storage_path = file:mode=plain;dir=${LOCALSTATEDIR}/users;clan=${LOCALSTATEDIR}/clans;team=${LOCALSTATEDIR}/teams;default=${SYSCONFDIR}/bnetd_default_user.plain
++
++#                                                                            #
++##############################################################################
++
++##############################################################################
++# File section                                                               #
++# The pidfile can be set to &quot;&quot; to turn it off.                               #
++# Use absolute paths in these lines to avoid problems!                       #
++#----------------------------------------------------------------------------#
++
++filedir     = ${LOCALSTATEDIR}/files
++reportdir   = ${LOCALSTATEDIR}/reports
++chanlogdir  = ${LOCALSTATEDIR}/chanlogs
++motdfile    = ${SYSCONFDIR}/bnmotd.txt
++issuefile   = ${SYSCONFDIR}/bnissue.txt
++channelfile = ${SYSCONFDIR}/channel.conf
++newsfile    = ${SYSCONFDIR}/news.txt
++adfile      = ${SYSCONFDIR}/ad.conf
++topicfile   = ${SYSCONFDIR}/topics.conf
++ipbanfile   = ${SYSCONFDIR}/bnban.conf
++helpfile    = ${SYSCONFDIR}/bnhelp.conf
++mpqfile     = ${SYSCONFDIR}/autoupdate.conf
++logfile     = ${LOCALSTATEDIR}/bnetd.log
++realmfile   = ${SYSCONFDIR}/realm.conf
++maildir     = ${LOCALSTATEDIR}/bnmail
++versioncheck_file = ${SYSCONFDIR}/versioncheck.conf
++mapsfile    = ${SYSCONFDIR}/bnmaps.conf
++xplevelfile = ${SYSCONFDIR}/bnxplevel.conf
++xpcalcfile  = ${SYSCONFDIR}/bnxpcalc.conf
++#pidfile    = ${LOCALSTATEDIR}/bnetd.pid
++ladderdir   = ${LOCALSTATEDIR}/ladders
++command_groups_file = ${SYSCONFDIR}/command_groups.conf
++tournament_file = ${SYSCONFDIR}/tournament.conf
++statusdir   = ${LOCALSTATEDIR}/status
++aliasfile   = ${SYSCONFDIR}/bnalias.conf
++anongame_infos_file = ${SYSCONFDIR}/anongame_infos.conf
++DBlayoutfile = ${SYSCONFDIR}/sql_DB_layout.conf
++supportfile = ${SYSCONFDIR}/supportfile.conf
++transfile   = ${SYSCONFDIR}/address_translation.conf
++
++fortunecmd  = /usr/games/fortune
++
++#                                                                            #
++##############################################################################
++
++
++##############################################################################
++# Message logs                                                               #
++#----------------------------------------------------------------------------#
++
++# Multiple log levels can be defined by connecting them with a comma (,)
++# Available loglevels are:
++#   none
++#   trace
++#   debug
++#   info
++#   warn
++#   error
++#   fatal
++loglevels = fatal,error,warn,info,debug,trace
++#loglevels = fatal,error,warn,info
++
++#                                                                            #
++##############################################################################
++
++
++##############################################################################
++# D2CS realm server settings                                                 #
++#----------------------------------------------------------------------------#
++
++# Version of D2CS server to connect with (set to zero to disable version check)
++d2cs_version = 0
++
++# Allow the D2CS server to change realm names?
++allow_d2cs_setname = true
++
++#                                                                            #
++##############################################################################
++
++
++##############################################################################
++# Downloadable files                                                         #
++#----------------------------------------------------------------------------#
++
++# These filenames are reported directly to the client and are relative to
++# the &quot;filedir&quot; directory specified above.
++iconfile = &quot;icons.bni&quot;
++war3_iconfile = &quot;icons-WAR3.bni&quot;
++star_iconfile = &quot;icons_STAR.bni&quot;
++
++tosfile = &quot;tos.txt&quot;
++
++#                                                                            #
++##############################################################################
++
++
++##############################################################################
++# Client verification and upgrades                                           #
++#----------------------------------------------------------------------------#
++
++# This option lists the client types allowed to connect (only valid for 
++# the bnet and wol protocol). The list is a comma separated list of any of
++# the following elements: 
++# all  : all client types allowed (default)
++# chat : client type &quot;CHAT&quot; allowed (used by some bot software)
++# dshr : client type Diablo 1 Shareware
++# drtl : client type Diablo 1 (Retail)
++# sshr : client type Starcraft Shareware
++# star : client type Starcraft
++# sexp : client type Starcraft Broodwar
++# w2bn : client type Warcraft II Battle.Net Edition
++# d2dv : client type Diablo 2
++# d2xp : client type Diablo 2 LOD
++# war3 : client type Warcraft III (Reign Of Chaos)
++# w3xp : client type Warcraft III Frozen Throne
++# tsun : client type Tiberian Sun
++# tsxp : client type Tiberian Sun Firestorm
++# ralt : client type Red Alert (with 4 players internet patche)
++# ral2 : client type Red Alert 2
++# dn2k : client type Dune 2000
++# noxx : client type Nox
++# noxq : client type Nox Quest
++# rngd : client type Renegade
++# yuri : client type Yuri's Revenge
++# empr : client type Emperor: Battle for Dune
++#
++# Example: allowed_clients = war3,w3xp
++allowed_clients = all
++
++# If this option is enabled, the verification step is skipped if possible.
++# This only works with clients &lt; 109.  It is useful because you no longer
++# need any of the IX86AUTH?.MPQ and PMACAUTH?.MPQ files.  Note that it will
++# also skip over all the autoupdate checks effectively disabling it.
++#
++# If you disable this you must have one or more of the MPQ files.  Otherwise
++# clients will hang when they first connect because they are attempting to
++# download them.  The versioncheck can only be skipped for clients older
++# than 109.  Starting with version 109 the clients will always do version
++# checking since they do not function properly if the server does not
++# request it.
++skip_versioncheck = false
++
++# If you enable the version checks but want to allow clients that don't pass
++# the checksum test then enable this.
++allow_bad_version = false
++
++# If you enable the version checks but want to allow clients that aren't
++# listed in the versioncheck configuration file then enable this.  Unless
++# you have a very complete file or are very paranoid about cheaters this
++# is a good idea.
++allow_unknown_version = true
++
++# This defines how the exeinfo field in the versioncheck file is being
++# checked. You can choose between no match at all [none] (default), 
++# exact match [exact], exact case-sensitive match [exactcase], dumb wildcard 
++# match [wildcard], and parsed value comparison [parse]. 
++# NOTE: [parse] needs the mktime() function and might therefore not work on 
++# every system. 
++version_exeinfo_match = none
++
++# If you have choosen [parse] above, this is the tolerance with which
++# the time can differ. The value must be given in seconds. If it's 0 this 
++# check is disabled.
++version_exeinfo_maxdiff = 0
++
++#                                                                            #
++##############################################################################
++
++
++##############################################################################
++# Time values                                                                #
++#----------------------------------------------------------------------------#
++
++# Time in seconds between account file updates, 0 means wait forever.
++usersync  = 300
++# Number of seconds of inactivity before file is unloaded from memory.
++# (only checked during account file updates)
++userflush = 1200
++# Number of users checked for updates at once. Higher values make sense if you 
++# either have very fast hardware or you don't have many number of accounts.
++# Lower values make sense if you have very high CPU usage on the system you run
++# the server (dont make it too low or your system will save accounts continously).
++# Modify this value ONLY if you know what you are doing!!
++userstep = 100
++
++# How often to send user latency tests in seconds.
++latency = 600
++
++# How often to send null or keepalive packets in seconds.
++nullmsg = 120
++
++# Amount of time to delay shutting down server in seconds.
++shutdown_delay = 300
++# Amount of time delay period is decremented by either a SIGTERM or SIGINT
++# (control-c) signal in seconds.
++shutdown_decr = 60
++
++# How often should bans be checked for expiration? (in seconds)
++#ipban_check_int = 30
++
++#                                                                            #
++##############################################################################
++
++
++##############################################################################
++# Policy options                                                             #
++#----------------------------------------------------------------------------#
++
++# If you don't want people to be able to create new accounts, set this to
++# false.
++new_accounts = true
++
++# Set this to the maximum number of accounts you want to allow to be
++# created on your server. A value of 0 means infinite and is the default.
++#max_accounts = 0
++
++# If someone attempts to log in more than once, should it kick off the old
++# login, or deny the new one?
++kick_old_login = true
++#kick_old_login = false
++# With no passwords, this is bad to have enabled --NonReal
++
++# load_new_account option has been eliminated and the functionality now is 
++# always active in PvPGN
++
++# If a user is creating a new channel, should it be added automatically, or
++# prompt them first?
++ask_new_channel = true
++
++# Should a game report be written for every game played or just ladder
++# games?
++#report_all_games = false
++report_all_games = true
++
++# Should Diablo I/II reports be written?  There are no winners/losers.
++report_diablo_games = false
++
++# Should games with passwords be hidden on the game list?
++hide_pass_games = true
++
++# Should games already started be hidden on the game list? (for heavily
++# loaded servers)
++hide_started_games = true
++
++# Should non-permanent channels hidden on the channel list?
++hide_temp_channels = true
++
++# Should the extended /-commands be avaliable? (of course!)
++extra_commands = true
++
++# Should any and all disconnects to be counted as losses?
++# (Turning this on will override the user's choice in ladder games!)
++disc_is_loss = false
++
++# List additional game types to be counted as ladder games
++# Curently allowed types: topvbot, melee, ffa, oneonone
++# Example: ladder_games = &quot;topvbot,oneonone&quot;
++ladder_games = &quot;none&quot;
++
++# If additional game types are configured (see above) to be counted as ladder 
++# games then this setting configures a game name prefix to make only games 
++# which match this game name prefix be counted as ladder. This allows to 
++# still have normal games of the game types configured with &quot;ladder_games&quot; 
++# directive. However if this setting is commented or &quot;&quot; then ALL games 
++# which match the game types configured with &quot;ladder_games&quot; are to be 
++# considered as ladder games. The prefix checking is CASE SENSITIVE!
++# Example: ladder_prefix = &quot;ldr_&quot;
++ladder_prefix = &quot;&quot;
++
++# Should all users be able to use the /con and /connections commands?
++enable_conn_all = true
++
++# Should client IP addresses (from /con, /games, /gameinfo, /netinfo)
++# be hidden from non-admins?
++hide_addr = false
++
++# Should private channel messages be logged to files in the chanlogdir
++# directory? (see channels.list for public channels)
++chanlog = false
++
++# Do you want to use the channel quota feature?
++quota = yes
++
++# The following options deal with flood prevention.
++#
++# How many lines do you accept in quota_time seconds?
++# (The default should allow 5 lines in 5 seconds,
++# longer time periods allow &quot;bursts&quot; of traffic before the quota is full.)
++quota_lines = 5     # must be between 1 and 100 lines
++quota_time = 5      # must be between 1 and 60 seconds
++# &quot;virtual wrapping&quot;, so long lines count as multiple lines
++quota_wrapline = 40 # must be between 1 to 256 chars
++# absolute maximum characters allowed in a line
++quota_maxline = 200 # must be between 1 to 256 chars
++#
++# How many lines do you accept in quota_time seconds before user is
++# disconnected?
++# (According to Jung-woo, Dobae is a Korean term for flooding the game server...
++# it originally meant &quot;to paint the wallpaper on a new or refurbished house&quot;).
++# If it less than or equal to quota_lines, there is no warning before
++# disconnection so don't set this too low.
++quota_dobae = 10     # must be between 1 and 100 lines
++
++# Mail support
++mail_support = true
++mail_quota = 5
++
++# Channel logging message
++log_notice = &quot;*** Please note this channel is logged! ***&quot;
++
++# Ban on repeated password fails against bruteforce password thieves
++# Fails required to get ip banned (0 to disable ban on password fail)
++passfail_count = 0
++
++# Password fail IP ban duration (in seconds)
++passfail_bantime = 300
++
++# Max users limit in private channels (0 = unlimited)
++maxusers_per_channel = 0
++
++#                                                                            #
++##############################################################################
++
++
++##############################################################################
++# Account configuration                                                      #
++#----------------------------------------------------------------------------#
++
++# Should account files be named by the account number or the player name?
++savebyname = true
++
++# Save the account data on logoff
++sync_on_logoff = false
++
++# How man rows should the account lookup hash table have?  Servers with
++# more accounts should use a larger table for better performance.
++hashtable_size = 61
++
++# Per default, only alphanumerical symbols are allowed in account names
++# with this variable you can add some extra symbols to be allowed
++# but be warned - that some of them might cause trouble - at least with
++# savebyname=true (some symbols are forbidden in filenames or might cause
++# you real trouble - plz neither allow wildcard symbols like '*' or '?'.
++# Path delimiters like '/' or '\' are hardcoded filtered and can't be allowed.
++# Also note that allowing the '.' might cause u some headache on win32 systems. 
++# You have been warned - the rest is up to you.
++# default setting is &quot;-_[]&quot; as it was previous versions
++account_allowed_symbols = &quot;-_[]&quot;
++
++# This setting affects users that login with their uid rather than their 
++# username. If set to true their displayed username will be forcefully 
++# converted to their registered account name.
++account_force_username = false
++
++# maximum number of friends a user can add to there friends list
++# default setting is 20
++max_friends = 20
++
++#                                                                            #
++##############################################################################
++
++
++##############################################################################
++# Tracking server info                                                       #
++#----------------------------------------------------------------------------#
++
++# Set track=0 to disable tracking.  Any other number will set number
++# of seconds between sending tracking packets. This is OFF by default.
++#track = 0
++track = 60
++# 10 minutes
++
++# Tracking server(s)
++# Use a comma delimited list of hostnames with optional UDP port numbers
++# after colons. (port 6114 is the default for the newer tracking protocol)
++#trackaddrs = &quot;track.bnetd.org,localhost:9999&quot;
++#trackaddrs = &quot;track.pvpgn.org&quot;
++
++# Change these to match your system, for example:
++location = &quot;unknown&quot;
++description = &quot;unknown&quot;
++url = &quot;unknown&quot;
++contact_name = &quot;a PvPGN user&quot;
++contact_email = &quot;unknown&quot;
++
++#                                                                            #
++##############################################################################
++
++
++##############################################################################
++# Server network info                                                        #
++#----------------------------------------------------------------------------#
++
++# Servername by which the server identifies itself (default: &quot;PvPGN Realm&quot;)
++#servername = &quot;PvPGN Realm&quot;
++
++# Set this to the maximum number of concurrent connections allowed on 
++# this server (minimum 32). This limit sets a general server connection 
++# limit, NOT the concurrent user limit (for that see next option)
++max_connections = 1000
++
++# Maximum number of concurrent users (0 means unlimited).
++max_concurrent_logins = 0
++
++# Set this option to true to allow TCP to detect and close stale
++# connections.
++use_keepalive = false
++
++# Limit maximum number of connections per IP (0 = unlimited)
++# this feature is new, so no recommended value so far
++# (d2cs connections are exempted from this limitation)
++max_conns_per_IP = 0
++
++# This is a comma delimited list of hostnames that the server should
++# listen on.  It might be useful to make an internal-only server on a
++# gateway machine for example.  If the list is not set or if it has a
++# entry with no host component, the server will bind to that port on all
++# interfaces.
++#servaddrs = &quot;:9999&quot;
++#servaddrs = &quot;myinternalname.some.com,localhost&quot;
++servaddrs = &quot;:&quot; # default interface (all) and default port (6112)
++
++# Don't change these unless you really need to!  You will need to run a proxy
++# or modify the clients.  Also note that these will not change when simply
++# sending a HUP signal to the server; they are only read on startup.
++
++# This is the port the server send the UDP test packets to by default.
++# Setting it to zero makes the server use the same port as the TCP connection
++# comes from. Newer clients can override this setting on a per connection
++# basis.
++#udptest_port = 6112
++
++
++# W3 Play Game router address. Just put your server address in here
++# or use 0.0.0.0:6200 for server to bind to all interfaces,
++# but make sure you set up w3trans if you do.
++w3routeaddr = &quot;0.0.0.0:6200&quot;
++
++# w3routeshow has been removed.
++# see the address_translation.conf for translating the w3route ip for local networks
++
++# initkill_timer sets up a periodic timer on init/defer class connections
++# this should detect and clean up stale connections to your server
++initkill_timer = 120
++
++#                                                                            #
++##############################################################################
++
++##############################################################################
++# Westwood Online (WOL) configuration                                        #
++#----------------------------------------------------------------------------#
++
++# NOTE: WOL support is still experimental!
++
++# This specifies the addresses where WOL connections should be accepted. See
++# the description of servaddrs for formatting information. Leave this field
++# blank if you do not want to accept WOL connections. If the WSERV port is not
++# specifed then 4005 and WOL port is not specifed then 4000 will be used. 
++# Note: DO NOT SET THE PORT TO ANYTHING OTHER THEN 4005 and 4000, WOL WILL FAIL IF YOU DO!
++
++#woladdrs = &quot;:4000&quot;
++#wservaddrs = &quot;:4005&quot;
++#wgameresaddrs = &quot;:4807&quot;
++#apiregaddrs = &quot;:5400&quot;
++
++# Just leave these as default (unless you know the timezone, longitiude and latitude
++# of your server
++woltimezone = &quot;-8&quot;
++wollongitude = &quot;36.1083&quot;
++wollatitude = &quot;-115.0582&quot;
++
++#                                                                            #
++##############################################################################
++
++##############################################################################
++# Internet Relay Chat (IRC) configuration                                    #
++#----------------------------------------------------------------------------#
++
++# NOTE: IRC support is still experimental!
++
++# This specifies the addresses where IRC connections should be accepted. See
++# the description of servaddrs for formatting information. Leave this field
++# blank if you do not want to accept IRC connections.  If the port is not
++# specified then 6667 will be used.
++#ircaddrs = &quot;:6667&quot;
++
++# This is the IRC network name. If this is not specified then the default of
++# &quot;PvPGN&quot; will be used.
++#irc_network_name = &quot;PvPGN&quot;
++
++# This is the hostname used for IRC connections. Set this to your
++# hostname, if the automatic detection doesn't correctly. 
++#hostname = &quot;none&quot;
++
++# Set this to the desired IRC connection timeout in seconds.
++#irc_latency = 180
++
++#                                                                            #
++##############################################################################
++
++
++##############################################################################
++# Telnet configuration                                                       #
++#----------------------------------------------------------------------------#
++
++# This specifies the addresses where telnet connections should be accepted.
++# See the description of servaddrs for formatting information. Leave this
++# field # blank if you do not want to accept telnet connections.  If the port
++# is not specifed then 23 will be used.
++#telnetaddrs = &quot;:23&quot;
++
++###############################################################################
++# war3 ladder textual output                                                  #
++#-----------------------------------------------------------------------------#
++# this is for all the guys, that want Warcraft 3 ladder, but don't want their
++# server to run with MySQL support.
++# For each ladder (solo, team, ffa, at) a corresponing file is created,
++# so it's easy to build your ladder pages with them
++
++# the following value determines, at which rate, these files are created
++# set to 0 if you don't want or need these files
++war3_ladder_update_secs = 300
++
++# jfro's latest ladder is based on XML... so we can switch to XML output of ladder
++# on demand
++XML_output_ladder = false
++
++###############################################################################
++# server status textual output                                           #
++#-----------------------------------------------------------------------------#
++# This is for writing status of the server in an attempt to see number of user
++# on line actually, and games/chans.
++# This is store in file var\status\warcraft3.dat as a *.ini format.
++# Shouldn't be so hard in php to create dynamic website using this content.
++
++# the following value determines, at which rate, these files are created
++# set to 0 if you don't want or need these files
++output_update_secs = 60
++
++# jfro's latest ladder is based on XML... so we can switch to XML output of ladder
++# on demand. Maybe we should set update interval bigger cause XML output version
++# is much more verbose than the standard output
++XML_status_output = false
++
++###############################################################################
++# clan settings                                                               #
++#-----------------------------------------------------------------------------#
++
++# Time in hours for a new member of clan to be a newer(Peon icon, cannot promote to Grunt)
++# default value 168(7 days). If set to 0, all new members could be promote in no time
++clan_newer_time = 0
++
++# max members count allowed in a clan, set between 10 and 100, default 50.
++clan_max_members = 50
++
++# Default clan channel status when create a clan, 1 for private, 0 for public
++clan_channel_default_private = 0
+
+Copied: trunk/pvpgn/conf/d2cs.conf.cmake (from rev 341, trunk/pvpgn/conf/d2cs.conf.in)
+===================================================================
+--- trunk/pvpgn/conf/d2cs.conf.in	2007-08-21 19:43:03 UTC (rev 341)
++++ trunk/pvpgn/conf/d2cs.conf.cmake	2007-08-22 09:23:17 UTC (rev 342)
+@@ -0,0 +1,240 @@
++#################################################################################
++# d2cs.conf  -  Configuration file for the diablo2 game control server		#
++#-------------------------------------------------------------------------------#
++#										#
++# This file is an example configuration and may require modification to		#
++# suit your needs or your site.  Blank lines and lines starting with a &quot;#&quot;	#
++# are ignored.  Use quotes around values that contain spaces.			#
++#										#
++#################################################################################
++
++
++#################################################################################
++# Server Major Settings								#
++#-------------------------------------------------------------------------------#
++#										#
++# Your realm server name							#
++# Here you put the value of the first column from the realm line in realm.conf
++# Example, if you have the line
++# &quot;MyRealm&quot; &quot;My Super Realm&quot; &lt;someIP&gt;:6113
++# in realm.conf then here you put realmname = &quot;MyRealm&quot;
++realmname		=	D2CS
++
++# This is a comma delimited list of hostnames that the server should
++# listen on.  Generally, YOU DONT NEED TO TOUCH THIS but it might be useful 
++# to make an internal-only server on a gateway machine for example.  If the 
++# list is not set or if it has a entry with no host component, the server will 
++# bind to that port on all interfaces.
++# d2cs default listening port is 6113
++# WARNING!! DO NOT USE &quot;127.0.0.1&quot; or &quot;localhost&quot; !!!
++servaddrs		=	0.0.0.0:6113
++
++# This is a comma delimited list of game servers. Put here the IPs
++# (without ports) of the machines running d2gs. If you run d2gs on the same 
++# machine as d2cs you put the IP of that machine here.
++# Example: gameservlist = 192.168.1.10
++# (if you have a d2gs running on a machine with the IP 192.168.1.10)
++#
++# YOU MUST CHANGE THIS OR D2CS WON'T WORK PROPERLY
++#
++# WARNING!! DO NOT USE &quot;127.0.0.1&quot; or &quot;localhost&quot; !!!
++gameservlist		=	&lt;d2gs-IP&gt;,&lt;another-d2gs-IP&gt;
++
++# Put here the address and port of the machine running bnetd (or pvpgn.exe). 
++# If you run d2cs on the same machine as bnetd (or pvpgn.exe) then here you 
++# put the IP of that machine.
++#
++# YOU MUST CHANGE THIS OR D2CS WON'T WORK PROPERLY
++#
++# bnetd default listening port is 6112
++# WARNING!! DO NOT USE &quot;127.0.0.1&quot; or &quot;localhost&quot; !!!
++bnetdaddr		=	&lt;bnetd-IP&gt;:6112
++
++# Set this to the maximum number of concurrent connections allowed on 
++# this server. DO NOT TOUCH UNLESS STRICTLY NECESSARY!
++max_connections = 1000
++
++# This sets the realm to Classic or LOD or Both
++# Classic = 0
++# LOD = 1
++# Both = 2 (default)
++lod_realm = 2
++
++# This sets whether you can convert a clasic char to
++# an expansion char.
++# Allow Convert = 1
++# Don't allow Convert = 0
++allow_convert = 0
++
++# here u can enter the symbols allowed in accountnames (additional to 
++# alphanumerical symbals which are always accepted). please note that
++# it is absolutly mandatory that u set up the same symbols here as in
++# bnetd.conf or else u wont be able to play D2 with some characters
++# (those whose symbols are allowed in bnetd.conf but not here)
++# same warnings as in bnetd.conf apply here - be warned - and just
++# change something if you know what you are doing
++#default setting is &quot;-_[]&quot;
++account_allowed_symbols = &quot;-_[]&quot;
++
++#										#
++#################################################################################
++
++#################################################################################
++# Message logs									#
++#-------------------------------------------------------------------------------#
++# Multiple log levels can be defined by connecting them with a comma (,)
++# Available loglevels are:
++#   none
++#   trace
++#   debug
++#   info
++#   warn
++#   error
++#   fatal
++#loglevels = fatal,error,warn,info
++loglevels = fatal,error,warn,info,debug,trace
++
++#										#
++#################################################################################
++
++#################################################################################
++# File and Path section								#
++# Use absolute paths in these lines to avoid problems!				#
++#-------------------------------------------------------------------------------#
++#										#
++logfile			=	${LOCALSTATEDIR}/d2cs.log
++charsavedir		=	${LOCALSTATEDIR}/charsave
++charinfodir		=	${LOCALSTATEDIR}/charinfo
++bak_charsavedir		=	${LOCALSTATEDIR}/bak/charsave
++bak_charinfodir		=	${LOCALSTATEDIR}/bak/charinfo
++ladderdir		=	${LOCALSTATEDIR}/ladders
++newbiefile		=	${LOCALSTATEDIR}/files/newbie.save
++transfile		=	${SYSCONFDIR}/address_translation.conf
++d2gsconffile		=	${SYSCONFDIR}/d2server.ini
++#pidfile		=	${LOCALSTATEDIR}/d2cs.pid
++
++#										#
++#################################################################################
++
++#################################################################################
++# Misc										#
++#-------------------------------------------------------------------------------#
++#										#
++# Message Of The Day
++motd                    =       &quot;No Message Of The Day Set&quot; 
++
++# Set to non-zero to allow creation of new realm character
++allow_newchar		=	1
++
++# Do you want d2cs to check client for multilogin for security reason?
++check_multilogin	=	0
++
++# Maxinum number of character per account
++# Max allowed value is 18 (enforced by server)
++maxchar			=	8
++
++# Character sorting. Options are: level, ctime, mtime, name, none. (none assumed if
++# not specified).
++#charlist_sort = &quot;none&quot;
++
++# Do we need ascending or descending order for charlist?
++#charlist_sort_order = &quot;ASC&quot;
++
++# Maxinum number of games will be shown in join game list
++# Zero = infinite
++maxgamelist		=	20
++
++# Set to non-zero to allow show all games with difficulty &lt; character difficulty
++# Otherwise, only game with difficulty = character difficulty will be shown
++gamelist_showall	=	0
++
++# Maxinum time in seconds that a user can idle
++# Zero = infinite
++idletime		=	3600
++
++# Amount of time to delay shutting down server in seconds.
++shutdown_delay		=	300
++
++# Amount of time delay period is decremented by either a SIGTERM or SIGINT
++# (control-c) signal in seconds.
++shutdown_decr		=	60
++#
++#################################################################################
++
++
++#################################################################################
++# Internal System Settings							#
++# You may just ignore them and use the default value				#
++#-------------------------------------------------------------------------------#
++#
++# How often will the server purge all list to clean unused data (in seconds)
++listpurgeinterval	=	300
++
++# How often will the server check game queues (in seconds)
++gqcheckinterval		=	60
++
++# How often will the server retry to connect to bnetd 
++# when connection lost (in seconds)
++s2s_retryinterval	=	10
++
++# How long time the s2s connection will timeout 
++s2s_timeout		=	10
++
++# How often the server will check server queues for expired data
++sq_checkinterval	=	300
++
++# How long time will a server queue data expire
++sq_timeout		=	300
++
++# Game serer binary files checksum, use zero to skip this checking
++d2gs_checksum		=	0
++
++# Game server version, use zero to skip this checking
++d2gs_version		=	0
++
++# Game server password
++d2gs_password		=	&quot;&quot;
++
++# Maxinum number of second that a game will be shown on list( zero = infinite )
++game_maxlifetime	=	0
++
++# Maximum level allowed in this (realm) game.
++# Normal games have a max level 99, while the internal field size limit is 255.
++# Extreme game MODs may have higher values, but be warned:
++# !!! Use them at your own risk !!!
++# game_maxlevel       = 255
++
++# A game will be automatically destroied after how long time idle
++max_game_idletime	=	0
++
++# Allow Limitation created game with password, player number or level limit?
++allow_gamelimit		=	1
++
++# Ladder refresh time
++ladder_refresh_interval =	3600
++
++# server to server connection max idle time in seconds
++s2s_idletime		=	300
++
++# server to server connection keepalive interval
++s2s_keepalive_interval	=	60
++
++# all connection timeout check interval
++timeout_checkinterval	=	60
++
++# game server restart interval
++# when sending SIGUSR2 signal to your d2cs this issues a restart
++# of all connected d2gs after d2gs_restart_delay seconds
++d2gs_restart_delay	=	300
++
++# ladder start time
++# format: yyyy-mm-dd hh:mm:ss
++# be carefull:
++# all chars created before this date will revert to non-ladder chars
++ladder_start_time	=	&quot;&quot;
++
++# number of days before a char expires (default 0=unlimited)
++char_expire_day		=	0
++
++#
++#################################################################################
+
+Copied: trunk/pvpgn/conf/d2dbs.conf.cmake (from rev 341, trunk/pvpgn/conf/d2dbs.conf.in)
+===================================================================
+--- trunk/pvpgn/conf/d2dbs.conf.in	2007-08-21 19:43:03 UTC (rev 341)
++++ trunk/pvpgn/conf/d2dbs.conf.cmake	2007-08-22 09:23:17 UTC (rev 342)
+@@ -0,0 +1,118 @@
++#################################################################################
++# d2dbs.conf  -  Configuration file for the Diablo2 Game database server	#
++#-------------------------------------------------------------------------------#
++#										#
++# This file is an example configuration and may require modification to		#
++# suit your needs or your site.  Blank lines and lines starting with a &quot;#&quot;	#
++# are ignored.  Use quotes around values that contain spaces.			#
++#										#
++#################################################################################
++
++#################################################################################
++# Server Major Settings								#
++#-------------------------------------------------------------------------------#
++# This is a comma delimited list of hostnames that the server should
++# listen on.  Generally, YOU DONT NEED TO TOUCH THIS but it might be useful 
++# to make an internal-only server on a gateway machine for example.  If the 
++# list is not set or if it has a entry with no host component, the server will 
++# bind to that port on all interfaces.
++# d2dbs default listening port is 6114
++# WARNING!! DO NOT USE &quot;127.0.0.1&quot; or &quot;localhost&quot; !!!
++servaddrs	= 0.0.0.0:6114
++
++# Put here EXACTLY the same thing you put in d2cs.conf gameservlist setting.
++# For more information about this setting consult the d2cs.conf comments
++# above it.
++#
++# YOU MUST CHANGE THIS OR D2DBS WON'T WORK PROPERLY
++#
++# WARNING!! DO NOT USE &quot;127.0.0.1&quot; or &quot;localhost&quot; !!!
++gameservlist            =       &lt;d2gs-IP&gt;,&lt;another-d2gs-IP&gt;
++
++#										#
++#################################################################################
++
++#################################################################################
++# Message logs                                                                  #
++#-------------------------------------------------------------------------------#
++# Multiple log levels can be defined by connecting them with a comma (,)
++# Available loglevels are:
++#   none
++#   trace
++#   debug
++#   info
++#   warn
++#   error
++#   fatal
++#loglevels = fatal,error,warn,info
++loglevels = fatal,error,warn,info,debug,trace
++
++#                                                                               #
++#################################################################################
++
++#################################################################################
++# File and Path section								#
++# Use absolute paths in these lines to avoid problems!				#
++#-------------------------------------------------------------------------------#
++logfile		=	${LOCALSTATEDIR}/d2dbs.log
++logfile-gs	=	${LOCALSTATEDIR}/d2dbs-gs.log
++charsavedir	=	${LOCALSTATEDIR}/charsave
++charinfodir	=	${LOCALSTATEDIR}/charinfo
++ladderdir	=	${LOCALSTATEDIR}/ladders
++bak_charsavedir	=	${LOCALSTATEDIR}/bak/charsave
++bak_charinfodir	=	${LOCALSTATEDIR}/bak/charinfo
++#pidfile	=	${LOCALSTATEDIR}/d2dbs.pid
++
++#										#
++#################################################################################
++
++#################################################################################
++# Misc										#
++#-------------------------------------------------------------------------------#
++#										#
++# Ladder save interval
++laddersave_interval	=	3600
++
++# Time that allow characters create after it insert into ladder
++# These code should be rewritted to support string formmated time
++ladderinit_time		=	0
++
++# create extra ladder file in XML format that can be parsed more easy
++# 0 = turn extra output off (default)
++# 1 = turn on the XML output
++XML_ladder_output       =       0
++
++# Amount of time to delay shutting down server in seconds.
++shutdown_delay          =       360
++
++# Amount of time delay period is decremented by either a SIGTERM or SIGINT
++# (control-c) signal in seconds.
++shutdown_decr           =       60
++
++# connection max idle time in seconds
++idletime		=	300
++
++# connection keep alive interval
++keepalive_interval	=	60
++
++# connection time out check interval
++timeout_checkinterval	=	60
++
++# experience threshold, minimum experience needed to register on the ladder
++ladderupdate_threshold	=	0
++
++# What chars will be added to ladder?
++# 0 = ladder and non-ladder chars
++# 1 = only ladder chars
++ladder_chars_only	=	1
++
++# This setting activates a workaround for the well known &quot;Lvl 100&quot; bug.
++# It should be activated for mods where the max level is greater than 99.
++# Activating this should work for mods with any max level
++# If level is greater than 255, it will be set to 255
++# 0 = deactivated
++# 1 = activated
++difficulty_hack         =       0
++
++#										#
++#################################################################################
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000391.html">[pvpgn-dev] r341 - in trunk/pvpgn: . conf files man src/bnetd	src/bniutils src/bnpass src/bnpcap src/bntrackd src/client	src/d2cs src/d2dbs src/tinycdb
+</A></li>
+	<LI>Next message: <A HREF="000393.html">[pvpgn-dev] r343 - trunk/pvpgn/conf
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#392">[ date ]</a>
+              <a href="thread.html#392">[ thread ]</a>
+              <a href="subject.html#392">[ subject ]</a>
+              <a href="author.html#392">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

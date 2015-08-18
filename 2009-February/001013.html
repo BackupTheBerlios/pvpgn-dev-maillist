@@ -1,0 +1,110 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] pvpgn/conf sql_DB_layout.conf, 1.10,	1.11 sql_DB_layout2.conf, 1.6, 1.7
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2009-February/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20pvpgn/conf%20sql_DB_layout.conf%2C%201.10%2C%0A%091.11%20sql_DB_layout2.conf%2C%201.6%2C%201.7&In-Reply-To=%3C20090225221901.D2EEF16FEDD%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001012.html">
+   <LINK REL="Next"  HREF="001014.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] pvpgn/conf sql_DB_layout.conf, 1.10,	1.11 sql_DB_layout2.conf, 1.6, 1.7</H1>
+    <B>pandaemonium</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20pvpgn/conf%20sql_DB_layout.conf%2C%201.10%2C%0A%091.11%20sql_DB_layout2.conf%2C%201.6%2C%201.7&In-Reply-To=%3C20090225221901.D2EEF16FEDD%40mail.berlios.de%3E"
+       TITLE="[pvpgn-dev] pvpgn/conf sql_DB_layout.conf, 1.10,	1.11 sql_DB_layout2.conf, 1.6, 1.7">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Wed Feb 25 23:19:01 CET 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001012.html">[pvpgn-dev] pvpgn UPDATE, 1.67, 1.68 version-history.txt, 1.300,	1.301
+</A></li>
+        <LI>Next message: <A HREF="001014.html">[pvpgn-dev] pvpgn/src/client bnchat.c,1.23,1.24
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1013">[ date ]</a>
+              <a href="thread.html#1013">[ thread ]</a>
+              <a href="subject.html#1013">[ subject ]</a>
+              <a href="author.html#1013">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/pvpgn/pvpgn/conf
+In directory sheep:/tmp/cvs-serv506/conf
+
+Modified Files:
+	sql_DB_layout.conf sql_DB_layout2.conf 
+Log Message:
+fix potential SQL injection via clan MOTD
+
+
+Index: sql_DB_layout.conf
+===================================================================
+RCS file: /cvsroot/pvpgn/pvpgn/conf/sql_DB_layout.conf,v
+retrieving revision 1.10
+retrieving revision 1.11
+diff -u -d -r1.10 -r1.11
+--- sql_DB_layout.conf	31 Jul 2007 19:12:32 -0000	1.10
++++ sql_DB_layout.conf	25 Feb 2009 22:18:59 -0000	1.11
+@@ -133,8 +133,8 @@
+ [${prefix}clan]
+ &quot;cid int NOT NULL PRIMARY KEY&quot;,&quot;'0'&quot;
+ &quot;short int&quot;,&quot;'0'&quot;
+-&quot;name varchar(30)&quot;,&quot;NULL&quot;
+-&quot;motd varchar(30)&quot;,&quot;NULL&quot;,
++&quot;name varchar(32)&quot;,&quot;NULL&quot;
++&quot;motd varchar(255)&quot;,&quot;NULL&quot;,
+ &quot;creation_time int&quot;,&quot;'0'&quot;
+ [${prefix}clanmember]
+ &quot;uid int NOT NULL PRIMARY KEY&quot;,&quot;'0'&quot;
+
+Index: sql_DB_layout2.conf
+===================================================================
+RCS file: /cvsroot/pvpgn/pvpgn/conf/sql_DB_layout2.conf,v
+retrieving revision 1.6
+retrieving revision 1.7
+diff -u -d -r1.6 -r1.7
+--- sql_DB_layout2.conf	31 Jul 2007 19:12:32 -0000	1.6
++++ sql_DB_layout2.conf	25 Feb 2009 22:18:59 -0000	1.7
+@@ -47,8 +47,8 @@
+ [${prefix}clan]
+ &quot;cid int NOT NULL PRIMARY KEY&quot;,&quot;'0'&quot;
+ &quot;short int&quot;,&quot;'0'&quot;
+-&quot;name varchar(30)&quot;,&quot;NULL&quot;
+-&quot;motd varchar(30)&quot;,&quot;NULL&quot;,
++&quot;name varchar(32)&quot;,&quot;NULL&quot;
++&quot;motd varchar(255)&quot;,&quot;NULL&quot;,
+ &quot;creation_time int&quot;,&quot;'0'&quot;
+ [${prefix}clanmember]
+ &quot;uid int NOT NULL PRIMARY KEY&quot;,&quot;'0'&quot;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001012.html">[pvpgn-dev] pvpgn UPDATE, 1.67, 1.68 version-history.txt, 1.300,	1.301
+</A></li>
+	<LI>Next message: <A HREF="001014.html">[pvpgn-dev] pvpgn/src/client bnchat.c,1.23,1.24
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1013">[ date ]</a>
+              <a href="thread.html#1013">[ thread ]</a>
+              <a href="subject.html#1013">[ subject ]</a>
+              <a href="author.html#1013">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

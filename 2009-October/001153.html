@@ -1,0 +1,99 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] [Patch #2836] EuroBattle.Net Activation Patch
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2009-October/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BPatch%20%232836%5D%20EuroBattle.Net%20Activation%20Patch&In-Reply-To=%3C200910111920.n9BJKMq3015445%40unicorn.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001152.html">
+   <LINK REL="Next"  HREF="001154.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] [Patch #2836] EuroBattle.Net Activation Patch</H1>
+    <B>admin at berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BPatch%20%232836%5D%20EuroBattle.Net%20Activation%20Patch&In-Reply-To=%3C200910111920.n9BJKMq3015445%40unicorn.berlios.de%3E"
+       TITLE="[pvpgn-dev] [Patch #2836] EuroBattle.Net Activation Patch">admin at berlios.de
+       </A><BR>
+    <I>Sun Oct 11 21:20:22 CEST 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001152.html">[pvpgn-dev] [Patch #2836] EuroBattle.Net Activation Patch
+</A></li>
+        <LI>Next message: <A HREF="001154.html">[pvpgn-dev] [Patch #2836] EuroBattle.Net Activation Patch
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1153">[ date ]</a>
+              <a href="thread.html#1153">[ thread ]</a>
+              <a href="subject.html#1153">[ subject ]</a>
+              <a href="author.html#1153">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Patch #2836 has been updated. 
+
+Project: pvpgn
+Category: None
+Status: Open
+Submitted by: shakar
+Assigned to : none
+Summary: EuroBattle.Net Activation Patch
+
+Follow-Ups:
+
+Date: 2009-Oct-11 21:20
+By: shakar
+
+Comment:
+need to add those lines to bnetd.conf:
+
+# should users activate their accounts from time to time? 
+# setting this value &quot;true&quot; will deney access to the server unless the account is activated 
+# doesn't work on chat 
+enable_activation = true
+
+this patch basically, force the users to come once a while to the web site. and activate their account.
+
+our activation site is: <A HREF="http://app.eurobattle.net/activate">http://app.eurobattle.net/activate</A>
+you can't put this on true unless you got a site who does that.
+
+this patch was created by madmax, and I added the option disable/enable in bnetd.conf few days ago.
+
+madmax added a new table to the database called Custom (my guess is that you will want to use BNET)
+
+also, maybe add a variable instead of just writing &quot;Activate account at www.eurobattle.net&quot;
+-------------------------------------------------------
+
+-------------------------------------------------------
+For more info, visit:
+
+<A HREF="http://developer.berlios.de/patch/?func=detailpatch&amp;patch_id=2836&amp;group_id=2291">http://developer.berlios.de/patch/?func=detailpatch&amp;patch_id=2836&amp;group_id=2291</A>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001152.html">[pvpgn-dev] [Patch #2836] EuroBattle.Net Activation Patch
+</A></li>
+	<LI>Next message: <A HREF="001154.html">[pvpgn-dev] [Patch #2836] EuroBattle.Net Activation Patch
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1153">[ date ]</a>
+              <a href="thread.html#1153">[ thread ]</a>
+              <a href="subject.html#1153">[ subject ]</a>
+              <a href="author.html#1153">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

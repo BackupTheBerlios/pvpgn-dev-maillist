@@ -1,0 +1,164 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> No subject
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2012-March/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20No%20subject&In-Reply-To=%3Cmailman.10.1331737723.9886.pvpgn-dev%40lists.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001063.html">
+   <LINK REL="Next"  HREF="001067.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>No subject</H1>
+    <B></B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20No%20subject&In-Reply-To=%3Cmailman.10.1331737723.9886.pvpgn-dev%40lists.berlios.de%3E"
+       TITLE="No subject">
+       </A><BR>
+    <I>Wed Mar 14 16:08:30 CET 2012</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001063.html">No subject
+</A></li>
+        <LI>Next message: <A HREF="001067.html">No subject
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1065">[ date ]</a>
+              <a href="thread.html#1065">[ thread ]</a>
+              <a href="subject.html#1065">[ subject ]</a>
+              <a href="author.html#1065">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>I think that could be solved by adding a code to validate a previous existing &quot;short&quot; name in the database and or adding the primary key also on short column... here Im not sure if this will impact in some way how PVPGN works. Since I have not any development skills I cant solve the problem by my own but If I cant give you guys any help to solve this just let me know.
+
+Follow-Ups:
+
+Date: 2009-Mar-05 10:31
+By: saidin
+
+Comment:
+Also, here is the commit info for when clanlist_find_clan_by_clantag was changed to case insensitive by d1zzy way back in 2006 (SVN 230):
+
+commit c32b608644b5509cf9b7b72befae93a9476c0e20
+Author: d1zzy &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">d1zzy at f47984b3-f1e4-0310-9569-ebefd53020b6</A>&gt;
+Date:   Mon Jun 26 21:27:01 2006 +0000
+
+    Changed clan code to use a specific type for tags (t_clantag typedefed
+    to t_tag), change the check for finding existent clans by tag to be case
+    insensitive (so that people cant create clans with same tag but
+    different case which broke some stuff in channels, closes bug#6314).
+    
+    
+    git-svn-id: <A HREF="svn://svn.berlios.de/pvpgn/trunk@230">svn://svn.berlios.de/pvpgn/trunk@230</A> f47984b3-f1e4-0310-9569-ebefd53020b6
+-------------------------------------------------------
+
+Date: 2009-Mar-05 10:27
+By: saidin
+
+Comment:
+I haven't found time to test this myself as you need 9 people to in the same channel and whatnot. However, I have had a brief look through the code:
+
+A packet of type CLIENT_CLAN_CREATEREQ triggers a call to handle_bnet#_client_clan_createreq. After doing a sanity check, this method then calls clan#clan_get_possible_member (very badly named).
+
+clan#clan_get_possible_member does a call to clan#clanlist_find_clan_by_clantag. This method returns a pointer to the clan if it is found. The search is done using strcasecmp (doesn't care about case). If the search returns a clan, then a SERVER_CLAN_CREATEREPLY_CHECK_ALLREADY_IN_USE packet is sent.
+
+I didn't think there would be anything to gain looking further. As far as I can see, the check (to see if a clan with that tag exists) is fine. But that doesn't make sense! Even if the packet reply was wrong, I don't see how bnetd can possibly create the clan.
+-------------------------------------------------------
+
+Date: 2009-Mar-02 18:19
+By: pandaemonium
+
+Comment:
+I can confirm this issue to be existant without testing it or taking any closer look at the code. 
+At least in a weaker form I'm well aware of the issue since a very long time: You can register clans with same same clantag but different casing of the letters. &quot;CLAN&quot;, &quot;CLAn&quot;, &quot;CLan&quot;, &quot;Clan&quot;, ...
+
+I'm not sure if there is a quick fix for this issue, it's more like a fundamental flaw in the code design. I'm working on rewriting clan handling from scratch on SVN - but this will take a few more weeks until it reaches a usable state.
+
+Just adding constraints in the DB won't get the issue fixed - it will just cause even more problems due to data inconsistency. 
+
+So there are currently two options:
+ - provide a patch to fix this issue on 1.8.x branch
+ - wait for me to fix the issue in dev branch
+-------------------------------------------------------
+
+Date: 2009-Mar-02 17:08
+By: gammafan
+
+Comment:
+Thats right, but I didnt want to make any change to the DB schema, because I cannot assure that there will not cause any odd issue due to the &quot;unique&quot; condition (not managed by the PVPGN code).
+By the way would be great if you can also take a look and reproduce the issue, so I have another mate that also is reproducing this ;)
+
+Ensure that you are using the sql_DB_layout since I didnt check if this also happen using the sql_DB_layout2
+-------------------------------------------------------
+
+Date: 2009-Mar-02 12:33
+By: saidin
+
+Comment:
+I'm dumbfounded that such an error hasn't been picked up before - so I'm a little skeptical. I will do my own testing :)
+
+This has nothing to do with SQL by the way - simply adding a UNIQUE on the clan short will block the creation in the database, but still create the clan in-memory (therefore it will exist until server shutdown).
+-------------------------------------------------------
+
+Date: 2009-Mar-02 01:45
+By: gammafan
+
+Comment:
+No, this issue happens using the in-game clan registration. So if a group of users (10) are creating the clan, they can use the same &quot;short name&quot;, but use a different &quot;name&quot;. In the DB this looks fine since the &quot;cid&quot; is different for the 2 clan, but for the original clan is a trouble because the clone clan have the same identifier at the right of the nick of its members and also the same &quot;clan channel&quot;.
+
+
+Thanks! :)
+-------------------------------------------------------
+
+Date: 2009-Mar-01 22:55
+By: saidin
+
+Comment:
+Does this only happen with the /clan command? Or does it happen with in-game clan creation? If it's only the command, then it's probably just an oversight.
+-------------------------------------------------------
+
+Date: 2009-Feb-27 20:33
+By: gammafan
+
+Comment:
+I almost forgot it. Im currently using PVPGN 1.8.4 on Linux (Ubuntu) and MySQL 5
+
+Thanks guys for all your hard work on this great Project :)
+
+
+Regards
+Gammafan
+-------------------------------------------------------
+
+For detailed info, follow this link:
+<A HREF="http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=15325&amp;group_id=2291">http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=15325&amp;group_id=2291</A>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001063.html">No subject
+</A></li>
+	<LI>Next message: <A HREF="001067.html">No subject
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1065">[ date ]</a>
+              <a href="thread.html#1065">[ thread ]</a>
+              <a href="subject.html#1065">[ subject ]</a>
+              <a href="author.html#1065">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

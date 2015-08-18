@@ -1,0 +1,100 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r490 - trunk/pvpgn/src/bnetd
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2008-August/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r490%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200808181003.59426.dizone%40gmail.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000782.html">
+   <LINK REL="Next"  HREF="000784.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r490 - trunk/pvpgn/src/bnetd</H1>
+    <B>dizzy</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r490%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200808181003.59426.dizone%40gmail.com%3E"
+       TITLE="[pvpgn-dev] r490 - trunk/pvpgn/src/bnetd">dizone at gmail.com
+       </A><BR>
+    <I>Mon Aug 18 09:03:59 CEST 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000782.html">[pvpgn-dev] r490 - trunk/pvpgn/src/bnetd
+</A></li>
+        <LI>Next message: <A HREF="000784.html">[pvpgn-dev] r491 - trunk/pvpgn/src/bnetd
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#783">[ date ]</a>
+              <a href="thread.html#783">[ thread ]</a>
+              <a href="subject.html#783">[ subject ]</a>
+              <a href="author.html#783">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>On Saturday 16 August 2008 23:45:59 <A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">svn at svn.berlios.de</A> wrote:
+&gt;<i> -		char * tempmpq;
+</I>&gt;<i> +		char * tempmpq, *p;
+</I>
+So you added a new pointer variable.
+
+&gt;<i>  		char * extention;
+</I>&gt;<i>  		char const * path = entry-&gt;path;
+</I>&gt;<i>
+</I>&gt;<i> -		tempmpq = xstrdup(entry-&gt;updatefile);
+</I>&gt;<i> +		p = tempmpq = xstrdup(entry-&gt;updatefile);
+</I>
+So you set it to tempmpq value.
+
+&gt;<i> -		xfree((void *)tempmpq);
+</I>&gt;<i> +		xfree((void *)p);
+</I>
+Here, unless I miss something, no matter what the code above does, p == 
+tempmpq. So then why did you added p at all and why do you xfree on p instead 
+of on tempmpq?
+
+The strlen() changes means they return less than before. strlen(entry-
+&gt;<i>updatefile) returns the length of the whole string of the update file. But 
+</I>strlen(p) will return the truncated length, since p points where tempmpq 
+points and you have:
+                extention = std::strrchr(tempmpq,'.');
+                *extention = '\0';
+
+Both p and tempmpq point to the same memory area (which you allocated with 
+xstrdup() above those lines) so obviously if you do strlen(p) is as if you 
+would do strlen(tempmpq) so it will return the length of the filename _except_ 
+the extension (since that code above ends the string at the '.' character 
+starting the extension).
+
+Was that intended?
+
+-- 
+Dizzy
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000782.html">[pvpgn-dev] r490 - trunk/pvpgn/src/bnetd
+</A></li>
+	<LI>Next message: <A HREF="000784.html">[pvpgn-dev] r491 - trunk/pvpgn/src/bnetd
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#783">[ date ]</a>
+              <a href="thread.html#783">[ thread ]</a>
+              <a href="subject.html#783">[ subject ]</a>
+              <a href="author.html#783">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

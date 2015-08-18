@@ -1,0 +1,73 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] anongame_infos.cpp patch
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2008-August/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20anongame_infos.cpp%20patch&In-Reply-To=%3Cf4482daa0808011008u1ca442d6p9b819a689fc90c94%40mail.gmail.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="000778.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] anongame_infos.cpp patch</H1>
+    <B>Tanner King</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20anongame_infos.cpp%20patch&In-Reply-To=%3Cf4482daa0808011008u1ca442d6p9b819a689fc90c94%40mail.gmail.com%3E"
+       TITLE="[pvpgn-dev] anongame_infos.cpp patch">xxhavokxx at gmail.com
+       </A><BR>
+    <I>Fri Aug  1 19:08:11 CEST 2008</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="000778.html">[pvpgn-dev] r482 - trunk/pvpgn/src/bnetd
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#777">[ date ]</a>
+              <a href="thread.html#777">[ thread ]</a>
+              <a href="subject.html#777">[ subject ]</a>
+              <a href="author.html#777">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>This patch will fix zlib problems when compiling in MinGW. You should
+leave it up to the user on weather or not to use zlib with stdcall or
+cdecl and have them define it in their zlib.h. This may not be the
+preferred way but it fixed my problems and should help others
+compiling on MinGW compilers. Even when your zlib is compiled with
+stdcall you still get errors in that area when compiling. (which is
+how it was originally defined) I have Included the patch as the
+attachment.
+-------------- next part --------------
+A non-text attachment was scrubbed...
+Name: anongame_info.cpp_fix_mingw_compile.diff
+Type: application/octet-stream
+Size: 394 bytes
+Desc: not available
+URL: &lt;<A HREF="https://lists.berlios.de/pipermail/pvpgn-dev/attachments/20080801/a2c6839c/attachment.obj">https://lists.berlios.de/pipermail/pvpgn-dev/attachments/20080801/a2c6839c/attachment.obj</A>&gt;
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="000778.html">[pvpgn-dev] r482 - trunk/pvpgn/src/bnetd
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#777">[ date ]</a>
+              <a href="thread.html#777">[ thread ]</a>
+              <a href="subject.html#777">[ subject ]</a>
+              <a href="author.html#777">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

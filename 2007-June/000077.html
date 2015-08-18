@@ -1,0 +1,80 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] Problem with PVPGN server
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-June/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20Problem%20with%20PVPGN%20server&In-Reply-To=%3C442256.15593.qm%40web51111.mail.re2.yahoo.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   
+   <LINK REL="Next"  HREF="000078.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] Problem with PVPGN server</H1>
+    <B>All4you</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20Problem%20with%20PVPGN%20server&In-Reply-To=%3C442256.15593.qm%40web51111.mail.re2.yahoo.com%3E"
+       TITLE="[pvpgn-dev] Problem with PVPGN server">zhaowei_hn at yahoo.com
+       </A><BR>
+    <I>Fri Jun  8 10:33:09 CEST 2007</I>
+    <P><UL>
+        
+        <LI>Next message: <A HREF="000078.html">[pvpgn-dev] Problem with PVPGN server
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#77">[ date ]</a>
+              <a href="thread.html#77">[ thread ]</a>
+              <a href="subject.html#77">[ subject ]</a>
+              <a href="author.html#77">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>I am using PVPGN server 1.9.0 with Linux Fedora core 6 And Remote MySQL Database with Windows Server 2003. I Am using MySQL Client 5.0.47. But when server run about ...6 hours, the server is down, i can't connect to PVPGN server even i restart PVPGN server. The only way is restart my server . This is my bnetd.log
+   
+     
+  Jun 08 08:40:29 [warn ] sql_mysql_init: Your mySQL client lib version does not support reconnecting after a timeout.
+  Jun 08 08:40:29 [warn ] sql_mysql_init: If this causes you any trouble you are advices to upgrade
+  Jun 08 08:40:29 [warn ] sql_mysql_init: your mySQL client libs to at least mySQL 5.0.13 to resolve this problem.
+  Jun 08 11:00:43 [error] _client_message: [500] got bad MESSAGE (missing or too long text)
+  Jun 08 11:00:43 [error] handle_bnet_packet: [500] (logged in) got error handling packet type 0x0eff, len 260
+  Jun 08 11:14:49 [error] handle_bnet_packet: [474] unknown (logged in) bnet packet type 0x14ff, len 8
+  Jun 08 14:19:53 [error] handle_bnet_packet: [233] unknown (logged in) bnet packet type 0x2dff, len 4
+  Jun 08 14:36:12 [error] sql_write_clan: error trying query: &quot;UPDATE pvpgn_clan SET short='1114600307', name='[Pro]TP', motd='Boss cui` bap'', creation_time='1181009743' WHERE cid='423'&quot;
+  Jun 08 14:36:50 [error] anongame_infos_get_ICON_REQ: invalid clienttag
+   
+   
+   What is the reason my server down ? The CPU process and memory run normal. Nothing special in server log. My PVPGN server compiled with --with-mysql . 
+
+       
+---------------------------------
+Pinpoint customers who are looking for what you sell. 
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: &lt;<A HREF="https://lists.berlios.de/pipermail/pvpgn-dev/attachments/20070608/3fe8baab/attachment.html">https://lists.berlios.de/pipermail/pvpgn-dev/attachments/20070608/3fe8baab/attachment.html</A>&gt;
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	
+	<LI>Next message: <A HREF="000078.html">[pvpgn-dev] Problem with PVPGN server
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#77">[ date ]</a>
+              <a href="thread.html#77">[ thread ]</a>
+              <a href="subject.html#77">[ subject ]</a>
+              <a href="author.html#77">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

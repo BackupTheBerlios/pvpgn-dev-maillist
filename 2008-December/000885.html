@@ -1,0 +1,194 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r515 - trunk/pvpgn/src/client
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2008-December/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r515%20-%20trunk/pvpgn/src/client&In-Reply-To=%3C200812032114.mB3LENSI031350%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000884.html">
+   <LINK REL="Next"  HREF="000886.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r515 - trunk/pvpgn/src/client</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r515%20-%20trunk/pvpgn/src/client&In-Reply-To=%3C200812032114.mB3LENSI031350%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r515 - trunk/pvpgn/src/client">svn at svn.berlios.de
+       </A><BR>
+    <I>Wed Dec  3 22:14:23 CET 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000884.html">[pvpgn-dev] r514 - trunk/pvpgn/src/common
+</A></li>
+        <LI>Next message: <A HREF="000886.html">[pvpgn-dev] r516 - branches
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#885">[ date ]</a>
+              <a href="thread.html#885">[ thread ]</a>
+              <a href="subject.html#885">[ subject ]</a>
+              <a href="author.html#885">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pandaemonium
+Date: 2008-12-03 22:14:20 +0100 (Wed, 03 Dec 2008)
+New Revision: 515
+
+Modified:
+   trunk/pvpgn/src/client/bnchat.cpp
+Log:
+add basic clancreateinvitation support (to ease clan creation related debugging)
+
+Modified: trunk/pvpgn/src/client/bnchat.cpp
+===================================================================
+--- trunk/pvpgn/src/client/bnchat.cpp	2008-12-03 20:05:42 UTC (rev 514)
++++ trunk/pvpgn/src/client/bnchat.cpp	2008-12-03 21:14:20 UTC (rev 515)
+@@ -96,7 +96,8 @@
+   mode_gamepass,
+   mode_gamewait,
+   mode_gamestop,
+-  mode_claninvite
++  mode_claninvite,
++  mode_clancreateinvite
+ } t_mode;
+ 
+ typedef struct _client_state
+@@ -1454,7 +1455,48 @@
+ 
+ 			}
+ 
++		    case mode_clancreateinvite:
+ 
++		        std::printf(&quot;\n&quot;);
++			client.munged = 1;
++
++			if ((client.text[0]!='\0') &amp;&amp; strcasecmp(client.text,&quot;yes&quot;) &amp;&amp; strcasecmp(client.text,&quot;no&quot;))
++			{
++			    std::printf(&quot;Do you want to accept invitation (yes/no) ? [yes] &quot;);
++			    break;
++			}
++
++			if (!(packet = packet_create(packet_class_bnet)))
++			{
++			    std::printf(&quot;Packet creation failed.\n&quot;);
++			}
++			else
++			{
++			    char result;
++
++			    packet_set_size(packet,sizeof(t_client_clan_createinvitereply));
++			    packet_set_type(packet,CLIENT_CLAN_CREATEINVITEREPLY);
++			    bn_int_set(&amp;packet-&gt;u.client_clan_createinvitereply.count,user.count);
++			    bn_int_set(&amp;packet-&gt;u.client_clan_createinvitereply.clantag,user.clantag);
++			    packet_append_string(packet,user.inviter);
++
++			    if (!strcasecmp(client.text,&quot;no&quot;))
++			        result = CLAN_RESPONSE_DECLINED;
++			    else
++			        result = CLAN_RESPONSE_ACCEPT;
++
++			    packet_append_data(packet,&amp;result,1);
++
++			    client_blocksend_packet(client.sd,packet);
++			    packet_del_ref(packet);
++
++			    if (user.inviter)
++			        xfree((void *)user.inviter);
++			    user.inviter = NULL;
++
++			}
++
++
+ 			client.mode = mode_chat;
+ 		        break;
+ 
+@@ -1792,7 +1834,59 @@
+ 			    break;
+ 			}
+ 
++			case SERVER_CLAN_CREATEINVITEREQ:
++			if (packet_get_size(rpacket)&lt;sizeof(t_server_clan_createinvitereq))
++			{
++		            munge(&amp;client);
++			    std::printf(&quot;Got bad SERVER_CLAN_CREATEINVITEREQ packet (expected %lu bytes, got %u)\n&quot;,sizeof(t_server_clan_createinvitereq),packet_get_size(rpacket));
++			    break;
++			}
+ 
++			{
++			    char const * clan;
++			    char const * inviter;
++				char invited_count;
++			    int offset;
++
++			    offset = sizeof(t_server_clan_createinvitereq);
++			    if (!(clan = packet_get_str_const(rpacket,offset,MAX_CLANNAME_LEN)))
++			    {
++				munge(&amp;client);
++				std::printf(&quot;Got SERVER_CLAN_CREATEINVITEREQ with bad or missing clanname\n&quot;);
++				break;
++			    }
++			    offset+=std::strlen(clan)+1;
++			    if (!(inviter = packet_get_str_const(rpacket,offset,MAX_USERNAME_LEN)))
++			    {
++				munge(&amp;client);
++				std::printf(&quot;Got SERVER_CLAN_CREATEINVITEREQ with bad or missing inviter\n&quot;);
++				break;
++			    }
++				offset+=std::strlen(inviter)+1;
++				if (packet_get_size(rpacket) &lt; offset+4)
++				{
++				munge(&amp;client);
++				std::printf(&quot;Got SERVER_CLAN_CREATEINVITEREQ with missing invited count\n&quot;);
++				break;
++				}
++				invited_count = *((char *) packet_get_data_const(rpacket, offset, 1));
++				offset++;
++
++			    user.count   = bn_int_get(rpacket-&gt;u.server_clan_invitereq.count);
++			    user.clantag = bn_int_get(rpacket-&gt;u.server_clan_invitereq.clantag);
++			    if (user.inviter)
++			    	xfree((void *)user.inviter);
++			    user.inviter = xstrdup(inviter);
++
++			    munge(&amp;client);
++			    std::printf(&quot;%s invited you to Clan %s along with %i other players\n&quot;,inviter,clan,invited_count);
++			    std::printf(&quot;Do you want to accept invitation (yes/no) ? [yes] &quot;);
++
++			    client.mode = mode_clancreateinvite;
++			    break;
++			}
++
++
+ 		    case SERVER_CLANMEMBERUPDATE:
+ 			if (packet_get_size(rpacket)&lt;sizeof(t_server_clanmemberupdate))
+ 			{
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000884.html">[pvpgn-dev] r514 - trunk/pvpgn/src/common
+</A></li>
+	<LI>Next message: <A HREF="000886.html">[pvpgn-dev] r516 - branches
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#885">[ date ]</a>
+              <a href="thread.html#885">[ thread ]</a>
+              <a href="subject.html#885">[ subject ]</a>
+              <a href="author.html#885">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

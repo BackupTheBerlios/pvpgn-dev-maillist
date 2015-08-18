@@ -1,0 +1,118 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r495 - trunk/pvpgn
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2008-September/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r495%20-%20trunk/pvpgn&In-Reply-To=%3C200809071122.m87BMojt003729%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000790.html">
+   <LINK REL="Next"  HREF="000792.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r495 - trunk/pvpgn</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r495%20-%20trunk/pvpgn&In-Reply-To=%3C200809071122.m87BMojt003729%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r495 - trunk/pvpgn">svn at svn.berlios.de
+       </A><BR>
+    <I>Sun Sep  7 13:22:50 CEST 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000790.html">[pvpgn-dev] r494 - trunk/pvpgn/src/bnetd
+</A></li>
+        <LI>Next message: <A HREF="000792.html">[pvpgn-dev] d2cl, a character list backend to d2cs
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#791">[ date ]</a>
+              <a href="thread.html#791">[ thread ]</a>
+              <a href="subject.html#791">[ subject ]</a>
+              <a href="author.html#791">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pandaemonium
+Date: 2008-09-07 13:22:46 +0200 (Sun, 07 Sep 2008)
+New Revision: 495
+
+Modified:
+   trunk/pvpgn/version-history.txt
+Log:
+fix MySQL reconnection issues for MySQL &gt;= 5.0.19
+
+Modified: trunk/pvpgn/version-history.txt
+===================================================================
+--- trunk/pvpgn/version-history.txt	2008-09-07 11:22:28 UTC (rev 494)
++++ trunk/pvpgn/version-history.txt	2008-09-07 11:22:46 UTC (rev 495)
+@@ -1,6 +1,6 @@
+ PvPGN Version History:
+ 
+- Changelog for SVN TRUNK (since 1.8.3)
++ Changelog for SVN TRUNK (since 1.8.4)
+ =========================================
+  -- The list of changes mentioned in here is most propably incomplete.
+  For more details also take a peek view into conversion-changelog.
+@@ -11,14 +11,14 @@
+ [WOL]
+   -- completed support for all WOL clients (read IGNOREME.TXT)
+   -- disable account creation via irc/wol when new_accounts=false
+-  -- added support to allow/deny WOL clients in bnconf.conf
++  -- added support to allow/deny WOL clients in bnetd.conf
+   -- added support for battle clans
+   -- added various protocol related fixes
+   -- added apiregister support
+   -- added autoupdate support for WOLv2 clients
+   -- added variables into bnetd.conf for wol FTP server specification
+-  -- fixed non showed voice flag for clients in channel
+-  -- fixed bug in RedAlert2/Yuri when game owner change maximum players
++  -- fixed  voice flag not shown for clients in channel
++  -- fixed bug in RedAlert2/Yuri when game owner changes maximum players
+ 
+ [WAR3]
+   -- add support for SRP3 based account creation/login
+@@ -29,6 +29,16 @@
+   -- added clan_min_invites to bnetd.conf for miminum accepted
+      invitations need in clan-creating process (default is 2)
+ 
++ ChangeLog for 1.8.4 (since 1.8.3)
++=========================================
++
++[WAR3]
++  -- fixed possible server crash on many ill-formated packets
++  
++[SQL]
++  -- fixed MySQL reconnection issues for MySQL &gt;= 5.0.19  
++
++ 
+  ChangeLog for 1.8.3 (since 1.8.2)
+ =========================================
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000790.html">[pvpgn-dev] r494 - trunk/pvpgn/src/bnetd
+</A></li>
+	<LI>Next message: <A HREF="000792.html">[pvpgn-dev] d2cl, a character list backend to d2cs
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#791">[ date ]</a>
+              <a href="thread.html#791">[ thread ]</a>
+              <a href="subject.html#791">[ subject ]</a>
+              <a href="author.html#791">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

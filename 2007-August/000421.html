@@ -1,0 +1,216 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r369 - in trunk/pvpgn/src: . bnetd d2cs d2dbs win32
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-August/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r369%20-%20in%20trunk/pvpgn/src%3A%20.%20bnetd%20d2cs%20d2dbs%20win32&In-Reply-To=%3C200708261506.l7QF6YHw016430%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000420.html">
+   <LINK REL="Next"  HREF="000422.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r369 - in trunk/pvpgn/src: . bnetd d2cs d2dbs win32</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r369%20-%20in%20trunk/pvpgn/src%3A%20.%20bnetd%20d2cs%20d2dbs%20win32&In-Reply-To=%3C200708261506.l7QF6YHw016430%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r369 - in trunk/pvpgn/src: . bnetd d2cs d2dbs win32">svn at svn.berlios.de
+       </A><BR>
+    <I>Sun Aug 26 17:06:34 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000420.html">[pvpgn-dev] r368 - trunk/pvpgn/src/win32
+</A></li>
+        <LI>Next message: <A HREF="000422.html">[pvpgn-dev] r370 - in trunk/pvpgn/src: d2cs d2dbs win32
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#421">[ date ]</a>
+              <a href="thread.html#421">[ thread ]</a>
+              <a href="subject.html#421">[ subject ]</a>
+              <a href="author.html#421">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pandaemonium
+Date: 2007-08-26 17:06:34 +0200 (Sun, 26 Aug 2007)
+New Revision: 369
+
+Modified:
+   trunk/pvpgn/src/CMakeLists.txt
+   trunk/pvpgn/src/bnetd/CMakeLists.txt
+   trunk/pvpgn/src/d2cs/CMakeLists.txt
+   trunk/pvpgn/src/d2dbs/CMakeLists.txt
+   trunk/pvpgn/src/win32/CMakeLists.txt
+Log:
+a little cleanup for the win32 service fix (still far from perfect I presume)
+
+Modified: trunk/pvpgn/src/CMakeLists.txt
+===================================================================
+--- trunk/pvpgn/src/CMakeLists.txt	2007-08-26 14:44:59 UTC (rev 368)
++++ trunk/pvpgn/src/CMakeLists.txt	2007-08-26 15:06:34 UTC (rev 369)
+@@ -5,6 +5,7 @@
+ # when referenced by short names
+ link_directories(${CMAKE_BINARY_DIR}/src/common 
+ 	${CMAKE_BINARY_DIR}/src/compat
++	${CMAKE_BINARY_DIR}/src/win32
+ 	${CMAKE_BINARY_DIR}/src/tinycdb)
+ 
+ #this is needed to be compatible with existent code
+@@ -25,7 +26,7 @@
+     add_definitions(&quot;-DWITH_SQL_SQLITE3&quot;)
+ endif(SQLITE3_FOUND)
+ 
+-subdirs(compat common tinycdb bntrackd client bniutils bnpass)
++subdirs(compat common win32 tinycdb bntrackd client bniutils bnpass)
+ 
+ if(WITH_BNETD)
+     add_subdirectory(bnetd)
+
+Modified: trunk/pvpgn/src/bnetd/CMakeLists.txt
+===================================================================
+--- trunk/pvpgn/src/bnetd/CMakeLists.txt	2007-08-26 14:44:59 UTC (rev 368)
++++ trunk/pvpgn/src/bnetd/CMakeLists.txt	2007-08-26 15:06:34 UTC (rev 369)
+@@ -38,26 +38,22 @@
+ set(BNETD_GUI_RESOURCES
+   ../win32/resource.h ../win32/resource.rc)
+ 
+-set(BNETD_SERVICE_SOURCES
+-  ../win32/service.h ../win32/service.cpp)
+-
+ set(BNETD_GUI_SOURCES
+-	../win32/gui_printf.h ../win32/gui_printf.cpp ../win32/winmain.cpp 
+-	../win32/winmain.h)
++	../win32/winmain.cpp ../win32/winmain.h)
+ 
+-add_executable(bnetd ${BNETD_SOURCES} ${BNETD_SERVICE_SOURCES} 
++add_executable(bnetd ${BNETD_SOURCES} 
+   ${BNETD_CONSOLE_RESOURCES})
+-target_link_libraries(bnetd common compat tinycdb ${NETWORK_LIBRARIES}
++target_link_libraries(bnetd common compat win32 tinycdb ${NETWORK_LIBRARIES}
+     ${ZLIB_LIBRARIES} ${MYSQL_LIBRARIES} ${SQLITE3_LIBRARIES})
+ install(TARGETS bnetd DESTINATION ${SBINDIR})
+ 
+ # build the GUI version too
+ # (this will practically recompile every file again)
+ if(WITH_WIN32_GUI)
+-  add_executable(bnetd_gui WIN32 ${BNETD_SOURCES} ${BNETD_SERVICE_SOURCES} 
+-    ${BNETD_GUI_SOURCES} ${BNETD_GUI_RESOURCES})
++  add_executable(bnetd_gui WIN32 ${BNETD_SOURCES} ${BNETD_GUI_SOURCES} 
++    ${BNETD_GUI_RESOURCES})
+   set_target_properties(bnetd_gui PROPERTIES COMPILE_FLAGS &quot;-DWIN32_GUI&quot;)
+-  target_link_libraries(bnetd_gui common_gui compat tinycdb ${NETWORK_LIBRARIES}
++  target_link_libraries(bnetd_gui common_gui compat win32_gui tinycdb ${NETWORK_LIBRARIES}
+     ${ZLIB_LIBRARIES} ${MYSQL_LIBRARIES} ${SQLITE3_LIBRARIES})
+   install(TARGETS bnetd_gui DESTINATION ${SBINDIR})
+ endif(WITH_WIN32_GUI)
+
+Modified: trunk/pvpgn/src/d2cs/CMakeLists.txt
+===================================================================
+--- trunk/pvpgn/src/d2cs/CMakeLists.txt	2007-08-26 14:44:59 UTC (rev 368)
++++ trunk/pvpgn/src/d2cs/CMakeLists.txt	2007-08-26 15:06:34 UTC (rev 369)
+@@ -10,18 +10,15 @@
+ 	../win32/gui_printf.cpp ../win32/d2cs_winmain.cpp 
+ 	../win32/d2cs_resource.h ../win32/d2cs_resource.rc)
+ 
+-set(D2CS_SERVICE_SOURCES
+-  ../win32/service.h ../win32/service.cpp)
+-
+-add_executable(d2cs ${D2CS_SOURCES} ${D2CS_SERVICE_SOURCES})
+-target_link_libraries(d2cs common compat ${NETWORK_LIBRARIES})
++add_executable(d2cs ${D2CS_SOURCES})
++target_link_libraries(d2cs common compat win32 ${NETWORK_LIBRARIES})
+ install(TARGETS d2cs DESTINATION ${SBINDIR})
+ 
+ # build the GUI version too
+ # (this will practically recompile every file again)
+ if(WITH_WIN32_GUI)
+-  add_executable(d2cs_gui WIN32 ${D2CS_SOURCES} ${D2CS_SERVICE_SOURCES})
++  add_executable(d2cs_gui WIN32 ${D2CS_SOURCES})
+   set_target_properties(d2cs_gui PROPERTIES COMPILE_FLAGS &quot;-DWIN32_GUI&quot;)
+-  target_link_libraries(d2cs_gui common_gui compat ${NETWORK_LIBRARIES})
++  target_link_libraries(d2cs_gui common_gui compat win32_gui ${NETWORK_LIBRARIES})
+   install(TARGETS d2cs_gui DESTINATION ${SBINDIR})
+ endif(WITH_WIN32_GUI)
+
+Modified: trunk/pvpgn/src/d2dbs/CMakeLists.txt
+===================================================================
+--- trunk/pvpgn/src/d2dbs/CMakeLists.txt	2007-08-26 14:44:59 UTC (rev 368)
++++ trunk/pvpgn/src/d2dbs/CMakeLists.txt	2007-08-26 15:06:34 UTC (rev 369)
+@@ -5,19 +5,16 @@
+ 	prefs.h setup.h version.h ../win32/gui_printf.h ../win32/gui_printf.cpp 
+ 	../win32/d2dbs_winmain.cpp ../win32/d2dbs_resource.h 
+ 	../win32/d2dbs_resource.rc)
+-	
+-set(D2DBS_SERVICE_SOURCES
+-  ../win32/service.h ../win32/service.cpp)
+ 
+-add_executable(d2dbs ${D2DBS_SOURCES} ${D2DBS_SERVICE_SOURCES})
+-target_link_libraries(d2dbs common compat ${NETWORK_LIBRARIES})
++add_executable(d2dbs ${D2DBS_SOURCES})
++target_link_libraries(d2dbs common compat win32 ${NETWORK_LIBRARIES})
+ install(TARGETS d2dbs DESTINATION ${SBINDIR})
+ 
+ # build the GUI version too
+ # (this will practically recompile every file again)
+ if(WITH_WIN32_GUI)
+-  add_executable(d2dbs_gui WIN32 ${D2DBS_SOURCES} ${D2DBS_SERVICE_SOURCES})
++  add_executable(d2dbs_gui WIN32 ${D2DBS_SOURCES})
+   set_target_properties(d2dbs_gui PROPERTIES COMPILE_FLAGS &quot;-DWIN32_GUI&quot;)
+-  target_link_libraries(d2dbs_gui common_gui compat ${NETWORK_LIBRARIES})
++  target_link_libraries(d2dbs_gui common_gui compat win32_gui ${NETWORK_LIBRARIES})
+   install(TARGETS d2dbs_gui DESTINATION ${SBINDIR})
+ endif(WITH_WIN32_GUI)
+
+Modified: trunk/pvpgn/src/win32/CMakeLists.txt
+===================================================================
+--- trunk/pvpgn/src/win32/CMakeLists.txt	2007-08-26 14:44:59 UTC (rev 368)
++++ trunk/pvpgn/src/win32/CMakeLists.txt	2007-08-26 15:06:34 UTC (rev 369)
+@@ -1 +1,18 @@
+-add_library(win32 service.cpp service.h)
++set(WIN32_SOURCES
++  service.cpp service.h
++)
++
++set(WIN32_GUI_SOURCES
++	gui_printf.h gui_printf.cpp
++)
++
++add_library(win32 ${WIN32_SOURCES})
++
++# build the GUI version too
++# (this will practically recompile every file again)
++if(WITH_WIN32_GUI)
++add_library(win32_gui
++  ${WIN32_SOURCES} ${WIN32_GUI_SOURCES}
++)
++set_target_properties(win32_gui PROPERTIES COMPILE_FLAGS &quot;-DWIN32_GUI&quot;)
++endif(WITH_WIN32_GUI)
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000420.html">[pvpgn-dev] r368 - trunk/pvpgn/src/win32
+</A></li>
+	<LI>Next message: <A HREF="000422.html">[pvpgn-dev] r370 - in trunk/pvpgn/src: d2cs d2dbs win32
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#421">[ date ]</a>
+              <a href="thread.html#421">[ thread ]</a>
+              <a href="subject.html#421">[ subject ]</a>
+              <a href="author.html#421">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

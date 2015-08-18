@@ -1,0 +1,85 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r405 - trunk/pvpgn/src/bnetd
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-October/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r405%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200710101731.l9AHVgDl010073%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000509.html">
+   <LINK REL="Next"  HREF="000512.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r405 - trunk/pvpgn/src/bnetd</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r405%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200710101731.l9AHVgDl010073%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r405 - trunk/pvpgn/src/bnetd">svn at svn.berlios.de
+       </A><BR>
+    <I>Wed Oct 10 19:31:42 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000509.html">[pvpgn-dev] pvpgn/src/bnetd handle_bnet.c,1.250,1.251
+</A></li>
+        <LI>Next message: <A HREF="000512.html">[pvpgn-dev] pvpgn/src/common version.h,1.42,1.43
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#510">[ date ]</a>
+              <a href="thread.html#510">[ thread ]</a>
+              <a href="subject.html#510">[ subject ]</a>
+              <a href="author.html#510">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pelish
+Date: 2007-10-10 19:31:36 +0200 (Wed, 10 Oct 2007)
+New Revision: 405
+
+Modified:
+   trunk/pvpgn/src/bnetd/handle_bnet.cpp
+Log:
+fix for bug [ #12134 ] now fixed... sorry for proper &quot;bad&quot; fix
+
+Modified: trunk/pvpgn/src/bnetd/handle_bnet.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/handle_bnet.cpp	2007-10-09 18:48:50 UTC (rev 404)
++++ trunk/pvpgn/src/bnetd/handle_bnet.cpp	2007-10-10 17:31:36 UTC (rev 405)
+@@ -1968,6 +1968,9 @@
+ 	int n = account_get_friendcount(account);
+ 	char type;
+ 
++	if (n == 0)
++	    return 0;
++
+ 	if (bn_byte_get(packet-&gt;u.client_friendinforeq.friendnum) &gt; n) {
+ 	    eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] bad friend number in FRIENDINFOREQ packet&quot;, conn_get_socket(c));
+ 	    return -1;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000509.html">[pvpgn-dev] pvpgn/src/bnetd handle_bnet.c,1.250,1.251
+</A></li>
+	<LI>Next message: <A HREF="000512.html">[pvpgn-dev] pvpgn/src/common version.h,1.42,1.43
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#510">[ date ]</a>
+              <a href="thread.html#510">[ thread ]</a>
+              <a href="subject.html#510">[ subject ]</a>
+              <a href="author.html#510">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

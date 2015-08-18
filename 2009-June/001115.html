@@ -1,0 +1,136 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] [Patch #2370] Staggered gamelist reply
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2009-June/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BPatch%20%232370%5D%20Staggered%20gamelist%20reply&In-Reply-To=%3C4A3A6B42.2050003%40enderzone.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001114.html">
+   <LINK REL="Next"  HREF="001116.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] [Patch #2370] Staggered gamelist reply</H1>
+    <B>ender</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BPatch%20%232370%5D%20Staggered%20gamelist%20reply&In-Reply-To=%3C4A3A6B42.2050003%40enderzone.com%3E"
+       TITLE="[pvpgn-dev] [Patch #2370] Staggered gamelist reply">ender at enderzone.com
+       </A><BR>
+    <I>Thu Jun 18 18:28:50 CEST 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001114.html">[pvpgn-dev] [Patch #2370] Staggered gamelist reply
+</A></li>
+        <LI>Next message: <A HREF="001116.html">[pvpgn-dev] [Bug #15935] PvPGN can only send 19 active custom games	for a list update
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1115">[ date ]</a>
+              <a href="thread.html#1115">[ thread ]</a>
+              <a href="subject.html#1115">[ subject ]</a>
+              <a href="author.html#1115">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>i also think this is a good idea
+
+<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">admin at berlios.de</A> wrote:
+&gt;<i> Patch #2370 has been updated. 
+</I>&gt;<i>
+</I>&gt;<i> Project: pvpgn
+</I>&gt;<i> Category: 1.99.x
+</I>&gt;<i> Status: Open
+</I>&gt;<i> Submitted by: zzzoom
+</I>&gt;<i> Assigned to : none
+</I>&gt;<i> Summary: Staggered gamelist reply
+</I>&gt;<i>
+</I>&gt;<i> Follow-Ups:
+</I>&gt;<i>
+</I>&gt;<i> Date: 2009-Jun-18 01:15
+</I>&gt;<i> By: pada
+</I>&gt;<i>
+</I>&gt;<i> Comment:
+</I>&gt;<i> Precisely.
+</I>&gt;<i>
+</I>&gt;<i> Example (40 games in the list):
+</I>&gt;<i> Person A requests the game list @ 00:00:00 -&gt; receiving games #0-19.
+</I>&gt;<i> Then Person B requests the game list @ 00:00:01 -&gt; receiving games #20-39.
+</I>&gt;<i> When Person A requests the game list again @ 00:00:08 -&gt; receiving games #0-19 again, instead of #20-39!
+</I>&gt;<i>
+</I>&gt;<i> I have started to discuss something similar at <A HREF="http://pelish.spfree.net/index.php?topic=1824.0">http://pelish.spfree.net/index.php?topic=1824.0</A>
+</I>&gt;<i> -------------------------------------------------------
+</I>&gt;<i>
+</I>&gt;<i> Date: 2009-Jun-18 01:03
+</I>&gt;<i> By: zzzoom
+</I>&gt;<i>
+</I>&gt;<i> Comment:
+</I>&gt;<i> PvPGN is single threaded.
+</I>&gt;<i> -------------------------------------------------------
+</I>&gt;<i>
+</I>&gt;<i> Date: 2009-Jun-17 20:29
+</I>&gt;<i> By: pada
+</I>&gt;<i>
+</I>&gt;<i> Comment:
+</I>&gt;<i> It's a nice idea, but the current version (2008-02-09) is using a global pointer which would cause problems when more than 1 person would request the game list!
+</I>&gt;<i> In my opinion, you would have to store the pointer (glist_cursor) for each person to prevent this situation.
+</I>&gt;<i> -------------------------------------------------------
+</I>&gt;<i>
+</I>&gt;<i> Date: 2008-Dec-18 03:04
+</I>&gt;<i> By: u-238
+</I>&gt;<i>
+</I>&gt;<i> Comment:
+</I>&gt;<i> I completely agree with the implementation of this patch.  This problem has happened to me before on Bored Aussie because we have so many games online.
+</I>&gt;<i> -------------------------------------------------------
+</I>&gt;<i>
+</I>&gt;<i> Date: 2008-Dec-18 01:14
+</I>&gt;<i> By: pelish
+</I>&gt;<i>
+</I>&gt;<i> Comment:
+</I>&gt;<i> Idea of this patch seems reasonable to me. I vote for commit but I would like to see point of view of users/developers.
+</I>&gt;<i> -------------------------------------------------------
+</I>&gt;<i>
+</I>&gt;<i> Date: 2008-Feb-11 12:28
+</I>&gt;<i> By: zzzoom
+</I>&gt;<i>
+</I>&gt;<i> Comment:
+</I>&gt;<i> bnetd currently replies to a gamelist request with the first few games in its gamelist that fit in a packet, which makes older open games not visible in high traffic servers.
+</I>&gt;<i> This patch adds a single serverwide cursor to the gamelist so one gamelist starts where the last left off. This gives an even distribution of &quot;air time&quot; for all games.
+</I>&gt;<i> -------------------------------------------------------
+</I>&gt;<i>
+</I>&gt;<i> -------------------------------------------------------
+</I>&gt;<i> For more info, visit:
+</I>&gt;<i>
+</I>&gt;<i> <A HREF="http://developer.berlios.de/patch/?func=detailpatch&amp;patch_id=2370&amp;group_id=2291">http://developer.berlios.de/patch/?func=detailpatch&amp;patch_id=2370&amp;group_id=2291</A>
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> pvpgn-dev mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">pvpgn-dev at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">https://lists.berlios.de/mailman/listinfo/pvpgn-dev</A>
+</I>&gt;<i>   
+</I>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001114.html">[pvpgn-dev] [Patch #2370] Staggered gamelist reply
+</A></li>
+	<LI>Next message: <A HREF="001116.html">[pvpgn-dev] [Bug #15935] PvPGN can only send 19 active custom games	for a list update
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1115">[ date ]</a>
+              <a href="thread.html#1115">[ thread ]</a>
+              <a href="subject.html#1115">[ subject ]</a>
+              <a href="author.html#1115">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

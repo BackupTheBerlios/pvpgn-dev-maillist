@@ -1,0 +1,90 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] Some idea how to better solve &quot;/commands&quot;
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-November/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20Some%20idea%20how%20to%20better%20solve%20%22/commands%22&In-Reply-To=%3Ceb9d4d380711060226w1c2b0039uc0a30c0a5ba85021%40mail.gmail.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000531.html">
+   <LINK REL="Next"  HREF="000562.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] Some idea how to better solve &quot;/commands&quot;</H1>
+    <B>Pelish</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20Some%20idea%20how%20to%20better%20solve%20%22/commands%22&In-Reply-To=%3Ceb9d4d380711060226w1c2b0039uc0a30c0a5ba85021%40mail.gmail.com%3E"
+       TITLE="[pvpgn-dev] Some idea how to better solve &quot;/commands&quot;">pelish at gmail.com
+       </A><BR>
+    <I>Tue Nov  6 11:26:31 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000531.html">[pvpgn-dev] pvpgn/src/common version.h,1.44,1.45
+</A></li>
+        <LI>Next message: <A HREF="000562.html">[pvpgn-dev] Some idea how to better solve &quot;/commands&quot;
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#532">[ date ]</a>
+              <a href="thread.html#532">[ thread ]</a>
+              <a href="subject.html#532">[ subject ]</a>
+              <a href="author.html#532">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Good day all deveopers.
+I have one idea to (I hope) better way how to solve commands. At the moment
+are commands codes stored in command.cpp/h. In any command is solved
+tokenization. My idea is basicaly: Move core of function to any another file
+(ie command_common.cpp/h) and tokenizations to any another file (or let it
+as is).
+
+There is why I want to do it:
+1) in IRC/WOL is KICK command that is in the fact same like in &quot;/kick&quot;
+command. Now I need to &quot;resend in /kick command sintax. Code will talk
+bether than me so I do in handle_irc.cpp in func. handle_kick_command()
+snprintf(temp, sizeof(temp), &quot;/kick %s %s&quot;, e[0], text);
+handle_command(conn, temp);
+
+2) BAN command doing in bnetd KICK and than BAN (add person to banlist). In
+IRC/WOL are this commands diferent.
+
+3) in future we can make all other commands (means like normal chat
+commands) in this common file. I think that than will be much more bether
+gaming protocol API
+
+How about that my friends? Is my idea full of holes? Maybe my meaning is
+still only in C (not C++) but still I hope that it will be good step for
+us...
+
+Regards
+Pelish
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: &lt;<A HREF="https://lists.berlios.de/pipermail/pvpgn-dev/attachments/20071106/ad7e548a/attachment.html">https://lists.berlios.de/pipermail/pvpgn-dev/attachments/20071106/ad7e548a/attachment.html</A>&gt;
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000531.html">[pvpgn-dev] pvpgn/src/common version.h,1.44,1.45
+</A></li>
+	<LI>Next message: <A HREF="000562.html">[pvpgn-dev] Some idea how to better solve &quot;/commands&quot;
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#532">[ date ]</a>
+              <a href="thread.html#532">[ thread ]</a>
+              <a href="subject.html#532">[ subject ]</a>
+              <a href="author.html#532">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

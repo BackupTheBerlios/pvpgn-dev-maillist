@@ -1,0 +1,85 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r506 - trunk/pvpgn/src/bnetd
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2008-October/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r506%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200810052035.m95KZKst008486%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000825.html">
+   <LINK REL="Next"  HREF="000827.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r506 - trunk/pvpgn/src/bnetd</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r506%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200810052035.m95KZKst008486%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r506 - trunk/pvpgn/src/bnetd">svn at svn.berlios.de
+       </A><BR>
+    <I>Sun Oct  5 22:35:20 CEST 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000825.html">[pvpgn-dev] r505 - trunk/pvpgn/src/bnetd
+</A></li>
+        <LI>Next message: <A HREF="000827.html">[pvpgn-dev] [Bug #7380] Admins cant join private clan channels
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#826">[ date ]</a>
+              <a href="thread.html#826">[ thread ]</a>
+              <a href="subject.html#826">[ subject ]</a>
+              <a href="author.html#826">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pelish
+Date: 2008-10-05 22:35:19 +0200 (Sun, 05 Oct 2008)
+New Revision: 506
+
+Modified:
+   trunk/pvpgn/src/bnetd/connection.cpp
+Log:
+fix for bug [ #7380 ] Admins cant join private clan channels
+
+Modified: trunk/pvpgn/src/bnetd/connection.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/connection.cpp	2008-10-05 20:33:47 UTC (rev 505)
++++ trunk/pvpgn/src/bnetd/connection.cpp	2008-10-05 20:35:19 UTC (rev 506)
+@@ -1887,7 +1887,8 @@
+ 	if((strncasecmp(channelname, &quot;clan &quot;, 5)==0)&amp;&amp;(std::strlen(channelname)&lt;10))
+ 		clantag = str_to_clantag(&amp;channelname[5]);
+ 
+-    if (clantag) {
++    if ((clantag) &amp;&amp; !((account_get_auth_admin(acc,channelname) == 1) || (account_get_auth_admin(acc,NULL) == 1))) {
++        /* PELISH: Admins should be possible to connect any channel */
+         clan = account_get_clan(acc);
+         if ((!clan) || (clan_get_clantag(clan) != clantag)) {
+             if (!channel)
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000825.html">[pvpgn-dev] r505 - trunk/pvpgn/src/bnetd
+</A></li>
+	<LI>Next message: <A HREF="000827.html">[pvpgn-dev] [Bug #7380] Admins cant join private clan channels
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#826">[ date ]</a>
+              <a href="thread.html#826">[ thread ]</a>
+              <a href="subject.html#826">[ subject ]</a>
+              <a href="author.html#826">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

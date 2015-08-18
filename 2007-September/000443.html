@@ -1,0 +1,137 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r385 - in trunk/pvpgn: . cmake/Modules
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-September/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r385%20-%20in%20trunk/pvpgn%3A%20.%20cmake/Modules&In-Reply-To=%3C200709041901.l84J1HPV027927%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000442.html">
+   <LINK REL="Next"  HREF="000444.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r385 - in trunk/pvpgn: . cmake/Modules</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r385%20-%20in%20trunk/pvpgn%3A%20.%20cmake/Modules&In-Reply-To=%3C200709041901.l84J1HPV027927%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r385 - in trunk/pvpgn: . cmake/Modules">svn at svn.berlios.de
+       </A><BR>
+    <I>Tue Sep  4 21:01:17 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000442.html">[pvpgn-dev] New development snapshot: PvPGN 1.99.r384
+</A></li>
+        <LI>Next message: <A HREF="000444.html">[pvpgn-dev] web index.php,1.10,1.11
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#443">[ date ]</a>
+              <a href="thread.html#443">[ thread ]</a>
+              <a href="subject.html#443">[ subject ]</a>
+              <a href="author.html#443">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: d1zzy
+Date: 2007-09-04 21:01:17 +0200 (Tue, 04 Sep 2007)
+New Revision: 385
+
+Modified:
+   trunk/pvpgn/ConfigureChecks.cmake
+   trunk/pvpgn/cmake/Modules/FindPostgreSQL.cmake
+   trunk/pvpgn/config.h.cmake
+Log:
+Added more paths for PostgreSQL includes (to support debian4), removed 
+useless separate sqlite3.h check, disable strict ISO C++ conformance 
+when compiling with MySQL headers which contain a &quot;long long&quot; reference 
+that breaks conformance.
+
+
+Modified: trunk/pvpgn/ConfigureChecks.cmake
+===================================================================
+--- trunk/pvpgn/ConfigureChecks.cmake	2007-09-01 08:15:09 UTC (rev 384)
++++ trunk/pvpgn/ConfigureChecks.cmake	2007-09-04 19:01:17 UTC (rev 385)
+@@ -39,6 +39,9 @@
+ # storage module checks
+ if(WITH_MYSQL)
+     find_package(MySQL REQUIRED)
++    # disable strict ANSI checking when using MySQL headers
++    # which contain invalid &quot;long long&quot; type
++    set(WITH_ANSI OFF)
+ endif(WITH_MYSQL)
+ if(WITH_SQLITE3)
+     find_package(SQLite3 REQUIRED)
+@@ -108,10 +111,9 @@
+ check_include_file_cxx(sys/dir.h HAVE_SYS_DIR_H)
+ check_include_file_cxx(direct.h HAVE_DIRECT_H)
+ check_include_file_cxx(sys/mman.h HAVE_SYS_MMAN_H)
+-check_include_file_cxx(sys/event.h HAVE_SYS_EVENT_H)
++check_include_files_cxx(&quot;sys/types.h;sys/event.h&quot; HAVE_SYS_EVENT_H)
+ check_include_file_cxx(sys/epoll.h HAVE_SYS_EPOLL_H)
+ check_include_file_cxx(sys/resource.h HAVE_SYS_RESOURCE_H)
+-check_include_file_cxx(sqlite3.h HAVE_SQLITE3_H)
+ check_include_file_cxx(pcap.h HAVE_PCAP_H)
+ check_include_file_cxx(windows.h HAVE_WINDOWS_H)
+ check_include_file_cxx(winsock2.h HAVE_WINSOCK2_H)
+
+Modified: trunk/pvpgn/cmake/Modules/FindPostgreSQL.cmake
+===================================================================
+--- trunk/pvpgn/cmake/Modules/FindPostgreSQL.cmake	2007-09-01 08:15:09 UTC (rev 384)
++++ trunk/pvpgn/cmake/Modules/FindPostgreSQL.cmake	2007-09-04 19:01:17 UTC (rev 385)
+@@ -24,11 +24,15 @@
+ FIND_PATH(PGSQL_INCLUDE_DIR libpq-fe.h
+   &quot;[HKEY_LOCAL_MACHINE\\SOFTWARE\\PostgreSQL\\Installations\\{1F701DBD-1660-4108-B10A-FB435EA63BF0};Base Directory]/include&quot;
+   /usr/local/pgsql/include
++  /usr/local/postgresql/include
+   /usr/local/include/pgsql
++  /usr/local/include/postgresql
+   /usr/local/include
+   /usr/include/pgsql
++  /usr/include/postgresql
+   /usr/include
+   /usr/pgsql/include
++  /usr/postgresql/include
+ )
+ 
+ SET(PGSQL_NAMES pq libpq)
+
+Modified: trunk/pvpgn/config.h.cmake
+===================================================================
+--- trunk/pvpgn/config.h.cmake	2007-09-01 08:15:09 UTC (rev 384)
++++ trunk/pvpgn/config.h.cmake	2007-09-04 19:01:17 UTC (rev 385)
+@@ -34,7 +34,6 @@
+ #cmakedefine HAVE_SYS_EVENT_H
+ #cmakedefine HAVE_SYS_EPOLL_H
+ #cmakedefine HAVE_SYS_RESOURCE_H
+-#cmakedefine HAVE_SQLITE3_H
+ #cmakedefine HAVE_PCAP_H
+ #cmakedefine HAVE_WINDOWS_H
+ #cmakedefine HAVE_WINSOCK2_H
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000442.html">[pvpgn-dev] New development snapshot: PvPGN 1.99.r384
+</A></li>
+	<LI>Next message: <A HREF="000444.html">[pvpgn-dev] web index.php,1.10,1.11
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#443">[ date ]</a>
+              <a href="thread.html#443">[ thread ]</a>
+              <a href="subject.html#443">[ subject ]</a>
+              <a href="author.html#443">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

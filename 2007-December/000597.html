@@ -1,0 +1,96 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] pvpgn/conf channel.conf,1.3,1.4
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-December/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20pvpgn/conf%20channel.conf%2C1.3%2C1.4&In-Reply-To=%3C20071202161857.95DFE12082D%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000596.html">
+   <LINK REL="Next"  HREF="000598.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] pvpgn/conf channel.conf,1.3,1.4</H1>
+    <B>pelish</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20pvpgn/conf%20channel.conf%2C1.3%2C1.4&In-Reply-To=%3C20071202161857.95DFE12082D%40mail.berlios.de%3E"
+       TITLE="[pvpgn-dev] pvpgn/conf channel.conf,1.3,1.4">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sun Dec  2 17:18:57 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000596.html">[pvpgn-dev] pvpgn/Win32-Projects PvPGN.dev,1.8,1.9
+</A></li>
+        <LI>Next message: <A HREF="000598.html">[pvpgn-dev] pvpgn IGNOREME, 1.7, 1.8 UPDATE, 1.60,	1.61 version-history.txt, 1.277, 1.278
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#597">[ date ]</a>
+              <a href="thread.html#597">[ thread ]</a>
+              <a href="subject.html#597">[ subject ]</a>
+              <a href="author.html#597">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/pvpgn/pvpgn/conf
+In directory sheep:/tmp/cvs-serv4008/conf
+
+Modified Files:
+	channel.conf 
+Log Message:
+fixed warnings/errors rising in login process, fixed problems in WOL ladder support (added missing commands and conn_set_state(conn, conn_state_destroy) to body of functions since client wait to close connection) added DUNE2000 check to LIST of lobbyes. We support this client on 1.8.x now.
+
+Index: channel.conf
+===================================================================
+RCS file: /cvsroot/pvpgn/pvpgn/conf/channel.conf,v
+retrieving revision 1.3
+retrieving revision 1.4
+diff -u -d -r1.3 -r1.4
+--- channel.conf	29 Jun 2005 00:54:34 -0000	1.3
++++ channel.conf	2 Dec 2007 16:17:54 -0000	1.4
+@@ -45,12 +45,16 @@
+ # Westwood Online Channels                                                   #
+ #----------------------------------------------------------------------------#
+ # Note: The Westwood channels should be formatted like this! Do not set the last number above 5.
+-# The proper game type numbers are as follows: 
++# The proper game type numbers are as follows:
++#	- 14 = Dune 2000 game channels      
+ #	- 18 = Tiberian Sun game channels
+ #	- 21 = Red alert 1 channels
+ #	- 33 = Red alert 2 channels
+ #	- 41 = Yuri's Revenge
+ #
++##### DUNE 2000 Support ########################################################################################
++ &quot;Lob 14 0&quot;                    &quot;Unknown&quot;                 CHAT    false false false  NULL   NULL    -1   false
++
+ ##### Tiberian Sun Support #####################################################################################
+  &quot;Lob 18 0&quot;                    &quot;GDI Barracks&quot;            WWOL    false false false  NULL   NULL    -1   false
+  &quot;Lob 18 1&quot;                    &quot;NOD Barracks&quot;            WWOL    false false false  NULL   NULL    -1   false
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000596.html">[pvpgn-dev] pvpgn/Win32-Projects PvPGN.dev,1.8,1.9
+</A></li>
+	<LI>Next message: <A HREF="000598.html">[pvpgn-dev] pvpgn IGNOREME, 1.7, 1.8 UPDATE, 1.60,	1.61 version-history.txt, 1.277, 1.278
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#597">[ date ]</a>
+              <a href="thread.html#597">[ thread ]</a>
+              <a href="subject.html#597">[ subject ]</a>
+              <a href="author.html#597">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

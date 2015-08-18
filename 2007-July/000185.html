@@ -1,0 +1,540 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r276 - trunk/pvpgn/Win32-Projects
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-July/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r276%20-%20trunk/pvpgn/Win32-Projects&In-Reply-To=%3C200707312016.l6VKGUC7014493%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000184.html">
+   <LINK REL="Next"  HREF="000186.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r276 - trunk/pvpgn/Win32-Projects</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r276%20-%20trunk/pvpgn/Win32-Projects&In-Reply-To=%3C200707312016.l6VKGUC7014493%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r276 - trunk/pvpgn/Win32-Projects">svn at svn.berlios.de
+       </A><BR>
+    <I>Tue Jul 31 22:16:30 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000184.html">[pvpgn-dev] [Patch #2120] added missing files to WIN32 projects,	small sql_layout2 fix
+</A></li>
+        <LI>Next message: <A HREF="000186.html">[pvpgn-dev] [Patch #2120] added missing files to WIN32 projects,	small sql_layout2 fix
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#185">[ date ]</a>
+              <a href="thread.html#185">[ thread ]</a>
+              <a href="subject.html#185">[ subject ]</a>
+              <a href="author.html#185">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pandaemonium
+Date: 2007-07-31 22:16:29 +0200 (Tue, 31 Jul 2007)
+New Revision: 276
+
+Modified:
+   trunk/pvpgn/Win32-Projects/PvPGN.dev
+   trunk/pvpgn/Win32-Projects/PvPGNConsole.dev
+Log:
+[ Patch #2120 ] added missing files to WIN32 projects
+
+Modified: trunk/pvpgn/Win32-Projects/PvPGN.dev
+===================================================================
+--- trunk/pvpgn/Win32-Projects/PvPGN.dev	2007-07-31 19:59:35 UTC (rev 275)
++++ trunk/pvpgn/Win32-Projects/PvPGN.dev	2007-07-31 20:16:29 UTC (rev 276)
+@@ -1,7 +1,7 @@
+ [Project]
+ FileName=PvPGN.dev
+ Name=PvPGN
+-UnitCount=268
++UnitCount=272
+ Type=0
+ Ver=1
+ ObjFiles=
+@@ -2728,9 +2728,9 @@
+ BuildCmd=
+ 
+ [Unit269]
+-FileName=..\src\bnetd\attrlayer.h
+-CompileCpp=0
+-Folder=bnetd/Header Files
++FileName=..\src\bnetd\sql_common.cpp
++CompileCpp=1
++Folder=bnetd/Source Files
+ Compile=1
+ Link=1
+ Priority=1000
+@@ -2738,8 +2738,8 @@
+ BuildCmd=
+ 
+ [Unit270]
+-FileName=..\src\bnetd\attrgroup.h
+-CompileCpp=0
++FileName=..\src\bnetd\sql_common.h
++CompileCpp=1
+ Folder=bnetd/Header Files
+ Compile=1
+ Link=1
+@@ -2748,9 +2748,9 @@
+ BuildCmd=
+ 
+ [Unit271]
+-FileName=..\src\bnetd\attrlayer.cpp
+-CompileCpp=0
+-Folder=bnetd/Source Files
++FileName=..\src\bnetd\storage_sql2.h
++CompileCpp=1
++Folder=bnetd/Header Files
+ Compile=1
+ Link=1
+ Priority=1000
+@@ -2758,8 +2758,8 @@
+ BuildCmd=
+ 
+ [Unit272]
+-FileName=..\src\bnetd\attrgroup.cpp
+-CompileCpp=0
++FileName=..\src\bnetd\storage_sql2.cpp
++CompileCpp=1
+ Folder=bnetd/Source Files
+ Compile=1
+ Link=1
+@@ -2767,173 +2767,3 @@
+ OverrideBuildCmd=0
+ BuildCmd=
+ 
+-[Unit273]
+-FileName=..\src\bnetd\cmdline.h
+-CompileCpp=0
+-Folder=bnetd/Header Files
+-Compile=1
+-Link=1
+-Priority=1000
+-OverrideBuildCmd=0
+-BuildCmd=
+-
+-[Unit274]
+-FileName=..\src\bnetd\cmdline.cpp
+-CompileCpp=0
+-Folder=bnetd/Source Files
+-Compile=1
+-Link=1
+-Priority=1000
+-OverrideBuildCmd=0
+-BuildCmd=
+-
+-[Unit275]
+-FileName=..\src\common\conf.h
+-CompileCpp=0
+-Folder=common/Header Files
+-Compile=1
+-Link=1
+-Priority=1000
+-OverrideBuildCmd=0
+-BuildCmd=
+-
+-[Unit276]
+-FileName=..\src\common\conf.cpp
+-CompileCpp=0
+-Folder=common/Source Files
+-Compile=1
+-Link=1
+-Priority=1000
+-OverrideBuildCmd=0
+-BuildCmd=
+-
+-[Unit277]
+-FileName=..\src\common\systemerror.h
+-Folder=common/Header Files
+-Compile=1
+-Link=1
+-Priority=1000
+-OverrideBuildCmd=0
+-BuildCmd=
+-CompileCpp=1
+-
+-[Unit278]
+-FileName=..\src\common\systemerror.cpp
+-CompileCpp=1
+-Folder=common/Source Files
+-Compile=1
+-Link=1
+-Priority=1000
+-OverrideBuildCmd=0
+-BuildCmd=
+-
+-[Unit279]
+-FileName=..\src\win32\gui_printf.cpp
+-CompileCpp=1
+-Folder=win32/Source Files
+-Compile=1
+-Link=1
+-Priority=1000
+-OverrideBuildCmd=0
+-BuildCmd=
+-
+-[Unit280]
+-FileName=..\src\win32\gui_printf.h
+-CompileCpp=1
+-Folder=win32/Header Files
+-Compile=1
+-Link=1
+-Priority=1000
+-OverrideBuildCmd=0
+-BuildCmd=
+-
+-[Unit281]
+-FileName=..\src\common\conf.cpp
+-CompileCpp=0
+-Folder=common/Source Files
+-Compile=1
+-Link=1
+-Priority=1000
+-OverrideBuildCmd=0
+-BuildCmd=
+-
+-[Unit282]
+-FileName=..\src\common\systemerror.h
+-CompileCpp=1
+-Folder=common/Header Files
+-Compile=1
+-Link=1
+-Priority=1000
+-OverrideBuildCmd=0
+-BuildCmd=
+-
+-[Unit283]
+-FileName=..\src\common\systemerror.cpp
+-CompileCpp=1
+-Folder=common/Source Files
+-Compile=1
+-Link=1
+-Priority=1000
+-OverrideBuildCmd=0
+-BuildCmd=
+-
+-[Unit284]
+-FileName=..\src\zlib\pvpgn_zutil.c
+-CompileCpp=1
+-Folder=zlib/Source Files
+-Compile=1
+-Link=1
+-Priority=1000
+-OverrideBuildCmd=0
+-BuildCmd=
+-
+-[Unit285]
+-FileName=..\src\zlib\pvpgn_adler32.c
+-CompileCpp=1
+-Folder=zlib/Source Files
+-Compile=1
+-Link=1
+-Priority=1000
+-OverrideBuildCmd=0
+-BuildCmd=
+-
+-[Unit286]
+-FileName=..\src\zlib\pvpgn_deflate.c
+-CompileCpp=1
+-Folder=zlib/Source Files
+-Compile=1
+-Link=1
+-Priority=1000
+-OverrideBuildCmd=0
+-BuildCmd=
+-
+-[Unit287]
+-FileName=..\src\zlib\pvpgn_trees.c
+-CompileCpp=1
+-Folder=zlib/Source Files
+-Compile=1
+-Link=1
+-Priority=1000
+-OverrideBuildCmd=0
+-BuildCmd=
+-
+-[Unit288]
+-FileName=..\src\win32\gui_printf.cpp
+-CompileCpp=1
+-Folder=win32/Source Files
+-Compile=1
+-Link=1
+-Priority=1000
+-OverrideBuildCmd=0
+-BuildCmd=
+-
+-[Unit289]
+-FileName=..\src\win32\gui_printf.h
+-CompileCpp=1
+-Folder=win32/Header Files
+-Compile=1
+-Link=1
+-Priority=1000
+-OverrideBuildCmd=0
+-BuildCmd=
+-
+
+Modified: trunk/pvpgn/Win32-Projects/PvPGNConsole.dev
+===================================================================
+--- trunk/pvpgn/Win32-Projects/PvPGNConsole.dev	2007-07-31 19:59:35 UTC (rev 275)
++++ trunk/pvpgn/Win32-Projects/PvPGNConsole.dev	2007-07-31 20:16:29 UTC (rev 276)
+@@ -1,7 +1,7 @@
+ [Project]
+ FileName=PvPGNConsole.dev
+ Name=PvPGNConsole
+-UnitCount=262
++UnitCount=266
+ Type=1
+ Ver=1
+ ObjFiles=
+@@ -2668,8 +2668,8 @@
+ BuildCmd=
+ 
+ [Unit263]
+-FileName=..\src\common\rcm.cpp
+-CompileCpp=0
++FileName=..\src\common\sql_common.cpp
++CompileCpp=1
+ Folder=common/Source Files
+ Compile=1
+ Link=1
+@@ -2678,8 +2678,8 @@
+ BuildCmd=
+ 
+ [Unit264]
+-FileName=..\src\bnetd\attr.h
+-CompileCpp=0
++FileName=..\src\bnetd\sql_common.h
++CompileCpp=1
+ Folder=bnetd/Header Files
+ Compile=1
+ Link=1
+@@ -2688,28 +2688,8 @@
+ BuildCmd=
+ 
+ [Unit265]
+-FileName=..\src\bnetd\attrlayer.h
+-CompileCpp=0
+-Folder=bnetd/Header Files
+-Compile=1
+-Link=1
+-Priority=1000
+-OverrideBuildCmd=0
+-BuildCmd=
+-
+-[Unit266]
+-FileName=..\src\bnetd\attrgroup.h
+-CompileCpp=0
+-Folder=bnetd/Header Files
+-Compile=1
+-Link=1
+-Priority=1000
+-OverrideBuildCmd=0
+-BuildCmd=
+-
+-[Unit267]
+-FileName=..\src\bnetd\attrlayer.cpp
+-CompileCpp=0
++FileName=..\src\bnetd\storage_sql2.cpp
++CompileCpp=1
+ Folder=bnetd/Source Files
+ Compile=1
+ Link=1
+@@ -2717,79 +2697,9 @@
+ OverrideBuildCmd=0
+ BuildCmd=
+ 
+-[Unit268]
+-FileName=..\src\bnetd\attrgroup.cpp
+-CompileCpp=0
+-Folder=bnetd/Source Files
+-Compile=1
+-Link=1
+-Priority=1000
+-OverrideBuildCmd=0
+-BuildCmd=
+-
+-[Unit269]
+-FileName=..\src\bnetd\cmdline.h
+-CompileCpp=0
+-Folder=bnetd/Header Files
+-Compile=1
+-Link=1
+-Priority=1000
+-OverrideBuildCmd=0
+-BuildCmd=
+-
+-[Unit270]
+-FileName=..\src\bnetd\cmdline.cpp
+-CompileCpp=0
+-Folder=bnetd/Source Files
+-Compile=1
+-Link=1
+-Priority=1000
+-OverrideBuildCmd=0
+-BuildCmd=
+-
+-[Unit271]
+-FileName=..\src\common\conf.h
+-CompileCpp=0
+-Folder=common/Header Files
+-Compile=1
+-Link=1
+-Priority=1000
+-OverrideBuildCmd=0
+-BuildCmd=
+-
+-[Unit272]
+-FileName=..\src\common\conf.cpp
+-CompileCpp=0
+-Folder=common/Source Files
+-Compile=1
+-Link=1
+-Priority=1000
+-OverrideBuildCmd=0
+-BuildCmd=
+-
+-[Unit273]
+-FileName=..\src\common\systemerror.h
++[Unit266]
++FileName=..\src\bnetd\storage_sql2.h
+ CompileCpp=1
+-Folder=common/Header Files
+-Compile=1
+-Link=1
+-Priority=1000
+-OverrideBuildCmd=0
+-BuildCmd=
+-
+-[Unit274]
+-FileName=..\src\common\systemerror.cpp
+-CompileCpp=1
+-Folder=common/Source Files
+-Compile=1
+-Link=1
+-Priority=1000
+-OverrideBuildCmd=0
+-BuildCmd=
+-
+-[Unit275]
+-FileName=..\src\bnetd\attrgroup.h
+-CompileCpp=0
+ Folder=bnetd/Header Files
+ Compile=1
+ Link=1
+@@ -2797,83 +2707,3 @@
+ OverrideBuildCmd=0
+ BuildCmd=
+ 
+-[Unit276]
+-FileName=..\src\bnetd\attrlayer.cpp
+-CompileCpp=0
+-Folder=bnetd/Source Files
+-Compile=1
+-Link=1
+-Priority=1000
+-OverrideBuildCmd=0
+-BuildCmd=
+-
+-[Unit277]
+-FileName=..\src\bnetd\attrgroup.cpp
+-CompileCpp=0
+-Folder=bnetd/Source Files
+-Compile=1
+-Link=1
+-Priority=1000
+-OverrideBuildCmd=0
+-BuildCmd=
+-
+-[Unit278]
+-FileName=..\src\bnetd\cmdline.h
+-CompileCpp=0
+-Folder=bnetd/Header Files
+-Compile=1
+-Link=1
+-Priority=1000
+-OverrideBuildCmd=0
+-BuildCmd=
+-
+-[Unit279]
+-FileName=..\src\bnetd\cmdline.cpp
+-CompileCpp=0
+-Folder=bnetd/Source Files
+-Compile=1
+-Link=1
+-Priority=1000
+-OverrideBuildCmd=0
+-BuildCmd=
+-
+-[Unit280]
+-FileName=..\src\common\conf.h
+-CompileCpp=0
+-Folder=common/Header Files
+-Compile=1
+-Link=1
+-Priority=1000
+-OverrideBuildCmd=0
+-BuildCmd=
+-
+-[Unit281]
+-FileName=..\src\common\conf.cpp
+-CompileCpp=0
+-Folder=common/Source Files
+-Compile=1
+-Link=1
+-Priority=1000
+-OverrideBuildCmd=0
+-BuildCmd=
+-
+-[Unit282]
+-FileName=..\src\common\systemerror.h
+-CompileCpp=1
+-Folder=common/Header Files
+-Compile=1
+-Link=1
+-Priority=1000
+-OverrideBuildCmd=0
+-BuildCmd=
+-
+-[Unit283]
+-FileName=..\src\common\systemerror.cpp
+-CompileCpp=1
+-Folder=common/Source Files
+-Compile=1
+-Link=1
+-Priority=1000
+-OverrideBuildCmd=0
+-BuildCmd=
+-
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000184.html">[pvpgn-dev] [Patch #2120] added missing files to WIN32 projects,	small sql_layout2 fix
+</A></li>
+	<LI>Next message: <A HREF="000186.html">[pvpgn-dev] [Patch #2120] added missing files to WIN32 projects,	small sql_layout2 fix
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#185">[ date ]</a>
+              <a href="thread.html#185">[ thread ]</a>
+              <a href="subject.html#185">[ subject ]</a>
+              <a href="author.html#185">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

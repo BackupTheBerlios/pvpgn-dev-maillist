@@ -1,0 +1,93 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] crash!! in WOL - QUICKMATCH , QUICKCOOP
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2009-October/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20crash%21%21%20in%20WOL%20-%20QUICKMATCH%20%2C%20QUICKCOOP&In-Reply-To=%3C7bbfc04a0910061653r4991e534w10517953210b4fce%40mail.gmail.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001141.html">
+   <LINK REL="Next"  HREF="001143.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] crash!! in WOL - QUICKMATCH , QUICKCOOP</H1>
+    <B>^A|An M0r3n0^</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20crash%21%21%20in%20WOL%20-%20QUICKMATCH%20%2C%20QUICKCOOP&In-Reply-To=%3C7bbfc04a0910061653r4991e534w10517953210b4fce%40mail.gmail.com%3E"
+       TITLE="[pvpgn-dev] crash!! in WOL - QUICKMATCH , QUICKCOOP">alanstr at gmail.com
+       </A><BR>
+    <I>Wed Oct  7 01:53:31 CEST 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001141.html">[pvpgn-dev] [Bug #16317] autoupdate incorrectly initializing memory
+</A></li>
+        <LI>Next message: <A HREF="001143.html">[pvpgn-dev] crash!! in WOL - QUICKMATCH , QUICKCOOP
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1142">[ date ]</a>
+              <a href="thread.html#1142">[ thread ]</a>
+              <a href="subject.html#1142">[ subject ]</a>
+              <a href="author.html#1142">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>line 526 - static int anongame_wol_tokenize_line(t_connection * conn, char
+const * text)
+
+changed the code:  tested in WIN, UNIX
+=============
+
+
+command = (char*) xmalloc (std::strlen(text)+3);
+
+std::sprintf(command,&quot;%s&quot;,text);
+
+// command = line;
+
+if (!(temp = strchr(command,' '))) {
+
+WARN0(&quot;got malformed line (missing command)&quot;);
+
+xfree(command);
+return -1;
+..............
+
+.............
+.....
+
+if (command == 0)
+
+xfree(command);
+
+return 0;
+//I have no problems in quickmatch. so far,
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: &lt;<A HREF="https://lists.berlios.de/pipermail/pvpgn-dev/attachments/20091006/03ab8c6a/attachment.html">https://lists.berlios.de/pipermail/pvpgn-dev/attachments/20091006/03ab8c6a/attachment.html</A>&gt;
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001141.html">[pvpgn-dev] [Bug #16317] autoupdate incorrectly initializing memory
+</A></li>
+	<LI>Next message: <A HREF="001143.html">[pvpgn-dev] crash!! in WOL - QUICKMATCH , QUICKCOOP
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1142">[ date ]</a>
+              <a href="thread.html#1142">[ thread ]</a>
+              <a href="subject.html#1142">[ subject ]</a>
+              <a href="author.html#1142">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,105 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r283 - trunk/pvpgn/src/bnetd
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-August/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r283%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200708031814.l73IEl0a031701%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000218.html">
+   <LINK REL="Next"  HREF="000220.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r283 - trunk/pvpgn/src/bnetd</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r283%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200708031814.l73IEl0a031701%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r283 - trunk/pvpgn/src/bnetd">svn at svn.berlios.de
+       </A><BR>
+    <I>Fri Aug  3 20:14:47 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000218.html">[pvpgn-dev] [Patch #2123] &quot;/&quot; commands support in WOL
+</A></li>
+        <LI>Next message: <A HREF="000220.html">[pvpgn-dev] r284 - trunk/pvpgn/src/bnetd
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#219">[ date ]</a>
+              <a href="thread.html#219">[ thread ]</a>
+              <a href="subject.html#219">[ subject ]</a>
+              <a href="author.html#219">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pandaemonium
+Date: 2007-08-03 20:14:47 +0200 (Fri, 03 Aug 2007)
+New Revision: 283
+
+Modified:
+   trunk/pvpgn/src/bnetd/handle_irc.cpp
+   trunk/pvpgn/src/bnetd/irc.cpp
+Log:
+fix channel part on join
+
+Modified: trunk/pvpgn/src/bnetd/handle_irc.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/handle_irc.cpp	2007-08-02 19:38:30 UTC (rev 282)
++++ trunk/pvpgn/src/bnetd/handle_irc.cpp	2007-08-03 18:14:47 UTC (rev 283)
+@@ -803,8 +803,8 @@
+ 					irc_send(conn,RPL_ENDOFNAMES,&quot;:End of NAMES list&quot;);
+ 
+ 					if (old_channel_name) {
+-                        snprintf(temp,sizeof(temp),&quot;%s :%s&quot;, old_channel_name,&quot;only one channel at once&quot;);
+-                        message_send_text(conn,message_type_part,conn,temp);
++                        			snprintf(temp,sizeof(temp),&quot;%s :%s&quot;, old_channel_name,&quot;only one channel at once&quot;);
++                        			message_send_text(conn,message_type_part,conn,temp);
+ 					}
+ 	    		}
+ 		}
+
+Modified: trunk/pvpgn/src/bnetd/irc.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/irc.cpp	2007-08-02 19:38:30 UTC (rev 282)
++++ trunk/pvpgn/src/bnetd/irc.cpp	2007-08-03 18:14:47 UTC (rev 283)
+@@ -691,7 +691,11 @@
+     	from.nick = conn_get_chatname(me);
+     	from.user = ctag;
+     	from.host = addr_num_to_ip_str(conn_get_addr(me));
+-    	msg = irc_message_preformat(&amp;from,&quot;PART&quot;,&quot;\r&quot;,irc_convert_channel(conn_get_channel(me)));
++	eventlog(eventlog_level_debug,__FUNCTION__,&quot;mtp: %s&quot;,text);
++	if (text)
++    		msg = irc_message_preformat(&amp;from,&quot;PART&quot;,&quot;\r&quot;,text);
++	else
++    		msg = irc_message_preformat(&amp;from,&quot;PART&quot;,&quot;\r&quot;,irc_convert_channel(conn_get_channel(me)));
+     	conn_unget_chatname(me,from.nick);
+     	break;
+     case message_type_talk:
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000218.html">[pvpgn-dev] [Patch #2123] &quot;/&quot; commands support in WOL
+</A></li>
+	<LI>Next message: <A HREF="000220.html">[pvpgn-dev] r284 - trunk/pvpgn/src/bnetd
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#219">[ date ]</a>
+              <a href="thread.html#219">[ thread ]</a>
+              <a href="subject.html#219">[ subject ]</a>
+              <a href="author.html#219">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

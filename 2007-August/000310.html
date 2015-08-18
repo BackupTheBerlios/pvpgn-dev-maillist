@@ -1,0 +1,111 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] pvpgn/conf bnetd.conf.in, 1.80, 1.81 bnetd.conf.win32,	1.74, 1.75
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-August/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20pvpgn/conf%20bnetd.conf.in%2C%201.80%2C%201.81%20bnetd.conf.win32%2C%0A%091.74%2C%201.75&In-Reply-To=%3C20070815114119.76E84102E02%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000309.html">
+   <LINK REL="Next"  HREF="000311.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] pvpgn/conf bnetd.conf.in, 1.80, 1.81 bnetd.conf.win32,	1.74, 1.75</H1>
+    <B>pandaemonium</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20pvpgn/conf%20bnetd.conf.in%2C%201.80%2C%201.81%20bnetd.conf.win32%2C%0A%091.74%2C%201.75&In-Reply-To=%3C20070815114119.76E84102E02%40mail.berlios.de%3E"
+       TITLE="[pvpgn-dev] pvpgn/conf bnetd.conf.in, 1.80, 1.81 bnetd.conf.win32,	1.74, 1.75">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Wed Aug 15 13:41:19 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000309.html">[pvpgn-dev] pvpgn/src/bnetd connection.c, 1.154,	1.155 handle_telnet.c, 1.12, 1.13 prefs.c, 1.64, 1.65 prefs.h,	1.49, 1.50
+</A></li>
+        <LI>Next message: <A HREF="000311.html">[pvpgn-dev] pvpgn version-history.txt,1.268,1.269
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#310">[ date ]</a>
+              <a href="thread.html#310">[ thread ]</a>
+              <a href="subject.html#310">[ subject ]</a>
+              <a href="author.html#310">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/pvpgn/pvpgn/conf
+In directory sheep:/tmp/cvs-serv10690/conf
+
+Modified Files:
+	bnetd.conf.in bnetd.conf.win32 
+Log Message:
+fix for bug [ #11700 ] - oversized login with #uid as username
+
+Index: bnetd.conf.in
+===================================================================
+RCS file: /cvsroot/pvpgn/pvpgn/conf/bnetd.conf.in,v
+retrieving revision 1.80
+retrieving revision 1.81
+diff -u -d -r1.80 -r1.81
+--- bnetd.conf.in	10 Oct 2006 20:40:52 -0000	1.80
++++ bnetd.conf.in	15 Aug 2007 11:40:56 -0000	1.81
+@@ -407,6 +407,11 @@
+ # default setting is &quot;-_[]&quot; as it was previous versions
+ account_allowed_symbols = &quot;-_[]&quot;
+ 
++# This setting affects users that login with their uid rather than their 
++# username. If set to true their displayed username will be forcefully 
++# converted to their registered account name.
++account_force_username = false
++
+ # maximum number of friends a user can add to there friends list
+ # default setting is 20
+ max_friends = 20
+
+Index: bnetd.conf.win32
+===================================================================
+RCS file: /cvsroot/pvpgn/pvpgn/conf/bnetd.conf.win32,v
+retrieving revision 1.74
+retrieving revision 1.75
+diff -u -d -r1.74 -r1.75
+--- bnetd.conf.win32	10 Oct 2006 20:40:52 -0000	1.74
++++ bnetd.conf.win32	15 Aug 2007 11:40:57 -0000	1.75
+@@ -385,6 +385,11 @@
+ # default setting is &quot;-_[]&quot; as it was previous versions
+ account_allowed_symbols = &quot;-_[]&quot;
+ 
++# This setting affects users that login with their uid rather than their 
++# username. If set to true their displayed username will be forcefully 
++# converted to their registered account name.
++account_force_username = false
++
+ # maximum number of friends a user can add to there friends list
+ # default setting is 20
+ max_friends = 20
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000309.html">[pvpgn-dev] pvpgn/src/bnetd connection.c, 1.154,	1.155 handle_telnet.c, 1.12, 1.13 prefs.c, 1.64, 1.65 prefs.h,	1.49, 1.50
+</A></li>
+	<LI>Next message: <A HREF="000311.html">[pvpgn-dev] pvpgn version-history.txt,1.268,1.269
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#310">[ date ]</a>
+              <a href="thread.html#310">[ thread ]</a>
+              <a href="subject.html#310">[ subject ]</a>
+              <a href="author.html#310">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,138 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r397 - trunk/pvpgn/src/common
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-September/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r397%20-%20trunk/pvpgn/src/common&In-Reply-To=%3C200709301557.l8UFv6cx013004%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000478.html">
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r397 - trunk/pvpgn/src/common</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r397%20-%20trunk/pvpgn/src/common&In-Reply-To=%3C200709301557.l8UFv6cx013004%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r397 - trunk/pvpgn/src/common">svn at svn.berlios.de
+       </A><BR>
+    <I>Sun Sep 30 17:57:06 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000478.html">[pvpgn-dev] r396 - in trunk/pvpgn/src: bnetd common
+</A></li>
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#479">[ date ]</a>
+              <a href="thread.html#479">[ thread ]</a>
+              <a href="subject.html#479">[ subject ]</a>
+              <a href="author.html#479">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pelish
+Date: 2007-09-30 17:57:02 +0200 (Sun, 30 Sep 2007)
+New Revision: 397
+
+Modified:
+   trunk/pvpgn/src/common/tag.cpp
+   trunk/pvpgn/src/common/tag.h
+Log:
+add Lands of Lore 3 SKUs and define clienttag for this game (will be used in autoupdate)
+
+Modified: trunk/pvpgn/src/common/tag.cpp
+===================================================================
+--- trunk/pvpgn/src/common/tag.cpp	2007-09-28 13:49:42 UTC (rev 396)
++++ trunk/pvpgn/src/common/tag.cpp	2007-09-30 15:57:02 UTC (rev 397)
+@@ -78,7 +78,7 @@
+     	case CLIENTTAG_IIRC_UINT:
+              return CLIENTTAG_IIRC;
+         case CLIENTTAG_WCHAT_UINT:
+-             return CLIENTTAG_WCHAT;             
++             return CLIENTTAG_WCHAT;
+         case CLIENTTAG_TIBERNSUN_UINT:
+              return CLIENTTAG_TIBERNSUN;
+         case CLIENTTAG_TIBSUNXP_UINT:
+@@ -98,7 +98,9 @@
+         case CLIENTTAG_YURISREV_UINT:
+              return CLIENTTAG_YURISREV;
+         case CLIENTTAG_EMPERORBD_UINT:
+-             return CLIENTTAG_EMPERORBD;     
++             return CLIENTTAG_EMPERORBD;
++        case CLIENTTAG_LOFLORE3_UINT:
++             return CLIENTTAG_LOFLORE3;
+         case CLIENTTAG_WWOL_UINT:
+              return CLIENTTAG_WWOL;
+ 	    default:
+@@ -221,6 +223,7 @@
+     case CLIENTTAG_RENEGADE_UINT:
+     case CLIENTTAG_YURISREV_UINT:
+     case CLIENTTAG_EMPERORBD_UINT:
++    case CLIENTTAG_LOFLORE3_UINT:
+     case CLIENTTAG_WWOL_UINT:
+ 	    return 1;
+ 	default:
+@@ -302,6 +305,8 @@
+         return &quot;Yuri's Revenge&quot;;
+       case CLIENTTAG_EMPERORBD_UINT:
+         return &quot;Emepror: Battle for Dune&quot;;
++      case CLIENTTAG_LOFLORE3_UINT:
++        return &quot;Lands of Lore 3&quot;;
+       case CLIENTTAG_WWOL_UINT:
+         return &quot;Westwood Online&quot;;
+       default:
+@@ -408,6 +413,12 @@
+       case 5378:
+       case 5379:
+            return CLIENTTAG_REDALERT_UINT;
++      case 6400:  /* Lands of Lore 3 */
++      case 6401:
++      case 6402:
++      case 6403:
++      case 6405:
++           return CLIENTTAG_LOFLORE3_UINT;
+       case 7168:  /* Tiberian Sun: Firestorm */
+       case 7170:
+       case 7171:
+
+Modified: trunk/pvpgn/src/common/tag.h
+===================================================================
+--- trunk/pvpgn/src/common/tag.h	2007-09-28 13:49:42 UTC (rev 396)
++++ trunk/pvpgn/src/common/tag.h	2007-09-30 15:57:02 UTC (rev 397)
+@@ -104,6 +104,8 @@
+ #define CLIENTTAG_YURISREV_UINT     0x59555249
+ #define CLIENTTAG_EMPERORBD         &quot;EMPR&quot; /* Emperor: Battle for Dune */
+ #define CLIENTTAG_EMPERORBD_UINT    0x454D5052
++#define CLIENTTAG_LOFLORE3          &quot;LOR3&quot; /* Lands of Lore 3 */
++#define CLIENTTAG_LOFLORE3_UINT     0x4C4F5233
+ #define CLIENTTAG_WWOL              &quot;WWOL&quot; /* Other Westwood Online games */
+ #define CLIENTTAG_WWOL_UINT         0x57574F4C
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000478.html">[pvpgn-dev] r396 - in trunk/pvpgn/src: bnetd common
+</A></li>
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#479">[ date ]</a>
+              <a href="thread.html#479">[ thread ]</a>
+              <a href="subject.html#479">[ subject ]</a>
+              <a href="author.html#479">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,112 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r530 - in trunk/pvpgn: conf src/bnetd
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2009-February/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r530%20-%20in%20trunk/pvpgn%3A%20conf%20src/bnetd&In-Reply-To=%3C200902062220.n16MK7Re016632%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000966.html">
+   <LINK REL="Next"  HREF="000968.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r530 - in trunk/pvpgn: conf src/bnetd</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r530%20-%20in%20trunk/pvpgn%3A%20conf%20src/bnetd&In-Reply-To=%3C200902062220.n16MK7Re016632%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r530 - in trunk/pvpgn: conf src/bnetd">svn at svn.berlios.de
+       </A><BR>
+    <I>Fri Feb  6 23:20:07 CET 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000966.html">[pvpgn-dev] pvpgn/conf bnetd.conf.win32,1.75,1.76
+</A></li>
+        <LI>Next message: <A HREF="000968.html">[pvpgn-dev] [Patch #2605] New clan with no chieftain - Bug #14571
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#967">[ date ]</a>
+              <a href="thread.html#967">[ thread ]</a>
+              <a href="subject.html#967">[ subject ]</a>
+              <a href="author.html#967">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pelish
+Date: 2009-02-06 23:20:04 +0100 (Fri, 06 Feb 2009)
+New Revision: 530
+
+Modified:
+   trunk/pvpgn/conf/bnetd.conf.win32
+   trunk/pvpgn/src/bnetd/clan.cpp
+   trunk/pvpgn/src/bnetd/command.cpp
+Log:
+Fix for [ Bug #15150 ] chieftain removed from clan after creation. Our thanks goes to &quot;justcme&quot; for that fix.
+
+Modified: trunk/pvpgn/conf/bnetd.conf.win32
+===================================================================
+--- trunk/pvpgn/conf/bnetd.conf.win32	2009-02-06 20:42:50 UTC (rev 529)
++++ trunk/pvpgn/conf/bnetd.conf.win32	2009-02-06 22:20:04 UTC (rev 530)
+@@ -611,7 +611,7 @@
+ # clan settings                                                               #
+ #-----------------------------------------------------------------------------#
+ 
+-# Time in hours for a new member of clan to be a newer(Peon icon, cannot premote to Grunt)
++# Time in hours for a new member of clan to be a newer(Peon icon, cannot promote to Grunt)
+ # default value 168(7 days). If set to 0, all new members could be promote in no time
+ clan_newer_time = 0
+ 
+
+Modified: trunk/pvpgn/src/bnetd/clan.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/clan.cpp	2009-02-06 20:42:50 UTC (rev 529)
++++ trunk/pvpgn/src/bnetd/clan.cpp	2009-02-06 22:20:04 UTC (rev 530)
+@@ -1422,6 +1422,7 @@
+     member-&gt;memberacc = chieftain_acc;
+     member-&gt;status = CLAN_CHIEFTAIN;
+     member-&gt;join_time = clan-&gt;creation_time;
++    member-&gt;fullmember = 1; /* chief should be considered invited */
+     member-&gt;clan = clan;
+ #ifdef WITH_SQL
+     member-&gt;modified = 1;
+
+Modified: trunk/pvpgn/src/bnetd/command.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/command.cpp	2009-02-06 20:42:50 UTC (rev 529)
++++ trunk/pvpgn/src/bnetd/command.cpp	2009-02-06 22:20:04 UTC (rev 530)
+@@ -745,7 +745,6 @@
+ 
+           if ((clan = clan_create(conn_get_account(c), str_to_clantag(clantag), clanname, NULL)) &amp;&amp; clanlist_add_clan(clan)) {
+               member = account_get_clanmember_forced(acc);
+-              clanmember_set_fullmember(member,1);         /*FIXME: Should be in clan_create() */
+               if (prefs_get_clan_min_invites() == 0) {
+                   clan_set_created(clan, 1);
+                   clan_set_creation_time(clan, std::time(NULL));
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000966.html">[pvpgn-dev] pvpgn/conf bnetd.conf.win32,1.75,1.76
+</A></li>
+	<LI>Next message: <A HREF="000968.html">[pvpgn-dev] [Patch #2605] New clan with no chieftain - Bug #14571
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#967">[ date ]</a>
+              <a href="thread.html#967">[ thread ]</a>
+              <a href="subject.html#967">[ subject ]</a>
+              <a href="author.html#967">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

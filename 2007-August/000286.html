@@ -1,0 +1,86 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r309 - trunk/pvpgn/src/bnetd
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-August/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r309%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200708131025.l7DAP1iq020783%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000285.html">
+   <LINK REL="Next"  HREF="000287.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r309 - trunk/pvpgn/src/bnetd</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r309%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200708131025.l7DAP1iq020783%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r309 - trunk/pvpgn/src/bnetd">svn at svn.berlios.de
+       </A><BR>
+    <I>Mon Aug 13 12:25:01 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000285.html">[pvpgn-dev] [Bug #10900] could not load saved game
+</A></li>
+        <LI>Next message: <A HREF="000287.html">[pvpgn-dev] r310 - trunk/pvpgn/src/bnetd
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#286">[ date ]</a>
+              <a href="thread.html#286">[ thread ]</a>
+              <a href="subject.html#286">[ subject ]</a>
+              <a href="author.html#286">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pandaemonium
+Date: 2007-08-13 12:25:00 +0200 (Mon, 13 Aug 2007)
+New Revision: 309
+
+Modified:
+   trunk/pvpgn/src/bnetd/handle_irc.cpp
+Log:
+fix previous commit (which also contained alot unintended payload)
+
+Modified: trunk/pvpgn/src/bnetd/handle_irc.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/handle_irc.cpp	2007-08-13 10:00:12 UTC (rev 308)
++++ trunk/pvpgn/src/bnetd/handle_irc.cpp	2007-08-13 10:25:00 UTC (rev 309)
+@@ -179,8 +179,8 @@
+         std::sprintf(temp,&quot;:Maximum length exceeded&quot;);
+     irc_send(conn,RPL_MYINFO,temp);
+ 
+-    std::sprintf(temp,&quot;NICKLEN=%d TOPICLEN=%d CHANNELLEN=%d PREFIX=&quot;CHANNEL_PREFIX&quot; CHANTYPES=&quot;CHANNEL_TYPE&quot; NETWORK=%s IRCD=&quot;PVPGN_SOFTWARE,
+-    MAX_CHARNAME_LEN, MAX_TOPIC_LEN, MAX_CHANNELNAME_LEN, prefs_get_irc_network_name());
++    std::sprintf(temp,&quot;NICKLEN=%d TOPICLEN=%d CHANNELLEN=%d PREFIX=%s CHANTYPES=&quot;CHANNEL_TYPE&quot; NETWORK=%s IRCD=&quot;PVPGN_SOFTWARE,
++    MAX_CHARNAME_LEN, MAX_TOPIC_LEN, MAX_CHANNELNAME_LEN, CHANNEL_PREFIX, prefs_get_irc_network_name());
+ 
+     if((std::strlen(temp))&lt;=MAX_IRC_MESSAGE_LEN)
+         irc_send(conn,RPL_ISUPPORT,temp);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000285.html">[pvpgn-dev] [Bug #10900] could not load saved game
+</A></li>
+	<LI>Next message: <A HREF="000287.html">[pvpgn-dev] r310 - trunk/pvpgn/src/bnetd
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#286">[ date ]</a>
+              <a href="thread.html#286">[ thread ]</a>
+              <a href="subject.html#286">[ subject ]</a>
+              <a href="author.html#286">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

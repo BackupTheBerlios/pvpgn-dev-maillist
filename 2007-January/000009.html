@@ -1,0 +1,115 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] pvpgn/src/bnetd handle_irc.c,1.56,1.57
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-January/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20pvpgn/src/bnetd%20handle_irc.c%2C1.56%2C1.57&In-Reply-To=%3C20070114095226.614FFD806C%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000008.html">
+   <LINK REL="Next"  HREF="000010.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] pvpgn/src/bnetd handle_irc.c,1.56,1.57</H1>
+    <B>d1zzy</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20pvpgn/src/bnetd%20handle_irc.c%2C1.56%2C1.57&In-Reply-To=%3C20070114095226.614FFD806C%40mail.berlios.de%3E"
+       TITLE="[pvpgn-dev] pvpgn/src/bnetd handle_irc.c,1.56,1.57">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Sun Jan 14 10:52:26 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000008.html">[pvpgn-dev] pvpgn/conf address_translation.conf,1.6,1.7
+</A></li>
+        <LI>Next message: <A HREF="000010.html">[pvpgn-dev] [Patch #1817] Added support for address_translation to	servserv WOL
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#9">[ date ]</a>
+              <a href="thread.html#9">[ thread ]</a>
+              <a href="subject.html#9">[ subject ]</a>
+              <a href="author.html#9">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/pvpgn/pvpgn/src/bnetd
+In directory sheep:/tmp/cvs-serv30375/src/bnetd
+
+Modified Files:
+	handle_irc.c 
+Log Message:
+Patch from pelish to fix reporting failure of joining a game channel and 
+add address translation support for WOL servserv addresses.
+
+
+Index: handle_irc.c
+===================================================================
+RCS file: /cvsroot/pvpgn/pvpgn/src/bnetd/handle_irc.c,v
+retrieving revision 1.56
+retrieving revision 1.57
+diff -u -d -r1.56 -r1.57
+--- handle_irc.c	20 Dec 2006 21:10:05 -0000	1.56
++++ handle_irc.c	14 Jan 2007 09:51:03 -0000	1.57
+@@ -1197,11 +1197,20 @@
+ 	char temp[MAX_IRC_MESSAGE_LEN];
+ 
+ 	// Casted to avoid warnings
+-	const char * ircip = addr_num_to_ip_str(conn_get_real_local_addr(conn));
++	const char * ircip;
+ 	const char * ircname = prefs_get_servername();
+ 	const char * irctimezone = prefs_get_wol_timezone();
+ 	const char * irclong = prefs_get_wol_longitude();
+ 	const char * irclat = prefs_get_wol_latitude();
++	
++    {			/* trans support */
++       unsigned short port = conn_get_real_local_port(conn);
++       unsigned int addr = conn_get_real_local_addr(conn);
++
++       trans_net(conn_get_addr(conn), &amp;addr, &amp;port);
++
++       ircip = addr_num_to_ip_str(addr);
++    }
+ 
+ 	sprintf(temp,&quot;:%s %d '0:%s' %s %s %s&quot;,ircip,BNETD_WOL_PORT,ircname,irctimezone,irclong,irclat);
+ 	irc_send(conn,RPL_IRCSERV,temp);
+@@ -1365,9 +1374,10 @@
+             channel = channellist_find_channel_by_name(ircname,NULL,NULL);
+ 
+             if (channel == NULL) {
+-	             irc_send(conn,ERR_NOSUCHCHANNEL,&quot;:No such channel&quot;);
++	   	 	     snprintf(_temp, sizeof(_temp), &quot;%s :Game channel has closed&quot;,e[0]);
++	             irc_send(conn,ERR_GAMECHANCLOSED,_temp);
+ 			     if (e)
+-		               irc_unget_listelems(e);
++		            irc_unget_listelems(e);
+      	         return 0;
+             }
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000008.html">[pvpgn-dev] pvpgn/conf address_translation.conf,1.6,1.7
+</A></li>
+	<LI>Next message: <A HREF="000010.html">[pvpgn-dev] [Patch #1817] Added support for address_translation to	servserv WOL
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#9">[ date ]</a>
+              <a href="thread.html#9">[ thread ]</a>
+              <a href="subject.html#9">[ subject ]</a>
+              <a href="author.html#9">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

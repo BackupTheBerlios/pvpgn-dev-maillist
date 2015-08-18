@@ -1,0 +1,386 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r536 - in branches/clan_refactorings: . conf
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2009-February/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r536%20-%20in%20branches/clan_refactorings%3A%20.%20conf&In-Reply-To=%3C200902112023.n1BKNStF022360%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000983.html">
+   <LINK REL="Next"  HREF="000985.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r536 - in branches/clan_refactorings: . conf</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r536%20-%20in%20branches/clan_refactorings%3A%20.%20conf&In-Reply-To=%3C200902112023.n1BKNStF022360%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r536 - in branches/clan_refactorings: . conf">svn at svn.berlios.de
+       </A><BR>
+    <I>Wed Feb 11 21:23:28 CET 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000983.html">[pvpgn-dev] r535 - trunk/pvpgn/src/common
+</A></li>
+        <LI>Next message: <A HREF="000985.html">[pvpgn-dev] r537 - in trunk/pvpgn/src: bnetd common
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#984">[ date ]</a>
+              <a href="thread.html#984">[ thread ]</a>
+              <a href="subject.html#984">[ subject ]</a>
+              <a href="author.html#984">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pandaemonium
+Date: 2009-02-11 21:23:28 +0100 (Wed, 11 Feb 2009)
+New Revision: 536
+
+Modified:
+   branches/clan_refactorings/conf/autoupdate.conf.in
+   branches/clan_refactorings/conf/channel.conf.in
+   branches/clan_refactorings/conf/versioncheck.conf.in
+   branches/clan_refactorings/version-history.txt
+Log:
+merge in changes from trunk
+
+Modified: branches/clan_refactorings/conf/autoupdate.conf.in
+===================================================================
+--- branches/clan_refactorings/conf/autoupdate.conf.in	2009-02-11 20:21:50 UTC (rev 535)
++++ branches/clan_refactorings/conf/autoupdate.conf.in	2009-02-11 20:23:28 UTC (rev 536)
+@@ -200,86 +200,89 @@
+ #IX86    D2DV    D2DV_1xx        D2DV_IX86_1xx_112A.mpq
+ 
+ # ================ StarCraft Expansion (Brood War) ==========================
+-#IX86    SEXP    SEXP_104        SEXP_IX86_1xx_1153.mpq
+-#IX86    STAR    SEXP_104_STAR   SEXP_IX86_1xx_1153.mpq
+-#IX86    SEXP    SEXP_105        SEXP_IX86_1xx_1153.mpq
+-#IX86    STAR    SEXP_105_STAR   SEXP_IX86_1xx_1153.mpq
+-#IX86    SEXP    SEXP_106        SEXP_IX86_1xx_1153.mpq
+-#IX86    STAR    SEXP_106_STAR   SEXP_IX86_1xx_1153.mpq
+-#IX86    SEXP    SEXP_107        SEXP_IX86_1xx_1153.mpq
+-#IX86    STAR    SEXP_107_STAR   SEXP_IX86_1xx_1153.mpq
+-#IX86    SEXP    SEXP_108        SEXP_IX86_1xx_1153.mpq
+-#IX86    STAR    SEXP_108_STAR   SEXP_IX86_1xx_1153.mpq
+-#IX86    SEXP    SEXP_108B       SEXP_IX86_1xx_1153.mpq
+-#IX86    STAR    SEXP_108B_STAR  SEXP_IX86_1xx_1153.mpq
+-#IX86    SEXP    SEXP_109        SEXP_IX86_1xx_1153.mpq
+-#IX86    STAR    SEXP_109_STAR   SEXP_IX86_1xx_1153.mpq
+-#IX86    SEXP    SEXP_110        SEXP_IX86_1xx_1153.mpq
+-#IX86    STAR    SEXP_110_STAR   SEXP_IX86_1xx_1153.mpq
+-#IX86    SEXP    SEXP_111        SEXP_IX86_1xx_1153.mpq
+-#IX86    STAR    SEXP_111_STAR   SEXP_IX86_1xx_1153.mpq
+-#IX86    SEXP    SEXP_111B       SEXP_IX86_1xx_1153.mpq
+-#IX86    STAR    SEXP_111B_STAR  SEXP_IX86_1xx_1153.mpq
+-#IX86    SEXP    SEXP_112        SEXP_IX86_1xx_1153.mpq
+-#IX86    STAR    SEXP_112_STAR   SEXP_IX86_1xx_1153.mpq
+-#IX86    SEXP    SEXP_112B       SEXP_IX86_1xx_1153.mpq
+-#IX86    STAR    SEXP_112B_STAR  SEXP_IX86_1xx_1153.mpq
+-#IX86    SEXP    SEXP_113        SEXP_IX86_1xx_1153.mpq
++#IX86    SEXP    SEXP_104        SEXP_IX86_1xx_116.mpq
++#IX86    STAR    SEXP_104_STAR   SEXP_IX86_1xx_116.mpq
++#IX86    SEXP    SEXP_105        SEXP_IX86_1xx_116.mpq
++#IX86    STAR    SEXP_105_STAR   SEXP_IX86_1xx_116.mpq
++#IX86    SEXP    SEXP_106        SEXP_IX86_1xx_116.mpq
++#IX86    STAR    SEXP_106_STAR   SEXP_IX86_1xx_116.mpq
++#IX86    SEXP    SEXP_107        SEXP_IX86_1xx_116.mpq
++#IX86    STAR    SEXP_107_STAR   SEXP_IX86_1xx_116.mpq
++#IX86    SEXP    SEXP_108        SEXP_IX86_1xx_116.mpq
++#IX86    STAR    SEXP_108_STAR   SEXP_IX86_1xx_116.mpq
++#IX86    SEXP    SEXP_108B       SEXP_IX86_1xx_116.mpq
++#IX86    STAR    SEXP_108B_STAR  SEXP_IX86_1xx_116.mpq
++#IX86    SEXP    SEXP_109        SEXP_IX86_1xx_116.mpq
++#IX86    STAR    SEXP_109_STAR   SEXP_IX86_1xx_116.mpq
++#IX86    SEXP    SEXP_110        SEXP_IX86_1xx_116.mpq
++#IX86    STAR    SEXP_110_STAR   SEXP_IX86_1xx_116.mpq
++#IX86    SEXP    SEXP_111        SEXP_IX86_1xx_116.mpq
++#IX86    STAR    SEXP_111_STAR   SEXP_IX86_1xx_116.mpq
++#IX86    SEXP    SEXP_111B       SEXP_IX86_1xx_116.mpq
++#IX86    STAR    SEXP_111B_STAR  SEXP_IX86_1xx_116.mpq
++#IX86    SEXP    SEXP_112        SEXP_IX86_1xx_116.mpq
++#IX86    STAR    SEXP_112_STAR   SEXP_IX86_1xx_116.mpq
++#IX86    SEXP    SEXP_112B       SEXP_IX86_1xx_116.mpq
++#IX86    STAR    SEXP_112B_STAR  SEXP_IX86_1xx_116.mpq
++#IX86    SEXP    SEXP_113        SEXP_IX86_1xx_116.mpq
+ # unfortunately we don't have a SEXP_113_STAR in versioncheck.conf
+-#IX86    SEXP    SEXP_113B       SEXP_IX86_1xx_1153.mpq
+-#IX86    STAR    SEXP_113B_STAR  SEXP_IX86_1xx_1153.mpq
+-#IX86    SEXP    SEXP_113C       SEXP_IX86_1xx_1153.mpq
+-#IX86    STAR    SEXP_113C_STAR  SEXP_IX86_1xx_1153.mpq
+-#IX86    SEXP    SEXP_113D       SEXP_IX86_1xx_1153.mpq
+-#IX86    STAR    SEXP_113D_STAR  SEXP_IX86_1xx_1153.mpq
+-#IX86    SEXP    SEXP_113E       SEXP_IX86_1xx_1153.mpq
+-#IX86    STAR    SEXP_113E       SEXP_IX86_1xx_1153.mpq
+-#IX86    SEXP    SEXP_114        SEXP_IX86_1xx_1153.mpq
+-#IX86    STAR    SEXP_114        SEXP_IX86_1xx_1153.mpq
+-#IX86    SEXP    SEXP_115        SEXP_IX86_1xx_1153.mpq
+-#IX86    STAR    SEXP_115        SEXP_IX86_1xx_1153.mpq
+-#IX86    SEXP    SEXP_1151       SEXP_IX86_1xx_1153.mpq
+-#IX86    STAR    SEXP_1151       SEXP_IX86_1xx_1153.mpq
++#IX86    SEXP    SEXP_113B       SEXP_IX86_1xx_116.mpq
++#IX86    STAR    SEXP_113B_STAR  SEXP_IX86_1xx_116.mpq
++#IX86    SEXP    SEXP_113C       SEXP_IX86_1xx_116.mpq
++#IX86    STAR    SEXP_113C_STAR  SEXP_IX86_1xx_116.mpq
++#IX86    SEXP    SEXP_113D       SEXP_IX86_1xx_116.mpq
++#IX86    STAR    SEXP_113D_STAR  SEXP_IX86_1xx_116.mpq
++#IX86    SEXP    SEXP_113E       SEXP_IX86_1xx_116.mpq
++#IX86    STAR    SEXP_113E       SEXP_IX86_1xx_116.mpq
++#IX86    SEXP    SEXP_114        SEXP_IX86_1xx_116.mpq
++#IX86    STAR    SEXP_114        SEXP_IX86_1xx_116.mpq
++#IX86    SEXP    SEXP_115        SEXP_IX86_1xx_116.mpq
++#IX86    STAR    SEXP_115        SEXP_IX86_1xx_116.mpq
++#IX86    SEXP    SEXP_1151       SEXP_IX86_1xx_116.mpq
++#IX86    STAR    SEXP_1151       SEXP_IX86_1xx_116.mpq
++#IX86    SEXP    SEXP_1152       SEXP_IX86_1xx_116.mpq
++#IX86    STAR    SEXP_1152       SEXP_IX86_1xx_116.mpq
+ 
+-# Incremental update from version 1.13d
+-#IX86    SEXP    SEXP_1152       SEXP_IX86_1152_1153.mpq
+-#IX86    STAR    SEXP_1152       SEXP_IX86_1152_1153.mpq
++# Incremental update from version 1.15.3
++#IX86    SEXP    SEXP_1153       SEXP_IX86_1153_116.mpq
++#IX86    STAR    SEXP_1153       SEXP_IX86_1153_116.mpq
+ 
+ # The next one is a Brood War wildcard entry.
+-#IX86    SEXP    SEXP_1xx        SEXP_IX86_1xx_1153.mpq
++#IX86    SEXP    SEXP_1xx        SEXP_IX86_1xx_116.mpq
+ 
+ # ========================= StarCraft (original) ============================
+-#IX86    STAR    STAR_100        STAR_IX86_1xx_1153.mpq
+-#IX86    STAR    STAR_101        STAR_IX86_1xx_1153.mpq
+-#IX86    STAR    STAR_102        STAR_IX86_1xx_1153.mpq
+-#IX86    STAR    STAR_103        STAR_IX86_1xx_1153.mpq
+-#IX86    STAR    STAR_104        STAR_IX86_1xx_1153.mpq
+-#IX86    STAR    STAR_105        STAR_IX86_1xx_1153.mpq
+-#IX86    STAR    STAR_106        STAR_IX86_1xx_1153.mpq
+-#IX86    STAR    STAR_107        STAR_IX86_1xx_1153.mpq
+-#IX86    STAR    STAR_108        STAR_IX86_1xx_1153.mpq
+-#IX86    STAR    STAR_108B       STAR_IX86_1xx_1153.mpq
+-#IX86    STAR    STAR_109        STAR_IX86_1xx_1153.mpq
+-#IX86    STAR    STAR_109B       STAR_IX86_1xx_1153.mpq
+-#IX86    STAR    STAR_110        STAR_IX86_1xx_1153.mpq
+-#IX86    STAR    STAR_111        STAR_IX86_1xx_1153.mpq
+-#IX86    STAR    STAR_111B       STAR_IX86_1xx_1153.mpq
+-#IX86    STAR    STAR_112        STAR_IX86_1xx_1153.mpq
+-#IX86    STAR    STAR_112B       STAR_IX86_1xx_1153.mpq
+-#IX86    STAR    STAR_113        STAR_IX86_1xx_1153.mpq
+-#IX86    STAR    STAR_113B       STAR_IX86_1xx_1153.mpq
+-#IX86    STAR    STAR_113C       STAR_IX86_1xx_1153.mpq
+-#IX86    STAR    STAR_113D       STAR_IX86_1xx_1153.mpq
+-#IX86    STAR    STAR_113E       STAR_IX86_1xx_1153.mpq
+-#IX86    STAR    STAR_114        STAR_IX86_1xx_1153.mpq
+-#IX86    STAR    STAR_115        STAR_IX86_1xx_1153.mpq
+-#IX86    STAR    STAR_1151       STAR_IX86_1xx_1153.mpq
++#IX86    STAR    STAR_100        STAR_IX86_1xx_116.mpq
++#IX86    STAR    STAR_101        STAR_IX86_1xx_116.mpq
++#IX86    STAR    STAR_102        STAR_IX86_1xx_116.mpq
++#IX86    STAR    STAR_103        STAR_IX86_1xx_116.mpq
++#IX86    STAR    STAR_104        STAR_IX86_1xx_116.mpq
++#IX86    STAR    STAR_105        STAR_IX86_1xx_116.mpq
++#IX86    STAR    STAR_106        STAR_IX86_1xx_116.mpq
++#IX86    STAR    STAR_107        STAR_IX86_1xx_116.mpq
++#IX86    STAR    STAR_108        STAR_IX86_1xx_116.mpq
++#IX86    STAR    STAR_108B       STAR_IX86_1xx_116.mpq
++#IX86    STAR    STAR_109        STAR_IX86_1xx_116.mpq
++#IX86    STAR    STAR_109B       STAR_IX86_1xx_116.mpq
++#IX86    STAR    STAR_110        STAR_IX86_1xx_116.mpq
++#IX86    STAR    STAR_111        STAR_IX86_1xx_116.mpq
++#IX86    STAR    STAR_111B       STAR_IX86_1xx_116.mpq
++#IX86    STAR    STAR_112        STAR_IX86_1xx_116.mpq
++#IX86    STAR    STAR_112B       STAR_IX86_1xx_116.mpq
++#IX86    STAR    STAR_113        STAR_IX86_1xx_116.mpq
++#IX86    STAR    STAR_113B       STAR_IX86_1xx_116.mpq
++#IX86    STAR    STAR_113C       STAR_IX86_1xx_116.mpq
++#IX86    STAR    STAR_113D       STAR_IX86_1xx_116.mpq
++#IX86    STAR    STAR_113E       STAR_IX86_1xx_116.mpq
++#IX86    STAR    STAR_114        STAR_IX86_1xx_116.mpq
++#IX86    STAR    STAR_115        STAR_IX86_1xx_116.mpq
++#IX86    STAR    STAR_1151       STAR_IX86_1xx_116.mpq
++#IX86    STAR    STAR_1152       STAR_IX86_1xx_116.mpq
+ 
+-# Incremental update from version 1.11b
+-#IX86    STAR    STAR_1152       STAR_IX86_1152_1153.mpq
++# Incremental update from version 1.15.3
++#IX86    STAR    STAR_1153       SEXP_IX86_1153_116.mpq
+ 
+ # The next one is a Starcraft wildcard entry.
+-#IX86    STAR    STAR_1xx        STAR_IX86_1xx_1153.mpq
++#IX86    STAR    STAR_1xx        STAR_IX86_1xx_116.mpq
+ 
+ # ========================= Diablo (original) ==============================
+ # note: Blizzard doesn't update client from 109 to 109b.
+
+Modified: branches/clan_refactorings/conf/channel.conf.in
+===================================================================
+--- branches/clan_refactorings/conf/channel.conf.in	2009-02-11 20:21:50 UTC (rev 535)
++++ branches/clan_refactorings/conf/channel.conf.in	2009-02-11 20:23:28 UTC (rev 536)
+@@ -80,5 +80,9 @@
+ &quot;Nox Quest-1&quot;               &quot;Lob 37 0&quot;              NOXQ  true  false false  NULL NULL -1   false
+ &quot;Yuri's Revenge-1&quot;          &quot;Lob 41 0&quot;              YURI  true  false false  NULL NULL -1   false
+ &quot;Yuri's Revenge-2&quot;          &quot;Lob 41 1&quot;              YURI  true  false false  NULL NULL -1   false
++
++&quot;Lob 38 0&quot;                  &quot;Lob 38 0&quot;              CHAT  true  false false  NULL NULL -1   false
++&quot;Lob 39 0&quot;                  &quot;Lob 39 0&quot;              CHAT  true  false false  NULL NULL -1   false
++&quot;Lob 40 0&quot;                  &quot;Lob 40 0&quot;              CHAT  true  false false  NULL NULL -1   false
+ #                                                                            #
+ ##############################################################################
+
+Modified: branches/clan_refactorings/conf/versioncheck.conf.in
+===================================================================
+--- branches/clan_refactorings/conf/versioncheck.conf.in	2009-02-11 20:21:50 UTC (rev 535)
++++ branches/clan_refactorings/conf/versioncheck.conf.in	2009-02-11 20:23:28 UTC (rev 536)
+@@ -195,38 +195,38 @@
+  0x41e223a3 \
+  D2DV_109D
+ 
+-# Starcraft - Broodwar (Expansion) 1.15.3 - (Broodwar mode)
++# Starcraft - Broodwar (Expansion) 1.16 - (Broodwar mode)
+ &quot;A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B&quot; \
+  &quot;ver-ix86-1.mpq&quot; \
+  IX86 \
+  SEXP \
+- &quot;StarCraft.exe 07/25/08 23:34:58 1220608&quot; \
+- 0x000000d1 \
+- 1.15.3.1 \
+- 0x2abff892 \
+- SEXP_1153
++ &quot;StarCraft.exe 11/06/08 01:10:59 1220608&quot; \
++ 0x000000d3 \
++ 1.16.0.1 \
++ 0xd206c475 \
++ SEXP_116
+ 
+-# Starcraft - Broodwar (Expansion) 1.15.3 - (Starcraft mode)
++# Starcraft - Broodwar (Expansion) 1.16 - (Starcraft mode)
+ &quot;A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B&quot; \
+  &quot;ver-ix86-1.mpq&quot; \
+  IX86 \
+  STAR \
+- &quot;StarCraft.exe 07/25/08 23:34:58 1220608&quot; \
+- 0x000000d1 \
+- 1.15.3.1 \
+- 0x2abff892 \
+- STAR_1153
++ &quot;StarCraft.exe 11/06/08 01:10:59 1220608&quot; \
++ 0x000000d3 \
++ 1.16.0.1 \
++ 0xd206c475 \
++ STAR_116
+ 
+-# Starcraft (Standalone) 1.15.3
++# Starcraft (Standalone) 1.16
+ &quot;A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B&quot; \
+  &quot;ver-ix86-1.mpq&quot; \
+  IX86 \
+  STAR \
+- &quot;StarCraft.exe 07/25/08 23:36:39 1220608&quot; \
+- 0x000000d1 \
+- 1.15.3.0 \
+- 0xc9fc7927 \
+- STAR_1153
++ &quot;StarCraft.exe 11/06/08 01:14:14 1220608&quot; \
++ 0x000000d3 \
++ 1.16.0.0 \
++ 0xcab35ce0 \
++ STAR_116
+ 
+ ##### Mac OS X (XMAC) ########################################################
+ 
+@@ -1153,6 +1153,28 @@
+ 
+ # ==================== StarCraft Broodwar entries ============================
+ 
++# Starcraft - Broodwar (Expansion) 1.15.3 - (Broodwar mode)
++&quot;A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B&quot; \
++ &quot;ver-ix86-1.mpq&quot; \
++ IX86 \
++ SEXP \
++ &quot;StarCraft.exe 07/25/08 23:34:58 1220608&quot; \
++ 0x000000d1 \
++ 1.15.3.1 \
++ 0x2abff892 \
++ SEXP_1153
++
++# Starcraft - Broodwar (Expansion) 1.15.3 - (Starcraft mode)
++&quot;A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B&quot; \
++ &quot;ver-ix86-1.mpq&quot; \
++ IX86 \
++ STAR \
++ &quot;StarCraft.exe 07/25/08 23:34:58 1220608&quot; \
++ 0x000000d1 \
++ 1.15.3.1 \
++ 0x2abff892 \
++ STAR_1153
++
+ # Starcraft - Broodwar (Expansion) 1.15.2 - (Broodwar mode)
+ &quot;A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B&quot; \
+  &quot;ver-ix86-1.mpq&quot; \
+@@ -1665,6 +1687,17 @@
+ 
+ # ==================== StarCraft (original) entries ==========================
+ 
++# Starcraft (Standalone) 1.15.3
++&quot;A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B&quot; \
++ &quot;ver-ix86-1.mpq&quot; \
++ IX86 \
++ STAR \
++ &quot;StarCraft.exe 07/25/08 23:36:39 1220608&quot; \
++ 0x000000d1 \
++ 1.15.3.0 \
++ 0xc9fc7927 \
++ STAR_1153
++
+ # Starcraft (Standalone) 1.15.2
+ &quot;A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B&quot; \
+  &quot;ver-ix86-1.mpq&quot; \
+
+Modified: branches/clan_refactorings/version-history.txt
+===================================================================
+--- branches/clan_refactorings/version-history.txt	2009-02-11 20:21:50 UTC (rev 535)
++++ branches/clan_refactorings/version-history.txt	2009-02-11 20:23:28 UTC (rev 536)
+@@ -16,12 +16,14 @@
+   -- added various protocol related fixes
+   -- added apiregister support
+   -- added autoupdate support for WOLv2 clients
+-  -- added variables into bnetd.conf for wol FTP server specification
+-  -- fixed  voice flag not shown for clients in channel
++  -- added variables into bnetd.conf for wol FTP update server specification
++  -- fixed voice flag not shown for clients in channel
+   -- fixed bug in RedAlert2/Yuri when game owner changes maximum players
++  -- added QuickMatch support for RA2/YURI
+ 
+ [WAR3]
+-  -- add support for SRP3 based account creation/login
++  -- added support for SRP3 based account creation/login
++  -- added support for passchange for SRP3 based accounts
+ 
+ [MISC]
+   -- added /clan whisper subcommand
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000983.html">[pvpgn-dev] r535 - trunk/pvpgn/src/common
+</A></li>
+	<LI>Next message: <A HREF="000985.html">[pvpgn-dev] r537 - in trunk/pvpgn/src: bnetd common
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#984">[ date ]</a>
+              <a href="thread.html#984">[ thread ]</a>
+              <a href="subject.html#984">[ subject ]</a>
+              <a href="author.html#984">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

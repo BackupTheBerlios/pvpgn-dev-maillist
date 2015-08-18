@@ -1,0 +1,89 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] pvpgn/src/bnetd irc.c,1.48,1.49
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2008-July/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20pvpgn/src/bnetd%20irc.c%2C1.48%2C1.49&In-Reply-To=%3C20080713233514.F31B2140BEE%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000742.html">
+   <LINK REL="Next"  HREF="000744.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] pvpgn/src/bnetd irc.c,1.48,1.49</H1>
+    <B>pelish</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20pvpgn/src/bnetd%20irc.c%2C1.48%2C1.49&In-Reply-To=%3C20080713233514.F31B2140BEE%40mail.berlios.de%3E"
+       TITLE="[pvpgn-dev] pvpgn/src/bnetd irc.c,1.48,1.49">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Mon Jul 14 01:35:14 CEST 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000742.html">[pvpgn-dev] web index.php,1.12,1.13
+</A></li>
+        <LI>Next message: <A HREF="000744.html">[pvpgn-dev] pvpgn version-history.txt,1.283,1.284
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#743">[ date ]</a>
+              <a href="thread.html#743">[ thread ]</a>
+              <a href="subject.html#743">[ subject ]</a>
+              <a href="author.html#743">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/pvpgn/pvpgn/src/bnetd
+In directory sheep:/tmp/cvs-serv21544/src/bnetd
+
+Modified Files:
+	irc.c 
+Log Message:
+version-history tipo fix and small fix on IRC (BNET\\acct\\lastlogin_clienttag saves IIRC properly and not UNKN for IRC connection)
+
+Index: irc.c
+===================================================================
+RCS file: /cvsroot/pvpgn/pvpgn/src/bnetd/irc.c,v
+retrieving revision 1.48
+retrieving revision 1.49
+diff -u -d -r1.48 -r1.49
+--- irc.c	2 Dec 2007 16:17:54 -0000	1.48
++++ irc.c	13 Jul 2008 23:35:12 -0000	1.49
+@@ -341,9 +341,9 @@
+         temphash = account_get_pass(a);	
+         hash_set_str(&amp;h2,temphash);
+         if (hash_eq(h1,h2)) {
++            conn_set_clienttag(conn,CLIENTTAG_IIRC_UINT); /* IIRC hope here is ok */
+             conn_login(conn,a,username);
+             conn_set_state(conn,conn_state_loggedin);
+-            conn_set_clienttag(conn,CLIENTTAG_IIRC_UINT); /* IIRC hope here is ok */
+             irc_send_cmd(conn,&quot;NOTICE&quot;,&quot;:Authentication successful. You are now logged in.&quot;);
+ 	    return 1;
+         } else {
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000742.html">[pvpgn-dev] web index.php,1.12,1.13
+</A></li>
+	<LI>Next message: <A HREF="000744.html">[pvpgn-dev] pvpgn version-history.txt,1.283,1.284
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#743">[ date ]</a>
+              <a href="thread.html#743">[ thread ]</a>
+              <a href="subject.html#743">[ subject ]</a>
+              <a href="author.html#743">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

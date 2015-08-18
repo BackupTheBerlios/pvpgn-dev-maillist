@@ -1,0 +1,1657 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r257 - in trunk/pvpgn/src: bnetd bnpcap client common
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-February/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r257%20-%20in%20trunk/pvpgn/src%3A%20bnetd%20bnpcap%20client%20common&In-Reply-To=%3C200702202130.l1KLUaXx002742%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000040.html">
+   <LINK REL="Next"  HREF="000042.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r257 - in trunk/pvpgn/src: bnetd bnpcap client common</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r257%20-%20in%20trunk/pvpgn/src%3A%20bnetd%20bnpcap%20client%20common&In-Reply-To=%3C200702202130.l1KLUaXx002742%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r257 - in trunk/pvpgn/src: bnetd bnpcap client common">svn at svn.berlios.de
+       </A><BR>
+    <I>Tue Feb 20 22:30:36 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000040.html">[pvpgn-dev] r256 - trunk/pvpgn/src
+</A></li>
+        <LI>Next message: <A HREF="000042.html">[pvpgn-dev] r258 - trunk/pvpgn/src/bnetd
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#41">[ date ]</a>
+              <a href="thread.html#41">[ thread ]</a>
+              <a href="subject.html#41">[ subject ]</a>
+              <a href="author.html#41">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: d1zzy
+Date: 2007-02-20 22:30:34 +0100 (Tue, 20 Feb 2007)
+New Revision: 257
+
+Modified:
+   trunk/pvpgn/src/bnetd/adbanner.cpp
+   trunk/pvpgn/src/bnetd/anongame.cpp
+   trunk/pvpgn/src/bnetd/channel.cpp
+   trunk/pvpgn/src/bnetd/handle_anongame.cpp
+   trunk/pvpgn/src/bnetd/handle_bnet.cpp
+   trunk/pvpgn/src/bnetd/handle_irc.cpp
+   trunk/pvpgn/src/bnetd/handle_udp.cpp
+   trunk/pvpgn/src/bnetd/handle_wol.cpp
+   trunk/pvpgn/src/bnetd/irc.cpp
+   trunk/pvpgn/src/bnpcap/bnpcap.cpp
+   trunk/pvpgn/src/client/bnchat.cpp
+   trunk/pvpgn/src/common/bnethash.cpp
+Log:
+Fixed a lot of warnings (mainly bad formatters and some unused 
+variables). There still remains a warning and bug that I don't know how to 
+solve (what argument to put in, pelish ?) in irc.cpp:
+irc.cpp:665: warning: too few arguments for format
+
+
+Modified: trunk/pvpgn/src/bnetd/adbanner.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/adbanner.cpp	2007-02-20 21:22:47 UTC (rev 256)
++++ trunk/pvpgn/src/bnetd/adbanner.cpp	2007-02-20 21:30:34 UTC (rev 257)
+@@ -65,11 +65,11 @@
+ AdBannerComponent::find(AdKey adKey, unsigned id) const
+ {
+ 	const AdBanner* result;
+-	if (result =  finder(adKey,id))
++	if ((result =  finder(adKey,id)))
+ 		return result;
+-	else if (result = finder(std::make_pair(adKey.first,0),id))
++	else if ((result = finder(std::make_pair(adKey.first,0),id)))
+ 		return result;
+-	else if (result = finder(std::make_pair(0,adKey.second),id))
++	else if ((result = finder(std::make_pair(0,adKey.second),id)))
+ 		return result;
+ 	else
+ 		return finder(std::make_pair(0,0),id);
+@@ -168,16 +168,16 @@
+ {
+ 	const AdBanner* result;
+ 	// first try language and client specific ad
+-	if (result = randomFinder(where,adKey))
++	if ((result = randomFinder(where,adKey)))
+ 		return result;
+ 	// then try discarding language
+-	else if (result = randomFinder(where, std::make_pair(adKey.first,0)))
++	else if ((result = randomFinder(where, std::make_pair(adKey.first,0))))
+ 		return result;
+ 	// now discard client
+-	else if (result = randomFinder(where, std::make_pair(0,adKey.second)))
++	else if ((result = randomFinder(where, std::make_pair(0,adKey.second))))
+ 		return result;
+ 	// and finally look for a totally unspecific ad
+-	else 
++	else
+ 		return randomFinder(where, std::make_pair(0,0));
+ 
+ }
+
+Modified: trunk/pvpgn/src/bnetd/anongame.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/anongame.cpp	2007-02-20 21:22:47 UTC (rev 256)
++++ trunk/pvpgn/src/bnetd/anongame.cpp	2007-02-20 21:30:34 UTC (rev 257)
+@@ -1632,7 +1632,7 @@
+     if (packet_get_type(packet) == CLIENT_W3ROUTE_REQ) {
+ 	t_connection *oldc;
+ 
+-	eventlog(eventlog_level_trace, __FUNCTION__, &quot;[%d] sizeof t_client_w3route_req %d&quot;, conn_get_socket(c), sizeof(t_client_w3route_req));
++	eventlog(eventlog_level_trace, __FUNCTION__, &quot;[%d] sizeof t_client_w3route_req %lu&quot;, conn_get_socket(c), sizeof(t_client_w3route_req));
+ 	username = packet_get_str_const(packet, sizeof(t_client_w3route_req), MAX_USERNAME_LEN);
+ 	eventlog(eventlog_level_info, __FUNCTION__, &quot;[%d] got username '%s'&quot;, conn_get_socket(c), username);
+ 	gamec = connlist_find_connection_by_accountname(username);
+
+Modified: trunk/pvpgn/src/bnetd/channel.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/channel.cpp	2007-02-20 21:22:47 UTC (rev 256)
++++ trunk/pvpgn/src/bnetd/channel.cpp	2007-02-20 21:30:34 UTC (rev 257)
+@@ -82,7 +82,7 @@
+     }
+     if (clienttag &amp;&amp; std::strlen(clienttag)!=4)
+     {
+-	eventlog(eventlog_level_error,__FUNCTION__,&quot;client tag has bad length (%u chars)&quot;,std::strlen(clienttag));
++	eventlog(eventlog_level_error,__FUNCTION__,&quot;client tag has bad length (%lu chars)&quot;,std::strlen(clienttag));
+ 	return NULL;
+     }
+ 
+
+Modified: trunk/pvpgn/src/bnetd/handle_anongame.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/handle_anongame.cpp	2007-02-20 21:22:47 UTC (rev 256)
++++ trunk/pvpgn/src/bnetd/handle_anongame.cpp	2007-02-20 21:30:34 UTC (rev 257)
+@@ -76,7 +76,7 @@
+ 
+     if (packet_get_size(packet)&lt;sizeof(t_client_findanongame_profile_clan))
+     {
+-	eventlog(eventlog_level_error,__FUNCTION__,&quot;[%d] got bad ANONGAME_PROFILE_CLAN packet (expected %u bytes, got %u)&quot;,conn_get_socket(c), sizeof(t_client_findanongame_profile_clan), packet_get_size(packet));
++	eventlog(eventlog_level_error,__FUNCTION__,&quot;[%d] got bad ANONGAME_PROFILE_CLAN packet (expected %lu bytes, got %u)&quot;,conn_get_socket(c), sizeof(t_client_findanongame_profile_clan), packet_get_size(packet));
+ 	return -1;
+     }
+ 
+@@ -871,7 +871,7 @@
+     unsigned int tmp1, tmp2, tmp3;
+ 
+     tmp1 = time-1059179400;	/* 0x3F21CB88  */
+-    tmp2 = tmp1*0.59604645;
++    tmp2 = static_cast&lt;unsigned int&gt;(tmp1*0.59604645);
+     tmp3 = tmp2+3276999960U;
+     /*eventlog(eventlog_level_trace,__FUNCTION__,&quot;time: 0x%08x, tmp1: 0x%08x, tmp2 0x%08x, tmp3 0x%08x&quot;,time,tmp1,tmp2,tmp3);*/
+ 
+
+Modified: trunk/pvpgn/src/bnetd/handle_bnet.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/handle_bnet.cpp	2007-02-20 21:22:47 UTC (rev 256)
++++ trunk/pvpgn/src/bnetd/handle_bnet.cpp	2007-02-20 21:30:34 UTC (rev 257)
+@@ -380,7 +380,7 @@
+ static int _client_unknown_1b(t_connection * c, t_packet const *const packet)
+ {
+     if (packet_get_size(packet) &lt; sizeof(t_client_unknown_1b)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad UNKNOWN_1B packet (expected %u bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_unknown_1b), packet_get_size(packet));
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad UNKNOWN_1B packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_unknown_1b), packet_get_size(packet));
+ 	return -1;
+     }
+ 
+@@ -407,7 +407,7 @@
+     t_packet *rpacket;
+ 
+     if (packet_get_size(packet) &lt; sizeof(t_client_compinfo1)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad COMPINFO1 packet (expected %u bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_compinfo1), packet_get_size(packet));
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad COMPINFO1 packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_compinfo1), packet_get_size(packet));
+ 	return -1;
+     }
+ 
+@@ -453,7 +453,7 @@
+     t_packet *rpacket;
+ 
+     if (packet_get_size(packet) &lt; sizeof(t_client_compinfo2)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad COMPINFO2 packet (expected %u bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_compinfo2), packet_get_size(packet));
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad COMPINFO2 packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_compinfo2), packet_get_size(packet));
+ 	return -1;
+     }
+ 
+@@ -500,7 +500,7 @@
+ static int _client_countryinfo1(t_connection * c, t_packet const *const packet)
+ {
+     if (packet_get_size(packet) &lt; sizeof(t_client_countryinfo1)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad COUNTRYINFO1 packet (expected %u bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_countryinfo1), packet_get_size(packet));
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad COUNTRYINFO1 packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_countryinfo1), packet_get_size(packet));
+ 	return -1;
+     }
+     {
+@@ -542,7 +542,7 @@
+     t_packet *rpacket;
+ 
+     if (packet_get_size(packet) &lt; sizeof(t_client_countryinfo_109)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad COUNTRYINFO_109 packet (expected %u bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_countryinfo_109), packet_get_size(packet));
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad COUNTRYINFO_109 packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_countryinfo_109), packet_get_size(packet));
+ 	return -1;
+     }
+ 
+@@ -631,7 +631,7 @@
+ static int _client_unknown2b(t_connection * c, t_packet const *const packet)
+ {
+     if (packet_get_size(packet) &lt; sizeof(t_client_unknown_2b)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad UNKNOWN_2B packet (expected %u bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_unknown_2b), packet_get_size(packet));
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad UNKNOWN_2B packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_unknown_2b), packet_get_size(packet));
+ 	return -1;
+     }
+     return 0;
+@@ -642,7 +642,7 @@
+     t_packet *rpacket;
+ 
+     if (packet_get_size(packet) &lt; sizeof(t_client_progident)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad PROGIDENT packet (expected %u bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_progident), packet_get_size(packet));
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad PROGIDENT packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_progident), packet_get_size(packet));
+ 	return -1;
+     }
+ 
+@@ -700,7 +700,7 @@
+     unsigned int i;
+ 
+     if (packet_get_size(packet) &lt; sizeof(t_client_createaccount_w3)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad CREATEACCOUNT_W3 packet (expected %u bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_createaccount_w3), packet_get_size(packet));
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad CREATEACCOUNT_W3 packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_createaccount_w3), packet_get_size(packet));
+ 	return -1;
+     }
+ 
+@@ -774,7 +774,7 @@
+     t_hash newpasshash1;
+ 
+     if (packet_get_size(packet) &lt; sizeof(t_client_createacctreq1)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad CREATEACCTREQ1 packet (expected %u bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_createacctreq1), packet_get_size(packet));
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad CREATEACCTREQ1 packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_createacctreq1), packet_get_size(packet));
+ 	return -1;
+     }
+ 
+@@ -821,7 +821,7 @@
+     t_hash newpasshash1;
+ 
+     if (packet_get_size(packet) &lt; sizeof(t_client_createacctreq2)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad CLIENT_CREATEACCTREQ2 packet (expected %u bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_createacctreq2), packet_get_size(packet));
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad CLIENT_CREATEACCTREQ2 packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_createacctreq2), packet_get_size(packet));
+ 	return -1;
+     }
+ 
+@@ -873,7 +873,7 @@
+     t_packet *rpacket;
+ 
+     if (packet_get_size(packet) &lt; sizeof(t_client_changepassreq)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad CHANGEPASSREQ packet (expected %u bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_changepassreq), packet_get_size(packet));
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad CHANGEPASSREQ packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_changepassreq), packet_get_size(packet));
+ 	return -1;
+     }
+ 
+@@ -959,7 +959,7 @@
+ static int _client_echoreply(t_connection * c, t_packet const *const packet)
+ {
+     if (packet_get_size(packet) &lt; sizeof(t_client_echoreply)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad ECHOREPLY packet (expected %u bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_echoreply), packet_get_size(packet));
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad ECHOREPLY packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_echoreply), packet_get_size(packet));
+ 	return -1;
+     }
+ 
+@@ -983,7 +983,7 @@
+     t_packet *rpacket;
+ 
+     if (packet_get_size(packet) &lt; sizeof(t_client_authreq1)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad AUTHREQ1 packet (expected %u bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_authreq1), packet_get_size(packet));
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad AUTHREQ1 packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_authreq1), packet_get_size(packet));
+ 	return -1;
+     }
+ 
+@@ -1082,7 +1082,7 @@
+     t_packet *rpacket;
+ 
+     if (packet_get_size(packet) &lt; sizeof(t_client_authreq_109)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad AUTHREQ_109 packet (expected %u bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_authreq_109), packet_get_size(packet));
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad AUTHREQ_109 packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_authreq_109), packet_get_size(packet));
+ 	return 0;
+     }
+ 
+@@ -1185,7 +1185,7 @@
+ static int _client_regsnoopreply(t_connection * c, t_packet const *const packet)
+ {
+     if (packet_get_size(packet) &lt; sizeof(t_client_regsnoopreply)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad REGSNOOPREPLY packet (expected %u bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_regsnoopreply), packet_get_size(packet));
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad REGSNOOPREPLY packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_regsnoopreply), packet_get_size(packet));
+ 	return -1;
+     }
+     return 0;
+@@ -1196,7 +1196,7 @@
+     t_packet *rpacket;
+ 
+     if (packet_get_size(packet) &lt; sizeof(t_client_iconreq)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad ICONREQ packet (expected %u bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_iconreq), packet_get_size(packet));
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad ICONREQ packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_iconreq), packet_get_size(packet));
+ 	return -1;
+     }
+ 
+@@ -1230,7 +1230,7 @@
+     t_packet *rpacket;
+ 
+     if (packet_get_size(packet) &lt; sizeof(t_client_cdkey)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad CDKEY packet (expected %u bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_cdkey), packet_get_size(packet));
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad CDKEY packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_cdkey), packet_get_size(packet));
+ 	return -1;
+     }
+ 
+@@ -1279,7 +1279,7 @@
+     t_packet *rpacket;
+ 
+     if (packet_get_size(packet) &lt; sizeof(t_client_cdkey2)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad CDKEY2 packet (expected %u bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_cdkey2), packet_get_size(packet));
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad CDKEY2 packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_cdkey2), packet_get_size(packet));
+ 	return -1;
+     }
+ 
+@@ -1311,7 +1311,7 @@
+     t_packet *rpacket;
+ 
+     if (packet_get_size(packet) &lt; sizeof(t_client_cdkey3)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad CDKEY3 packet (expected %u bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_cdkey2), packet_get_size(packet));
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad CDKEY3 packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_cdkey2), packet_get_size(packet));
+ 	return -1;
+     }
+ 
+@@ -1341,7 +1341,7 @@
+ static int _client_udpok(t_connection * c, t_packet const *const packet)
+ {
+     if (packet_get_size(packet) &lt; sizeof(t_client_udpok)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad UDPOK packet (expected %u bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_udpok), packet_get_size(packet));
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad UDPOK packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_udpok), packet_get_size(packet));
+ 	return -1;
+     }
+     /* we could check the contents but there really isn't any point */
+@@ -1355,7 +1355,7 @@
+     t_packet *rpacket;
+ 
+     if (packet_get_size(packet) &lt; sizeof(t_client_fileinforeq)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad FILEINFOREQ packet (expected %u bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_fileinforeq), packet_get_size(packet));
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad FILEINFOREQ packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_fileinforeq), packet_get_size(packet));
+ 	return -1;
+     }
+ 
+@@ -1423,7 +1423,7 @@
+     t_account *reqacc, *myacc;
+ 
+     if (packet_get_size(packet) &lt; sizeof(t_client_statsreq)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad STATSREQ packet (expected %u bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_statsreq), packet_get_size(packet));
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad STATSREQ packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_statsreq), packet_get_size(packet));
+ 	return -1;
+     }
+ 
+@@ -1472,7 +1472,7 @@
+     t_packet *rpacket;
+ 
+     if (packet_get_size(packet) &lt; sizeof(t_client_loginreq1)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad LOGINREQ1 packet (expected %u bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_loginreq1), packet_get_size(packet));
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad LOGINREQ1 packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_loginreq1), packet_get_size(packet));
+ 	return -1;
+     }
+ 
+@@ -1593,7 +1593,7 @@
+     int success = 0;
+ 
+     if (packet_get_size(packet) &lt; sizeof(t_client_loginreq2)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad LOGINREQ2 packet (expected %u bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_loginreq2), packet_get_size(packet));
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad LOGINREQ2 packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_loginreq2), packet_get_size(packet));
+ 	return -1;
+     }
+ 
+@@ -1698,7 +1698,7 @@
+     t_packet *rpacket;
+ 
+     if (packet_get_size(packet) &lt; sizeof(t_client_loginreq_w3)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad CLIENT_LOGINREQ_W3 packet (expected %u bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_loginreq_w3), packet_get_size(packet));
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad CLIENT_LOGINREQ_W3 packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_loginreq_w3), packet_get_size(packet));
+ 	return -1;
+     }
+ 
+@@ -1758,7 +1758,7 @@
+     t_packet *rpacket;
+ 
+     if (packet_get_size(packet) &lt; sizeof(t_client_pingreq)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad PINGREQ packet (expected %u bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_pingreq), packet_get_size(packet));
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad PINGREQ packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_pingreq), packet_get_size(packet));
+ 	return -1;
+     }
+ 
+@@ -1777,7 +1777,7 @@
+     t_packet *rpacket;
+ 
+     if (packet_get_size(packet) &lt; sizeof(t_client_logonproofreq)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad LOGONPROOFREQ packet (expected %u bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_logonproofreq), packet_get_size(packet));
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad LOGONPROOFREQ packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_logonproofreq), packet_get_size(packet));
+ 	return -1;
+     }
+ 
+@@ -1854,7 +1854,7 @@
+ static int _client_changegameport(t_connection * c, t_packet const *const packet)
+ {
+     if (packet_get_size(packet) &lt; sizeof(t_client_changegameport)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad changegameport packet (expected %u bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_changegameport), packet_get_size(packet));
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad changegameport packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_changegameport), packet_get_size(packet));
+ 	return -1;
+     }
+     {
+@@ -1875,7 +1875,7 @@
+     t_packet *rpacket;
+ 
+     if (packet_get_size(packet) &lt; sizeof(t_client_friendslistreq)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad FRIENDSLISTREQ packet (expected %u bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_friendslistreq), packet_get_size(packet));
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad FRIENDSLISTREQ packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_friendslistreq), packet_get_size(packet));
+ 	return -1;
+     }
+     {
+@@ -1964,7 +1964,7 @@
+     t_packet *rpacket;
+ 
+     if (packet_get_size(packet) &lt; sizeof(t_client_friendinforeq)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad FRIENDINFOREQ packet (expected %u bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_friendinforeq), packet_get_size(packet));
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad FRIENDINFOREQ packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_friendinforeq), packet_get_size(packet));
+ 	return -1;
+     }
+ 
+@@ -2147,7 +2147,7 @@
+     t_clienttag ctag;
+ 
+     if (packet_get_size(packet) &lt; sizeof(t_client_arrangedteam_invite_friend)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad ARRANGEDTEAM_INVITE_FRIEND packet (expected %u bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_arrangedteam_invite_friend), packet_get_size(packet));
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad ARRANGEDTEAM_INVITE_FRIEND packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_arrangedteam_invite_friend), packet_get_size(packet));
+ 	return -1;
+     }
+ 
+@@ -2293,7 +2293,7 @@
+     t_clienttag ctag;
+ 
+     if (packet_get_size(packet) &lt; sizeof(t_client_arrangedteam_accept_decline_invite)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad ARRANGEDTEAM_ACCEPT_DECLINE_INVITE packet (expected %u bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_arrangedteam_accept_decline_invite), packet_get_size(packet));
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad ARRANGEDTEAM_ACCEPT_DECLINE_INVITE packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_arrangedteam_accept_decline_invite), packet_get_size(packet));
+ 	return -1;
+     }
+ 
+@@ -2332,7 +2332,7 @@
+     // t_packet * rpacket;
+ 
+     if (packet_get_size(packet) &lt; sizeof(t_client_arrangedteam_accept_invite)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad ARRANGEDTEAM_ACCEPT_INVITE packet (expected %u bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_arrangedteam_accept_invite), packet_get_size(packet));
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad ARRANGEDTEAM_ACCEPT_INVITE packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_arrangedteam_accept_invite), packet_get_size(packet));
+ 	return -1;
+     }
+     /* conn_set_channel(c, &quot;Arranged Teams&quot;); */
+@@ -2385,7 +2385,7 @@
+     t_motd_data motdd;
+ 
+     if (packet_get_size(packet) &lt; sizeof(t_client_motd_w3)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad CLIENT_MOTD_W3 packet (expected %u bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_motd_w3), packet_get_size(packet));
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad CLIENT_MOTD_W3 packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_motd_w3), packet_get_size(packet));
+ 	return -1;
+     }
+ 
+@@ -2432,7 +2432,7 @@
+     t_packet *rpacket;
+ 
+     if (packet_get_size(packet) &lt; sizeof(t_client_realmlistreq)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad REALMLISTREQ packet (expected %u bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_realmlistreq), packet_get_size(packet));
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad REALMLISTREQ packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_realmlistreq), packet_get_size(packet));
+ 	return -1;
+     }
+ 
+@@ -2475,7 +2475,7 @@
+     t_packet *rpacket;
+ 
+     if (packet_get_size(packet) &lt; sizeof(t_client_realmlistreq_110)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad REALMLISTREQ_110 packet (expected %u bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_realmlistreq), packet_get_size(packet));
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad REALMLISTREQ_110 packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_realmlistreq), packet_get_size(packet));
+ 	return -1;
+     }
+ 
+@@ -2518,7 +2518,7 @@
+     t_clantag clantag1, clantag2;
+ 
+     if (packet_get_size(packet) &lt; sizeof(t_client_claninforeq)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad CLANINFOREQ packet (expected %u bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_claninforeq), packet_get_size(packet));
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad CLANINFOREQ packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_claninforeq), packet_get_size(packet));
+ 	return -1;
+     }
+ 
+@@ -2582,7 +2582,7 @@
+     bn_int clanTAG;
+ 
+     if (packet_get_size(packet) &lt; sizeof(t_client_profilereq)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad PROFILEREQ packet (expected %u bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_profilereq), packet_get_size(packet));
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad PROFILEREQ packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_profilereq), packet_get_size(packet));
+ 	return -1;
+     }
+ 
+@@ -2623,7 +2623,7 @@
+     t_packet *rpacket;
+ 
+     if (packet_get_size(packet) &lt; sizeof(t_client_realmjoinreq_109)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad REALMJOINREQ_109 packet (expected %u bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_realmjoinreq_109), packet_get_size(packet));
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad REALMJOINREQ_109 packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_realmjoinreq_109), packet_get_size(packet));
+ 	return -1;
+     }
+ 
+@@ -2747,7 +2747,7 @@
+     t_packet *rpacket;
+ 
+     if (packet_get_size(packet) &lt; sizeof(t_client_unknown_37)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad UNKNOWN_37 packet (expected %u bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_unknown_37), packet_get_size(packet));
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad UNKNOWN_37 packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_unknown_37), packet_get_size(packet));
+ 	return -1;
+     }
+     /*
+@@ -2814,7 +2814,7 @@
+ static int _client_unknown39(t_connection * c, t_packet const *const packet)
+ {
+     if (packet_get_size(packet) &lt; sizeof(t_client_unknown_39)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad UNKNOWN_39 packet (expected %u bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_unknown_39), packet_get_size(packet));
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad UNKNOWN_39 packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_unknown_39), packet_get_size(packet));
+ 	return -1;
+     }
+     return 0;
+@@ -2825,7 +2825,7 @@
+     t_packet *rpacket;
+ 
+     if (packet_get_size(packet) &lt; sizeof(t_client_adreq)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad ADREQ packet (expected %u bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_adreq), packet_get_size(packet));
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad ADREQ packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_adreq), packet_get_size(packet));
+ 	return -1;
+     }
+ 
+@@ -2854,7 +2854,7 @@
+ static int _client_adack(t_connection * c, t_packet const *const packet)
+ {
+     if (packet_get_size(packet) &lt; sizeof(t_client_adack)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad ADACK packet (expected %u bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_adack), packet_get_size(packet));
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad ADACK packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_adack), packet_get_size(packet));
+ 	return -1;
+     }
+ 
+@@ -2872,7 +2872,7 @@
+ static int _client_adclick(t_connection * c, t_packet const *const packet)
+ {
+     if (packet_get_size(packet) &lt; sizeof(t_client_adclick)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad ADCLICK packet (expected %u bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_adclick), packet_get_size(packet));
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad ADCLICK packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_adclick), packet_get_size(packet));
+ 	return -1;
+     }
+ 
+@@ -2886,7 +2886,7 @@
+     t_packet *rpacket;
+ 
+     if (packet_get_size(packet) &lt; sizeof(t_client_adclick2)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad ADCLICK2 packet (expected %u bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_adclick2), packet_get_size(packet));
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad ADCLICK2 packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_adclick2), packet_get_size(packet));
+ 	return -1;
+     }
+ 
+@@ -2913,7 +2913,7 @@
+ static int _client_statsupdate(t_connection * c, t_packet const *const packet)
+ {
+     if (packet_get_size(packet) &lt; sizeof(t_client_statsupdate)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad STATSUPDATE packet (expected %u bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_statsupdate), packet_get_size(packet));
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad STATSUPDATE packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_statsupdate), packet_get_size(packet));
+ 	return -1;
+     }
+ 
+@@ -2975,7 +2975,7 @@
+     t_packet *rpacket;
+ 
+     if (packet_get_size(packet) &lt; sizeof(t_client_playerinforeq)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad PLAYERINFOREQ packet (expected %u bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_playerinforeq), packet_get_size(packet));
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad PLAYERINFOREQ packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_playerinforeq), packet_get_size(packet));
+ 	return -1;
+     }
+ 
+@@ -3026,7 +3026,7 @@
+     t_packet *rpacket;
+ 
+     if (packet_get_size(packet) &lt; sizeof(t_client_progident2)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad PROGIDENT2 packet (expected %u bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_progident2), packet_get_size(packet));
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad PROGIDENT2 packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_progident2), packet_get_size(packet));
+ 	return -1;
+     }
+ 
+@@ -3076,7 +3076,7 @@
+     t_channel *channel;
+ 
+     if (packet_get_size(packet) &lt; sizeof(t_client_joinchannel)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad JOINCHANNEL packet (expected %u bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_joinchannel), packet_get_size(packet));
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad JOINCHANNEL packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_joinchannel), packet_get_size(packet));
+ 	return -1;
+     }
+ 
+@@ -3141,7 +3141,7 @@
+ static int _client_message(t_connection * c, t_packet const *const packet)
+ {
+     if (packet_get_size(packet) &lt; sizeof(t_client_message)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad MESSAGE packet (expected %u bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_message), packet_get_size(packet));
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad MESSAGE packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_message), packet_get_size(packet));
+ 	return -1;
+     }
+ 
+@@ -3277,7 +3277,7 @@
+     char clienttag_str[5];
+ 
+     if (packet_get_size(packet) &lt; sizeof(t_client_gamelistreq)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad GAMELISTREQ packet (expected %u bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_gamelistreq), packet_get_size(packet));
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad GAMELISTREQ packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_gamelistreq), packet_get_size(packet));
+ 	return -1;
+     }
+ 
+@@ -3388,7 +3388,7 @@
+     t_game_type gtype;
+ 
+     if (packet_get_size(packet) &lt; sizeof(t_client_join_game)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad JOIN_GAME packet (expected %u bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_join_game), packet_get_size(packet));
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad JOIN_GAME packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_join_game), packet_get_size(packet));
+ 	return -1;
+     }
+ 
+@@ -3446,7 +3446,7 @@
+     t_packet *rpacket;
+ 
+     if (packet_get_size(packet) &lt; sizeof(t_client_startgame1)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad STARTGAME1 packet (expected %u bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_startgame1), packet_get_size(packet));
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad STARTGAME1 packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_startgame1), packet_get_size(packet));
+ 	return -1;
+     }
+ 
+@@ -3532,7 +3532,7 @@
+     t_packet *rpacket;
+ 
+     if (packet_get_size(packet) &lt; sizeof(t_client_startgame3)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad STARTGAME3 packet (expected %u bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_startgame3), packet_get_size(packet));
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad STARTGAME3 packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_startgame3), packet_get_size(packet));
+ 	return -1;
+     }
+ 
+@@ -3616,7 +3616,7 @@
+     t_packet *rpacket;
+ 
+     if (packet_get_size(packet) &lt; sizeof(t_client_startgame4)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad STARTGAME4 packet (expected %u bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_startgame4), packet_get_size(packet));
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad STARTGAME4 packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_startgame4), packet_get_size(packet));
+ 	return -1;
+     }
+     // Quick hack to make W3 part channels when creating a game
+@@ -3730,7 +3730,7 @@
+ static int _client_gamereport(t_connection * c, t_packet const *const packet)
+ {
+     if (packet_get_size(packet) &lt; sizeof(t_client_game_report)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad GAME_REPORT packet (expected %u bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_game_report), packet_get_size(packet));
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad GAME_REPORT packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_game_report), packet_get_size(packet));
+ 	return -1;
+     }
+ 
+@@ -3845,7 +3845,7 @@
+ 
+ 
+     if (packet_get_size(packet) &lt; sizeof(t_client_ladderreq)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad LADDERREQ packet (expected %u bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_ladderreq), packet_get_size(packet));
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad LADDERREQ packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_ladderreq), packet_get_size(packet));
+ 	return -1;
+     }
+ 
+@@ -3999,7 +3999,7 @@
+     t_packet *rpacket;
+ 
+     if (packet_get_size(packet) &lt; sizeof(t_client_laddersearchreq)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad LADDERSEARCHREQ packet (expected %u bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_laddersearchreq), packet_get_size(packet));
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad LADDERSEARCHREQ packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_laddersearchreq), packet_get_size(packet));
+ 	return -1;
+     }
+ 
+@@ -4092,7 +4092,7 @@
+     t_packet *rpacket;
+ 
+     if (packet_get_size(packet) &lt; sizeof(t_client_mapauthreq1)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad MAPAUTHREQ1 packet (expected %u bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_mapauthreq1), packet_get_size(packet));
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad MAPAUTHREQ1 packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_mapauthreq1), packet_get_size(packet));
+ 	return -1;
+     }
+ 
+@@ -4153,7 +4153,7 @@
+     t_packet *rpacket;
+ 
+     if (packet_get_size(packet) &lt; sizeof(t_client_mapauthreq2)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad MAPAUTHREQ2 packet (expected %u bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_mapauthreq2), packet_get_size(packet));
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad MAPAUTHREQ2 packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_mapauthreq2), packet_get_size(packet));
+ 	return -1;
+     }
+ 
+@@ -4214,7 +4214,7 @@
+     t_versioncheck *vc;
+ 
+     if (packet_get_size(packet) &lt; sizeof(t_client_changeclient)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad CLIENT_CHANGECLIENT packet (expected %u bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_changeclient), packet_get_size(packet));
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad CLIENT_CHANGECLIENT packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_changeclient), packet_get_size(packet));
+ 	return -1;
+     }
+ 
+@@ -4245,7 +4245,7 @@
+ static int _client_w3xp_clanmemberlistreq(t_connection * c, t_packet const *const packet)
+ {
+     if (packet_get_size(packet) &lt; sizeof(t_client_w3xp_clanmemberlist_req)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad W3XP_CLANMEMBERLIST_REQ packet (expected %u bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_w3xp_clanmemberlist_req), packet_get_size(packet));
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad W3XP_CLANMEMBERLIST_REQ packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_w3xp_clanmemberlist_req), packet_get_size(packet));
+ 	return -1;
+     }
+ 
+@@ -4256,7 +4256,7 @@
+ static int _client_w3xp_clan_motdreq(t_connection * c, t_packet const *const packet)
+ {
+     if (packet_get_size(packet) &lt; sizeof(t_client_w3xp_clan_motdreq)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad W3XP_CLAN_MOTDREQ packet (expected %u bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_w3xp_clan_motdreq), packet_get_size(packet));
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad W3XP_CLAN_MOTDREQ packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_w3xp_clan_motdreq), packet_get_size(packet));
+ 	return -1;
+     }
+ 
+@@ -4267,7 +4267,7 @@
+ static int _client_w3xp_clan_motdchg(t_connection * c, t_packet const *const packet)
+ {
+     if (packet_get_size(packet) &lt; sizeof(t_client_w3xp_clan_motdreq)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad W3XP_CLAN_MOTDCHGREQ packet (expected %u bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_w3xp_clan_motdreq), packet_get_size(packet));
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad W3XP_CLAN_MOTDCHGREQ packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_w3xp_clan_motdreq), packet_get_size(packet));
+ 	return -1;
+     }
+ 
+@@ -4280,7 +4280,7 @@
+     t_packet *rpacket;
+ 
+     if (packet_get_size(packet) &lt; sizeof(t_client_w3xp_clan_disbandreq)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad W3XP_CLAN_DISBANDREQ packet (expected %u bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_w3xp_clan_disbandreq), packet_get_size(packet));
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad W3XP_CLAN_DISBANDREQ packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_w3xp_clan_disbandreq), packet_get_size(packet));
+ 	return -1;
+     }
+ 
+@@ -4311,7 +4311,7 @@
+ static int _client_w3xp_clan_createreq(t_connection * c, t_packet const *const packet)
+ {
+     if (packet_get_size(packet) &lt; sizeof(t_client_w3xp_clan_createreq)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad W3XP_CLAN_INFOREQ packet (expected %u bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_w3xp_clan_createreq), packet_get_size(packet));
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad W3XP_CLAN_INFOREQ packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_w3xp_clan_createreq), packet_get_size(packet));
+ 	return -1;
+     }
+ 
+@@ -4326,7 +4326,7 @@
+     unsigned size;
+ 
+     if ((size = packet_get_size(packet)) &lt; sizeof(t_client_w3xp_clan_createinvitereq)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad W3XP_CLAN_CREATEINVITEREQ packet (expected %u bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_w3xp_clan_createinvitereq), packet_get_size(packet));
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad W3XP_CLAN_CREATEINVITEREQ packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_w3xp_clan_createinvitereq), packet_get_size(packet));
+ 	return -1;
+     }
+ 
+@@ -4387,7 +4387,7 @@
+     char status;
+ 
+     if (packet_get_size(packet) &lt; sizeof(t_client_w3xp_clan_createinvitereply)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad W3XP_CLAN_CREATEINVITEREPLY packet (expected %u bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_w3xp_clan_createinvitereq), packet_get_size(packet));
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad W3XP_CLAN_CREATEINVITEREPLY packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_w3xp_clan_createinvitereq), packet_get_size(packet));
+ 	return -1;
+     }
+     offset = sizeof(t_client_w3xp_clan_createinvitereply);
+@@ -4440,7 +4440,7 @@
+     t_packet *rpacket;
+ 
+     if (packet_get_size(packet) &lt; sizeof(t_client_w3xp_clanmember_rankupdate_req)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad W3XP_CLANMEMBER_RANKUPDATE_REQ packet (expected %u bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_w3xp_clanmember_rankupdate_req), packet_get_size(packet));
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad W3XP_CLANMEMBER_RANKUPDATE_REQ packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_w3xp_clanmember_rankupdate_req), packet_get_size(packet));
+ 	return -1;
+     }
+ 
+@@ -4484,7 +4484,7 @@
+     t_packet *rpacket;
+ 
+     if (packet_get_size(packet) &lt; sizeof(t_client_w3xp_clanmember_remove_req)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad W3XP_CLANMEMBER_REMOVE_REQ packet (expected %u bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_w3xp_clanmember_remove_req), packet_get_size(packet));
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad W3XP_CLANMEMBER_REMOVE_REQ packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_w3xp_clanmember_remove_req), packet_get_size(packet));
+ 	return -1;
+     }
+ 
+@@ -4534,7 +4534,7 @@
+     t_packet *rpacket;
+ 
+     if (packet_get_size(packet) &lt; sizeof(t_client_w3xp_clan_membernewchiefreq)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad W3XP_CLAN_MEMBERNEWCHIEFREQ packet (expected %u bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_w3xp_clan_createreq), packet_get_size(packet));
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad W3XP_CLAN_MEMBERNEWCHIEFREQ packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_w3xp_clan_createreq), packet_get_size(packet));
+ 	return -1;
+     }
+ 
+@@ -4573,7 +4573,7 @@
+     t_connection *conn;
+ 
+     if (packet_get_size(packet) &lt; sizeof(t_client_w3xp_clan_invitereq)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad W3XP_CLAN_INVITEREQ packet (expected %u bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_w3xp_clan_createreq), packet_get_size(packet));
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad W3XP_CLAN_INVITEREQ packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_w3xp_clan_createreq), packet_get_size(packet));
+ 	return -1;
+     }
+ 
+@@ -4612,7 +4612,7 @@
+     char status;
+ 
+     if (packet_get_size(packet) &lt; sizeof(t_client_w3xp_clan_invitereply)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad W3XP_CLAN_INVITEREPLY packet (expected %u bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_w3xp_clan_createreq), packet_get_size(packet));
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad W3XP_CLAN_INVITEREPLY packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_w3xp_clan_createreq), packet_get_size(packet));
+ 	return -1;
+     }
+ 
+
+Modified: trunk/pvpgn/src/bnetd/handle_irc.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/handle_irc.cpp	2007-02-20 21:22:47 UTC (rev 256)
++++ trunk/pvpgn/src/bnetd/handle_irc.cpp	2007-02-20 21:30:34 UTC (rev 257)
+@@ -279,11 +279,6 @@
+     std::time_t temptime;
+     char const * tempname;
+     char const * temptimestr;
+-    char const * filename;
+-    std::FILE *fp;
+-    char * line, * formatted_line;
+-    char send_line[MAX_IRC_MESSAGE_LEN];
+-    char motd_failed = 0;
+ 
+     if (!conn) {
+ 	eventlog(eventlog_level_error,__FUNCTION__,&quot;got NULL connection&quot;);
+@@ -408,7 +403,6 @@
+ 	/* Don't bother with, params 1 and 2 anymore they don't contain what they should. */
+ 	char * user = NULL;
+ 	char * realname = NULL;
+-	t_account * a;
+ 
+ 	if ((numparams&gt;=3)&amp;&amp;(params[0])&amp;&amp;(text)) {
+ 	    user = params[0];
+@@ -819,7 +813,7 @@
+ 
+ 				if (channel!=old_channel) {
+ 				char * topic;
+-				
++
+ 				channel_set_userflags(conn);
+ 				message_send_text(conn,message_type_join,conn,NULL); /* we have to send the JOIN acknowledgement */
+ 				ircname=irc_convert_channel(channel);
+@@ -837,7 +831,7 @@
+ 				}
+ 				else
+ 					irc_send(conn,RPL_NOTOPIC,&quot;:No topic is set&quot;);
+-					
++
+ 					irc_send_rpl_namreply(conn,channel);
+ 					irc_send(conn,RPL_ENDOFNAMES,&quot;:End of NAMES list&quot;);
+ 
+
+Modified: trunk/pvpgn/src/bnetd/handle_udp.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/handle_udp.cpp	2007-02-20 21:22:47 UTC (rev 256)
++++ trunk/pvpgn/src/bnetd/handle_udp.cpp	2007-02-20 21:30:34 UTC (rev 257)
+@@ -51,7 +51,7 @@
+     case SERVER_UDPTEST: /* we might get these if a client is running on the same machine as us */
+ 	if (packet_get_size(packet)&lt;sizeof(t_server_udptest))
+ 	{
+-	    eventlog(eventlog_level_error,__FUNCTION__,&quot;[%d] got bad UDPTEST packet (expected %u bytes, got %u)&quot;,usock,sizeof(t_server_udptest),packet_get_size(packet));
++	    eventlog(eventlog_level_error,__FUNCTION__,&quot;[%d] got bad UDPTEST packet (expected %lu bytes, got %u)&quot;,usock,sizeof(t_server_udptest),packet_get_size(packet));
+ 	    return -1;
+ 	}
+ 	eventlog(eventlog_level_debug,__FUNCTION__,&quot;[%d] got UDPTEST packet from %s (myself?)&quot;,usock,addr_num_to_addr_str(src_addr,src_port));
+@@ -60,7 +60,7 @@
+     case CLIENT_UDPPING:
+ 	if (packet_get_size(packet)&lt;sizeof(t_client_udpping))
+ 	{
+-	    eventlog(eventlog_level_error,__FUNCTION__,&quot;[%d] got bad UDPPING packet (expected %u bytes, got %u)&quot;,usock,sizeof(t_client_udpping),packet_get_size(packet));
++	    eventlog(eventlog_level_error,__FUNCTION__,&quot;[%d] got bad UDPPING packet (expected %lu bytes, got %u)&quot;,usock,sizeof(t_client_udpping),packet_get_size(packet));
+ 	    return -1;
+ 	}
+ 	eventlog(eventlog_level_debug,__FUNCTION__,&quot;[%d] got udpping unknown1=%u&quot;,usock,bn_int_get(packet-&gt;u.client_udpping.unknown1));
+@@ -69,7 +69,7 @@
+     case CLIENT_SESSIONADDR1:
+ 	if (packet_get_size(packet)&lt;sizeof(t_client_sessionaddr1))
+ 	{
+-	    eventlog(eventlog_level_error,__FUNCTION__,&quot;[%d] got bad SESSIONADDR1 packet (expected %u bytes, got %u)&quot;,usock,sizeof(t_client_sessionaddr1),packet_get_size(packet));
++	    eventlog(eventlog_level_error,__FUNCTION__,&quot;[%d] got bad SESSIONADDR1 packet (expected %lu bytes, got %u)&quot;,usock,sizeof(t_client_sessionaddr1),packet_get_size(packet));
+ 	    return -1;
+ 	}
+ 
+@@ -96,7 +96,7 @@
+     case CLIENT_SESSIONADDR2:
+ 	if (packet_get_size(packet)&lt;sizeof(t_client_sessionaddr2))
+ 	{
+-	    eventlog(eventlog_level_error,__FUNCTION__,&quot;[%d] got bad SESSIONADDR2 packet (expected %u bytes, got %u)&quot;,usock,sizeof(t_client_sessionaddr2),packet_get_size(packet));
++	    eventlog(eventlog_level_error,__FUNCTION__,&quot;[%d] got bad SESSIONADDR2 packet (expected %lu bytes, got %u)&quot;,usock,sizeof(t_client_sessionaddr2),packet_get_size(packet));
+ 	    return -1;
+ 	}
+ 
+
+Modified: trunk/pvpgn/src/bnetd/handle_wol.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/handle_wol.cpp	2007-02-20 21:22:47 UTC (rev 256)
++++ trunk/pvpgn/src/bnetd/handle_wol.cpp	2007-02-20 21:30:34 UTC (rev 257)
+@@ -66,7 +66,6 @@
+ static int _handle_pong_command(t_connection * conn, int numparams, char ** params, char * text);
+ static int _handle_pass_command(t_connection * conn, int numparams, char ** params, char * text);
+ static int _handle_privmsg_command(t_connection * conn, int numparams, char ** params, char * text);
+-static int _handle_notice_command(t_connection * conn, int numparams, char ** params, char * text);
+ static int _handle_quit_command(t_connection * conn, int numparams, char ** params, char * text);
+ 
+ static int _handle_list_command(t_connection * conn, int numparams, char ** params, char * text);
+@@ -170,12 +169,12 @@
+ static int handle_wol_set_clienttag (t_connection * conn, int sku)
+ {
+    eventlog(eventlog_level_debug,__FUNCTION__,&quot;[** WOL **] SKU: %d&quot;,sku);
+-   
++
+     /**
+     *  Here is table of SKU and by this SKU setting CLIENTTAG
+     *  SKU is from Autoupdate FTP and from windows registry
+     */
+-   
++
+    switch (sku) {
+       case 1000:  /* Westwood Chat */
+            conn_set_clienttag(conn,CLIENTTAG_WCHAT_UINT);
+@@ -201,7 +200,7 @@
+       case 3078:
+       case 3081:
+       case 3082:
+-           conn_set_clienttag(conn,CLIENTTAG_RENEGADE_UINT); 
++           conn_set_clienttag(conn,CLIENTTAG_RENEGADE_UINT);
+            return 0;
+       case 3584:  /* Dune 2000 */
+       case 3586:
+@@ -413,7 +412,6 @@
+ 
+ 	if (handle_wol_con_command(conn, command, numparams, params, text)!=-1) {}
+     else if (conn_get_state(conn)!=conn_state_loggedin) {
+-	     char temp[MAX_IRC_MESSAGE_LEN+1];
+     } else {
+         /* command is handled later */
+ 	unrecognized_before = 1;
+@@ -440,7 +438,7 @@
+ extern int handle_wol_welcome(t_connection * conn)
+ {
+     /* This function need rewrite */
+-    
++
+     irc_send_motd(conn);
+ 
+     conn_set_state(conn,conn_state_bot_password);
+@@ -634,11 +632,11 @@
+ 
+ static int _handle_pass_command(t_connection * conn, int numparams, char ** params, char * text)
+ {
+-    /** 
++    /**
+      * PASS isnt used in WOL (only for backwrd compatibility client sent PASS supersecret
+      * real password sent client by apgar command
+      */
+-     
++
+ 	if ((!conn_get_ircpass(conn))&amp;&amp;(conn_get_state(conn)==conn_state_bot_username)) {
+ 		t_hash h;
+ 
+@@ -659,9 +657,9 @@
+ {
+      /**
+       * D1zzy: Here will be &quot;/&quot; commands (&quot;/help&quot;...) and NICSERV will be deleted.
+-      * ACTION messages will not be in WOLv1 and Dune 2000 sended by server (client add this message automaticaly) 
++      * ACTION messages will not be in WOLv1 and Dune 2000 sended by server (client add this message automaticaly)
+       */
+-    
++
+ 	if ((numparams&gt;=1)&amp;&amp;(text))
+ 	{
+ 	    int i;
+@@ -805,7 +803,7 @@
+ 
+ 	irc_send(conn,RPL_LISTSTART,&quot;Channel :Users Names&quot;); /* backward compatibility */
+     t_elem const * curr;
+- 	    
++
+     if (numparams == 0) {
+         /* This is Westwood Chat LIST command */
+         /* FIXME: We send only chat channels (no gamechannels for CnC, RedAlert and CnC Sole Survivor) */
+@@ -814,19 +812,18 @@
+         LIST_TRAVERSE_CONST(channellist(),curr) {
+    	         t_channel const * channel = (const t_channel*)elem_get_data(curr);
+              char const * tempname;
+-		     char * topic = channel_get_topic(channel_get_name(channel));
+ 
+              tempname = irc_convert_channel(channel);
+ 
+              if (std::strstr(tempname,&quot;_game&quot;) == NULL) {
+                 sprintf(temp,&quot;%s %u &quot;,tempname,channel_get_length(channel));
+ 
+-                if ((channel_get_clienttag(channel) != NULL) &amp;&amp; 
++                if ((channel_get_clienttag(channel) != NULL) &amp;&amp;
+                    (std::strcmp(channel_get_clienttag(channel), clienttag_uint_to_str(CLIENTTAG_WCHAT_UINT)) == 0 ))
+                     std::strcat(temp,&quot;1&quot;);  /* WestwoodChat Icon before chanelname */
+-                else 
++                else
+                     std::strcat(temp,&quot;0&quot;);  /* No WestwoodChat Icon before chanelname */
+-                 
++
+                 std::strcat(temp,&quot;:&quot;);
+                 irc_send(conn,RPL_CHANNEL,temp);
+              }
+@@ -842,11 +839,10 @@
+ 		{
+     		t_channel const * channel = (t_channel const *)elem_get_data(curr);
+        	    char const * tempname;
+-       	    char const * num;
+ 
+ 	        tempname = irc_convert_channel(channel);
+ 
+-            if ((channel_get_clienttag(channel) != NULL) &amp;&amp; 
++            if ((channel_get_clienttag(channel) != NULL) &amp;&amp;
+                 (std::strcmp(channel_get_clienttag(channel), clienttag_uint_to_str(conn_get_clienttag(conn))) == 0)) {
+ 			    if((std::strstr(tempname,&quot;Lob&quot;) != NULL) || (std::strstr(tempname,&quot;Emperor&quot;) != NULL)) {
+                      eventlog(eventlog_level_debug,__FUNCTION__,&quot;[** WOL **] LIST [Channel: \&quot;Lob\&quot;] (%s)&quot;,tempname);
+@@ -863,8 +859,8 @@
+     *  Known channel game types:
+     *  0 = Westwood Chat channels, 1 = Command &amp; Conquer Win95 channels, 2 = Red Alert Win95 channels,
+     *  3 = Red Alert Counterstrike channels, 4 = Red Alert Aftermath channels, 5 = CnC Sole Survivor channels,
+-    *  12 = C&amp;C Renegade channels, 14 = Dune 2000 channels, 16 = Nox channels, 18 = Tiberian Sun channels, 
+-    *  21 = Red Alert 1 v 3.03 channels, 31 = Emperor: Battle for Dune, 33 = Red Alert 2, 
++    *  12 = C&amp;C Renegade channels, 14 = Dune 2000 channels, 16 = Nox channels, 18 = Tiberian Sun channels,
++    *  21 = Red Alert 1 v 3.03 channels, 31 = Emperor: Battle for Dune, 33 = Red Alert 2,
+     *  37 = Nox Quest channels, 39 = C&amp;C Renegade Quickgame channels, 41 = Yuri's Revenge
+ 	*/
+     if ((numparams == 0) ||
+@@ -886,12 +882,12 @@
+ 				char * topic = channel_get_topic(channel_get_name(channel));
+ 
+         	    tempname = irc_convert_channel(channel);
+-        	    
++
+ 				if((channel_wol_get_game_type(channel) != 0)) {
+ 					m = channel_get_first(channel);
+ 					if((channel_wol_get_game_type(channel) == conn_wol_get_game_type(conn)) || ((numparams == 0))) {
+ 						eventlog(eventlog_level_debug,__FUNCTION__,&quot;[** WOL **] List [Channel: \&quot;_game\&quot;] (%s)&quot;,tempname);
+-						
++
+ 						eventlog(eventlog_level_debug,__FUNCTION__,&quot;[** WOL **] List [Channel: \&quot;_game\&quot;] %s %u 0 %u %u %s %u 128::&quot;,tempname,
+ 									 channel_get_length(channel),channel_wol_get_game_type(channel),channel_wol_get_game_tournament(channel),
+ 									 channel_wol_get_game_extension(channel),channel_wol_get_game_ownerip(channel));
+@@ -902,7 +898,7 @@
+ 									 channel_wol_get_game_extension(channel),channel_wol_get_game_ownerip(channel),topic);
+ 							/**
+ 							*  The layout of the game list entry is something like this:
+-                            *  
++                            *
+ 							*   #game_channel_name users unknown gameType gameIsTournment gameExtension longIP 128::topic
+ 							*/
+ 	        		        if (std::strlen(tempname)+1+20+1+1+std::strlen(topic)&lt;MAX_IRC_MESSAGE_LEN)
+@@ -972,7 +968,7 @@
+ static int _handle_join_command(t_connection * conn, int numparams, char ** params, char * text)
+ {
+     /* NOTICE: Move this function to IRC Common file!!! */
+-    
++
+ 	if (numparams&gt;=1) {
+ 	    char ** e;
+ 
+@@ -1078,29 +1074,29 @@
+ 	*  Heres the imput expected:
+ 	*  CVERS [oldvernum] [SKU]
+ 	*
+-	*  SKU is specific number for any WOL game (Tiberian sun, RedAlert 2 etc.) 
++	*  SKU is specific number for any WOL game (Tiberian sun, RedAlert 2 etc.)
+ 	*  This is the best way to set clienttag, because CVERS is the first command which
+ 	*  client send to server.
+ 	*/
+-	
++
+ 	if (numparams == 2) {
+         handle_wol_set_clienttag (conn, std::atoi(params[1]));
+  	    return 0;
+     }
+-    
++
+     return -1;
+ }
+ 
+ static int _handle_verchk_command(t_connection * conn, int numparams, char ** params, char * text)
+ {
+     char temp[MAX_IRC_MESSAGE_LEN];
+-    
++
+     /**
+     *  Heres the imput expected:
+     *  vercheck [SKU] [version]
+     *
+     *  Here are two standart outputs expected:
+-    *  
++    *
+     *  Update NON-existant:
+     *  For WSERVER:
+     *  :[servername] 602 [username] :Update record non-existant
+@@ -1111,7 +1107,7 @@
+     *  For WSERVER:
+     *  :[servername] 606 [username] :[ftpserveraddr] [ftpusername] [ftppaswd] [directori] [file.rtp] [newversion] [SKU] REQ
+     */
+-    
++
+     if (conn_get_class(conn) == conn_class_wserv) {
+         // FIXME: We send only update non-existant now!
+         // THIS is point for autoupdate!!!
+@@ -1119,7 +1115,7 @@
+         eventlog(eventlog_level_debug,__FUNCTION__,&quot;[** WOL **] VERCHK :Update record non-existant&quot;);
+         irc_send(conn,RPL_UPDATE_NONEX,&quot;:Update record non-existant&quot;);
+       	return 0;
+-    } 
++    }
+     else {
+         handle_wol_set_clienttag (conn, std::atoi(params[0]));
+         snprintf(temp, sizeof(temp), &quot;:none none none 1 %s NONREQ&quot;, params[0]);
+@@ -1177,7 +1173,7 @@
+ 	irc_send(conn,RPL_GAMERESSERV,temp);
+ 	snprintf(temp, sizeof(temp), &quot;:%s %d 'Ladder server' %s %s %s&quot;, wolip, BNETD_WGAMERES_PORT, woltimezone, wollong, wollat);
+ 	irc_send(conn,RPL_LADDERSERV,temp);
+-	
++
+ 	return 0;
+ }
+ 
+@@ -1225,7 +1221,7 @@
+     *   First parameter: 16 == FindDisabled 17 == FindEnabled
+     *   Second parameter: 32 == PageDisabled 33 == PageEnabled
+     */
+-    
++
+     char ** elems;
+ 
+     elems = irc_get_listelems(params[0]);
+@@ -1237,7 +1233,7 @@
+ 
+ 	if (elems)
+ 	     irc_unget_listelems(elems);
+- 
++
+ 	return 0;
+ }
+ 
+@@ -1327,8 +1323,6 @@
+ 
+ static int _handle_getinsider_command(t_connection * conn, int numparams, char ** params, char * text)
+ {
+-	char temp[MAX_IRC_MESSAGE_LEN];
+-
+     /* Ignore command but, return pramas[1] */
+ 
+     eventlog(eventlog_level_debug,__FUNCTION__,&quot;[** WOL **] GETINSIDER %s&quot;,params[1]);
+@@ -1388,9 +1382,9 @@
+ 		            irc_unget_listelems(e);
+ 			     return 0;
+             }
+-			
++
+ 			conn_wol_set_ingame(conn,1);
+-			
++
+ 			if (old_channel)
+    	  		   old_channel_name = xstrdup(irc_convert_channel(old_channel));
+ 
+@@ -1412,14 +1406,14 @@
+    					channel_set_userflags(conn);
+    					message_send_text(conn,message_wol_joingame,conn,gameOptions); /* we have to send the JOINGAME acknowledgement */
+    					wolname=irc_convert_channel(channel);
+-                        
++
+ 					if ((topic = channel_get_topic(channel_get_name(channel)))) {
+ 						if ((std::strlen(wolname)+1+1+std::strlen(topic)+1)&lt;MAX_IRC_MESSAGE_LEN) {
+ 							snprintf(temp, sizeof(temp), &quot;%s :%s&quot;, wolname, topic);
+ 							irc_send(conn,RPL_TOPIC,temp);
+ 						}
+ 					}
+-                       
++
+   					irc_send_rpl_namreply(conn,channel);
+ 
+     				if ((std::strlen(wolname)+1+std::strlen(&quot;:End of NAMES list&quot;)+1)&lt;MAX_IRC_MESSAGE_LEN) {
+@@ -1446,11 +1440,10 @@
+ 	}
+ 	else if((numparams&gt;=7)) {
+ 	    char ** e;
+-	    int i;
+ 
+ 	    eventlog(eventlog_level_debug,__FUNCTION__,&quot;[** WOL **] JOINGAME: * Create * (%s, %s)&quot;,
+ 		     params[0],params[1]);
+-        
++
+         if((numparams==7)) {
+             /* Westwood Chat JOINGAME Cereate */
+        	    snprintf(_temp, sizeof(_temp), &quot;%s %s %s %s 0 %s :%s&quot;,params[1],params[2],params[3],params[4],params[6],params[0]);
+@@ -1469,7 +1462,7 @@
+ 
+ 			if (old_channel)
+ 			  old_channel_name = xstrdup(irc_convert_channel(old_channel));
+-			  
++
+ /* This will be in future: Start GAME (no start channel) */
+ //			if ((!(wolname)) || ((conn_set_game(conn, wolname, &quot;&quot;, &quot;&quot;, game_type_none, 0))&lt;0)) {
+ //				irc_send(conn,ERR_NOSUCHCHANNEL,&quot;:JOINGAME failed&quot;); /* FIXME: be more precise; what is the real error code for that? */
+@@ -1543,9 +1536,9 @@
+   		    /* we only send text to another client */
+    		    t_connection * user;
+    		    t_channel * channel;
+-   		    
++
+    		    channel = conn_get_channel(conn);
+-   		    
++
+    		    for (user = channel_get_first(channel);user;user = channel_get_next()) {
+ 	           char const * name = conn_get_chatname(user);
+ 	           if (std::strcmp(conn_get_chatname(conn),name) != 0) {
+@@ -1553,7 +1546,7 @@
+ 	              message_send_text(user,message_wol_gameopt_join,conn,temp);
+                }
+    		    }
+-       
++
+        return 0;
+     }
+ 	if ((numparams&gt;=1)&amp;&amp;(text)) {
+@@ -1685,7 +1678,7 @@
+     *   WOLv2:
+  	*   user1!<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">WWOL at hostname</A> STARTG u :user1 xxx.xxx.xxx.xxx user2 xxx.xxx.xxx.xxx :gameNumber time_t
+  	*/
+- 	
++
+ 	if((numparams&gt;=1)) {
+ 	    int i;
+ 	    char ** e;
+@@ -1699,13 +1692,13 @@
+         if (e) {
+            for (numelems=0;e[numelems];numelems++);
+         }
+-        
++
+         std::strcat(temp,&quot;:&quot;);
+-        
++
+  	    if (numelems == 1) {
+   		    t_connection * user;
+    		    channel = conn_get_channel(conn);
+-   		    
++
+    		    for (user = channel_get_first(channel);user;user = channel_get_next()) {
+ 	           char const * name = conn_get_chatname(user);
+ 	           if (std::strcmp(conn_get_chatname(conn),name) != 0) {
+@@ -1725,17 +1718,17 @@
+    		        std::strcat(temp,_temp_a);
+             }
+         }
+-        
++
+         std::strcat(temp,&quot;:&quot;);
+         std::strcat(temp,&quot;1337&quot;); /* yes, ha ha funny, i just don't generate game numbers yet */
+         std::strcat(temp,&quot; &quot;);
+ 
+         now = std::time(NULL);
+-        snprintf(_temp_a, sizeof(_temp_a), &quot;%u&quot;, now);
++        snprintf(_temp_a, sizeof(_temp_a), &quot;%lu&quot;, now);
+         std::strcat(temp,_temp_a);
+-            
++
+ 	    eventlog(eventlog_level_debug,__FUNCTION__,&quot;[** WOL **] STARTG: (%s)&quot;,temp);
+-	    
++
+         for (i=0;((e)&amp;&amp;(e[i]));i++) {
+    		        t_connection * user;
+    		        if((user = connlist_find_connection_by_accountname(e[i]))) {
+@@ -1758,7 +1751,7 @@
+ static int _handle_advertr_command(t_connection * conn, int numparams, char ** params, char * text)
+ {
+     char temp[MAX_IRC_MESSAGE_LEN];
+-   
++
+    	std::memset(temp,0,sizeof(temp));
+ 
+  	/**
+@@ -1773,9 +1766,9 @@
+ 
+     snprintf(temp,sizeof(temp),&quot;5 &quot;);
+  	std::strcat(temp,params[0]);
+- 	
++
+ 	message_send_text(conn,message_wol_advertr,conn,temp);
+-    
++
+ 	return 0;
+ }
+ 
+@@ -1819,7 +1812,7 @@
+ 
+ 	std::memset(temp,0,sizeof(temp));
+ 	std::memset(_temp,0,sizeof(_temp));
+-          
++
+     /**
+  	*  Heres the output expected
+  	*  :[servername] 333 [user] [buddy_name1]`[buddy_name2]`
+@@ -1827,12 +1820,12 @@
+  	*  Without names:
+     *  :[servername] 333 [user]
+  	*/
+- 	
++
+     my_acc = conn_get_account(conn);
+ 	num = account_get_friendcount(my_acc);
+ 
+ 	flist=account_get_friends(my_acc);
+-	
++
+ 	if(flist!=NULL) {
+         for (i=0; i&lt;num; i++) {
+     		if ((!(uid = account_get_friend(my_acc,i))) || (!(fr = friendlist_find_uid(flist,uid))))
+@@ -1844,7 +1837,7 @@
+     		friend_name = account_get_name(friend_acc);
+ 		    snprintf(_temp, sizeof(_temp), &quot;%s`&quot;, friend_name);
+    		    std::strcat(temp,_temp);
+-        }            
++        }
+     }
+     eventlog(eventlog_level_debug,__FUNCTION__,&quot;[** WOL **] GETBUDDY (%s)&quot;,temp);
+ 	irc_send(conn,RPL_GET_BUDDY,temp);
+@@ -1857,10 +1850,9 @@
+     char const * friend_name;
+     t_account * my_acc;
+     t_account * friend_acc;
+-    int num;
+ 
+    	std::memset(temp,0,sizeof(temp));
+-    
++
+     /**
+  	*  Heres the imput expected
+  	*  ADDBUDDY [buddy_name]
+@@ -1874,12 +1866,12 @@
+ 
+    	friend_acc = accountlist_find_account(friend_name);
+     account_add_friend(my_acc, friend_acc);
+-    
++
+    	/* FIXME: Check if add friend is done if not then send right message */
+ 
+     snprintf(temp,sizeof(temp),&quot;%s&quot;, friend_name);
+ 	irc_send(conn,RPL_ADD_BUDDY,temp);
+-	
++
+ 	return 0;
+ }
+ 
+@@ -1889,9 +1881,9 @@
+     char const * friend_name;
+     t_account * my_acc;
+     int num;
+-    
++
+    	std::memset(temp,0,sizeof(temp));
+-    
++
+     /**
+  	*  Heres the imput expected
+  	*  DELBUDDY [buddy_name]
+@@ -1899,14 +1891,14 @@
+  	*  Heres the output expected
+  	*  :[servername] 335 [user] [buddy_name]
+  	*/
+- 	
++
+  	friend_name = params[0];
+     my_acc = conn_get_account(conn);
+-    
++
+  	num = account_remove_friend2(my_acc, friend_name);
+ 
+   	/**
+-    *  FIXME: Check if remove friend is done if not then send right message 
++    *  FIXME: Check if remove friend is done if not then send right message
+     *  Btw I dont know another then RPL_DEL_BUDDY message yet lol.
+     */
+ 
+@@ -1923,7 +1915,7 @@
+    	std::memset(temp,0,sizeof(temp));
+     now = std::time(NULL);
+ 
+-    snprintf(temp,sizeof(temp),&quot;irc.westwood.com :%u&quot;, now);
++    snprintf(temp,sizeof(temp),&quot;irc.westwood.com :%lu&quot;, now);
+ 	irc_send(conn,RPL_TIME,temp);
+     return 0;
+ }
+@@ -1944,7 +1936,7 @@
+     */
+ 
+ 	flags = conn_get_flags(conn);
+-	
++
+ 	if (!flags &amp; MF_BLIZZARD) {
+ 	    snprintf(temp,sizeof(temp),&quot;That command is for Admins/Operators only.&quot;);
+         message_send_text(conn,message_type_whisper,conn,temp);
+@@ -1974,13 +1966,13 @@
+ 
+    	std::memset(temp,0,sizeof(temp));
+     t_channel * channel;
+-	
+-    /** 
++
++    /**
+     * FIXME: CHECK IF USER IS OPERATOR
+     * because in WOLv1 is used mode command to add OP or Voice to another user !!!!
+     * in WOLv2 is used for change game mode (cooperative, free for all...)
+     */
+-    
++
+ 	if ((channel = channellist_find_channel_by_name(irc_convert_ircname(params[0]),NULL,NULL))) {
+         snprintf(temp,sizeof(temp),&quot;%s %s %s&quot;, params[0], params[1], params[2]);
+    	    channel_message_send(channel,message_type_mode,conn,temp);
+@@ -2025,9 +2017,9 @@
+     char temp[MAX_IRC_MESSAGE_LEN];
+     t_connection * user;
+     const char * addr = NULL;
+-    
++
+    	std::memset(temp,0,sizeof(temp));
+-   	
++
+     if((user = connlist_find_connection_by_accountname(params[0]))) {
+         addr = addr_num_to_ip_str(conn_get_addr(user));
+         snprintf(temp,sizeof(temp),&quot;%s&quot;,addr);
+
+Modified: trunk/pvpgn/src/bnetd/irc.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/irc.cpp	2007-02-20 21:22:47 UTC (rev 256)
++++ trunk/pvpgn/src/bnetd/irc.cpp	2007-02-20 21:30:34 UTC (rev 257)
+@@ -143,7 +143,7 @@
+ 	return -1;
+     }
+ 
+-    if ((conn_get_clienttag(conn) != CLIENTTAG_WCHAT_UINT) &amp;&amp; 
++    if ((conn_get_clienttag(conn) != CLIENTTAG_WCHAT_UINT) &amp;&amp;
+         (conn_get_clienttag(conn) != CLIENTTAG_IIRC_UINT))
+         return 0;
+ 
+@@ -251,7 +251,7 @@
+                 conn_increment_passfail_count(conn);
+                 return 0;
+             }
+-            
++
+     	    if(std::strcmp(temphash,tempapgar) == 0) {
+                 conn_login(conn,a,username);
+     	        conn_set_state(conn,conn_state_loggedin);
+@@ -509,10 +509,10 @@
+     	myfrom = xstrdup(server_get_hostname());
+     if (dest)
+     	mydest = dest;
+-    	
++
+     if (text)
+     	mytext = text;
+-    	
++
+     len = 1+std::strlen(myfrom)+1+
+     	  std::strlen(command)+1+
+     	  std::strlen(mydest)+1+
+@@ -520,7 +520,7 @@
+ 
+ 
+     msg = (char*)xmalloc(len);
+-    
++
+     std::sprintf(msg,&quot;:%s\n%s\n%s\n%s&quot;,myfrom,command,mydest,mytext);
+     xfree(myfrom);
+     return msg;
+@@ -577,7 +577,7 @@
+     }
+     else
+     e1_2 = NULL;
+-    
++
+     if (e3[0]=='\0') { /* fill in recipient */
+     	if ((tname = conn_get_loggeduser(dest)))
+     	    toname = tname;
+@@ -587,7 +587,7 @@
+     if (std::strcmp(toname,&quot;\r&quot;)==0) {
+     	toname = &quot;&quot;; /* HACK: the target field is really empty */
+     	temp = &quot;&quot;;
+-    } else 
++    } else
+     	temp = &quot; &quot;;
+ 
+     if (std::strlen(e1)+1+std::strlen(e2)+1+std::strlen(toname)+std::strlen(temp)+std::strlen(e4)+2+1 &lt;= MAX_IRC_MESSAGE_LEN) {
+@@ -659,7 +659,7 @@
+             char temp[MAX_IRC_MESSAGE_LEN];
+             t_channel * channel;
+     		std::memset(temp,0,sizeof(temp));
+-    		
++
+    		channel = conn_get_channel(me);
+     		if (conn_wol_get_ingame(me) == 1) {
+     		    std::sprintf(temp,&quot;2 %u %u 1 1 %u :%u&quot;,channel_get_length(channel),channel_wol_get_game_type(channel),channel_wol_get_game_tournament(channel));
+@@ -761,7 +761,7 @@
+     break;
+     case message_type_notice:
+ 	{
+-         
++
+    	    char temp[MAX_IRC_MESSAGE_LEN];
+ 	    std::sprintf(temp,&quot;:%s&quot;,text);
+ 
+@@ -777,9 +777,9 @@
+ 	    {
+ 	            msg = irc_message_preformat(NULL,&quot;NOTICE&quot;,&quot;&quot;,temp);
+ 	    }
+-	    
+-	    
+ 
++
++
+ 	}
+ 	break;
+ 
+@@ -1042,7 +1042,7 @@
+     }
+ 
+     tempname = conn_get_loggeduser(conn);
+-    
++
+     irc_send(conn,RPL_MOTDSTART,&quot;:-&quot;);
+ 
+     if ((filename = prefs_get_motdfile())) {
+@@ -1080,6 +1080,8 @@
+        handle_wol_welcome(conn);
+     else
+        handle_irc_welcome(conn);
++
++    return 0;
+ }
+ 
+ extern int _handle_nick_command(t_connection * conn, int numparams, char ** params, char * text)
+@@ -1109,7 +1111,7 @@
+ 	    }
+ 	    else
+ 	        irc_send(conn,ERR_NEEDMOREPARAMS,&quot;:Too few arguments to NICK&quot;);
+-	        
++
+ 	    if ((conn_get_user(conn))&amp;&amp;(conn_get_loggeduser(conn)))
+ 			irc_welcome(conn); /* only send the welcome if we have USER and NICK */
+ 	}
+
+Modified: trunk/pvpgn/src/bnpcap/bnpcap.cpp
+===================================================================
+--- trunk/pvpgn/src/bnpcap/bnpcap.cpp	2007-02-20 21:22:47 UTC (rev 256)
++++ trunk/pvpgn/src/bnpcap/bnpcap.cpp	2007-02-20 21:30:34 UTC (rev 257)
+@@ -397,7 +397,7 @@
+ 		  return -1;
+ 	       }
+ 	       if ((off != packet_get_size(p))&amp;&amp;(bnpcap_dodebug)) {
+-		  eventlog(eventlog_level_warn,__FUNCTION__,&quot;packet size differs (%d != %d) (offset=0x%04x)&quot;,off,packet_get_size(p),datap-data);
++		  eventlog(eventlog_level_warn,__FUNCTION__,&quot;packet size differs (%d != %d) (offset=0x%04lx)&quot;,off,packet_get_size(p),datap-data);
+ 		  hexdump(stderr,data,len);
+ /*		  std::memcpy(packet_get_raw_data(p,0),data,packet_get_size(p)); */
+ 	       }
+
+Modified: trunk/pvpgn/src/client/bnchat.cpp
+===================================================================
+--- trunk/pvpgn/src/client/bnchat.cpp	2007-02-20 21:22:47 UTC (rev 256)
++++ trunk/pvpgn/src/client/bnchat.cpp	2007-02-20 21:30:34 UTC (rev 257)
+@@ -1674,7 +1674,7 @@
+ 			if (packet_get_size(rpacket)&lt;sizeof(t_server_echoreq))
+ 			{
+ 		            munge(&amp;client);
+-			    std::printf(&quot;Got bad SERVER_ECHOREQ packet (expected %u bytes, got %u)\n&quot;,sizeof(t_server_echoreq),packet_get_size(rpacket));
++			    std::printf(&quot;Got bad SERVER_ECHOREQ packet (expected %lu bytes, got %u)\n&quot;,sizeof(t_server_echoreq),packet_get_size(rpacket));
+ 			    break;
+ 			}
+ 
+@@ -1717,7 +1717,7 @@
+ 			if (packet_get_size(rpacket)&lt;sizeof(t_server_w3xp_clan_invitereq))
+ 			{
+ 		            munge(&amp;client);
+-			    std::printf(&quot;Got bad SERVER_W3XP_CLAN_INVITEREQ packet (expected %u bytes, got %u)\n&quot;,sizeof(t_server_w3xp_clan_invitereq),packet_get_size(rpacket));
++			    std::printf(&quot;Got bad SERVER_W3XP_CLAN_INVITEREQ packet (expected %lu bytes, got %u)\n&quot;,sizeof(t_server_w3xp_clan_invitereq),packet_get_size(rpacket));
+ 			    break;
+ 			}
+ 
+@@ -1759,7 +1759,7 @@
+ 			if (packet_get_size(rpacket)&lt;sizeof(t_server_w3xp_clanmemberupdate))
+ 			{
+ 		            munge(&amp;client);
+-			    std::printf(&quot;Got bad SERVER_W3XP_CLANMEMBERUPDATE packet (expected %u bytes, got %u)\n&quot;,sizeof(t_server_w3xp_clanmemberupdate),packet_get_size(rpacket));
++			    std::printf(&quot;Got bad SERVER_W3XP_CLANMEMBERUPDATE packet (expected %lu bytes, got %u)\n&quot;,sizeof(t_server_w3xp_clanmemberupdate),packet_get_size(rpacket));
+ 			    break;
+ 			}
+ 
+@@ -1921,7 +1921,7 @@
+ 			if (packet_get_size(rpacket)&lt;sizeof(t_server_message))
+ 			{
+ 		            munge(&amp;client);
+-			    std::printf(&quot;Got bad SERVER_MESSAGE packet (expected %u bytes, got %u)&quot;,sizeof(t_server_message),packet_get_size(rpacket));
++			    std::printf(&quot;Got bad SERVER_MESSAGE packet (expected %lu bytes, got %u)&quot;,sizeof(t_server_message),packet_get_size(rpacket));
+ 			    break;
+ 			}
+ 
+@@ -1938,7 +1938,7 @@
+ 			    if (!(message = packet_get_str_const(rpacket,sizeof(t_server_message)+std::strlen(speaker)+1,1024)))
+ 			    {
+ 		                munge(&amp;client);
+-				std::printf(&quot;Got SERVER_MESSAGE packet with bad or missing message (speaker=\&quot;%s\&quot; start=%u len=%u)\n&quot;,speaker,sizeof(t_server_message)+std::strlen(speaker)+1,packet_get_size(rpacket));
++				std::printf(&quot;Got SERVER_MESSAGE packet with bad or missing message (speaker=\&quot;%s\&quot; start=%lu len=%u)\n&quot;,speaker,sizeof(t_server_message)+std::strlen(speaker)+1,packet_get_size(rpacket));
+ 				break;
+ 			    }
+ 
+
+Modified: trunk/pvpgn/src/common/bnethash.cpp
+===================================================================
+--- trunk/pvpgn/src/common/bnethash.cpp	2007-02-20 21:22:47 UTC (rev 256)
++++ trunk/pvpgn/src/common/bnethash.cpp	2007-02-20 21:30:34 UTC (rev 257)
+@@ -232,7 +232,7 @@
+     }
+     if (std::strlen(str)!=5*8)
+     {
+-	eventlog(eventlog_level_error,__FUNCTION__,&quot;got string with length %u (should be %u)&quot;,std::strlen(str),5*8);
++	eventlog(eventlog_level_error,__FUNCTION__,&quot;got string with length %lu (should be %u)&quot;,std::strlen(str),5*8);
+         return -1;
+     }
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000040.html">[pvpgn-dev] r256 - trunk/pvpgn/src
+</A></li>
+	<LI>Next message: <A HREF="000042.html">[pvpgn-dev] r258 - trunk/pvpgn/src/bnetd
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#41">[ date ]</a>
+              <a href="thread.html#41">[ thread ]</a>
+              <a href="subject.html#41">[ subject ]</a>
+              <a href="author.html#41">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

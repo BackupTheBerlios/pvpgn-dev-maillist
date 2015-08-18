@@ -1,0 +1,103 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] Help me ! Big problem with PVPGN Server 1.8.0
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-June/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20Help%20me%20%21%20Big%20problem%20with%20PVPGN%20Server%201.8.0&In-Reply-To=%3C334762.71342.qm%40web51109.mail.re2.yahoo.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000087.html">
+   <LINK REL="Next"  HREF="000089.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] Help me ! Big problem with PVPGN Server 1.8.0</H1>
+    <B>All4you</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20Help%20me%20%21%20Big%20problem%20with%20PVPGN%20Server%201.8.0&In-Reply-To=%3C334762.71342.qm%40web51109.mail.re2.yahoo.com%3E"
+       TITLE="[pvpgn-dev] Help me ! Big problem with PVPGN Server 1.8.0">zhaowei_hn at yahoo.com
+       </A><BR>
+    <I>Mon Jun 18 02:18:21 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000087.html">[pvpgn-dev] Help me ! Big problem with PVPGN Server 1.8.0
+</A></li>
+        <LI>Next message: <A HREF="000089.html">[pvpgn-dev] Help me ! Big problem with PVPGN Server 1.8.0
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#88">[ date ]</a>
+              <a href="thread.html#88">[ thread ]</a>
+              <a href="subject.html#88">[ subject ]</a>
+              <a href="author.html#88">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>i have did what you say but after a time, i type ulimit -n , it automatic return the value 1024 ...Is there any config file to change this value ? 
+
+Lloydy &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">lloydy82 at optusnet.com.au</A>&gt; wrote:        v\:* {behavior:url(#default#VML);}  o\:* {behavior:url(#default#VML);}  w\:* {behavior:url(#default#VML);}  .shape {behavior:url(#default#VML);}                type ulimit -n 8192
+  before starting ./bnetd
+   
+    From: <A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">pvpgn-dev-bounces at lists.berlios.de</A> [mailto:<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">pvpgn-dev-bounces at lists.berlios.de</A>] On Behalf Of All4you
+Sent: Sunday, 17 June 2007 9:07 PM
+To: <A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">pvpgn-dev at lists.berlios.de</A>
+Subject: [pvpgn-dev] Help me ! Big problem with PVPGN Server 1.8.0
+
+   
+    Help me, i am using PVPGN 1.8.0 compiled with MySQL at my server running Linux Fedora Core 6. Everything run normaly , when i start bnetd, the bnetd.log have one line :
+
+    fdwatch epoll() based layer initialized (max 960 sockets)   
+
+     
+
+     And when my server reached about 950 users, the others user can connect to server, the error in bnetd.log is : 
+
+     
+
+    Jun 17 13:01:06 [error] sd_accept: [964] unable to add socket to fdwatch pool (max connections?)
+Jun 17 13:01:06 [error] fdwatch_del_fd: out of bounds idx [-1] (max: 960)
+
+    
+What can i do now ? In bnetd.conf i have set max connection to 2000 and Max concurrent connection to 0 but nothing happend.
+
+    
+    
+---------------------------------
+  
+  Moody friends. Drama queens. Your life? Nope! - their life, your story.
+Play Sims Stories at Yahoo! Games. 
+
+
+
+ 
+---------------------------------
+Need Mail bonding?
+Go to the Yahoo! Mail Q&amp;A for great tips from Yahoo! Answers users.
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: &lt;<A HREF="https://lists.berlios.de/pipermail/pvpgn-dev/attachments/20070617/c439c6dc/attachment.html">https://lists.berlios.de/pipermail/pvpgn-dev/attachments/20070617/c439c6dc/attachment.html</A>&gt;
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000087.html">[pvpgn-dev] Help me ! Big problem with PVPGN Server 1.8.0
+</A></li>
+	<LI>Next message: <A HREF="000089.html">[pvpgn-dev] Help me ! Big problem with PVPGN Server 1.8.0
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#88">[ date ]</a>
+              <a href="thread.html#88">[ thread ]</a>
+              <a href="subject.html#88">[ subject ]</a>
+              <a href="author.html#88">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

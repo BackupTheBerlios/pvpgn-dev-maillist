@@ -1,0 +1,152 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] WarCraft III for Mac OS X - Was Re: Apple Mac	Client Support?
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-August/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20WarCraft%20III%20for%20Mac%20OS%20X%20-%20Was%20Re%3A%20Apple%20Mac%0A%09Client%20Support%3F&In-Reply-To=%3Ccc416a620708170319u63f94f76u5c286cf8bf46ecea%40mail.gmail.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000352.html">
+   <LINK REL="Next"  HREF="000359.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] WarCraft III for Mac OS X - Was Re: Apple Mac	Client Support?</H1>
+    <B>Dizzy</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20WarCraft%20III%20for%20Mac%20OS%20X%20-%20Was%20Re%3A%20Apple%20Mac%0A%09Client%20Support%3F&In-Reply-To=%3Ccc416a620708170319u63f94f76u5c286cf8bf46ecea%40mail.gmail.com%3E"
+       TITLE="[pvpgn-dev] WarCraft III for Mac OS X - Was Re: Apple Mac	Client Support?">dizone at gmail.com
+       </A><BR>
+    <I>Fri Aug 17 12:19:10 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000352.html">[pvpgn-dev] WarCraft III for Mac OS X - Was Re: Apple Mac Client Support?
+</A></li>
+        <LI>Next message: <A HREF="000359.html">[pvpgn-dev] WarCraft III for Mac OS X - Was Re: Apple Mac Client Support?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#354">[ date ]</a>
+              <a href="thread.html#354">[ thread ]</a>
+              <a href="subject.html#354">[ subject ]</a>
+              <a href="author.html#354">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>On 8/17/07, Hendrik JA Meyer &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">HendrikM at ssws.co.za</A>&gt; wrote:
+&gt;<i> Hi,
+</I>
+hello
+
+&gt;<i>
+</I>&gt;<i> Sorry, my bad, used the wrong wording...
+</I>&gt;<i>
+</I>&gt;<i> What I wanted to ask is why doesn't the apple mac warcraft iii clients want
+</I>&gt;<i> to connect to a pgpvn server?  What exactly are the issues?
+</I>
+Blizzard has added a cryptographic method (unbreakable to my
+knowledge) to check that the server is a Blizzard one. To disable this
+check generally Warcraft3 requires some kind of loader (that modifies
+the client in memory). AFAIK there is no such loader for MacOS and
+that's your main problem.
+
+&gt;<i> On the 1st startup of the server the following error was raised:
+</I>&gt;<i> Aug 17 00:04:06 [fatal] support_check_files: necessary file
+</I>&gt;<i> &quot;files/matchmaking-war3-default.dat&quot; missing
+</I>&gt;<i>
+</I>&gt;<i> These files are for some reason not included in the 1.1 support files, but
+</I>&gt;<i> luckily the link to the 1.0 support files still worked and I used these
+</I>&gt;<i> files.
+</I>
+pvpgn-support 1.1 were made to work with pvpgn 1.8.1. You probably
+downloaded them in the window between upload of support 1.1 and of
+pvpgn 1.8.1. The supportfiles.conf from 1.8.1 doesn't require those
+files (they were not needed anyways).
+
+&gt;<i> I added the following to my conf\versioncheck.conf:
+</I>&gt;<i>
+</I>&gt;<i> # Warcraft III - TFT (Expansion) 1.21 MacOS X
+</I>&gt;<i> # Note: this version check is sent in both FT and ROC mode
+</I>&gt;<i> &quot;A=3845581634 B=880823580 C=1363937103 4 A=A-S B=B-C C=C-A A=A-B&quot; \
+</I>&gt;<i>  XMACver1.mpq \
+</I>&gt;<i>  XMAC \
+</I>&gt;<i>  W3XP \
+</I>&gt;<i>  &quot;Warcraft III (Carbon) 12/28/06 20:35:21 1572307&quot; \
+</I>&gt;<i>  0x00000015 \
+</I>&gt;<i>  1.21.0.119 \
+</I>&gt;<i>  0xab35b5f1 \
+</I>&gt;<i>  W3XP_121
+</I>&gt;<i>
+</I>&gt;<i> When I connect with the warcraft iii client to the server the client throws
+</I>&gt;<i> an error:
+</I>&gt;<i>
+</I>&gt;<i> unable to connect to battle.net
+</I>&gt;<i> you may be trying to connect to an invalid battle.net server
+</I>&gt;<i>
+</I>&gt;<i> Using a network sniffer on my apple mac client I see the following packets
+</I>&gt;<i> between the client and the server from initial connection time until the
+</I>&gt;<i> client throws the error:
+</I>&gt;<i>
+</I>&lt;snip&gt;
+&gt;<i> 1187335817.204546 IP (tos 0x40, ttl 114, id 29742, offset 0, flags [DF],
+</I>&gt;<i> length: 281) 70.84.188.130.6112 &gt; 192.168.0.35.49157: P [tcp sum ok]
+</I>&gt;<i> 9:238(229) ack 60 win 65476 &lt;nop,nop,timestamp 1024351 1489982568&gt;
+</I>&gt;<i>     0x0000:  4540 0119 742e 4000 7206 cfce 4654 bc82  <A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">E at ..t.</A>@.r...FT..
+</I>&gt;<i>     0x0010:  c0a8 0023 17e0 c005 448d 7a41 cfc7 b0fd  ...#....D.zA....
+</I>&gt;<i>     0x0020:  8018 ffc4 ff80 0000 0101 080a 000f a15f  ..............._
+</I>&gt;<i>     0x0030:  58cf 5468 ff50 e500 0200 0000 2f70 c546  X.Th.P....../p.F
+</I>&gt;<i>     0x0040:  0500 0000 000c 2796 3ae1 c301 584d 4143  ......'.:...XMAC
+</I>&gt;<i>     0x0050:  7665 7231 2e6d 7071 0041 3d33 3834 3535  ver1.mpq.A=38455
+</I>&gt;<i>     0x0060:  3831 3633 3420 423d 3838 3038 3233 3538  81634.B=88082358
+</I>&gt;<i>     0x0070:  3020 433d 3133 3633 3933 3731 3033 2034  0.C=1363937103.4
+</I>&gt;<i>     0x0080:  2041 3d41 2d53 2042 3d42 2d43 2043 3d43  .A=A-S.B=B-C.C=C
+</I>&gt;<i>     0x0090:  2d41 2041 3d41 2d42 0000 0000 0000 0000  -A.A=A-B........
+</I>&gt;<i>     0x00a0:  0000 0000 0000 0000 0000 0000 0000 0000  ................
+</I>&gt;<i>     0x00b0:  0000 0000 0000 0000 0000 0000 0000 0000  ................
+</I>&gt;<i>     0x00c0:  0000 0000 0000 0000 0000 0000 0000 0000  ................
+</I>&gt;<i>     0x00d0:  0000 0000 0000 0000 0000 0000 0000 0000  ................
+</I>&gt;<i>     0x00e0:  0000 0000 0000 0000 0000 0000 0000 0000  ................
+</I>&gt;<i>     0x00f0:  0000 0000 0000 0000 0000 0000 0000 0000  ................
+</I>&gt;<i>     0x0100:  0000 0000 0000 0000 0000 0000 0000 0000  ................
+</I>&gt;<i>     0x0110:  0000 0000 0000 0000 00                   .........
+</I>
+The above packet is the problem. This packet is sent as a reply from
+pvpgn and the last &quot;0&quot; bytes are not just some padding, they are (or
+should be) actually a digital signature (but pvpgn sends dummy bytes
+for it). The signature is basically the server IP encrypted with the
+server private key. The client (Warcraft3) has a hardcoded public key
+that is used to decrypt the encrypted server IP and compare with the
+IP to which it connected (thus authenticating the server). Unless you
+can find out the private key used by Blizzard servers you cannot break
+this.
+
+This is also described in: <A HREF="http://uninformed.org/index.cgi?v=2&amp;a=1&amp;p=17">http://uninformed.org/index.cgi?v=2&amp;a=1&amp;p=17</A>
+
+-- 
+Dizzy
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000352.html">[pvpgn-dev] WarCraft III for Mac OS X - Was Re: Apple Mac Client Support?
+</A></li>
+	<LI>Next message: <A HREF="000359.html">[pvpgn-dev] WarCraft III for Mac OS X - Was Re: Apple Mac Client Support?
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#354">[ date ]</a>
+              <a href="thread.html#354">[ thread ]</a>
+              <a href="subject.html#354">[ subject ]</a>
+              <a href="author.html#354">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

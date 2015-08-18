@@ -1,0 +1,98 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r465 - trunk/pvpgn/src/bnetd
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2008-June/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r465%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200806112218.m5BMIMIs019868%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000719.html">
+   <LINK REL="Next"  HREF="000726.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r465 - trunk/pvpgn/src/bnetd</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r465%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200806112218.m5BMIMIs019868%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r465 - trunk/pvpgn/src/bnetd">svn at svn.berlios.de
+       </A><BR>
+    <I>Thu Jun 12 00:18:22 CEST 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000719.html">[pvpgn-dev] r464 - trunk/pvpgn/src/client
+</A></li>
+        <LI>Next message: <A HREF="000726.html">[pvpgn-dev] pvpgn/src/client client_connect.h,1.7,1.8
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#725">[ date ]</a>
+              <a href="thread.html#725">[ thread ]</a>
+              <a href="subject.html#725">[ subject ]</a>
+              <a href="author.html#725">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pelish
+Date: 2008-06-12 00:18:21 +0200 (Thu, 12 Jun 2008)
+New Revision: 465
+
+Modified:
+   trunk/pvpgn/src/bnetd/irc.cpp
+   trunk/pvpgn/src/bnetd/output.cpp
+Log:
+some small fix in irc.cpp and output.cpp (second one has not includes needed account.h file but function from this file is used in.
+
+Modified: trunk/pvpgn/src/bnetd/irc.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/irc.cpp	2008-06-10 21:31:10 UTC (rev 464)
++++ trunk/pvpgn/src/bnetd/irc.cpp	2008-06-11 22:18:21 UTC (rev 465)
+@@ -1520,7 +1520,7 @@
+         }
+ 
+         /* PELISH: Also tmpOP have banning mode alowed because all new channels have only tmpOP */
+-        if ((std::strcmp(conn_get_tmpOP_channel(conn),ircname)!=0) &amp;&amp; 
++        if ((channel_conn_is_tmpOP(channel,conn)) &amp;&amp; 
+             (account_get_auth_admin(acc,NULL)!=1) &amp;&amp; (account_get_auth_admin(acc,ircname)!=1) &amp;&amp;
+             (account_get_auth_operator(acc,NULL)!=1) &amp;&amp; (account_get_auth_operator(acc,ircname)!=1)) {
+             snprintf(temp,sizeof(temp),&quot;%s :You're not channel operator&quot;, params[0]);
+
+Modified: trunk/pvpgn/src/bnetd/output.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/output.cpp	2008-06-10 21:31:10 UTC (rev 464)
++++ trunk/pvpgn/src/bnetd/output.cpp	2008-06-11 22:18:21 UTC (rev 465)
+@@ -31,6 +31,7 @@
+ #include &quot;game.h&quot;
+ #include &quot;channel.h&quot;
+ #include &quot;connection.h&quot;
++#include &quot;account.h&quot;
+ #include &quot;server.h&quot;
+ #include &quot;common/setup_after.h&quot;
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000719.html">[pvpgn-dev] r464 - trunk/pvpgn/src/client
+</A></li>
+	<LI>Next message: <A HREF="000726.html">[pvpgn-dev] pvpgn/src/client client_connect.h,1.7,1.8
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#725">[ date ]</a>
+              <a href="thread.html#725">[ thread ]</a>
+              <a href="subject.html#725">[ subject ]</a>
+              <a href="author.html#725">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

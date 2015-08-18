@@ -1,0 +1,87 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] pvpgn version-history.txt,1.301,1.302
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2009-February/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20pvpgn%20version-history.txt%2C1.301%2C1.302&In-Reply-To=%3C20090225223519.1C0A4171309%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001021.html">
+   <LINK REL="Next"  HREF="001023.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] pvpgn version-history.txt,1.301,1.302</H1>
+    <B>pelish</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20pvpgn%20version-history.txt%2C1.301%2C1.302&In-Reply-To=%3C20090225223519.1C0A4171309%40mail.berlios.de%3E"
+       TITLE="[pvpgn-dev] pvpgn version-history.txt,1.301,1.302">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Wed Feb 25 23:35:19 CET 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001021.html">[pvpgn-dev] pvpgn/src/common bnet_protocol.h,1.58,1.59
+</A></li>
+        <LI>Next message: <A HREF="001023.html">[pvpgn-dev] pvpgn version-history.txt,1.302,1.303
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1022">[ date ]</a>
+              <a href="thread.html#1022">[ thread ]</a>
+              <a href="subject.html#1022">[ subject ]</a>
+              <a href="author.html#1022">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/pvpgn/pvpgn
+In directory sheep:/tmp/cvs-serv5732
+
+Modified Files:
+	version-history.txt 
+Log Message:
+fixed bug when clanmember without permission  was able to disband clan
+
+Index: version-history.txt
+===================================================================
+RCS file: /cvsroot/pvpgn/pvpgn/version-history.txt,v
+retrieving revision 1.301
+retrieving revision 1.302
+diff -u -d -r1.301 -r1.302
+--- version-history.txt	25 Feb 2009 22:18:59 -0000	1.301
++++ version-history.txt	25 Feb 2009 22:35:17 -0000	1.302
+@@ -12,6 +12,8 @@
+      member of his clan by sending proper rankupdate packet
+   -- fixed bug when a hosting bot was able to create a 
+      custom game which caused clients to disconnect
++  -- fixed bug when clanmember without permission
++     was able to disband clan
+ 
+  [SQL]
+   -- fix potential SQL injection via clan MOTD
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001021.html">[pvpgn-dev] pvpgn/src/common bnet_protocol.h,1.58,1.59
+</A></li>
+	<LI>Next message: <A HREF="001023.html">[pvpgn-dev] pvpgn version-history.txt,1.302,1.303
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1022">[ date ]</a>
+              <a href="thread.html#1022">[ thread ]</a>
+              <a href="subject.html#1022">[ subject ]</a>
+              <a href="author.html#1022">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

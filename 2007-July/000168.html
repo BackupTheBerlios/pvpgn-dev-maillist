@@ -1,0 +1,117 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r269 - in trunk/pvpgn: . src/bnetd src/common
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-July/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r269%20-%20in%20trunk/pvpgn%3A%20.%20src/bnetd%20src/common&In-Reply-To=%3C200707302113.l6ULDA0E016920%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000167.html">
+   <LINK REL="Next"  HREF="000169.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r269 - in trunk/pvpgn: . src/bnetd src/common</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r269%20-%20in%20trunk/pvpgn%3A%20.%20src/bnetd%20src/common&In-Reply-To=%3C200707302113.l6ULDA0E016920%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r269 - in trunk/pvpgn: . src/bnetd src/common">svn at svn.berlios.de
+       </A><BR>
+    <I>Mon Jul 30 23:13:10 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000167.html">[pvpgn-dev] r268 - in trunk/pvpgn: . conf
+</A></li>
+        <LI>Next message: <A HREF="000169.html">[pvpgn-dev] [Bug #9873] Bot crushing PvPGN
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#168">[ date ]</a>
+              <a href="thread.html#168">[ thread ]</a>
+              <a href="subject.html#168">[ subject ]</a>
+              <a href="author.html#168">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pandaemonium
+Date: 2007-07-30 23:13:09 +0200 (Mon, 30 Jul 2007)
+New Revision: 269
+
+Modified:
+   trunk/pvpgn/src/bnetd/command.cpp
+   trunk/pvpgn/src/common/field_sizes.h
+   trunk/pvpgn/version-history.txt
+Log:
+[ Patch #1725 ] Channel Char Limit Bug Fixed
+
+Modified: trunk/pvpgn/src/bnetd/command.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/command.cpp	2007-07-30 20:45:49 UTC (rev 268)
++++ trunk/pvpgn/src/bnetd/command.cpp	2007-07-30 21:13:09 UTC (rev 269)
+@@ -2110,6 +2110,12 @@
+ 	   return 0;
+ 	}
+ 
++	if (!(std::strlen(text) &lt; MAX_CHANNELNAME_LEN))
++	{
++		message_send_text(c,message_type_error,c,&quot;max channel name length exceeded (max %d symbols)&quot;, MAX_CHANNELNAME_LEN-1);
++		return 0;
++	}
++
+ 	if ((channel = conn_get_channel(c)) &amp;&amp; (strcasecmp(channel_get_name(channel),text)==0))
+ 		return 0; // we don't have to do anything, we are allready in this channel
+ 
+
+Modified: trunk/pvpgn/src/common/field_sizes.h
+===================================================================
+--- trunk/pvpgn/src/common/field_sizes.h	2007-07-30 20:45:49 UTC (rev 268)
++++ trunk/pvpgn/src/common/field_sizes.h	2007-07-30 21:13:09 UTC (rev 269)
+@@ -34,7 +34,7 @@
+ const int CLANSHORT_NAME_MAX = 4;
+ const unsigned CLAN_NAME_MAX = 25; /* including terminating NUL char */
+ const int MAX_CLANNAME_LEN = 64;
+-const int MAX_CHANNELNAME_LEN = 64;
++const int MAX_CHANNELNAME_LEN = 32; /* including terminating NUL char */
+ const unsigned MAX_CHARNAME_LEN = 16;
+ const unsigned MIN_CHARNAME_LEN = 2;
+ const int MAX_GAMENAME_LEN = 32;
+
+Modified: trunk/pvpgn/version-history.txt
+===================================================================
+--- trunk/pvpgn/version-history.txt	2007-07-30 20:45:49 UTC (rev 268)
++++ trunk/pvpgn/version-history.txt	2007-07-30 21:13:09 UTC (rev 269)
+@@ -17,6 +17,7 @@
+ 
+ [MISC]
+   -- Added /clan whisper subcommand
++  -- Enforce (stricter) limit for maximum channel name length 
+ 
+  ChangeLog for 1.8.1 (since 1.8.0)
+ =========================================
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000167.html">[pvpgn-dev] r268 - in trunk/pvpgn: . conf
+</A></li>
+	<LI>Next message: <A HREF="000169.html">[pvpgn-dev] [Bug #9873] Bot crushing PvPGN
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#168">[ date ]</a>
+              <a href="thread.html#168">[ thread ]</a>
+              <a href="subject.html#168">[ subject ]</a>
+              <a href="author.html#168">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

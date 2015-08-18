@@ -1,0 +1,289 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r373 - in trunk/pvpgn: . cmake/Modules src src/bnetd
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-August/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r373%20-%20in%20trunk/pvpgn%3A%20.%20cmake/Modules%20src%20src/bnetd&In-Reply-To=%3C200708272002.l7RK2JuK025600%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000424.html">
+   <LINK REL="Next"  HREF="000426.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r373 - in trunk/pvpgn: . cmake/Modules src src/bnetd</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r373%20-%20in%20trunk/pvpgn%3A%20.%20cmake/Modules%20src%20src/bnetd&In-Reply-To=%3C200708272002.l7RK2JuK025600%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r373 - in trunk/pvpgn: . cmake/Modules src src/bnetd">svn at svn.berlios.de
+       </A><BR>
+    <I>Mon Aug 27 22:02:19 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000424.html">[pvpgn-dev] r372 - in trunk/pvpgn: . conf
+</A></li>
+        <LI>Next message: <A HREF="000426.html">[pvpgn-dev] r374 - trunk/pvpgn/conf
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#425">[ date ]</a>
+              <a href="thread.html#425">[ thread ]</a>
+              <a href="subject.html#425">[ subject ]</a>
+              <a href="author.html#425">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: d1zzy
+Date: 2007-08-27 22:02:18 +0200 (Mon, 27 Aug 2007)
+New Revision: 373
+
+Added:
+   trunk/pvpgn/cmake/Modules/FindPostgreSQL.cmake
+Modified:
+   trunk/pvpgn/CMakeLists.txt
+   trunk/pvpgn/ConfigureChecks.cmake
+   trunk/pvpgn/cmake/Modules/FindMySQL.cmake
+   trunk/pvpgn/cmake/Modules/FindSQLite3.cmake
+   trunk/pvpgn/src/CMakeLists.txt
+   trunk/pvpgn/src/bnetd/CMakeLists.txt
+Log:
+Added PostgreSQL storage support option for cmake for Unices (on Windows 
+we will need some registry readings or lookup directory within src 
+path). Also fixed issues with mysql/sqlite finding scripts that were 
+ignoring some attributes (like REQUIRED which makes it error if it 
+cannot find it).
+
+
+Modified: trunk/pvpgn/CMakeLists.txt
+===================================================================
+--- trunk/pvpgn/CMakeLists.txt	2007-08-27 18:30:46 UTC (rev 372)
++++ trunk/pvpgn/CMakeLists.txt	2007-08-27 20:02:18 UTC (rev 373)
+@@ -20,6 +20,7 @@
+ #storage backends flags
+ option(WITH_MYSQL &quot;include MySQL user accounts support&quot; OFF)
+ option(WITH_SQLITE3 &quot;include SQLite3 user accounts support&quot; OFF)
++option(WITH_PGSQL &quot;include PostgreSQL user accounts support&quot; OFF)
+ 
+ include(ConfigureChecks.cmake)
+ 
+
+Modified: trunk/pvpgn/ConfigureChecks.cmake
+===================================================================
+--- trunk/pvpgn/ConfigureChecks.cmake	2007-08-27 18:30:46 UTC (rev 372)
++++ trunk/pvpgn/ConfigureChecks.cmake	2007-08-27 20:02:18 UTC (rev 373)
+@@ -43,6 +43,9 @@
+ if(WITH_SQLITE3)
+     find_package(SQLite3 REQUIRED)
+ endif(WITH_SQLITE3)
++if(WITH_PGSQL)
++    find_package(PostgreSQL REQUIRED)
++endif(WITH_PGSQL)
+ 
+ # if any of nsl or socket exists we need to make sure the following tests
+ # use them otherwise some functions may not be found
+
+Modified: trunk/pvpgn/cmake/Modules/FindMySQL.cmake
+===================================================================
+--- trunk/pvpgn/cmake/Modules/FindMySQL.cmake	2007-08-27 18:30:46 UTC (rev 372)
++++ trunk/pvpgn/cmake/Modules/FindMySQL.cmake	2007-08-27 20:02:18 UTC (rev 373)
+@@ -7,7 +7,7 @@
+ 
+ IF (MYSQL_INCLUDE_DIR)
+   # Already in cache, be silent
+-  SET(MYSQL_FIND_QUIETLY TRUE)
++  SET(MySQL_FIND_QUIETLY TRUE)
+ ENDIF (MYSQL_INCLUDE_DIR)
+ 
+ FIND_PATH(MYSQL_INCLUDE_DIR mysql.h
+@@ -43,17 +43,17 @@
+ ENDIF (MYSQL_INCLUDE_DIR AND MYSQL_LIBRARY)
+ 
+ IF (MYSQL_FOUND)
+-  IF (NOT MYSQL_FIND_QUIETLY)
++  IF (NOT MySQL_FIND_QUIETLY)
+     MESSAGE(STATUS &quot;Found MySQL: ${MYSQL_LIBRARY}&quot;)
+-  ENDIF (NOT MYSQL_FIND_QUIETLY)
++  ENDIF (NOT MySQL_FIND_QUIETLY)
+ ELSE (MYSQL_FOUND)
+-  IF (MYSQL_FIND_REQUIRED)
++  IF (MySQL_FIND_REQUIRED)
+     MESSAGE(STATUS &quot;Looked for MySQL libraries named ${MYSQL_NAMES}.&quot;)
+     MESSAGE(FATAL_ERROR &quot;Could NOT find MySQL library&quot;)
+-  ENDIF (MYSQL_FIND_REQUIRED)
++  ENDIF (MySQL_FIND_REQUIRED)
+ ENDIF (MYSQL_FOUND)
+ 
+ MARK_AS_ADVANCED(
+   MYSQL_LIBRARY
+   MYSQL_INCLUDE_DIR
+-  )
++)
+
+Added: trunk/pvpgn/cmake/Modules/FindPostgreSQL.cmake
+===================================================================
+--- trunk/pvpgn/cmake/Modules/FindPostgreSQL.cmake	2007-08-27 18:30:46 UTC (rev 372)
++++ trunk/pvpgn/cmake/Modules/FindPostgreSQL.cmake	2007-08-27 20:02:18 UTC (rev 373)
+@@ -0,0 +1,53 @@
++# - Find libpq
++# Find the native PostgreSQL includes and library
++#
++#  PGSQL_INCLUDE_DIR - where to find libpq-fe.h, etc.
++#  PGSQL_LIBRARIES   - List of libraries when using PGSQL.
++#  PGSQL_FOUND       - True if PGSQL found.
++
++IF (PGSQL_INCLUDE_DIR)
++  # Already in cache, be silent
++  SET(PostgreSQL_FIND_QUIETLY TRUE)
++ENDIF (PGSQL_INCLUDE_DIR)
++
++FIND_PATH(PGSQL_INCLUDE_DIR libpq-fe.h
++  /usr/local/pgsql/include
++  /usr/local/include/pgsql
++  /usr/local/include
++  /usr/include/pgsql
++  /usr/include
++  /usr/pgsql/include
++)
++
++SET(PGSQL_NAMES pq)
++SET(PGSQL_SEARCH_LIB_PATHS 
++  /usr/local/pgsql/lib /usr/local/lib /usr/lib
++)
++FIND_LIBRARY(PGSQL_LIBRARY
++  NAMES ${PGSQL_NAMES}
++  PATHS ${PGSQL_SEARCH_LIB_PATHS}
++)
++
++IF (PGSQL_INCLUDE_DIR AND PGSQL_LIBRARY)
++  SET(PGSQL_FOUND TRUE)
++  SET( PGSQL_LIBRARIES ${PGSQL_LIBRARY} )
++ELSE (PGSQL_INCLUDE_DIR AND PGSQL_LIBRARY)
++  SET(PGSQL_FOUND FALSE)
++  SET( PGSQL_LIBRARIES )
++ENDIF (PGSQL_INCLUDE_DIR AND PGSQL_LIBRARY)
++
++IF (PGSQL_FOUND)
++  IF (NOT PostgreSQL_FIND_QUIETLY)
++    MESSAGE(STATUS &quot;Found PostgreSQL: ${PGSQL_LIBRARY}&quot;)
++  ENDIF (NOT PostgreSQL_FIND_QUIETLY)
++ELSE (PGSQL_FOUND)
++  IF (PostgreSQL_FIND_REQUIRED)
++    MESSAGE(STATUS &quot;Looked for PostgreSQL libraries named ${PGSQL_NAMES}.&quot;)
++    MESSAGE(FATAL_ERROR &quot;Could NOT find PostgreSQL library&quot;)
++  ENDIF (PostgreSQL_FIND_REQUIRED)
++ENDIF (PGSQL_FOUND)
++
++MARK_AS_ADVANCED(
++  PGSQL_LIBRARY
++  PGSQL_INCLUDE_DIR
++)
+
+Modified: trunk/pvpgn/cmake/Modules/FindSQLite3.cmake
+===================================================================
+--- trunk/pvpgn/cmake/Modules/FindSQLite3.cmake	2007-08-27 18:30:46 UTC (rev 372)
++++ trunk/pvpgn/cmake/Modules/FindSQLite3.cmake	2007-08-27 20:02:18 UTC (rev 373)
+@@ -7,7 +7,7 @@
+ 
+ IF (SQLITE3_INCLUDE_DIR)
+   # Already in cache, be silent
+-  SET(SQLITE3_FIND_QUIETLY TRUE)
++  SET(SQLite3_FIND_QUIETLY TRUE)
+ ENDIF (SQLITE3_INCLUDE_DIR)
+ 
+ FIND_PATH(SQLITE3_INCLUDE_DIR sqlite3.h
+@@ -32,17 +32,17 @@
+ ENDIF (SQLITE3_INCLUDE_DIR AND SQLITE3_LIBRARY)
+ 
+ IF (SQLITE3_FOUND)
+-  IF (NOT SQLITE3_FIND_QUIETLY)
++  IF (NOT SQLite3_FIND_QUIETLY)
+     MESSAGE(STATUS &quot;Found SQLite3: ${SQLITE3_LIBRARY}&quot;)
+-  ENDIF (NOT SQLITE3_FIND_QUIETLY)
++  ENDIF (NOT SQLite3_FIND_QUIETLY)
+ ELSE (SQLITE3_FOUND)
+-  IF (SQLITE3_FIND_REQUIRED)
++  IF (SQLite3_FIND_REQUIRED)
+     MESSAGE(STATUS &quot;Looked for SQLite3 libraries named ${SQLITE3_NAMES}.&quot;)
+     MESSAGE(FATAL_ERROR &quot;Could NOT find SQLite3 library&quot;)
+-  ENDIF (SQLITE3_FIND_REQUIRED)
++  ENDIF (SQLite3_FIND_REQUIRED)
+ ENDIF (SQLITE3_FOUND)
+ 
+ MARK_AS_ADVANCED(
+   SQLITE3_LIBRARY
+   SQLITE3_INCLUDE_DIR
+-  )
++)
+
+Modified: trunk/pvpgn/src/CMakeLists.txt
+===================================================================
+--- trunk/pvpgn/src/CMakeLists.txt	2007-08-27 18:30:46 UTC (rev 372)
++++ trunk/pvpgn/src/CMakeLists.txt	2007-08-27 20:02:18 UTC (rev 373)
+@@ -25,6 +25,9 @@
+ if(SQLITE3_FOUND)
+     add_definitions(&quot;-DWITH_SQL_SQLITE3&quot;)
+ endif(SQLITE3_FOUND)
++if(PGSQL_FOUND)
++    add_definitions(&quot;-DWITH_SQL_PGSQL&quot;)
++endif(PGSQL_FOUND)
+ 
+ subdirs(compat common win32 tinycdb bntrackd client bniutils bnpass)
+ 
+
+Modified: trunk/pvpgn/src/bnetd/CMakeLists.txt
+===================================================================
+--- trunk/pvpgn/src/bnetd/CMakeLists.txt	2007-08-27 18:30:46 UTC (rev 372)
++++ trunk/pvpgn/src/bnetd/CMakeLists.txt	2007-08-27 20:02:18 UTC (rev 373)
+@@ -1,5 +1,7 @@
+ # add aditional includes corresponding to the additional libraries bellow
+-include_directories(${ZLIB_INCLUDE_DIR} ${MYSQL_INCLUDE_DIR} ${SQLITE3_INCLUDE_DIR})
++include_directories(${ZLIB_INCLUDE_DIR} ${MYSQL_INCLUDE_DIR} 
++  ${SQLITE3_INCLUDE_DIR} ${PGSQL_INCLUDE_DIR}
++)
+ 
+ set(BNETD_SOURCES
+ 	account.cpp account.h account_wrap.cpp account_wrap.h adbanner.cpp
+@@ -44,7 +46,7 @@
+ add_executable(bnetd ${BNETD_SOURCES} 
+   ${BNETD_CONSOLE_RESOURCES})
+ target_link_libraries(bnetd common compat win32 tinycdb ${NETWORK_LIBRARIES}
+-    ${ZLIB_LIBRARIES} ${MYSQL_LIBRARIES} ${SQLITE3_LIBRARIES})
++    ${ZLIB_LIBRARIES} ${MYSQL_LIBRARIES} ${SQLITE3_LIBRARIES} ${PGSQL_LIBRARIES})
+ install(TARGETS bnetd DESTINATION ${SBINDIR})
+ 
+ # build the GUI version too
+@@ -54,6 +56,6 @@
+     ${BNETD_GUI_RESOURCES})
+   set_target_properties(bnetd_gui PROPERTIES COMPILE_FLAGS &quot;-DWIN32_GUI&quot;)
+   target_link_libraries(bnetd_gui common_gui compat win32_gui tinycdb ${NETWORK_LIBRARIES}
+-    ${ZLIB_LIBRARIES} ${MYSQL_LIBRARIES} ${SQLITE3_LIBRARIES})
++    ${ZLIB_LIBRARIES} ${MYSQL_LIBRARIES} ${SQLITE3_LIBRARIES} ${PGSQL_LIBRARIES})
+   install(TARGETS bnetd_gui DESTINATION ${SBINDIR})
+ endif(WITH_WIN32_GUI)
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000424.html">[pvpgn-dev] r372 - in trunk/pvpgn: . conf
+</A></li>
+	<LI>Next message: <A HREF="000426.html">[pvpgn-dev] r374 - trunk/pvpgn/conf
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#425">[ date ]</a>
+              <a href="thread.html#425">[ thread ]</a>
+              <a href="subject.html#425">[ subject ]</a>
+              <a href="author.html#425">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,98 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] pvpgn/src/common field_sizes.h,1.7,1.8
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2009-February/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20pvpgn/src/common%20field_sizes.h%2C1.7%2C1.8&In-Reply-To=%3C20090225221902.62855172CF6%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001014.html">
+   <LINK REL="Next"  HREF="001016.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] pvpgn/src/common field_sizes.h,1.7,1.8</H1>
+    <B>pandaemonium</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20pvpgn/src/common%20field_sizes.h%2C1.7%2C1.8&In-Reply-To=%3C20090225221902.62855172CF6%40mail.berlios.de%3E"
+       TITLE="[pvpgn-dev] pvpgn/src/common field_sizes.h,1.7,1.8">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Wed Feb 25 23:19:02 CET 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001014.html">[pvpgn-dev] pvpgn/src/client bnchat.c,1.23,1.24
+</A></li>
+        <LI>Next message: <A HREF="001016.html">[pvpgn-dev] pvpgn/src/bnetd clan.c,1.38,1.39 sql_common.c,1.4,1.5
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1015">[ date ]</a>
+              <a href="thread.html#1015">[ thread ]</a>
+              <a href="subject.html#1015">[ subject ]</a>
+              <a href="author.html#1015">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/pvpgn/pvpgn/src/common
+In directory sheep:/tmp/cvs-serv506/src/common
+
+Modified Files:
+	field_sizes.h 
+Log Message:
+fix potential SQL injection via clan MOTD
+
+
+Index: field_sizes.h
+===================================================================
+RCS file: /cvsroot/pvpgn/pvpgn/src/common/field_sizes.h,v
+retrieving revision 1.7
+retrieving revision 1.8
+diff -u -d -r1.7 -r1.8
+--- field_sizes.h	6 Feb 2009 20:53:42 -0000	1.7
++++ field_sizes.h	25 Feb 2009 22:19:00 -0000	1.8
+@@ -31,7 +31,9 @@
+ #define UNCHECKED_NAME_STR     32 /* including terminating NUL char */
+                                   /* (longer than USER_NAME_MAX and CHAR_NAME_LEN so that
+                                    *  proper error packets can be returned) */
+-#define MAX_CLANNAME_LEN       64
++#define CLANSHORT_NAME_MAX      4
++#define CLAN_NAME_MAX          24 /* including terminating NUL char */
++#define CLAN_MOTD_MAX         224 /* including terminating NUL char */
+ #define CHANNEL_NAME_LEN       64
+ #define CHAR_NAME_LEN          16 /* including terminating NUL char */
+ #define REALM_NAME_LEN         32
+@@ -58,7 +60,5 @@
+ #define MAX_ATTRVAL_STR      4096 /* including terminating NUL char */
+ #define MAX_IRC_MESSAGE_LEN 512 /* including CRLF (according to RFC 2812) */
+ #define MAX_TOPIC_LEN         201 /* including terminating NUL char */
+-#define CLANSHORT_NAME_MAX          4
+-#define CLAN_NAME_MAX          25 /* including terminating NUL char */
+ 
+ #endif
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001014.html">[pvpgn-dev] pvpgn/src/client bnchat.c,1.23,1.24
+</A></li>
+	<LI>Next message: <A HREF="001016.html">[pvpgn-dev] pvpgn/src/bnetd clan.c,1.38,1.39 sql_common.c,1.4,1.5
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1015">[ date ]</a>
+              <a href="thread.html#1015">[ thread ]</a>
+              <a href="subject.html#1015">[ subject ]</a>
+              <a href="author.html#1015">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

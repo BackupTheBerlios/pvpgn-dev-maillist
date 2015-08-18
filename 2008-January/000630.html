@@ -1,0 +1,231 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r428 - in trunk/pvpgn: conf src/bnetd
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2008-January/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r428%20-%20in%20trunk/pvpgn%3A%20conf%20src/bnetd&In-Reply-To=%3C200801062132.m06LWLEU012631%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000629.html">
+   <LINK REL="Next"  HREF="000631.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r428 - in trunk/pvpgn: conf src/bnetd</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r428%20-%20in%20trunk/pvpgn%3A%20conf%20src/bnetd&In-Reply-To=%3C200801062132.m06LWLEU012631%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r428 - in trunk/pvpgn: conf src/bnetd">svn at svn.berlios.de
+       </A><BR>
+    <I>Sun Jan  6 22:32:21 CET 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000629.html">[pvpgn-dev] r427 - trunk/pvpgn/src/bnetd
+</A></li>
+        <LI>Next message: <A HREF="000631.html">[pvpgn-dev] r429 - trunk/pvpgn/src/bnetd
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#630">[ date ]</a>
+              <a href="thread.html#630">[ thread ]</a>
+              <a href="subject.html#630">[ subject ]</a>
+              <a href="author.html#630">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pandaemonium
+Date: 2008-01-06 22:32:21 +0100 (Sun, 06 Jan 2008)
+New Revision: 428
+
+Modified:
+   trunk/pvpgn/conf/bnxpcalc.conf.in
+   trunk/pvpgn/conf/bnxplevel.conf.in
+   trunk/pvpgn/src/bnetd/ladder.h
+Log:
+update bnxplevel.conf to match current battle.net lineup (also increased WAR3/W3XP maxlevel to 65)
+
+Modified: trunk/pvpgn/conf/bnxpcalc.conf.in
+===================================================================
+--- trunk/pvpgn/conf/bnxpcalc.conf.in	2008-01-06 21:31:07 UTC (rev 427)
++++ trunk/pvpgn/conf/bnxpcalc.conf.in	2008-01-06 21:32:21 UTC (rev 428)
+@@ -8,10 +8,10 @@
+ # of points the columns are in &quot;mirror&quot;
+ 
+ # used for all players
+-50 0 100 100 100 100
+-50 1 95 105 115 85
+-50 2 90 110 130 70
+-50 3 85 115 145 55
+-50 4 80 120 155 45 
+-50 5 75 125 165 35 
+-50 6 70 130 175 25
++65 0 100 100 100 100
++65 1 95 105 115 85
++65 2 90 110 130 70
++65 3 85 115 145 55
++65 4 80 120 155 45 
++65 5 75 125 165 35 
++65 6 70 130 175 25
+
+Modified: trunk/pvpgn/conf/bnxplevel.conf.in
+===================================================================
+--- trunk/pvpgn/conf/bnxplevel.conf.in	2008-01-06 21:31:07 UTC (rev 427)
++++ trunk/pvpgn/conf/bnxplevel.conf.in	2008-01-06 21:32:21 UTC (rev 428)
+@@ -5,53 +5,68 @@
+ #
+ # FIXME: Min Games is not used right now
+ 
+-1 0 0 0.11 0
++1 0 100 0.10 0
+ 2 100 100 0.11 0
+ 3 200 200 0.11 0
+-4 400 200 0.25 0
+-5 600 300 0.25 0
+-6 900 300 0.43 0
+-7 1200 400 0.43 0
+-8 1600 400 0.67 0
+-9 2000 500 0.67 0
+-10 2500 500 1.00 0
+-11 3000 500 1.00 1
+-12 3500 500 1.00 1
+-13 4000 500 1.00 1
+-14 4500 500 1.00 1
+-15 5000 500 1.00 1
+-16 5500 500 1.00 1
+-17 6000 500 1.00 1
+-18 6500 500 1.00 1
+-19 7000 500 1.00 1
+-20 7500 500 1.00 1
+-21 8000 500 1.00 1
+-22 8500 500 1.00 2
+-23 9000 500 1.00 2
+-24 9500 500 1.00 2
+-25 10000 500 1.00 2
+-26 10500 500 1.00 2
+-27 11000 500 1.00 2
+-28 11500 500 1.00 2
+-29 12000 500 1.00 2
+-30 12500 500 1.00 2
+-31 13000 500 1.00 3
+-32 13500 500 1.00 3
+-33 14000 500 1.00 3
+-34 14500 500 1.00 3
+-35 15000 500 1.00 3
+-36 15500 500 1.00 3
+-37 16000 500 1.00 3
+-38 16500 500 1.00 3
+-39 17000 500 1.00 3
+-40 17500 500 1.00 3
+-41 18000 500 1.00 4
+-42 18500 500 1.00 4
+-43 19000 500 1.00 4
+-44 19500 500 1.00 4
+-45 20000 500 1.00 4
+-46 20500 500 1.00 4
+-47 21000 500 1.00 4
+-48 21500 500 1.00 4
+-49 22000 500 1.00 4
+-50 22500 500 1.00 4
++4 400 200 0.25 1
++5 600 300 0.25 1
++6 900 300 0.43 1
++7 1200 400 0.43 2
++8 1600 400 0.67 2
++9 2000 500 0.67 2
++10 2500 500 1.00 3
++11 3000 500 1.00 3
++12 3500 500 1.00 3
++13 4000 500 1.00 3
++14 4500 500 1.00 4
++15 5000 500 1.00 4
++16 5500 500 1.00 4
++17 6000 500 1.00 5
++18 6500 500 1.00 5
++19 7000 500 1.00 5
++20 7500 500 1.00 6
++21 8000 500 1.00 6
++22 8500 500 1.00 6
++23 9000 500 1.00 6
++24 9500 500 1.00 7
++25 10000 500 1.00 7
++26 10500 500 1.00 7
++27 11000 500 1.00 8
++28 11500 500 1.00 8
++29 12000 500 1.00 8
++30 12500 500 1.00 9
++31 13000 500 1.00 9
++32 13500 500 1.00 9
++33 14000 500 1.00 9
++34 14500 500 1.00 10
++35 15000 500 1.00 10
++36 15500 500 1.00 10
++37 16000 500 1.00 11
++38 16500 500 1.00 11
++39 17000 500 1.00 11
++40 17500 500 1.00 12
++41 18000 500 1.00 12
++42 18500 500 1.00 12
++43 19000 500 1.00 12
++44 19500 500 1.00 13
++45 20000 500 1.00 13
++46 20500 500 1.00 13
++47 21000 500 1.00 14
++48 21500 500 1.00 14
++49 22000 500 1.00 14
++50 22500 500 1.00 15
++51 23000 500 1.00 15
++52 23500 500 1.00 15
++53 24000 500 1.00 15
++54 24500 500 1.00 16
++55 25000 500 1.00 16
++56 25500 500 1.00 16
++57 26000 500 1.00 17
++58 26500 500 1.00 17
++59 27000 500 1.00 17
++60 27500 500 1.00 18
++61 28000 500 1.00 18
++62 28500 500 1.00 18
++63 29000 500 1.00 18
++64 29500 500 1.00 19
++65 30000 500 1.00 19
+
+Modified: trunk/pvpgn/src/bnetd/ladder.h
+===================================================================
+--- trunk/pvpgn/src/bnetd/ladder.h	2008-01-06 21:31:07 UTC (rev 427)
++++ trunk/pvpgn/src/bnetd/ladder.h	2008-01-06 21:32:21 UTC (rev 428)
+@@ -27,7 +27,7 @@
+ #include &lt;string&gt;
+ #include &lt;utility&gt;
+ 
+-#define W3_XPCALC_MAXLEVEL	50
++#define W3_XPCALC_MAXLEVEL	65
+ 
+ namespace pvpgn
+ {
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000629.html">[pvpgn-dev] r427 - trunk/pvpgn/src/bnetd
+</A></li>
+	<LI>Next message: <A HREF="000631.html">[pvpgn-dev] r429 - trunk/pvpgn/src/bnetd
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#630">[ date ]</a>
+              <a href="thread.html#630">[ thread ]</a>
+              <a href="subject.html#630">[ subject ]</a>
+              <a href="author.html#630">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

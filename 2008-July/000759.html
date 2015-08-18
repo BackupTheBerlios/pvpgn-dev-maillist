@@ -1,0 +1,233 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r477 - in trunk/pvpgn/src: bnetd common
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2008-July/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r477%20-%20in%20trunk/pvpgn/src%3A%20bnetd%20common&In-Reply-To=%3C200807262258.m6QMwWDK014653%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000758.html">
+   <LINK REL="Next"  HREF="000760.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r477 - in trunk/pvpgn/src: bnetd common</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r477%20-%20in%20trunk/pvpgn/src%3A%20bnetd%20common&In-Reply-To=%3C200807262258.m6QMwWDK014653%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r477 - in trunk/pvpgn/src: bnetd common">svn at svn.berlios.de
+       </A><BR>
+    <I>Sun Jul 27 00:58:32 CEST 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000758.html">[pvpgn-dev] r476 - trunk/pvpgn/src/bnetd
+</A></li>
+        <LI>Next message: <A HREF="000760.html">[pvpgn-dev] [Patch #2531] spell error
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#759">[ date ]</a>
+              <a href="thread.html#759">[ thread ]</a>
+              <a href="subject.html#759">[ subject ]</a>
+              <a href="author.html#759">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pelish
+Date: 2008-07-27 00:58:17 +0200 (Sun, 27 Jul 2008)
+New Revision: 477
+
+Modified:
+   trunk/pvpgn/src/bnetd/handle_bnet.cpp
+   trunk/pvpgn/src/common/bnet_protocol.h
+   trunk/pvpgn/src/common/packet.h
+Log:
+fix for &quot;client can crash server through malformed client_clan_createinvitereq packet&quot; bug
+
+Modified: trunk/pvpgn/src/bnetd/handle_bnet.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/handle_bnet.cpp	2008-07-25 21:34:07 UTC (rev 476)
++++ trunk/pvpgn/src/bnetd/handle_bnet.cpp	2008-07-26 22:58:17 UTC (rev 477)
+@@ -152,7 +152,7 @@
+ static int _client_w3xp_clan_motdreq(t_connection * c, t_packet const *const packet);
+ static int _client_w3xp_clan_motdchg(t_connection * c, t_packet const *const packet);
+ static int _client_w3xp_clan_createreq(t_connection * c, t_packet const *const packet);
+-static int _client_w3xp_clan_createinvitereq(t_connection * c, t_packet const *const packet);
++static int _client_clan_createinvitereq(t_connection * c, t_packet const *const packet);
+ static int _client_w3xp_clan_createinvitereply(t_connection * c, t_packet const *const packet);
+ static int _client_w3xp_clan_disbandreq(t_connection * c, t_packet const *const packet);
+ static int _client_w3xp_clanmember_rankupdatereq(t_connection * c, t_packet const *const packet);
+@@ -252,7 +252,7 @@
+     {CLIENT_W3XP_CLAN_MOTDCHG, _client_w3xp_clan_motdchg},
+     {CLIENT_W3XP_CLAN_MOTDREQ, _client_w3xp_clan_motdreq},
+     {CLIENT_W3XP_CLAN_CREATEREQ, _client_w3xp_clan_createreq},
+-    {CLIENT_W3XP_CLAN_CREATEINVITEREQ, _client_w3xp_clan_createinvitereq},
++    {CLIENT_CLAN_CREATEINVITEREQ, _client_clan_createinvitereq},
+     {CLIENT_W3XP_CLAN_CREATEINVITEREPLY, _client_w3xp_clan_createinvitereply},
+     {CLIENT_W3XP_CLANMEMBER_RANKUPDATE_REQ, _client_w3xp_clanmember_rankupdatereq},
+     {CLIENT_W3XP_CLANMEMBER_REMOVE_REQ, _client_w3xp_clanmember_removereq},
+@@ -4402,36 +4402,51 @@
+     return 0;
+ }
+ 
+-static int _client_w3xp_clan_createinvitereq(t_connection * c, t_packet const *const packet)
++static int _client_clan_createinvitereq(t_connection * c, t_packet const *const packet)
+ {
+     t_packet *rpacket;
+     unsigned size;
++    const char *clanname;
++    const char *username;
++    t_clantag clantag;
++    unsigned offset;
++    t_clan *clan;
+ 
+-    if ((size = packet_get_size(packet)) &lt; sizeof(t_client_w3xp_clan_createinvitereq)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad W3XP_CLAN_CREATEINVITEREQ packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_w3xp_clan_createinvitereq), packet_get_size(packet));
+-	return -1;
++    if ((size = packet_get_size(packet)) &lt; sizeof(t_client_clan_createinvitereq)) {
++        eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad CLAN_CREATEINVITEREQ packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_clan_createinvitereq), packet_get_size(packet));
++        return -1;
+     }
++    offset = sizeof(t_client_clan_createinvitereq);
++    
++	if (!(clanname = packet_get_str_const(packet, offset, CLAN_NAME_MAX))) {
++        eventlog(eventlog_level_error,__FUNCTION__, &quot;[%d] got bad CLAN_CREATEINVITEREQ packet (missing clanname)&quot;, conn_get_socket(c));
++        return -1;
++    }
++	offset += (std::strlen(clanname) + 1);
+ 
++	if (!(packet_get_data_const(packet, offset, 4))) { 
++        eventlog(eventlog_level_error,__FUNCTION__, &quot;[%d] got bad CLAN_CREATEINVITEREQ packet (missing clantag)&quot;, conn_get_socket(c));
++        return -1;
++    }
++    clantag = *((int *) packet_get_data_const(packet, offset, 4));
++	offset += 4;
++
+     if ((rpacket = packet_create(packet_class_bnet))) {
+-	const char *clanname;
+-	const char *username;
+-	t_clantag clantag;
+-	unsigned offset = sizeof(t_client_w3xp_clan_createinvitereq);
+-	t_clan *clan;
+-	clanname = packet_get_str_const(packet, offset, CLAN_NAME_MAX);
+-	offset += (std::strlen(clanname) + 1);
+-	clantag = *((int *) packet_get_data_const(packet, offset, 4));
+-	offset += 4;
+ 	if ((clan = clan_create(conn_get_account(c), clantag, clanname, NULL)) &amp;&amp; clanlist_add_clan(clan)) {
+-	    char membercount = *((char *) packet_get_data_const(packet, offset, 1));
++	    char membercount;
++        if (!(packet_get_data_const(packet, offset, 1))) {
++            eventlog(eventlog_level_error,__FUNCTION__, &quot;[%d] got bad CLAN_CREATEINVITEREQ packet (missing membercount)&quot;, conn_get_socket(c));
++            return -1;
++        }
++        membercount = *((char *) packet_get_data_const(packet, offset, 1));
+ 	    clan_set_created(clan, -membercount);
+-	    packet_set_size(rpacket, sizeof(t_server_w3xp_clan_createinvitereq));
+-	    packet_set_type(rpacket, SERVER_W3XP_CLAN_CREATEINVITEREQ);
+-	    bn_int_set(&amp;rpacket-&gt;u.server_w3xp_clan_createinvitereq.count, bn_int_get(packet-&gt;u.client_w3xp_clan_createinvitereq.count));
+-	    bn_int_set(&amp;rpacket-&gt;u.server_w3xp_clan_createinvitereq.clantag, clantag);
++	    packet_set_size(rpacket, sizeof(t_server_clan_createinvitereq));
++	    packet_set_type(rpacket, SERVER_CLAN_CREATEINVITEREQ);
++	    bn_int_set(&amp;rpacket-&gt;u.server_clan_createinvitereq.count, bn_int_get(packet-&gt;u.client_clan_createinvitereq.count));
++	    bn_int_set(&amp;rpacket-&gt;u.server_clan_createinvitereq.clantag, clantag);
+ 	    packet_append_string(rpacket, clanname);
+ 	    packet_append_string(rpacket, conn_get_username(c));
+-	    packet_append_data(rpacket, packet_get_data_const(packet, offset, size - offset), size - offset);
++	    packet_append_data(rpacket, packet_get_data_const(packet, offset, size - offset), size - offset); //Pelish: we will send bad packet if we got bad packet...
+ 	    offset++;
+ 	    do {
+ 		username = packet_get_str_const(packet, offset, MAX_USERNAME_LEN);
+@@ -4474,7 +4489,7 @@
+     char status;
+ 
+     if (packet_get_size(packet) &lt; sizeof(t_client_w3xp_clan_createinvitereply)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad W3XP_CLAN_CREATEINVITEREPLY packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_w3xp_clan_createinvitereq), packet_get_size(packet));
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad CLAN_CREATEINVITEREPLY packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_clan_createinvitereq), packet_get_size(packet));
+ 	return -1;
+     }
+     offset = sizeof(t_client_w3xp_clan_createinvitereply);
+
+Modified: trunk/pvpgn/src/common/bnet_protocol.h
+===================================================================
+--- trunk/pvpgn/src/common/bnet_protocol.h	2008-07-25 21:34:07 UTC (rev 476)
++++ trunk/pvpgn/src/common/bnet_protocol.h	2008-07-26 22:58:17 UTC (rev 477)
+@@ -3768,7 +3768,7 @@
+ 0030:   00 44 4A 50 37 00 44 4A   50 38 00 44 4A 50 31 30    .DJP7.DJP8.DJP10
+ 0040:   00 44 4A 50 39 00                                    .DJP9.
+ */
+-#define CLIENT_W3XP_CLAN_CREATEINVITEREQ 0x71ff
++#define CLIENT_CLAN_CREATEINVITEREQ 0x71ff
+ typedef struct{
+   t_bnet_header        h;
+   bn_int               count;
+@@ -3777,7 +3777,7 @@
+      bn_byte			friend_count; //Number of friend selected
+      Name of friend (\0 terminated string)
+    */
+-} PACKED_ATTR() t_client_w3xp_clan_createinvitereq;
++} PACKED_ATTR() t_client_clan_createinvitereq;
+ 
+ /*3756: send class=bnet[0x02] type=unknown[0x71ff] length=14
+ 0000:   FF 71 0E 00 02 00 00 00   05 44 4A 50 32 00          .q.......DJP2.
+@@ -3794,7 +3794,7 @@
+   Name of failed member(\0 terminated string) */
+ } PACKED_ATTR() t_server_w3xp_clan_createinvitereply;
+ 
+-#define SERVER_W3XP_CLAN_CREATEINVITEREQ 0x72ff
++#define SERVER_CLAN_CREATEINVITEREQ 0x72ff
+ typedef struct{
+   t_bnet_header        h;
+   bn_int               count;
+@@ -3803,7 +3803,7 @@
+      Clan Creator (\0 terminated string)
+      bn_byte			friend_count; //Number of friend selected
+      Name of friend (\0 terminated string) */
+-} PACKED_ATTR() t_server_w3xp_clan_createinvitereq;
++} PACKED_ATTR() t_server_clan_createinvitereq;
+ 
+ #define CLIENT_W3XP_CLAN_CREATEINVITEREPLY 0x72ff
+ typedef struct{
+
+Modified: trunk/pvpgn/src/common/packet.h
+===================================================================
+--- trunk/pvpgn/src/common/packet.h	2008-07-25 21:34:07 UTC (rev 476)
++++ trunk/pvpgn/src/common/packet.h	2008-07-26 22:58:17 UTC (rev 477)
+@@ -329,9 +329,9 @@
+ 	t_server_w3xp_clanmemberlist_reply	server_w3xp_clanmemberlist_reply;
+ 	t_client_w3xp_clan_createreq		client_w3xp_clan_createreq;
+ 	t_server_w3xp_clan_createreply		server_w3xp_clan_createreply;
+-	t_client_w3xp_clan_createinvitereq	client_w3xp_clan_createinvitereq;
++	t_client_clan_createinvitereq       client_clan_createinvitereq;
+ 	t_server_w3xp_clan_createinvitereply	server_w3xp_clan_createinvitereply;
+-	t_server_w3xp_clan_createinvitereq	server_w3xp_clan_createinvitereq;
++	t_server_clan_createinvitereq	     server_clan_createinvitereq;
+ 	t_client_w3xp_clan_createinvitereply	client_w3xp_clan_createinvitereply;
+ 	t_server_w3xp_clan_clanack		server_w3xp_clan_clanack;
+ 	t_server_w3xp_clanmemberupdate          server_w3xp_clanmemberupdate;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000758.html">[pvpgn-dev] r476 - trunk/pvpgn/src/bnetd
+</A></li>
+	<LI>Next message: <A HREF="000760.html">[pvpgn-dev] [Patch #2531] spell error
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#759">[ date ]</a>
+              <a href="thread.html#759">[ thread ]</a>
+              <a href="subject.html#759">[ subject ]</a>
+              <a href="author.html#759">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

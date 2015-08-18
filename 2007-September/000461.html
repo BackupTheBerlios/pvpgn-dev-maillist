@@ -1,0 +1,907 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r389 - in trunk/pvpgn/src: bnetd common d2cs d2dbs win32
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-September/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r389%20-%20in%20trunk/pvpgn/src%3A%20bnetd%20common%20d2cs%20d2dbs%20win32&In-Reply-To=%3C200709222350.l8MNopfI032227%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000460.html">
+   <LINK REL="Next"  HREF="000462.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r389 - in trunk/pvpgn/src: bnetd common d2cs d2dbs win32</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r389%20-%20in%20trunk/pvpgn/src%3A%20bnetd%20common%20d2cs%20d2dbs%20win32&In-Reply-To=%3C200709222350.l8MNopfI032227%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r389 - in trunk/pvpgn/src: bnetd common d2cs d2dbs win32">svn at svn.berlios.de
+       </A><BR>
+    <I>Sun Sep 23 01:50:51 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000460.html">[pvpgn-dev] r388 - trunk/pvpgn/src/win32
+</A></li>
+        <LI>Next message: <A HREF="000462.html">[pvpgn-dev] r390 - in trunk/pvpgn/src: bnetd common d2cs d2dbs win32
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#461">[ date ]</a>
+              <a href="thread.html#461">[ thread ]</a>
+              <a href="subject.html#461">[ subject ]</a>
+              <a href="author.html#461">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pandaemonium
+Date: 2007-09-23 01:50:50 +0200 (Sun, 23 Sep 2007)
+New Revision: 389
+
+Modified:
+   trunk/pvpgn/src/bnetd/cmdline.cpp
+   trunk/pvpgn/src/bnetd/cmdline.h
+   trunk/pvpgn/src/bnetd/main.cpp
+   trunk/pvpgn/src/common/eventlog.cpp
+   trunk/pvpgn/src/common/eventlog.h
+   trunk/pvpgn/src/d2cs/cmdline.cpp
+   trunk/pvpgn/src/d2cs/cmdline.h
+   trunk/pvpgn/src/d2cs/main.cpp
+   trunk/pvpgn/src/d2dbs/cmdline.cpp
+   trunk/pvpgn/src/d2dbs/cmdline.h
+   trunk/pvpgn/src/d2dbs/main.cpp
+   trunk/pvpgn/src/win32/d2cs_winmain.cpp
+   trunk/pvpgn/src/win32/d2dbs_winmain.cpp
+   trunk/pvpgn/src/win32/service.cpp
+   trunk/pvpgn/src/win32/winmain.cpp
+Log:
+Enable WIN32_GUI builds to be run in console mode (obsoleting the requirements to build to different apps). CMakeLists.txt still needs to be cleaned up - a task left for tomorrow.
+
+Modified: trunk/pvpgn/src/bnetd/cmdline.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/cmdline.cpp	2007-09-22 22:55:33 UTC (rev 388)
++++ trunk/pvpgn/src/bnetd/cmdline.cpp	2007-09-22 23:50:50 UTC (rev 389)
+@@ -48,6 +48,10 @@
+     const char *preffile;
+     const char *hexfile;
+     unsigned debug;
++#ifdef WIN32_GUI
++	unsigned console;
++	unsigned gui;
++#endif
+ } cmdline_config;
+ 
+ static unsigned exitflag;
+@@ -81,6 +85,14 @@
+ static int conf_setdef_servaction(void);
+ #endif
+ 
++#ifdef WIN32_GUI
++static int conf_set_console(char const * valstr);
++static int conf_setdef_console(void);
++
++static int conf_set_gui(char const * valstr);
++static int conf_setdef_gui(void);
++#endif
++
+ static t_conf_entry conftab[] = {
+     { &quot;c&quot;,		conf_set_preffile,	NULL,	conf_setdef_preffile },
+     { &quot;config&quot;,		conf_set_preffile,	NULL,	conf_setdef_preffile },
+@@ -101,6 +113,10 @@
+     { &quot;service&quot;,	conf_set_service,	NULL,	conf_setdef_service },
+     { &quot;s&quot;,		conf_set_servaction,	NULL,	conf_setdef_servaction },
+ #endif
++#ifdef WIN32_GUI
++	{ &quot;console&quot;,    conf_set_console,       NULL, conf_setdef_console   },
++	{ &quot;gui&quot;,        conf_set_gui,           NULL, conf_setdef_gui       },
++#endif
+     { NULL,		NULL,			NULL,	NULL }
+ };
+ 
+@@ -122,6 +138,9 @@
+             &quot;    -s install               install service\n&quot;
+             &quot;    -s uninstall             uninstall service\n&quot;
+ #endif
++#ifdef WIN32GUI
++		&quot;    -console                 run in console mode\n&quot;
++#endif
+             ,progname);
+ }
+ 
+@@ -298,6 +317,47 @@
+ }
+ #endif
+ 
++
++#ifdef WIN32_GUI
++
++static int conf_set_console(const char *valstr)
++{
++	conf_set_bool(&amp;cmdline_config.console, valstr, 0);
++	if (cmdline_config.console){
++		conf_set_bool(&amp;cmdline_config.gui, NULL, 0);
++	}
++	return 0;
+ }
+ 
++static int conf_setdef_console(void)
++{
++	return conf_set_bool(&amp;cmdline_config.console, NULL, 0);
+ }
++
++extern unsigned cmdline_get_console(void){
++	return cmdline_config.console;
++}
++
++
++static int conf_set_gui(const char *valstr)
++{
++	conf_set_bool(&amp;cmdline_config.gui, valstr, 0);
++	if (cmdline_config.gui){
++	}
++	return 0;
++}
++
++static int conf_setdef_gui(void)
++{
++	return conf_set_bool(&amp;cmdline_config.gui, NULL, 1);
++}
++
++extern unsigned cmdline_get_gui(void){
++	return cmdline_config.gui;
++}
++
++#endif
++
++}
++
++}
+
+Modified: trunk/pvpgn/src/bnetd/cmdline.h
+===================================================================
+--- trunk/pvpgn/src/bnetd/cmdline.h	2007-09-22 22:55:33 UTC (rev 388)
++++ trunk/pvpgn/src/bnetd/cmdline.h	2007-09-22 23:50:50 UTC (rev 389)
+@@ -34,6 +34,10 @@
+ #endif
+ extern const char* cmdline_get_preffile(void);
+ extern const char* cmdline_get_hexfile(void);
++#ifdef WIN32_GUI
++extern unsigned cmdline_get_console(void);
++extern unsigned cmdline_get_gui(void);
++#endif
+ 
+ }
+ 
+
+Modified: trunk/pvpgn/src/bnetd/main.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/main.cpp	2007-09-22 22:55:33 UTC (rev 388)
++++ trunk/pvpgn/src/bnetd/main.cpp	2007-09-22 23:50:50 UTC (rev 389)
+@@ -182,6 +182,13 @@
+ 	}
+ 	xfree(temp);
+     }
++
++#ifdef WIN32_GUI
++	if (cmdline_get_gui()){
++		eventlog_add_level(eventlog_get_levelname_str(eventlog_level_gui));
++	}
++#endif
++
+     if (eventlog_open(prefs_get_logfile())&lt;0) {
+ 	if (prefs_get_logfile()) {
+ 	    eventlog(eventlog_level_fatal,__FUNCTION__,&quot;could not use file \&quot;%s\&quot; for the eventlog (exiting)&quot;,prefs_get_logfile());
+@@ -451,11 +458,7 @@
+     return;
+ }
+ 
+-#ifdef WIN32_GUI
+-extern int server_main(int argc, char *argv[])
+-#else
+-extern int main(int argc, char * * argv)
+-#endif
++extern int main(int argc, char ** argv)
+ {
+ try {
+     int a;
+@@ -542,3 +545,4 @@
+ }
+     return -1;
+ }
++
+
+Modified: trunk/pvpgn/src/common/eventlog.cpp
+===================================================================
+--- trunk/pvpgn/src/common/eventlog.cpp	2007-09-22 22:55:33 UTC (rev 388)
++++ trunk/pvpgn/src/common/eventlog.cpp	2007-09-22 23:50:50 UTC (rev 389)
+@@ -39,7 +39,11 @@
+                           eventlog_level_info|
+                           eventlog_level_warn|
+                           eventlog_level_error|
+-                          eventlog_level_fatal;
++                          eventlog_level_fatal
++#ifdef WIN32GUI
++                          |eventlog_level_gui
++#endif
++						  ;
+ /* FIXME: maybe this should be default for win32 */
+ static int eventlog_debugmode=0;
+ 
+@@ -137,6 +141,13 @@
+ 	currlevel |= eventlog_level_fatal;
+ 	return 0;
+     }
++#ifdef WIN32_GUI
++    if (strcasecmp(levelname,&quot;gui&quot;)==0)
++    {
++	currlevel |= eventlog_level_gui;
++	return 0;
++    }
++#endif
+ 
+     eventlog(eventlog_level_error,__FUNCTION__,&quot;got bad levelname \&quot;%s\&quot;&quot;,levelname);
+     return -1;
+@@ -181,8 +192,14 @@
+ 	currlevel &amp;= ~eventlog_level_fatal;
+ 	return 0;
+     }
++#ifdef WIN32_GUI
++    if (strcasecmp(levelname,&quot;gui&quot;)==0)
++    {
++	currlevel &amp;= ~eventlog_level_gui;
++	return 0;
++    }
++#endif
+ 
+-
+     eventlog(eventlog_level_error,__FUNCTION__,&quot;got bad levelname \&quot;%s\&quot;&quot;,levelname);
+     return -1;
+ }
+@@ -203,6 +220,10 @@
+     return &quot;error&quot;;
+   case eventlog_level_fatal:
+     return &quot;fatal&quot;;
++#ifdef WIN32_GUI
++  case eventlog_level_gui:
++	  return &quot;gui&quot;;
++#endif
+   default:
+     return &quot;unknown&quot;;
+   }
+@@ -224,7 +245,8 @@
+ 	hexdump_string(datac, (len - i &lt; 16) ? (len - i) : 16, dst, i);
+ 	std::fprintf(eventstrm,&quot;%s\n&quot;,dst);
+ #ifdef WIN32_GUI
+-        gui_lprintf(eventlog_level_info,&quot;%s\n&quot;,dst);
++       if (eventlog_level_gui&amp;currlevel)
++	    gui_lprintf(eventlog_level_info,&quot;%s\n&quot;,dst);
+ #endif
+        if (eventlog_debugmode)
+        {
+@@ -259,7 +281,8 @@
+     {
+ 	    std::fprintf(eventstrm,&quot;%s [error] eventlog: got NULL module\n&quot;,time_string);
+ #ifdef WIN32_GUI
+-        gui_lprintf(eventlog_level_error,&quot;%s [error] eventlog: got NULL module\n&quot;,time_string);
++    if (eventlog_level_gui&amp;currlevel)
++	    gui_lprintf(eventlog_level_error,&quot;%s [error] eventlog: got NULL module\n&quot;,time_string);
+ #endif
+ 	std::fflush(eventstrm);
+ 	return;
+@@ -269,7 +292,8 @@
+     {
+ 	    std::fprintf(eventstrm,&quot;%s [error] eventlog: got NULL fmt\n&quot;,time_string);
+ #ifdef WIN32_GUI
+-        gui_lprintf(eventlog_level_error,&quot;%s [error] eventlog: got NULL fmt\n&quot;,time_string);
++    if (eventlog_level_gui&amp;currlevel)
++	    gui_lprintf(eventlog_level_error,&quot;%s [error] eventlog: got NULL fmt\n&quot;,time_string);
+ #endif
+ 	std::fflush(eventstrm);
+ 	return;
+@@ -277,19 +301,22 @@
+ 
+     std::fprintf(eventstrm,&quot;%s [%s] %s: &quot;,time_string,eventlog_get_levelname_str(level),module);
+ #ifdef WIN32_GUI
+-    gui_lprintf(level,&quot;%s [%s] %s: &quot;,time_string,eventlog_get_levelname_str(level),module);
++    if (eventlog_level_gui&amp;currlevel)
++	    gui_lprintf(level,&quot;%s [%s] %s: &quot;,time_string,eventlog_get_levelname_str(level),module);
+ #endif
+ 
+     va_start(args,fmt);
+ 
+     std::vfprintf(eventstrm,fmt,args);
+ #ifdef WIN32_GUI
+-    gui_lvprintf(level,fmt,args);
++    if (eventlog_level_gui&amp;currlevel)
++      gui_lvprintf(level,fmt,args);
+ #endif
+     va_end(args);
+     std::fprintf(eventstrm,&quot;\n&quot;);
+ #ifdef WIN32_GUI
+-    gui_lprintf(level,&quot;\n&quot;);
++    if (eventlog_level_gui&amp;currlevel)
++      gui_lprintf(level,&quot;\n&quot;);
+ #endif
+ 
+     if (eventlog_debugmode) {
+
+Modified: trunk/pvpgn/src/common/eventlog.h
+===================================================================
+--- trunk/pvpgn/src/common/eventlog.h	2007-09-22 22:55:33 UTC (rev 388)
++++ trunk/pvpgn/src/common/eventlog.h	2007-09-22 23:50:50 UTC (rev 389)
+@@ -31,6 +31,9 @@
+     eventlog_level_warn = 8,
+     eventlog_level_error=16,
+     eventlog_level_fatal=32
++#ifdef WIN32_GUI
++   ,eventlog_level_gui  =64
++#endif
+ } t_eventlog_level;
+ 
+ }
+
+Modified: trunk/pvpgn/src/d2cs/cmdline.cpp
+===================================================================
+--- trunk/pvpgn/src/d2cs/cmdline.cpp	2007-09-22 22:55:33 UTC (rev 388)
++++ trunk/pvpgn/src/d2cs/cmdline.cpp	2007-09-22 23:50:50 UTC (rev 389)
+@@ -1,6 +1,6 @@
+ /*
+  * Copyright (C) 2005           Dizzy
+- * Copyright (C) 2005           Olaf Freyer (<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">aaron at cs.tu-berlin.de</A>)
++ * Copyright (C) 2005,2007      Olaf Freyer (<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">aaron at cs.tu-berlin.de</A>)
+  *
+  * This program is free software; you can redistribute it and/or
+  * modify it under the terms of the GNU General Public License
+@@ -46,13 +46,16 @@
+ 	const char *preffile;
+ 	const char *logfile;
+ 	unsigned debug;
++#ifdef WIN32_GUI
++	unsigned console;
++	unsigned gui;
++#endif
+ } cmdline_config;
+ 
+ 
+ static unsigned exitflag;
+ static const char *progname;
+ 
+-
+ static int conf_set_preffile(const char *valstr);
+ static int conf_setdef_preffile(void);
+ 
+@@ -79,7 +82,15 @@
+ static int conf_setdef_servaction(void);
+ #endif
+ 
++#ifdef WIN32_GUI
++static int conf_set_console(char const * valstr);
++static int conf_setdef_console(void);
+ 
++static int conf_set_gui(char const * valstr);
++static int conf_setdef_gui(void);
++#endif
++
++
+ static t_conf_entry conftab[]={
+ 	{ &quot;c&quot;,          conf_set_preffile,      NULL, conf_setdef_preffile},
+ 	{ &quot;config&quot;,     conf_set_preffile,      NULL, conf_setdef_preffile},
+@@ -100,11 +111,15 @@
+ 	{ &quot;service&quot;,    conf_set_service,       NULL, conf_setdef_service   },
+ 	{ &quot;s&quot;,		conf_set_servaction,	NULL, conf_setdef_servaction},
+ #endif
++#ifdef WIN32_GUI
++	{ &quot;console&quot;,    conf_set_console,       NULL, conf_setdef_console   },
++	{ &quot;gui&quot;,        conf_set_gui,           NULL, conf_setdef_gui       },
++#endif
+ 	{ NULL,         NULL,                   NULL, NULL                  }
+ };
+ 
+ 
+-extern int cmdline_load(int argc, char** argv)
++extern int cmdline_load(int argc, char ** argv)
+ {
+ 	int res;
+ 
+@@ -146,6 +161,9 @@
+ 		&quot;    -s install               install service\n&quot;
+ 		&quot;    -s uninstall             uninstall service\n&quot;
+ #endif
++#ifdef WIN32GUI
++		&quot;    -console                 run in console mode\n&quot;
++#endif
+ 		&quot;\n&quot;
+ 		&quot;Notes:\n&quot;
+ 		&quot;	1.You should always use absolute path here for all std::FILE names\n\n&quot;,
+@@ -307,6 +325,46 @@
+ 
+ #endif
+ 
++#ifdef WIN32_GUI
++
++static int conf_set_console(const char *valstr)
++{
++	conf_set_bool(&amp;cmdline_config.console, valstr, 0);
++	if (cmdline_config.console){
++		conf_set_bool(&amp;cmdline_config.gui, NULL, 0);
++	}
++	return 0;
+ }
+ 
++static int conf_setdef_console(void)
++{
++	return conf_set_bool(&amp;cmdline_config.console, NULL, 0);
+ }
++
++extern unsigned cmdline_get_console(void){
++	return cmdline_config.console;
++}
++
++
++static int conf_set_gui(const char *valstr)
++{
++	conf_set_bool(&amp;cmdline_config.gui, valstr, 0);
++	if (cmdline_config.gui){
++	}
++	return 0;
++}
++
++static int conf_setdef_gui(void)
++{
++	return conf_set_bool(&amp;cmdline_config.gui, NULL, 1);
++}
++
++extern unsigned cmdline_get_gui(void){
++	return cmdline_config.gui;
++}
++
++#endif
++
++}
++
++}
+
+Modified: trunk/pvpgn/src/d2cs/cmdline.h
+===================================================================
+--- trunk/pvpgn/src/d2cs/cmdline.h	2007-09-22 22:55:33 UTC (rev 388)
++++ trunk/pvpgn/src/d2cs/cmdline.h	2007-09-22 23:50:50 UTC (rev 389)
+@@ -35,6 +35,10 @@
+ #endif
+ extern const char* cmdline_get_preffile(void);
+ extern const char* cmdline_get_logfile(void);
++#ifdef WIN32_GUI
++extern unsigned cmdline_get_console(void);
++extern unsigned cmdline_get_gui(void);
++#endif
+ 
+ }
+ 
+
+Modified: trunk/pvpgn/src/d2cs/main.cpp
+===================================================================
+--- trunk/pvpgn/src/d2cs/main.cpp	2007-09-22 22:55:33 UTC (rev 388)
++++ trunk/pvpgn/src/d2cs/main.cpp	2007-09-22 23:50:50 UTC (rev 389)
+@@ -206,6 +206,13 @@
+ 
+         xfree(temp);
+     }
++
++#ifdef WIN32_GUI
++	if (cmdline_get_gui()){
++		eventlog_add_level(eventlog_get_levelname_str(eventlog_level_gui));
++	}
++#endif
++
+ #ifdef DO_DAEMONIZE
+ 	if (cmdline_get_foreground()) {
+ 		eventlog_set(stderr);
+@@ -236,11 +243,8 @@
+ 	return 0;
+ }
+ 
+-#ifdef WIN32_GUI
+-extern int server_main(int argc, char *argv[])
+-#else
+-extern int main(int argc, char * * argv)
+-#endif
++
++extern int main(int argc, char ** argv)
+ {
+ 	int pid;
+ 	char * pidfile;
+
+Modified: trunk/pvpgn/src/d2dbs/cmdline.cpp
+===================================================================
+--- trunk/pvpgn/src/d2dbs/cmdline.cpp	2007-09-22 22:55:33 UTC (rev 388)
++++ trunk/pvpgn/src/d2dbs/cmdline.cpp	2007-09-22 23:50:50 UTC (rev 389)
+@@ -1,6 +1,6 @@
+ /*
+  * Copyright (C) 2005           Dizzy
+- * Copyright (C) 2005           Olaf Freyer (<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">aaron at cs.tu-berlin.de</A>)
++ * Copyright (C) 2005,2007      Olaf Freyer (<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">aaron at cs.tu-berlin.de</A>)
+  *
+  * This program is free software; you can redistribute it and/or
+  * modify it under the terms of the GNU General Public License
+@@ -46,6 +46,10 @@
+ 	const char *preffile;
+ 	const char *logfile;
+ 	unsigned debug;
++#ifdef WIN32_GUI
++	unsigned console;
++	unsigned gui;
++#endif
+ } cmdline_config;
+ 
+ 
+@@ -79,7 +83,14 @@
+ static int conf_setdef_servaction(void);
+ #endif
+ 
++#ifdef WIN32_GUI
++static int conf_set_console(char const * valstr);
++static int conf_setdef_console(void);
+ 
++static int conf_set_gui(char const * valstr);
++static int conf_setdef_gui(void);
++#endif
++
+ static t_conf_entry conftab[]={
+ 	{ &quot;c&quot;,          conf_set_preffile,      NULL, conf_setdef_preffile},
+ 	{ &quot;config&quot;,     conf_set_preffile,      NULL, conf_setdef_preffile},
+@@ -100,6 +111,10 @@
+ 	{ &quot;service&quot;,    conf_set_service,       NULL, conf_setdef_service   },
+ 	{ &quot;s&quot;,		conf_set_servaction,	NULL, conf_setdef_servaction},
+ #endif
++#ifdef WIN32_GUI
++	{ &quot;console&quot;,    conf_set_console,       NULL, conf_setdef_console   },
++	{ &quot;gui&quot;,        conf_set_gui,           NULL, conf_setdef_gui       },
++#endif
+ 	{ NULL,         NULL,                   NULL, NULL                  }
+ };
+ 
+@@ -146,6 +161,9 @@
+ 		&quot;    -s install               install service\n&quot;
+ 		&quot;    -s uninstall             uninstall service\n&quot;
+ #endif
++#ifdef WIN32GUI
++		&quot;    -console                 run in console mode\n&quot;
++#endif
+ 		&quot;\n&quot;
+ 		&quot;Notes:\n&quot;
+ 		&quot;	1.You should always use absolute path here for all std::FILE names\n\n&quot;,
+@@ -307,6 +325,46 @@
+ 
+ #endif
+ 
++#ifdef WIN32_GUI
++
++static int conf_set_console(const char *valstr)
++{
++	conf_set_bool(&amp;cmdline_config.console, valstr, 0);
++	if (cmdline_config.console){
++		conf_set_bool(&amp;cmdline_config.gui, NULL, 0);
++	}
++	return 0;
+ }
+ 
++static int conf_setdef_console(void)
++{
++	return conf_set_bool(&amp;cmdline_config.console, NULL, 0);
+ }
++
++extern unsigned cmdline_get_console(void){
++	return cmdline_config.console;
++}
++
++
++static int conf_set_gui(const char *valstr)
++{
++	conf_set_bool(&amp;cmdline_config.gui, valstr, 0);
++	if (cmdline_config.gui){
++	}
++	return 0;
++}
++
++static int conf_setdef_gui(void)
++{
++	return conf_set_bool(&amp;cmdline_config.gui, NULL, 1);
++}
++
++extern unsigned cmdline_get_gui(void){
++	return cmdline_config.gui;
++}
++
++#endif
++
++}
++
++}
+
+Modified: trunk/pvpgn/src/d2dbs/cmdline.h
+===================================================================
+--- trunk/pvpgn/src/d2dbs/cmdline.h	2007-09-22 22:55:33 UTC (rev 388)
++++ trunk/pvpgn/src/d2dbs/cmdline.h	2007-09-22 23:50:50 UTC (rev 389)
+@@ -35,6 +35,10 @@
+ #endif
+ extern const char* cmdline_get_preffile(void);
+ extern const char* cmdline_get_logfile(void);
++#ifdef WIN32_GUI
++extern unsigned cmdline_get_console(void);
++extern unsigned cmdline_get_gui(void);
++#endif
+ 
+ }
+ 
+
+Modified: trunk/pvpgn/src/d2dbs/main.cpp
+===================================================================
+--- trunk/pvpgn/src/d2dbs/main.cpp	2007-09-22 22:55:33 UTC (rev 388)
++++ trunk/pvpgn/src/d2dbs/main.cpp	2007-09-22 23:50:50 UTC (rev 389)
+@@ -183,6 +183,12 @@
+         xfree(temp);
+     }
+ 
++#ifdef WIN32_GUI
++	if (cmdline_get_gui()){
++		eventlog_add_level(eventlog_get_levelname_str(eventlog_level_gui));
++	}
++#endif
++
+ #ifdef DO_DAEMONIZE
+ 	if (cmdline_get_foreground()) {
+ 		eventlog_set(stderr);
+@@ -213,11 +219,8 @@
+ 	return 0;
+ }
+ 
+-#ifdef WIN32_GUI
+-extern int server_main(int argc, char *argv[])
+-#else
+-extern int main(int argc, char * * argv)
+-#endif
++
++extern int main(int argc, char ** argv)
+ {
+ 	int pid;
+ 	char * pidfile;
+
+Modified: trunk/pvpgn/src/win32/d2cs_winmain.cpp
+===================================================================
+--- trunk/pvpgn/src/win32/d2cs_winmain.cpp	2007-09-22 22:55:33 UTC (rev 388)
++++ trunk/pvpgn/src/win32/d2cs_winmain.cpp	2007-09-22 23:50:50 UTC (rev 389)
+@@ -28,13 +28,16 @@
+ #include &quot;common/eventlog.h&quot;
+ #include &quot;d2cs/version.h&quot;
+ #include &quot;d2cs/handle_signal.h&quot;
++#include &quot;d2cs/cmdline.h&quot;
+ #include &quot;service.h&quot;
+ #include &quot;winmain.h&quot;
++#include &quot;console_output.h&quot;
++
+ #include &quot;common/setup_after.h&quot;
+ 
+ #define WM_SHELLNOTIFY          (WM_USER+1)
+ 
+-extern int	server_main(int argc, char *argv[]); /* d2cs main function in d2cs/main.c */
++extern int main(int argc, char **argv); /* d2cs main function in d2cs/main.c */
+ 
+ namespace pvpgn
+ {
+@@ -222,7 +225,7 @@
+ 
+ static void d2cs(void * dummy)
+ {
+-    switch (server_main(__argc, __argv))
++    switch (main(__argc, __argv))
+     {
+         case EXIT_SERVICE:
+             gui_run = FALSE; /* close gui */
+@@ -240,6 +243,7 @@
+ 
+ }
+ 
++using namespace pvpgn;
+ using namespace pvpgn::d2cs;
+ 
+ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
+@@ -248,14 +252,17 @@
+     WNDCLASSEX	wc;
+     HWND		hwnd;
+     MSG			msg;
+-    
+-    /* if running as a service skip starting the GUI and go straight to starting d2cs */
+-    if (__argc==2 &amp;&amp; strcmp(__argv[1],&quot;--service&quot;)==0)
+-    {
+-        Win32_ServiceRun();
+-        return 1;
+-    }
+-    
++	Console     console;
++
++	if (cmdline_load(__argc, __argv) != 1) {
++		return -1;
++	}
++
++	if (cmdline_get_console()){
++		console.RedirectIOToConsole();
++		return main(__argc, __argv);
++	}
++
+     LoadLibrary(&quot;RichEd20.dll&quot;);
+ 
+     wc.cbSize = sizeof(WNDCLASSEX);
+
+Modified: trunk/pvpgn/src/win32/d2dbs_winmain.cpp
+===================================================================
+--- trunk/pvpgn/src/win32/d2dbs_winmain.cpp	2007-09-22 22:55:33 UTC (rev 388)
++++ trunk/pvpgn/src/win32/d2dbs_winmain.cpp	2007-09-22 23:50:50 UTC (rev 389)
+@@ -28,13 +28,16 @@
+ #include &quot;common/eventlog.h&quot;
+ #include &quot;d2dbs/version.h&quot;
+ #include &quot;d2dbs/handle_signal.h&quot;
++#include &quot;d2dbs/cmdline.h&quot;
+ #include &quot;service.h&quot;
+ #include &quot;winmain.h&quot;
++#include &quot;console_output.h&quot;
++
+ #include &quot;common/setup_after.h&quot;
+ 
+ #define WM_SHELLNOTIFY          (WM_USER+1)
+ 
+-extern int	server_main(int argc, char *argv[]); /* d2dbs main function in d2dbs/main.c */
++extern int main(int argc, char **argv); /* d2dbs main function in d2dbs/main.c */
+ 
+ namespace pvpgn
+ {
+@@ -218,7 +221,7 @@
+ 
+ static void d2dbs(void * dummy)
+ {
+-    switch (server_main(__argc, __argv))
++    switch (main(__argc, __argv))
+     {
+         case EXIT_SERVICE:
+             gui_run = FALSE; /* close gui */
+@@ -236,6 +239,7 @@
+ 
+ }
+ 
++using namespace pvpgn;
+ using namespace pvpgn::d2dbs;
+ 
+ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
+@@ -245,12 +249,16 @@
+     HWND		hwnd;
+     MSG			msg;
+     
+-    /* if running as a service skip starting the GUI and go straight to starting d2dbs */
+-    if (__argc==2 &amp;&amp; strcmp(__argv[1],&quot;--service&quot;)==0)
+-    {
+-        Win32_ServiceRun();
+-        return 1;
+-    }
++	Console     console;
++
++	if (cmdline_load(__argc, __argv) != 1) {
++		return -1;
++	}
++
++	if (cmdline_get_console()){
++		console.RedirectIOToConsole();
++		return main(__argc, __argv);
++	}
+     
+     LoadLibrary(&quot;RichEd20.dll&quot;);
+ 
+
+Modified: trunk/pvpgn/src/win32/service.cpp
+===================================================================
+--- trunk/pvpgn/src/win32/service.cpp	2007-09-22 22:55:33 UTC (rev 388)
++++ trunk/pvpgn/src/win32/service.cpp	2007-09-22 23:50:50 UTC (rev 389)
+@@ -34,11 +34,7 @@
+ 
+ extern int g_ServiceStatus;
+ 
+-#ifdef WIN32_GUI
+-extern int server_main(int argc, char *argv[]);
+-#else
+-extern int main(int argc, char *argv[]);
+-#endif
++extern int main(int argc, char **argv);
+ 
+ SERVICE_STATUS serviceStatus;
+ SERVICE_STATUS_HANDLE serviceStatusHandle = 0;
+@@ -204,11 +200,7 @@
+ 		g_ServiceStatus = 1;
+ 		argc = 1;
+ 
+-#ifdef WIN32_GUI
+-		server_main(argc, argv);
+-#else
+ 		main(argc, argv);
+-#endif
+ 
+ 		// service was stopped
+ 		serviceStatus.dwCurrentState = SERVICE_STOP_PENDING;
+
+Modified: trunk/pvpgn/src/win32/winmain.cpp
+===================================================================
+--- trunk/pvpgn/src/win32/winmain.cpp	2007-09-22 22:55:33 UTC (rev 388)
++++ trunk/pvpgn/src/win32/winmain.cpp	2007-09-22 23:50:50 UTC (rev 389)
+@@ -46,12 +46,16 @@
+ #include &quot;bnetd/ipban.h&quot;
+ #include &quot;bnetd/message.h&quot;
+ #include &quot;bnetd/server.h&quot;
++#include &quot;bnetd/cmdline.h&quot;
+ #include &quot;resource.h&quot;
++#include &quot;console_output.h&quot;
+ 
+ #include &quot;common/setup_after.h&quot;
+ 
+ #define WM_SHELLNOTIFY          (WM_USER+1)
+ 
++extern int main(int argc, char **argv); /* bnetd main function in bnetd/main.c */
++
+ namespace pvpgn
+ {
+ 
+@@ -801,19 +805,29 @@
+ 
+ }
+ 
+-#ifdef WIN32_GUI
+-extern int server_main(int argc, char *argv[]);
+-#endif
++using namespace pvpgn;
++using namespace pvpgn::bnetd;
+ 
+ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE reserved, LPSTR lpCmdLine, int nCmdShow)
+ {
+ 	int result;
++	Console     console;
++
++	if (cmdline_load(__argc, __argv) != 1) {
++		return -1;
++	}
++
++	if (cmdline_get_console()){
++		console.RedirectIOToConsole();
++		return main(__argc, __argv);
++	}
++
+ 	pvpgn::bnetd::gui.main_finished = FALSE;
+ 	pvpgn::bnetd::gui.event_ready = CreateEvent(NULL, FALSE, FALSE, NULL);
+ 	_beginthread( pvpgn::bnetd::guiThread, 0, (void*)hInstance);
+ 	WaitForSingleObject(pvpgn::bnetd::gui.event_ready, INFINITE);
+ 
+-	result = server_main(__argc ,__argv);
++	result = main(__argc ,__argv);
+     
+ 	pvpgn::bnetd::gui.main_finished = TRUE;
+ 	eventlog(pvpgn::eventlog_level_debug,__FUNCTION__,&quot;server exited ( return : %i )&quot;, result);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000460.html">[pvpgn-dev] r388 - trunk/pvpgn/src/win32
+</A></li>
+	<LI>Next message: <A HREF="000462.html">[pvpgn-dev] r390 - in trunk/pvpgn/src: bnetd common d2cs d2dbs win32
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#461">[ date ]</a>
+              <a href="thread.html#461">[ thread ]</a>
+              <a href="subject.html#461">[ subject ]</a>
+              <a href="author.html#461">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

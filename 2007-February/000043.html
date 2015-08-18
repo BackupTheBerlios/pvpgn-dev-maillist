@@ -1,0 +1,96 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] pvpgn/src/bnetd irc.c,1.45,1.46
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-February/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20pvpgn/src/bnetd%20irc.c%2C1.45%2C1.46&In-Reply-To=%3C20070220220030.021CBD2419%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000045.html">
+   <LINK REL="Next"  HREF="000044.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] pvpgn/src/bnetd irc.c,1.45,1.46</H1>
+    <B>d1zzy</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20pvpgn/src/bnetd%20irc.c%2C1.45%2C1.46&In-Reply-To=%3C20070220220030.021CBD2419%40mail.berlios.de%3E"
+       TITLE="[pvpgn-dev] pvpgn/src/bnetd irc.c,1.45,1.46">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Tue Feb 20 23:00:30 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000045.html">[pvpgn-dev] [Patch #1886] WOL - Added missing &quot;bad login&quot; table
+</A></li>
+        <LI>Next message: <A HREF="000044.html">[pvpgn-dev] pvpgn/src/common irc_protocol.h,1.4,1.5
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#43">[ date ]</a>
+              <a href="thread.html#43">[ thread ]</a>
+              <a href="subject.html#43">[ subject ]</a>
+              <a href="author.html#43">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/pvpgn/pvpgn/src/bnetd
+In directory sheep:/tmp/cvs-serv4301/src/bnetd
+
+Modified Files:
+	irc.c 
+Log Message:
+Fixed bad login issue with WOL (patch #1886 from pelish).
+
+
+Index: irc.c
+===================================================================
+RCS file: /cvsroot/pvpgn/pvpgn/src/bnetd/irc.c,v
+retrieving revision 1.45
+retrieving revision 1.46
+diff -u -d -r1.45 -r1.46
+--- irc.c	6 Nov 2006 23:29:39 -0000	1.45
++++ irc.c	20 Feb 2007 21:58:52 -0000	1.46
+@@ -319,7 +319,7 @@
+     	    }
+     	    
+     	    if(tempapgar == NULL) {
+-                irc_send_cmd(conn,&quot;NOTICE&quot;,&quot;:Authentication failed.&quot;); /* bad APGAR */
++                irc_send(conn,RPL_BAD_LOGIN,&quot;:Authentication failed.&quot;); /* bad APGAR */
+                 conn_increment_passfail_count(conn);
+                 return 0;
+             }
+@@ -331,6 +331,7 @@
+         		return 1;
+     	    }
+     	    else {
++                       irc_send(conn,RPL_BAD_LOGIN,&quot;:Authentication failed.&quot;); /* bad APGAR */
+         		conn_increment_passfail_count(conn);
+         		return 0;
+     	    }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000045.html">[pvpgn-dev] [Patch #1886] WOL - Added missing &quot;bad login&quot; table
+</A></li>
+	<LI>Next message: <A HREF="000044.html">[pvpgn-dev] pvpgn/src/common irc_protocol.h,1.4,1.5
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#43">[ date ]</a>
+              <a href="thread.html#43">[ thread ]</a>
+              <a href="subject.html#43">[ subject ]</a>
+              <a href="author.html#43">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

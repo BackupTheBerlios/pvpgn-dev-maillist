@@ -1,0 +1,772 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r576 - trunk/pvpgn/src/bnetd
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2010-February/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r576%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C201002192336.o1JNa8fd017810%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001204.html">
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r576 - trunk/pvpgn/src/bnetd</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r576%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C201002192336.o1JNa8fd017810%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r576 - trunk/pvpgn/src/bnetd">svn at svn.berlios.de
+       </A><BR>
+    <I>Sat Feb 20 00:36:08 CET 2010</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001204.html">[pvpgn-dev] [Patch #2933] Implemented W3GS probe on host and	/canihost command
+</A></li>
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1205">[ date ]</a>
+              <a href="thread.html#1205">[ thread ]</a>
+              <a href="subject.html#1205">[ subject ]</a>
+              <a href="author.html#1205">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pelish
+Date: 2010-02-20 00:36:03 +0100 (Sat, 20 Feb 2010)
+New Revision: 576
+
+Modified:
+   trunk/pvpgn/src/bnetd/channel.cpp
+   trunk/pvpgn/src/bnetd/channel.h
+   trunk/pvpgn/src/bnetd/connection.cpp
+   trunk/pvpgn/src/bnetd/connection.h
+   trunk/pvpgn/src/bnetd/handle_irc_common.cpp
+   trunk/pvpgn/src/bnetd/handle_wol.cpp
+   trunk/pvpgn/src/bnetd/irc.cpp
+Log:
+few WOL bug fixes (server admins are now able to join a game, client parts channel also if sends only QUIT command), big WOL cleanup - using native PvPGN functions instead of WOL hacks (which are no longer needed when WOL games uses t_game structure)
+
+Modified: trunk/pvpgn/src/bnetd/channel.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/channel.cpp	2010-02-14 11:55:56 UTC (rev 575)
++++ trunk/pvpgn/src/bnetd/channel.cpp	2010-02-19 23:36:03 UTC (rev 576)
+@@ -224,11 +224,7 @@
+ 	channel-&gt;log = NULL;
+     }
+ 
+-    channel-&gt;gameOwner = NULL;
+-    channel-&gt;gameOwnerIP = 0;
+-
+     channel-&gt;gameType = 0;
+-    channel-&gt;gameTournament = 0;
+     channel-&gt;gameExtension = NULL;
+ 
+     if (channellist)
+@@ -274,9 +270,6 @@
+     if (channel-&gt;gameExtension)
+         xfree(channel-&gt;gameExtension);
+ 
+-    if (channel-&gt;gameOwner)
+-        xfree(channel-&gt;gameOwner);
+-
+     LIST_TRAVERSE(channel-&gt;banlist,ban)
+     {
+ 	char const * banned;
+@@ -476,15 +469,15 @@
+         {
+              message_send_text(connection,message_type_adduser,user,NULL);
+              /* In WOL gamechannels we send JOINGAME ack explicitely to self */
+-             if (conn_wol_get_ingame(connection)==0)
++             if (!conn_get_game(connection))
+                  message_send_text(user,message_type_join,connection,NULL);
+         }
+     else {
+-        if (conn_wol_get_ingame(connection)==0)
++        if (!conn_get_game(connection))
+             message_send_text(connection,message_type_join,connection,NULL);
+     }
+ 
+-    if (conn_is_irc_variant(connection) &amp;&amp; (!conn_wol_get_ingame(connection))) {
++    if (conn_is_irc_variant(connection) &amp;&amp; (!conn_get_game(connection))) {
+         channel_set_userflags(connection);
+         message_send_text(connection,message_type_topic,connection,NULL);
+         message_send_text(connection,message_type_namreply,connection,NULL);
+@@ -1633,63 +1626,6 @@
+     return 1;
+ }
+ 
+-extern char const * channel_wol_get_game_owner(t_channel const * channel)
+-{
+-	if (!channel)
+-	{
+-	  ERROR0(&quot;got NULL channel&quot;);
+-	  return 0;
+-	}
+-
+-	return channel-&gt;gameOwner;
+-}
+-
+-extern int channel_wol_set_game_owner(t_channel * channel, char const * gameOwner)
+-{
+-	if (!channel)
+-	{
+-	  ERROR0(&quot;got NULL channel&quot;);
+-	  return -1;
+-	}
+-
+-	if (!gameOwner)
+-	{
+-	  ERROR0(&quot;got NULL gameOwner&quot;);
+-	  return -1;
+-	}
+-
+-	if (channel-&gt;gameOwner)
+-	    xfree(channel-&gt;gameOwner);
+-	channel-&gt;gameOwner = xstrdup(gameOwner);
+-
+-	return 0;
+-}
+-
+-extern int channel_wol_get_game_ownerip(t_channel const * channel)
+-{
+-	if (!channel)
+-	{
+-	  ERROR0(&quot;got NULL channel&quot;);
+-	  return -1;
+-	}
+-
+-	return channel-&gt;gameOwnerIP;
+-}
+-
+-extern int channel_wol_set_game_ownerip(t_channel * channel, int gameOwnerIP)
+-{
+-	if (!channel)
+-	{
+-	  ERROR0(&quot;got NULL channel&quot;);
+-	  return -1;
+-	}
+-
+-	if (gameOwnerIP)
+-  	   channel-&gt;gameOwnerIP = gameOwnerIP;
+-
+-	return 0;
+-}
+-
+ extern int channel_wol_get_game_type(t_channel const * channel)
+ {
+ 	if (!channel)
+@@ -1715,31 +1651,6 @@
+ 	return 0;
+ }
+ 
+-extern int channel_wol_get_game_tournament(t_channel const * channel)
+-{
+-	if (!channel)
+-	{
+-	  ERROR0(&quot;got NULL channel&quot;);
+-	  return -1;
+-	}
+-
+-	return channel-&gt;gameTournament;
+-}
+-
+-extern int channel_wol_set_game_tournament(t_channel * channel, int gameTournament)
+-{
+-	if (!channel)
+-	{
+-	  ERROR0(&quot;got NULL channel&quot;);
+-	  return -1;
+-	}
+-
+-	if (gameTournament)
+- 	   channel-&gt;gameTournament = gameTournament;
+-
+-	return 0;
+-}
+-
+ extern char const * channel_wol_get_game_extension(t_channel const * channel)
+ {
+ 	if (!channel)
+
+Modified: trunk/pvpgn/src/bnetd/channel.h
+===================================================================
+--- trunk/pvpgn/src/bnetd/channel.h	2010-02-14 11:55:56 UTC (rev 575)
++++ trunk/pvpgn/src/bnetd/channel.h	2010-02-19 23:36:03 UTC (rev 576)
+@@ -98,11 +98,8 @@
+     *  Westwood Online Extensions
+     */
+     int               minmembers;
+-    char *            gameOwner;
+-    int               gameOwnerIP;
+ 
+     int               gameType;
+-    int               gameTournament;
+     char *            gameExtension;
+ }
+ #endif
+@@ -181,18 +178,9 @@
+ extern int channel_get_min(t_channel const * channel);
+ extern int channel_set_min(t_channel * channel, int minmembers);
+ 
+-extern char const * channel_wol_get_game_owner(t_channel const * channel);
+-extern int channel_wol_set_game_owner(t_channel * channel, char const * gameOwner);
+-
+-extern int channel_wol_get_game_ownerip(t_channel const * channel);
+-extern int channel_wol_set_game_ownerip(t_channel * channel, int gameOwnerIP);
+-
+ extern int channel_wol_get_game_type(t_channel const * channel);
+ extern int channel_wol_set_game_type(t_channel * channel, int gameType);
+ 
+-extern int channel_wol_get_game_tournament(t_channel const * channel);
+-extern int channel_wol_set_game_tournament(t_channel * channel, int tournament);
+-
+ extern char const * channel_wol_get_game_extension(t_channel const * channel);
+ extern int channel_wol_set_game_extension(t_channel * channel, char const * gameExtension);
+ 
+
+Modified: trunk/pvpgn/src/bnetd/connection.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/connection.cpp	2010-02-14 11:55:56 UTC (rev 575)
++++ trunk/pvpgn/src/bnetd/connection.cpp	2010-02-19 23:36:03 UTC (rev 576)
+@@ -469,8 +469,8 @@
+     temp-&gt;protocol.wol.ingame			         = 0;
+ 
+     temp-&gt;protocol.wol.codepage	                 = 0;
+-    temp-&gt;protocol.wol.pageme                    = 33;
+-    temp-&gt;protocol.wol.findme                    = 17;
++    temp-&gt;protocol.wol.pageme                    = true;
++    temp-&gt;protocol.wol.findme                    = true;
+ 
+     temp-&gt;protocol.wol.apgar			         = NULL;
+     temp-&gt;protocol.wol.anongame_player           = NULL;
+@@ -4003,28 +4003,6 @@
+     return 0;
+ }
+ 
+-extern void conn_wol_set_ingame(t_connection * c, int ingame)
+-{
+-    if (!c)
+-    {
+-    	eventlog(eventlog_level_error,__FUNCTION__,&quot;get NULL conn&quot;);
+-    	return;
+-    }
+-
+-    c-&gt;protocol.wol.ingame = ingame;
+-}
+-
+-extern int conn_wol_get_ingame(t_connection * c)
+-{
+-    if (!c)
+-    {
+-    	eventlog(eventlog_level_error,__FUNCTION__,&quot;get NULL conn&quot;);
+-    	return -1;
+-    }
+-
+-    return c-&gt;protocol.wol.ingame;
+-}
+-
+ extern void conn_wol_set_apgar(t_connection * c, char const * apgar)
+ {
+     if (!c)
+@@ -4076,7 +4054,7 @@
+     return c-&gt;protocol.wol.codepage;
+ }
+ 
+-extern void conn_wol_set_findme(t_connection * c, int findme)
++extern void conn_wol_set_findme(t_connection * c, bool findme)
+ {
+     if (!c)
+     {
+@@ -4087,18 +4065,18 @@
+     c-&gt;protocol.wol.findme = findme;
+ }
+ 
+-extern int conn_wol_get_findme(t_connection * c)
++extern bool conn_wol_get_findme(t_connection * c)
+ {
+     if (!c)
+     {
+     	eventlog(eventlog_level_error,__FUNCTION__,&quot;got NULL conn&quot;);
+-    	return 0;
++    	return false;
+     }
+ 
+     return c-&gt;protocol.wol.findme;
+ }
+ 
+-extern void conn_wol_set_pageme(t_connection * c, int pageme)
++extern void conn_wol_set_pageme(t_connection * c, bool pageme)
+ {
+     if (!c)
+     {
+@@ -4109,12 +4087,12 @@
+     c-&gt;protocol.wol.pageme = pageme;
+ }
+ 
+-extern int conn_wol_get_pageme(t_connection * c)
++extern bool conn_wol_get_pageme(t_connection * c)
+ {
+     if (!c)
+     {
+     	eventlog(eventlog_level_error,__FUNCTION__,&quot;got NULL conn&quot;);
+-    	return 0;
++    	return false;
+     }
+ 
+     return c-&gt;protocol.wol.pageme;
+
+Modified: trunk/pvpgn/src/bnetd/connection.h
+===================================================================
+--- trunk/pvpgn/src/bnetd/connection.h	2010-02-14 11:55:56 UTC (rev 575)
++++ trunk/pvpgn/src/bnetd/connection.h	2010-02-19 23:36:03 UTC (rev 576)
+@@ -454,16 +454,14 @@
+ 
+ /* Westwood Online Extensions */
+ extern int conn_get_wol(t_connection * c);
+-extern void conn_wol_set_ingame(t_connection * c, int wol_ingame);
+-extern int conn_wol_get_ingame(t_connection * c);
+ extern void conn_wol_set_apgar(t_connection * c, char const * apgar);
+ extern char const * conn_wol_get_apgar(t_connection * c);
+ extern void conn_wol_set_codepage(t_connection * c, int codepage);
+ extern int conn_wol_get_codepage(t_connection * c);
+-extern void conn_wol_set_findme(t_connection * c, int findme);
+-extern int conn_wol_get_findme(t_connection * c);
+-extern void conn_wol_set_pageme(t_connection * c, int pageme);
+-extern int conn_wol_get_pageme(t_connection * c);
++extern void conn_wol_set_findme(t_connection * c, bool findme);
++extern bool conn_wol_get_findme(t_connection * c);
++extern void conn_wol_set_pageme(t_connection * c, bool pageme);
++extern bool conn_wol_get_pageme(t_connection * c);
+ extern void conn_wol_set_anongame_player(t_connection * c, t_anongame_wol_player * anongame_player);
+ extern t_anongame_wol_player * conn_wol_get_anongame_player(t_connection * c);
+ 
+
+Modified: trunk/pvpgn/src/bnetd/handle_irc_common.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/handle_irc_common.cpp	2010-02-14 11:55:56 UTC (rev 575)
++++ trunk/pvpgn/src/bnetd/handle_irc_common.cpp	2010-02-19 23:36:03 UTC (rev 576)
+@@ -97,7 +97,7 @@
+         return -1;
+     }
+     else {
+-        if (std::strcmp(command, &quot;verchk&quot;) == 0) {
++        if (strcasecmp(command, &quot;VERCHK&quot;) == 0) {
+             DEBUG0(&quot;Got WSERV packet&quot;);
+             if (std::strcmp(prefs_get_wolv2_addrs(),&quot;&quot;) != 0)
+                 conn_set_class(conn,conn_class_wserv);
+@@ -105,7 +105,7 @@
+                 conn_set_state(conn,conn_state_destroy);
+             return 0;
+         }
+-        else if ((std::strcmp(command, &quot;CVERS&quot;) == 0) || (std::strcmp(command, &quot;cvers&quot;) == 0)) {
++        else if (strcasecmp(command, &quot;CVERS&quot;) == 0) {
+             DEBUG0(&quot;Got WOL packet&quot;);
+             /* FIXME: We can check it not by address but check if client is supported by tag_check_in_list() */
+             if ((std::strcmp(prefs_get_wolv1_addrs(),&quot;&quot;) != 0) || (std::strcmp(prefs_get_wolv2_addrs(),&quot;&quot;) != 0))
+@@ -114,9 +114,9 @@
+                 conn_set_state(conn,conn_state_destroy);
+             return 0;
+         }
+-        else if ((std::strcmp(command, &quot;LISTSEARCH&quot;) == 0) ||
+-                (std::strcmp(command, &quot;RUNGSEARCH&quot;) == 0) ||
+-                (std::strcmp(command, &quot;HIGHSCORE&quot;) == 0)) {
++        else if ((strcasecmp(command, &quot;LISTSEARCH&quot;) == 0) ||
++                (strcasecmp(command, &quot;RUNGSEARCH&quot;) == 0) ||
++                (strcasecmp(command, &quot;HIGHSCORE&quot;) == 0)) {
+             DEBUG0(&quot;Got WOL Ladder packet&quot;);
+             if (std::strcmp(prefs_get_wolv2_addrs(),&quot;&quot;) != 0)
+                 conn_set_class(conn,conn_class_wladder); /* is handled in handle_wol.* now */
+@@ -124,8 +124,8 @@
+                 conn_set_state(conn,conn_state_destroy);
+             return 0;
+         }
+-        else if ((std::strcmp(command, &quot;CRYPT&quot;) == 0) ||
+-                (std::strcmp(command, &quot;LOGIN&quot;) == 0)) {
++        else if ((strcasecmp(command, &quot;CRYPT&quot;) == 0) ||
++                (strcasecmp(command, &quot;LOGIN&quot;) == 0)) {
+             DEBUG0(&quot;Got GameSpy packet&quot;);
+             if (std::strcmp(prefs_get_irc_addrs(),&quot;&quot;) != 0)
+                 conn_set_class(conn,conn_class_irc);
+
+Modified: trunk/pvpgn/src/bnetd/handle_wol.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/handle_wol.cpp	2010-02-14 11:55:56 UTC (rev 575)
++++ trunk/pvpgn/src/bnetd/handle_wol.cpp	2010-02-19 23:36:03 UTC (rev 576)
+@@ -454,7 +454,6 @@
+ 
+ struct gamelist_data {
+     unsigned tcount, counter;
+-    unsigned wol_ver; /* Version of WOL protocol (1,2) */
+     t_connection *conn;
+ };
+ 
+@@ -529,9 +528,9 @@
+        snprintf(temp_a, sizeof(temp_a), &quot;%u &quot;, channel_wol_get_game_type(gamechannel)); /* game type */
+        std::strcat(temp,temp_a);
+ 
+-       snprintf(temp_a, sizeof(temp_a), &quot;%u &quot;, channel_wol_get_game_tournament(gamechannel));  /* tournament */
+-       std::strcat(temp,temp_a);
+-
++       snprintf(temp_a, sizeof(temp_a), &quot;%u &quot;, (game_get_type(game) == game_type_ladder) ? 1 : 0); /* tournament */
++       std::strcat(temp,temp_a); 
++      
+        snprintf(temp_a, sizeof(temp_a), &quot;%s &quot;, channel_wol_get_game_extension(gamechannel));  /* game extension */
+        std::strcat(temp,temp_a);       
+ 
+@@ -549,11 +548,6 @@
+            snprintf(temp_a, sizeof(temp_a), &quot;%s&quot;, topic);  /* topic */
+            std::strcat(temp,temp_a);
+        }
+-         
+-//       snprintf(temp, sizeof(temp), &quot;%s %u 2 1 0 0 %u 128::&quot;,gamename,game_get_ref(game),conn_get_addr(game_get_owner(game)));
+-//     snprintf(temp, sizeof(temp), &quot;%s %u 0 %u %u %s %u 128::&quot;,gamename,
+-//     channel_get_length(channel),channel_wol_get_game_type(channel),channel_wol_get_game_tournament(channel),
+-//     channel_wol_get_game_extension(channel),channel_wol_get_game_ownerip(channel));
+ 
+     data-&gt;counter++;
+     irc_send(data-&gt;conn,RPL_GAME_CHANNEL,temp);
+@@ -568,7 +562,7 @@
+ 
+     irc_send(conn,RPL_LISTSTART,&quot;Channel :Users Names&quot;); /* backward compatibility */
+ 
+-    if ((numparams == 0) || ((params[0]) &amp;&amp; (params[1]) &amp;&amp; (std::strcmp(params[0], params[1]) != 0))) {
++    if ((numparams == 0) || ((numparams == 2) &amp;&amp; (params[0]) &amp;&amp; (params[1]) &amp;&amp; (std::strcmp(params[0], params[1]) != 0))) {
+         /**
+          * LIST all chat channels 
+          * Emperor sends as params[0] == -1 if want QuickMatch channels too, 0 if not.
+@@ -597,7 +591,7 @@
+                 std::strcat(temp,&quot;0&quot;);  /* User channel */
+ 
+             if (tag_check_wolv1(conn_get_clienttag(conn)))
+-                std::strcat(temp,&quot;:&quot;);     /* WOLv1 ends by &quot;:&quot; */
++                std::strcat(temp,&quot;:&quot;);     /* WOLv1 ends by &quot;:&quot; FIXME: Should be an TOPIC after &quot;:&quot;*/
+             else
+                 std::strcat(temp,&quot; 388&quot;);  /* WOLv2 ends by &quot;388&quot; */
+ 
+@@ -615,64 +609,15 @@
+     *  21 = Red Alert 1 v 3.03 channels, 31 = Emperor: Battle for Dune, 33 = Red Alert 2,
+     *  37 = Nox Quest channels, 38,39,40 = Quickgame channels, 41 = Yuri's Revenge
+ 	*/
+-    if ((numparams == 0) || ((params[0]) &amp;&amp; (params[1]) &amp;&amp; (std::strcmp(params[0], params[1]) == 0))) {
++    if ((numparams == 0) || ((numparams == 2) &amp;&amp; (params[0]) &amp;&amp; (params[1]) &amp;&amp; (std::strcmp(params[0], params[1]) == 0))) {
+    		    eventlog(eventlog_level_debug,__FUNCTION__,&quot;[** WOL **] LIST [Game]&quot;);
+               /* list games */
+             struct gamelist_data data;
+             data.tcount = 0;
+             data.counter = 0;
+-            data.wol_ver = 1;
+             data.conn = conn;
+             gamelist_traverse(&amp;append_game_info, &amp;data);
+             DEBUG3(&quot;[%d] LIST sent %u of %u games&quot;, conn_get_socket(conn), data.counter, data.tcount);
+-
+-/*       	    LIST_TRAVERSE_CONST(channellist(),curr)
+-            {
+-    		    t_channel const * channel = (const t_channel*)elem_get_data(curr);
+-			    t_connection * m;
+-        	    char const * tempname;
+-				char * topic = channel_get_topic(channel_get_name(channel));
+-
+-        	    tempname = irc_convert_channel(channel,conn);
+-        	    
+-				if((channel_wol_get_game_type(channel) != 0)) {
+-					m = channel_get_first(channel);
+-					if((tag_channeltype_to_uint(channel_wol_get_game_type(channel)) == conn_get_clienttag(conn)) || ((numparams == 0))) {
+-						eventlog(eventlog_level_debug,__FUNCTION__,&quot;[** WOL **] List [Channel: \&quot;_game\&quot;] %s %u 0 %u %u %s %u 128::&quot;,tempname,
+-									 channel_get_length(channel),channel_wol_get_game_type(channel),channel_wol_get_game_tournament(channel),
+-									 channel_wol_get_game_extension(channel),channel_wol_get_game_ownerip(channel));
+-
+-						if (topic) {
+-	    					eventlog(eventlog_level_debug,__FUNCTION__,&quot;[** WOL **] List [Channel: \&quot;_game\&quot;] %s %u 0 %u %u %s %u 128::%s&quot;,tempname,
+-									 channel_get_length(channel),channel_wol_get_game_type(channel),channel_wol_get_game_tournament(channel),
+-									 channel_wol_get_game_extension(channel),channel_wol_get_game_ownerip(channel),topic);
+-							/**
+-							*  The layout of the game list entry is something like this:
+-                            *
+-							*   #game_channel_name users isofficial gameType gameIsTournment gameExtension longIP locked::topic
+-							*   by isofficial is used always 0 (its backward compatibility with chat channels)
+-							*   locked can be 128==unlocked or 384==locked
+-							*   gameExtension is used for game_sorting, i.e. in RedAlert1v3 or TSUN/TSXP for spliting
+-							*   extension pack, also is used for spliting Clan_game or quick_match from normal game
+-							*
+-	        		        if (std::strlen(tempname)+1+20+1+1+std::strlen(topic)&lt;MAX_IRC_MESSAGE_LEN)
+-                                   snprintf(temp, sizeof(temp), &quot;%s %u 0 %u %u %s %u 128::%s&quot;,tempname,
+-                                         channel_get_length(channel),channel_wol_get_game_type(channel),channel_wol_get_game_tournament(channel),
+-										 channel_wol_get_game_extension(channel),channel_wol_get_game_ownerip(channel),topic);
+-           	        		else
+-         			               eventlog(eventlog_level_warn,__FUNCTION__,&quot;LISTREPLY length exceeded&quot;);
+-                        }
+-						else {
+-        						if (std::strlen(tempname)+1+20+1+1&lt;MAX_IRC_MESSAGE_LEN)
+-	    							snprintf(temp, sizeof(temp), &quot;%s %u 0 %u %u %s %u 128::&quot;,tempname,channel_get_length(channel),channel_wol_get_game_type(channel),
+-											channel_wol_get_game_tournament(channel),channel_wol_get_game_extension(channel),channel_wol_get_game_ownerip(channel));
+-			                    else
+-            							eventlog(eventlog_level_warn,__FUNCTION__,&quot;LISTREPLY length exceeded&quot;);
+-						}
+-					}
+-					irc_send(conn,RPL_GAME_CHANNEL,temp);
+-				}
+-			}*/
+ 		}
+     	irc_send(conn,RPL_LISTEND,&quot;:End of LIST command&quot;);
+     	return 0;
+@@ -680,9 +625,11 @@
+ 
+ static int _handle_quit_command(t_connection * conn, int numparams, char ** params, char * text)
+ {
+-    irc_send(conn,RPL_QUIT,&quot;:goodbye&quot;);
+     if (conn_get_channel(conn))
+         conn_quit_channel(conn, text);
++
++    irc_send(conn,RPL_QUIT,&quot;:goodbye&quot;);
++
+     conn_set_state(conn, conn_state_destroy);
+ 
+     return 0;
+@@ -723,10 +670,6 @@
+ {
+     t_game * game;
+ 
+-    if ((conn_wol_get_ingame(conn) == 1)) {
+-        conn_wol_set_ingame(conn,0);
+-    }
+-
+     conn_part_channel(conn);
+ 
+     if ((game = conn_get_game(conn)) &amp;&amp; (game_get_status(game) == game_status_open))
+@@ -748,7 +691,7 @@
+ 	*  Heres the imput expected:
+ 	*  CVERS [oldvernum] [SKU]
+ 	*
+-	*  SKU is specific number for any WOL game (Tiberian sun, RedAlert 2 etc.)
++	*  SKU is specific number for any WOL client (Tiberian sun, RedAlert 2 etc.)
+ 	*  This is the best way to set clienttag, because CVERS is the first command which
+ 	*  client send to server.
+ 	*/
+@@ -865,8 +808,8 @@
+         elems = irc_get_listelems(params[0]);
+ 
+         if ((elems)&amp;&amp;(elems[0])&amp;&amp;(elems[1])) {
+-            conn_wol_set_findme(conn,std::atoi(elems[0]));
+-            conn_wol_set_pageme(conn,std::atoi(elems[1]));
++            conn_wol_set_findme(conn, ((std::strcmp(elems[0], &quot;17&quot;) == 0) ? true : false));
++            conn_wol_set_pageme(conn, ((std::strcmp(elems[1], &quot;33&quot;) == 0) ? true : false));
+         }
+         if (elems)
+             irc_unget_listelems(elems);
+@@ -906,8 +849,6 @@
+ 
+     		if (user = connlist_find_connection_by_accountname(params[i]))
+     		    codepage = conn_wol_get_codepage(user);
+-    		if (!codepage)
+-    		    codepage = 0;
+ 
+     		snprintf(_temp, sizeof(_temp), &quot;%s`%u&quot;, params[i], codepage);
+     		std::strcat(temp,_temp);
+@@ -953,8 +894,7 @@
+ 
+     		if (account = accountlist_find_account(params[i]))
+     		    locale = account_get_locale(account);
+-    		if (!locale)
+-    		    locale = 0;
++
+     		snprintf(_temp, sizeof(_temp), &quot;%s`%u&quot;, params[i], locale);
+     		std::strcat(temp,_temp);
+     		if (i &lt; numparams-1)
+@@ -1075,12 +1015,10 @@
+                 }
+             }
+ 
+-			conn_wol_set_ingame(conn,1);
+ 	   	 	gametype = game_get_type(game);
+ 
+ 			if ((conn_set_game(conn, gamename, gamepass, &quot;&quot;, gametype, 0))&lt;0) {
+ 				irc_send(conn,ERR_NOSUCHCHANNEL,&quot;:JOINGAME failed&quot;);
+-				conn_wol_set_ingame(conn,0);
+ 			}
+ 			else {
+                 /*conn_set_channel()*/
+@@ -1093,7 +1031,7 @@
+                     if (tag_check_wolv1(conn_get_clienttag(conn))) {
+                         /* WOLv1 JOINGAME message */
+                         std::sprintf(_temp,&quot;%u %u %u 1 1 %u :%s&quot;, channel_get_min(channel), game_get_maxplayers(game), channel_wol_get_game_type(channel),
+-                                    channel_wol_get_game_tournament(channel), irc_convert_channel(channel,conn));
++                                    ((game_get_type(game) == game_type_ladder) ? 1 : 0), irc_convert_channel(channel,conn));
+                     }
+                     else {
+                         /* WOLv2 JOINGAME message with BATTLECLAN support */
+@@ -1104,10 +1042,9 @@
+                             clanid = clan_get_clanid(clan);
+ 
+                         std::sprintf(_temp,&quot;%u %u %u 1 %u %u %u :%s&quot;, channel_get_min(channel), game_get_maxplayers(game), channel_wol_get_game_type(channel),
+-                                     clanid, conn_get_addr(conn), channel_wol_get_game_tournament(channel), irc_convert_channel(channel,conn));
++                                     clanid, conn_get_addr(conn), ((game_get_type(game) == game_type_ladder) ? 1 : 0), irc_convert_channel(channel,conn));
+                     }
+ 
+-                    eventlog(eventlog_level_debug,__FUNCTION__,&quot;[** WOL **] JOINGAME [Game Options] (%s) [Game Owner] (%s)&quot;,_temp,channel_wol_get_game_owner(channel));
+    					channel_set_userflags(conn);
+                     /* we have to send the JOINGAME acknowledgement */
+    					channel_message_send(channel,message_wol_joingame,conn,_temp);
+@@ -1146,8 +1083,6 @@
+         }
+ 	    eventlog(eventlog_level_debug,__FUNCTION__,&quot;[** WOL **] JOINGAME [Game Options] (%s)&quot;,_temp);
+ 
+-		conn_wol_set_ingame(conn,1);
+-
+ 	    e = irc_get_listelems(params[0]);
+ 	    if ((e)&amp;&amp;(e[0])) {
+     		char const * gamename = irc_convert_ircname(e[0]);
+@@ -1179,12 +1114,9 @@
+ 
+                 game_set_maxplayers(game,std::atoi(params[2]));
+ 
+-                conn_wol_set_ingame(conn,1);
+                 channel_set_min(channel,std::atoi(params[1]));
+                 // HACK: Currently, this is the best way to set the channel game type...
+                 channel_wol_set_game_type(channel,std::atoi(params[3]));
+-                channel_wol_set_game_tournament(channel,std::atoi(params[6])); /* FIXME: we no longer need that if we setting game_type_ladder */
+-                
+ 
+                 if (params[7])
+                     channel_wol_set_game_extension(channel,params[7]);
+@@ -1196,37 +1128,6 @@
+                 irc_send_topic(conn, channel);
+                 irc_send_rpl_namreply(conn, channel);                
+             }
+-/*
+-
+-			if ((!(wolname)) || ((conn_set_channel(conn, wolname))&lt;0)) {
+-				irc_send(conn,ERR_NOSUCHCHANNEL,&quot;:JOINGAME failed&quot;);
+-			}
+-			else {
+-				t_channel * channel;
+-
+-				channel = conn_get_channel(conn);
+-				if (channel!=old_channel) {
+-					channel_set_userflags(conn);
+-					channel_wol_set_game_owner(channel,conn_get_chatname(conn));
+-					channel_wol_set_game_ownerip(channel,conn_get_addr(conn));
+-					channel_set_min(channel,std::atoi(params[1]));
+-					channel_set_max(channel,std::atoi(params[2]));
+-				    // HACK: Currently, this is the best way to set the channel game type...
+-					channel_wol_set_game_type(channel,std::atoi(params[3]));
+-					channel_wol_set_game_tournament(channel,std::atoi(params[6]));
+-                    if (params[7])
+-                        channel_wol_set_game_extension(channel,params[7]);
+-                    else
+-                        channel_wol_set_game_extension(channel,&quot;0&quot;);
+-
+-					message_send_text(conn,message_wol_joingame,conn,_temp); // we have to send the JOINGAME acknowledgement
+-
+-	    			irc_send_topic(conn, channel);
+-
+-	    			irc_send_rpl_namreply(conn,channel);
+-
+-	    		}
+-			}*/
+ 		}
+ 		if (e)
+ 	       irc_unget_listelems(e);
+@@ -1300,7 +1201,7 @@
+ 	if ((numparams&gt;=1)&amp;&amp;(params[0])) {
+ 	    t_connection * user;
+ 
+-	    if((user = connlist_find_connection_by_accountname(params[0]))&amp;&amp;(conn_wol_get_findme(user) == 17)) {
++	    if((user = connlist_find_connection_by_accountname(params[0])) &amp;&amp; (conn_wol_get_findme(user))) {
+      		wolname = irc_convert_channel(conn_get_channel(user),conn);
+ 	        snprintf(_temp, sizeof(_temp), &quot;0 :%s&quot;, wolname); /* User found in channel wolname */
+ 	    }
+@@ -1324,7 +1225,7 @@
+ 	if ((numparams&gt;=1)&amp;&amp;(params[0])) {
+ 	    t_connection * user;
+ 
+-	    if((user = connlist_find_connection_by_accountname(params[0]))&amp;&amp;(conn_wol_get_findme(user) == 17)) {
++	    if((user = connlist_find_connection_by_accountname(params[0])) &amp;&amp; (conn_wol_get_findme(user))) {
+      		wolname = irc_convert_channel(conn_get_channel(user),conn);
+      		snprintf(_temp, sizeof(_temp), &quot;0 :%s,0&quot;, wolname); /* User found in channel wolname */
+ 	    }
+@@ -1353,7 +1254,7 @@
+             if ((clan) &amp;&amp; (clan_send_message_to_online_members(clan,message_type_page,conn,text) &gt;= 1))
+                 paged = true;
+         }
+-	    else if((user = connlist_find_connection_by_accountname(params[0]))&amp;&amp;(conn_wol_get_pageme(user) == 33)) {
++	    else if ((user = connlist_find_connection_by_accountname(params[0])) &amp;&amp; (conn_wol_get_pageme(user))) {
+      		message_send_text(user,message_type_page,conn,text);
+             paged = true;
+ 	    }
+
+Modified: trunk/pvpgn/src/bnetd/irc.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/irc.cpp	2010-02-14 11:55:56 UTC (rev 575)
++++ trunk/pvpgn/src/bnetd/irc.cpp	2010-02-19 23:36:03 UTC (rev 576)
+@@ -42,6 +42,7 @@
+ 
+ #include &quot;message.h&quot;
+ #include &quot;channel.h&quot;
++#include &quot;game.h&quot;
+ #include &quot;connection.h&quot;
+ #include &quot;server.h&quot;
+ #include &quot;account.h&quot;
+@@ -842,6 +843,13 @@
+             from.user = ctag;
+             msg = irc_message_preformat(&amp;from,&quot;QUIT&quot;,&quot;\r&quot;,temp);
+         }
++        else {
++             from.nick = conn_get_chatname(me);
++    	     from.user = ctag;
++    	     from.host = addr_num_to_ip_str(conn_get_addr(me));
++    	     msg = irc_message_preformat(&amp;from,&quot;PART&quot;,&quot;\r&quot;,irc_convert_channel(conn_get_channel(me),dst));
++    	     conn_unget_chatname(me,from.nick);
++        }
+         break;
+ 
+    	/**
+@@ -985,6 +993,7 @@
+ 	    if (!first) std::strcat(temp,&quot; &quot;);
+             if (conn_get_wol(c) == 1) {
+                 char _temp[MAX_IRC_MESSAGE_LEN];
++                t_game * game = conn_get_game(m);
+                 if ((first) &amp;&amp; ((std::strcmp(ircname, &quot;#Lob_38_0&quot;) == 0) ||
+                     (std::strcmp(ircname, &quot;#Lob_39_0&quot;) == 0) ||
+                     (std::strcmp(ircname, &quot;#Lob_40_0&quot;) == 0))) {
+@@ -995,9 +1004,11 @@
+ 
+                 }               
+ 
+-                if ((channel_wol_get_game_owner(channel) != NULL) &amp;&amp; (std::strcmp(channel_wol_get_game_owner(channel),name) == 0)) {
+-                    /* PELISH: Only game owners will have OP flag (this prevent official OP to be normal player) */
+-                    std::strcat(temp,&quot;@&quot;);
++                if ((game) &amp;&amp; (game_get_channel(game) == channel)) {
++                    if (game_get_owner(game) == m) {
++                        /* PELISH: Only game owners will have OP flag (this prevent official OP to be normal player) */
++                        std::strcat(temp,&quot;@&quot;);
++                    }
+                 }
+                 else {
+                      if ((flags &amp; MF_BNET) || (flags &amp; MF_GAVEL))
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001204.html">[pvpgn-dev] [Patch #2933] Implemented W3GS probe on host and	/canihost command
+</A></li>
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1205">[ date ]</a>
+              <a href="thread.html#1205">[ thread ]</a>
+              <a href="subject.html#1205">[ subject ]</a>
+              <a href="author.html#1205">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

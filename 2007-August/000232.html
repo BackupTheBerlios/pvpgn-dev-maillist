@@ -1,0 +1,208 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r289 - trunk/pvpgn/src/bnetd
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-August/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r289%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200708052133.l75LXkkp000578%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000231.html">
+   <LINK REL="Next"  HREF="000233.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r289 - trunk/pvpgn/src/bnetd</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r289%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200708052133.l75LXkkp000578%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r289 - trunk/pvpgn/src/bnetd">svn at svn.berlios.de
+       </A><BR>
+    <I>Sun Aug  5 23:33:46 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000231.html">[pvpgn-dev] r288 - trunk/pvpgn/src/bnetd
+</A></li>
+        <LI>Next message: <A HREF="000233.html">[pvpgn-dev] r290 - trunk/pvpgn/src/bnetd
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#232">[ date ]</a>
+              <a href="thread.html#232">[ thread ]</a>
+              <a href="subject.html#232">[ subject ]</a>
+              <a href="author.html#232">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pandaemonium
+Date: 2007-08-05 23:33:45 +0200 (Sun, 05 Aug 2007)
+New Revision: 289
+
+Modified:
+   trunk/pvpgn/src/bnetd/channel.cpp
+   trunk/pvpgn/src/bnetd/connection.cpp
+   trunk/pvpgn/src/bnetd/connection.h
+   trunk/pvpgn/src/bnetd/irc.cpp
+   trunk/pvpgn/src/bnetd/message.cpp
+Log:
+this time really fix join/part handling, do not send userlist in namreply for The Void
+
+Modified: trunk/pvpgn/src/bnetd/channel.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/channel.cpp	2007-08-05 17:56:45 UTC (rev 288)
++++ trunk/pvpgn/src/bnetd/channel.cpp	2007-08-05 21:33:45 UTC (rev 289)
+@@ -479,9 +479,15 @@
+ 	conn_set_tmpOP_channel(connection,(char *)channel_get_name(channel));
+ 	channel_update_userflags(connection);
+     }
++    if(!(channel_get_flags(channel) &amp; channel_flags_thevoid))
++        for (user=channel_get_first(channel); user; user=channel_get_next())
++        {
++             message_send_text(connection,message_type_adduser,user,NULL);
++	     message_send_text(user,message_type_join,connection,NULL);
++        }
++    else
++	message_send_text(connection,message_type_join,connection,NULL);
+ 
+-    channel_message_send(channel,message_type_join,connection,NULL);
+-
+     /* please don't remove this notice */
+     if (channel-&gt;log)
+ 	message_send_text(connection,message_type_info,connection,prefs_get_log_notice());
+@@ -658,7 +664,7 @@
+     }
+ 
+     if(channel_get_flags(channel) &amp; channel_flags_thevoid) // no talking in the void
+-        if (type!=message_type_join &amp;&amp; type!=message_type_part) // but we need join/part (at least for self)
++        if (type!=message_type_join &amp;&amp; type!=message_type_part)
+             return;
+ 
+     if(channel_get_flags(channel) &amp; channel_flags_moderated) // moderated channel - only admins,OPs and voices may talk
+@@ -686,8 +692,10 @@
+     {
+ 	if (c==me &amp;&amp; (type==message_type_talk || type==message_wol_gameopt_owner))
+ 	    continue; /* ignore ourself */
+-	if (c!=me &amp;&amp; (channel_get_flags(channel) &amp; channel_flags_thevoid) &amp;&amp; type!=message_type_join &amp;&amp; type!=message_type_part)
+-            continue; /* make sure we get join/part infos for self even in void */
++	if (c==me &amp;&amp; (!conn_is_irc_variant(c)) &amp;&amp; type==message_type_part)
++            continue; /* only on irc we need to inform ourself about leaving the channel */
++	if (c!=me &amp;&amp; (!conn_is_irc_variant(c)) &amp;&amp; (channel_get_flags(channel) &amp; channel_flags_thevoid) &amp;&amp; (type==message_type_join || type==message_type_part))
++            continue; /* make sure we even get join part information about self in The Void */
+ 	if ((type==message_type_talk || type==message_type_whisper || type==message_type_emote || type==message_type_broadcast) &amp;&amp;
+ 	    conn_check_ignoring(c,tname)==1)
+ 	    continue; /* ignore squelched players */
+
+Modified: trunk/pvpgn/src/bnetd/connection.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/connection.cpp	2007-08-05 17:56:45 UTC (rev 288)
++++ trunk/pvpgn/src/bnetd/connection.cpp	2007-08-05 21:33:45 UTC (rev 289)
+@@ -3769,6 +3769,24 @@
+     elist_add_tail(&amp;arrayflist,&amp;curr-&gt;freelist);
+ }
+ 
++extern int conn_is_irc_variant(t_connection * c)
++{
++    if (!c)
++    {
++    	eventlog(eventlog_level_error,__FUNCTION__,&quot;get NULL conn&quot;);
++    	return -1;
++    }
++
++	if ( (c-&gt;protocol.cclass==conn_class_irc) ||
++             (c-&gt;protocol.cclass==conn_class_wol) ||
++             (c-&gt;protocol.cclass==conn_class_wserv) ||
++             (c-&gt;protocol.cclass==conn_class_wgameres)
++	   )
++	   return 1;
++
++    return 0;
++}
++
+ /**
+ *  Westwood Online Extensions
+ */
+
+Modified: trunk/pvpgn/src/bnetd/connection.h
+===================================================================
+--- trunk/pvpgn/src/bnetd/connection.h	2007-08-05 17:56:45 UTC (rev 288)
++++ trunk/pvpgn/src/bnetd/connection.h	2007-08-05 21:33:45 UTC (rev 289)
+@@ -433,6 +433,7 @@
+ extern char const * conn_get_tmpVOICE_channel(t_connection * c);
+ extern t_elist *conn_get_timer(t_connection * c);
+ extern int conn_add_fdwatch(t_connection *c, fdwatch_handler handle);
++extern int conn_is_irc_variant(t_connection * c);
+ 
+ /* Westwood Online Extensions */
+ extern int conn_get_wol(t_connection * c);
+
+Modified: trunk/pvpgn/src/bnetd/irc.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/irc.cpp	2007-08-05 17:56:45 UTC (rev 288)
++++ trunk/pvpgn/src/bnetd/irc.cpp	2007-08-05 21:33:45 UTC (rev 289)
+@@ -905,6 +905,7 @@
+ 	return -1;
+     }
+     /* FIXME: Add per user flags (@(op) and +(voice))*/
++    if (!channel_get_flags(channel) &amp; channel_flags_thevoid)
+     for (m = channel_get_first(channel);m;m = channel_get_next()) {
+ 	char const * name = conn_get_chatname(m);
+ 	char flg[5] = &quot;&quot;;
+
+Modified: trunk/pvpgn/src/bnetd/message.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/message.cpp	2007-08-05 17:56:45 UTC (rev 288)
++++ trunk/pvpgn/src/bnetd/message.cpp	2007-08-05 21:33:45 UTC (rev 289)
+@@ -362,7 +362,6 @@
+ 	    eventlog(eventlog_level_error,__FUNCTION__,&quot;got NULL connection for %s&quot;,message_type_get_str(type));
+ 	    return -1;
+ 	}
+-	if (me != dst)
+ 	{
+ 	    char const * tname;
+ 
+@@ -741,9 +740,6 @@
+ 		eventlog(eventlog_level_error,__FUNCTION__,&quot;got NULL connection for %s&quot;,message_type_get_str(type));
+ 		return -1;
+ 	    }
+-	    if (me==dst)
+-                return -1;
+-	    else
+ 	    {
+ 		char const * tname;
+ 
+@@ -1021,9 +1017,6 @@
+         bn_int_set(&amp;packet-&gt;u.server_message.type,SERVER_MESSAGE_TYPE_PART);
+ 	bn_int_set(&amp;packet-&gt;u.server_message.flags,conn_get_flags(me)|dstflags);
+ 	bn_int_set(&amp;packet-&gt;u.server_message.latency,conn_get_latency(me));
+-	if (me==dst)
+-            return -1;
+-	else
+ 	{
+ 	    char const * tname;
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000231.html">[pvpgn-dev] r288 - trunk/pvpgn/src/bnetd
+</A></li>
+	<LI>Next message: <A HREF="000233.html">[pvpgn-dev] r290 - trunk/pvpgn/src/bnetd
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#232">[ date ]</a>
+              <a href="thread.html#232">[ thread ]</a>
+              <a href="subject.html#232">[ subject ]</a>
+              <a href="author.html#232">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

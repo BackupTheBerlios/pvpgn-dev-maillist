@@ -1,0 +1,109 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r374 - trunk/pvpgn/conf
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-August/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r374%20-%20trunk/pvpgn/conf&In-Reply-To=%3CBAY135-F241CEED2B8943B92F509B695D30%40phx.gbl%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000426.html">
+   <LINK REL="Next"  HREF="000428.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r374 - trunk/pvpgn/conf</H1>
+    <B>Gregory Helms</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r374%20-%20trunk/pvpgn/conf&In-Reply-To=%3CBAY135-F241CEED2B8943B92F509B695D30%40phx.gbl%3E"
+       TITLE="[pvpgn-dev] r374 - trunk/pvpgn/conf">nemesis_kayos at hotmail.com
+       </A><BR>
+    <I>Tue Aug 28 11:42:50 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000426.html">[pvpgn-dev] r374 - trunk/pvpgn/conf
+</A></li>
+        <LI>Next message: <A HREF="000428.html">[pvpgn-dev] pvpgn/conf versioncheck.conf,1.29,1.30
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#427">[ date ]</a>
+              <a href="thread.html#427">[ thread ]</a>
+              <a href="subject.html#427">[ subject ]</a>
+              <a href="author.html#427">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE><A HREF="http://n2k.hacked.in/doneplaying.html">http://n2k.hacked.in/doneplaying.html</A> i'd read that before playing/hosting 
+bnet products
+
+
+&gt;<i>From: <A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">svn at svn.berlios.de</A>
+</I>&gt;<i>Reply-To: <A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">pvpgn-dev at lists.berlios.de</A>
+</I>&gt;<i>To: <A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">pvpgn-dev at lists.berlios.de</A>
+</I>&gt;<i>Subject: [pvpgn-dev] r374 - trunk/pvpgn/conf
+</I>&gt;<i>Date: Tue, 28 Aug 2007 11:05:03 +0200
+</I>&gt;<i>
+</I>&gt;<i>Author: d1zzy
+</I>&gt;<i>Date: 2007-08-28 11:05:03 +0200 (Tue, 28 Aug 2007)
+</I>&gt;<i>New Revision: 374
+</I>&gt;<i>
+</I>&gt;<i>Modified:
+</I>&gt;<i>    trunk/pvpgn/conf/CMakeLists.txt
+</I>&gt;<i>Log:
+</I>&gt;<i>Use &quot;@ONLY&quot; on the files we don't want any ${VAR} replacing to happen.
+</I>&gt;<i>Until we will have files where we have both ${VAR} that we want to be
+</I>&gt;<i>replaced by cmake and ${VAR} that we dont this solution should work
+</I>&gt;<i>fine.
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>Modified: trunk/pvpgn/conf/CMakeLists.txt
+</I>&gt;<i>===================================================================
+</I>&gt;<i>--- trunk/pvpgn/conf/CMakeLists.txt	2007-08-27 20:02:18 UTC (rev 373)
+</I>&gt;<i>+++ trunk/pvpgn/conf/CMakeLists.txt	2007-08-28 09:05:03 UTC (rev 374)
+</I>&gt;<i>@@ -6,7 +6,7 @@
+</I>&gt;<i>    sql_DB_layout2.conf sql_DB_layout.conf supportfile.conf topics.conf
+</I>&gt;<i>    tournament.conf versioncheck.conf)
+</I>&gt;<i>  foreach(CONF ${OUTPUT_CONFS})
+</I>&gt;<i>-  configure_file(${CMAKE_CURRENT_SOURCE_DIR}/${CONF}.in 
+</I>&gt;<i>${CMAKE_CURRENT_BINARY_DIR}/${CONF} COPYONLY)
+</I>&gt;<i>+  configure_file(${CMAKE_CURRENT_SOURCE_DIR}/${CONF}.in 
+</I>&gt;<i>${CMAKE_CURRENT_BINARY_DIR}/${CONF} @ONLY)
+</I>&gt;<i>  endforeach(CONF)
+</I>&gt;<i>
+</I>&gt;<i>  # generate the config files replacing the path variables
+</I>&gt;<i>
+</I>&gt;<i>_______________________________________________
+</I>&gt;<i>pvpgn-dev mailing list
+</I>&gt;<i><A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">pvpgn-dev at lists.berlios.de</A>
+</I>&gt;<i><A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">https://lists.berlios.de/mailman/listinfo/pvpgn-dev</A>
+</I>
+_________________________________________________________________
+Former Police Officer Paul Gillespie&#146;s TAKE BACK THE INTERNET tips and 
+tricks, watch the video now  <A HREF="http://safety.sympatico.msn.ca/">http://safety.sympatico.msn.ca/</A>
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000426.html">[pvpgn-dev] r374 - trunk/pvpgn/conf
+</A></li>
+	<LI>Next message: <A HREF="000428.html">[pvpgn-dev] pvpgn/conf versioncheck.conf,1.29,1.30
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#427">[ date ]</a>
+              <a href="thread.html#427">[ thread ]</a>
+              <a href="subject.html#427">[ subject ]</a>
+              <a href="author.html#427">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

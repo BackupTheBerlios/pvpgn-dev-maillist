@@ -1,0 +1,100 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] [Bug #12654] renegade bug
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-December/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BBug%20%2312654%5D%20renegade%20bug&In-Reply-To=%3C200712102159.lBALxOKG026142%40unicorn.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000618.html">
+   <LINK REL="Next"  HREF="000622.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] [Bug #12654] renegade bug</H1>
+    <B>admin at berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BBug%20%2312654%5D%20renegade%20bug&In-Reply-To=%3C200712102159.lBALxOKG026142%40unicorn.berlios.de%3E"
+       TITLE="[pvpgn-dev] [Bug #12654] renegade bug">admin at berlios.de
+       </A><BR>
+    <I>Mon Dec 10 22:59:24 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000618.html">[pvpgn-dev] [Bug #12654] renegade bug
+</A></li>
+        <LI>Next message: <A HREF="000622.html">[pvpgn-dev] [Bug #12534] ra2 can created games but cannot start	games
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#619">[ date ]</a>
+              <a href="thread.html#619">[ thread ]</a>
+              <a href="subject.html#619">[ subject ]</a>
+              <a href="author.html#619">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Bug #12654, was updated on 2007-Dec-07 02:23
+Here is a current snapshot of the bug.
+
+Project: Player vs Player Gaming Network
+Category: Westwood Online
+Status: Closed
+Resolution: Fixed
+Bug Group: bnetd
+Priority: 5
+Submitted by: ben5015se
+Assigned to : pelish
+Summary: renegade bug
+
+Details: Dec 06 19:19:13 [info ] pvpgn::bnetd::sd_accept: [376] accepted connection from 127.0.0.1:3200 on 0.0.0.0:4807
+Dec 06 19:19:13 [info ] pvpgn::bnetd::conn_create: [376][-1] sessionkey=0x4758a0b9 sessionnum=0x00000032
+Dec 06 19:19:13 [debug] pvpgn::bnetd::sd_accept: [376] client connected to a wgameres listening address
+Dec 06 19:19:13 [debug] pvpgn::bnetd::handle_irc_common_line: [268] got &quot;&quot; &quot;TOPIC&quot; [&quot;#benserver&quot;] &quot;g21T4F453BA3DBAE41CB00000000000000002d# 9Dedicated Renegade Server-C&amp;C_Field.mix00FFFFFFFFFFFFFF&quot;
+Dec 06 19:19:13 [debug] pvpgn::bnetd::irc_send_cmd: [268] sent &quot;:jesus 332 benserver #benserver :g21T4F453BA3DBAE41CB00000000000000002d# 9Dedicated Renegade Server-C&amp;C_Field.mix00FFFFFFFFFFFFFF&quot;
+Dec 06 19:19:13 [debug] pvpgn::bnetd::handle_irc_common_line: [376] got &quot;&quot; &quot;&#140;ETIM&quot; [&quot;edb43a5c77d2ad9d821ed2e4d5d82c7dSER#0669252908189134112344IDNOGSKU0VERS%DATE01/23/2003&quot; &quot;16:59:26PROC/AMD&quot; &quot;Athlon(tm)&quot; &quot;64&quot; &quot;X2&quot; &quot;Dual-Core&quot; &quot;Processor&quot; &quot;TK-53PSPD&#169;SMEMw&#233;&#144;SVIDConsoleMode&#203;SNAM&quot;] &quot;&quot;
+Dec 06 19:19:13 [debug] pvpgn::bnetd::irc_send_cmd: [376] sent &quot;:jesus 421 UserName :Unrecognized command &quot;&#140;ETIM&quot; (before login)&quot;
+Dec 06 19:19:13 [debug] pvpgn::net_recv: [376] receive error (closing connection) (psock_recv: Unknown error)
+Dec 06 19:19:13 [debug] pvpgn::bnetd::sd_tcpinput: [376] read returned -1 (closing connection)
+Dec 06 19:19:13 [info ] pvpgn::bnetd::conn_destroy: [376] closed wgameres connection
+
+
+
+after a couple of seconds of hosting a game (both fds and regular listen server) it closes
+
+Follow-Ups:
+
+Date: 2007-Dec-07 21:24
+By: pelish
+
+Comment:
+Fixed on SVN. Thank you for reporting!
+-------------------------------------------------------
+
+For detailed info, follow this link:
+<A HREF="http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=12654&amp;group_id=2291">http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=12654&amp;group_id=2291</A>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000618.html">[pvpgn-dev] [Bug #12654] renegade bug
+</A></li>
+	<LI>Next message: <A HREF="000622.html">[pvpgn-dev] [Bug #12534] ra2 can created games but cannot start	games
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#619">[ date ]</a>
+              <a href="thread.html#619">[ thread ]</a>
+              <a href="subject.html#619">[ subject ]</a>
+              <a href="author.html#619">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

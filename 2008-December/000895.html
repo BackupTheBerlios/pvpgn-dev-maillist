@@ -1,0 +1,182 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r520 - in trunk/pvpgn/src: bnetd common
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2008-December/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r520%20-%20in%20trunk/pvpgn/src%3A%20bnetd%20common&In-Reply-To=%3C200812141943.mBEJhkgV016615%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000894.html">
+   <LINK REL="Next"  HREF="000896.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r520 - in trunk/pvpgn/src: bnetd common</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r520%20-%20in%20trunk/pvpgn/src%3A%20bnetd%20common&In-Reply-To=%3C200812141943.mBEJhkgV016615%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r520 - in trunk/pvpgn/src: bnetd common">svn at svn.berlios.de
+       </A><BR>
+    <I>Sun Dec 14 20:43:46 CET 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000894.html">[pvpgn-dev] [Bug #14890] Clan Rank Exploit
+</A></li>
+        <LI>Next message: <A HREF="000896.html">[pvpgn-dev] [Bug #10900] could not load saved game
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#895">[ date ]</a>
+              <a href="thread.html#895">[ thread ]</a>
+              <a href="subject.html#895">[ subject ]</a>
+              <a href="author.html#895">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pelish
+Date: 2008-12-14 20:43:44 +0100 (Sun, 14 Dec 2008)
+New Revision: 520
+
+Modified:
+   trunk/pvpgn/src/bnetd/game.cpp
+   trunk/pvpgn/src/bnetd/game.h
+   trunk/pvpgn/src/bnetd/handle_bnet.cpp
+   trunk/pvpgn/src/common/bnet_protocol.h
+Log:
+fix for [ Bug #10900 ] could not load saved game
+
+Modified: trunk/pvpgn/src/bnetd/game.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/game.cpp	2008-12-03 23:40:17 UTC (rev 519)
++++ trunk/pvpgn/src/bnetd/game.cpp	2008-12-14 19:43:44 UTC (rev 520)
+@@ -157,19 +157,22 @@
+     switch (status)
+     {
+     case game_status_started:
+-	return &quot;started&quot;;
++        return &quot;started&quot;;
+ 
+     case game_status_full:
+-	return &quot;full&quot;;
++        return &quot;full&quot;;
+ 
+     case game_status_open:
+-	return &quot;open&quot;;
++        return &quot;open&quot;;
+ 
+     case game_status_done:
+-	return &quot;done&quot;;
++        return &quot;done&quot;;
+ 
++    case game_status_loaded:
++        return &quot;loaded&quot;;
++
+     default:
+-	return &quot;UNKNOWN&quot;;
++        return &quot;UNKNOWN&quot;;
+     }
+ }
+ 
+@@ -1372,7 +1375,7 @@
+ 	// [quetzal] 20020829 - this should prevent invalid status changes
+ 	// its like started game cant become open and so on
+ 	if (game-&gt;status == game_status_started &amp;&amp;
+-		(status == game_status_open || status == game_status_full)) {
++		(status == game_status_open || status == game_status_full || status == game_status_loaded)) {
+ 		eventlog(eventlog_level_error, &quot;game_set_status&quot;,
+ 		&quot;attempting to set status '%s' (%d) to started game&quot;, game_status_get_str(status), status);
+ 		return;
+
+Modified: trunk/pvpgn/src/bnetd/game.h
+===================================================================
+--- trunk/pvpgn/src/bnetd/game.h	2008-12-03 23:40:17 UTC (rev 519)
++++ trunk/pvpgn/src/bnetd/game.h	2008-12-14 19:43:44 UTC (rev 520)
+@@ -73,6 +73,7 @@
+     game_status_started,
+     game_status_full,
+     game_status_open,
++    game_status_loaded,
+     game_status_done
+ } t_game_status;
+ 
+
+Modified: trunk/pvpgn/src/bnetd/handle_bnet.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/handle_bnet.cpp	2008-12-03 23:40:17 UTC (rev 519)
++++ trunk/pvpgn/src/bnetd/handle_bnet.cpp	2008-12-14 19:43:44 UTC (rev 520)
+@@ -3585,12 +3585,18 @@
+ 		    eventlog(eventlog_level_debug, __FUNCTION__, &quot;[%d] GAMELISTREPLY found but done&quot;, conn_get_socket(c));
+ 		    break;
+ 		case game_status_open:
++        case game_status_loaded:
+ 		    if (std::strcmp(gamepass, game_get_pass(game))) {	/* passworded game must match password in request */
+ 			bn_int_set(&amp;rpacket-&gt;u.server_gamelistreply.sstatus, SERVER_GAMELISTREPLY_GAME_SSTATUS_PASS);
+ 			eventlog(eventlog_level_debug, __FUNCTION__, &quot;[%d] GAMELISTREPLY found but is password protected and wrong password given&quot;, conn_get_socket(c));
+ 			break;
+ 		    }
+ 
++		    if (game_get_status(game) &amp; game_status_loaded) {
++			bn_int_set(&amp;rpacket-&gt;u.server_gamelistreply.sstatus, SERVER_GAMELISTREPLY_GAME_SSTATUS_LOADED);
++			eventlog(eventlog_level_debug, __FUNCTION__, &quot;[%d] GAMELISTREPLY found loaded game&quot;, conn_get_socket(c));
++		    }
++
+ 		    /* everything seems fine, lets reply with the found game */
+ 		    bn_int_set(&amp;glgame.status, SERVER_GAMELISTREPLY_GAME_STATUS_OPEN);
+ 		    bn_short_set(&amp;glgame.gametype, gtype_to_bngtype(game_get_type(game)));
+@@ -3948,6 +3954,8 @@
+ 		    game_set_flag(conn_get_game(c), game_flag_private);
+ 		if (status &amp; CLIENT_STARTGAME4_STATUS_FULL)
+ 		    game_set_status(conn_get_game(c), game_status_full);
++		if (bngtype &amp; CLIENT_GAMELISTREQ_LOADED) /* PELISH: seems strange but it is really needed for loaded games */
++		    game_set_status(conn_get_game(c), game_status_loaded);
+ 		//FIXME: still need special handling for status disc-is-loss and replay
+ 	    }
+ 	} else
+
+Modified: trunk/pvpgn/src/common/bnet_protocol.h
+===================================================================
+--- trunk/pvpgn/src/common/bnet_protocol.h	2008-12-03 23:40:17 UTC (rev 519)
++++ trunk/pvpgn/src/common/bnet_protocol.h	2008-12-14 19:43:44 UTC (rev 520)
+@@ -2662,6 +2662,7 @@
+ #define CLIENT_GAMELISTREQ_PGL       0x000e
+ #define CLIENT_GAMELISTREQ_TOPVBOT   0x000f
+ #define CLIENT_GAMELISTREQ_DIABLO    0x0409 /* FIXME: this should be the langid */
++#define CLIENT_GAMELISTREQ_LOADED    0x0a00
+ /* FIXME: Diablo reports differently than it is listed in GAMELIST */
+ #define CLIENT_GAMETYPE_DIABLO_0     0x00000000 /* Level 1 Char */
+ #define CLIENT_GAMETYPE_DIABLO_1     0x00000001 /* Level 2 Char */
+@@ -2757,6 +2758,7 @@
+ #define SERVER_GAMELISTREPLY_GAME_SSTATUS_FULL		0x3 /* game full */
+ #define SERVER_GAMELISTREPLY_GAME_SSTATUS_STARTED	0x4 /* game started */
+ #define SERVER_GAMELISTREPLY_GAME_SSTATUS_NOSPAWNCDKEY	0x5 /* trying to use a spawn install join invalid cdkey creator game */
++#define SERVER_GAMELISTREPLY_GAME_SSTATUS_LOADED        0x0a00 /* Loaded game */
+ 
+ typedef struct
+ {
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000894.html">[pvpgn-dev] [Bug #14890] Clan Rank Exploit
+</A></li>
+	<LI>Next message: <A HREF="000896.html">[pvpgn-dev] [Bug #10900] could not load saved game
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#895">[ date ]</a>
+              <a href="thread.html#895">[ thread ]</a>
+              <a href="subject.html#895">[ subject ]</a>
+              <a href="author.html#895">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

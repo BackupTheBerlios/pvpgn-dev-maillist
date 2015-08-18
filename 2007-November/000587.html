@@ -1,0 +1,200 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r422 - in trunk/pvpgn: conf src/bnetd
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-November/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r422%20-%20in%20trunk/pvpgn%3A%20conf%20src/bnetd&In-Reply-To=%3C200711271415.lAREFuVr017528%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000586.html">
+   <LINK REL="Next"  HREF="000588.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r422 - in trunk/pvpgn: conf src/bnetd</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r422%20-%20in%20trunk/pvpgn%3A%20conf%20src/bnetd&In-Reply-To=%3C200711271415.lAREFuVr017528%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r422 - in trunk/pvpgn: conf src/bnetd">svn at svn.berlios.de
+       </A><BR>
+    <I>Tue Nov 27 15:15:56 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000586.html">[pvpgn-dev] r421 - trunk/pvpgn/src/bnetd
+</A></li>
+        <LI>Next message: <A HREF="000588.html">[pvpgn-dev] [Bug #12534] ra2 can created games but cannot start	games
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#587">[ date ]</a>
+              <a href="thread.html#587">[ thread ]</a>
+              <a href="subject.html#587">[ subject ]</a>
+              <a href="author.html#587">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pelish
+Date: 2007-11-27 15:15:50 +0100 (Tue, 27 Nov 2007)
+New Revision: 422
+
+Modified:
+   trunk/pvpgn/conf/channel.conf.in
+   trunk/pvpgn/src/bnetd/handle_irc_common.cpp
+   trunk/pvpgn/src/bnetd/handle_wserv.cpp
+   trunk/pvpgn/src/bnetd/irc.cpp
+Log:
+fix for bug that freeze Emperor, add proper Emperor's channels.
+
+Modified: trunk/pvpgn/conf/channel.conf.in
+===================================================================
+--- trunk/pvpgn/conf/channel.conf.in	2007-11-25 23:10:48 UTC (rev 421)
++++ trunk/pvpgn/conf/channel.conf.in	2007-11-27 14:15:50 UTC (rev 422)
+@@ -47,19 +47,19 @@
+ # For exemple &quot;Lob 18 0&quot; is the first channel for &quot;Tiberian Sun&quot;.            #
+ # The proper game type numbers are as follows:                               #
+ #   - 12 = C&amp;C Renegade channels                                             #
+-#	- 14 = Dune 2000 channels                                                #
+-#	- 16 = Nox channels                                                      #
+-#	- 18 = Tiberian Sun channels                                             #
+-#	- 21 = Red Alert 1 channels                                              #
+-#	- 33 = Red Alert 2 channels                                              #
+-#	- 37 = Nox Quest channels                                                #
+-#	- 41 = Yuri's Revenge channels                                           #
++#   - 14 = Dune 2000 channels                                                #
++#   - 16 = Nox channels                                                      #
++#   - 18 = Tiberian Sun channels                                             #
++#   - 21 = Red Alert 1 channels                                              #
++#   - 31 = Emperor: Battle for Dune channels                                 #
++#   - 33 = Red Alert 2 channels                                              #
++#   - 37 = Nox Quest channels                                                #
++#   - 41 = Yuri's Revenge channels                                           #
+ #                                                                            #
+ # DO NOT USE game type nubers 38,39 and 40. This numbers are used for        #
+-# Quick match services and are hardcoded in PvPGN                            #
++# Quick match services and are hardcoded in PvPGN.                           #
+ #                                                                            #
+-# In WOLv1 (Westwood Chat client) and Emperor: Battle for Dune are not used  #
+-# &quot;Lob xx x&quot; formated channels.                                              #
++# In WOLv1 (Westwood Chat client) are not used &quot;Lob xx x&quot; formated channels. #
+ #                                                                            #
+ # ---special name--- 		-----short name----- 	cltag bots- -ops- -log- ctry- realm max -mod-#
+ &quot;Command n Conqr&quot;           &quot;Command n Conqr&quot;       WCHT  true  false false  NULL NULL -1   false
+@@ -73,12 +73,12 @@
+ &quot;Tiberian Sun-2&quot;            &quot;Lob 18 1&quot;              TSUN  true  false false  NULL NULL -1   false
+ &quot;Tiberian Sun-3&quot;            &quot;Lob 18 2&quot;              TSUN  true  false false  NULL NULL -1   false
+ &quot;Red Alert-1&quot;               &quot;Lob 21 0&quot;              RALT  true  false false  NULL NULL -1   false
++&quot;Emperor-1&quot;                 &quot;Lob 31 0&quot;              EMPR  true  false false  NULL NULL -1   false
++&quot;Emperor-2&quot;                 &quot;Lob 31 1&quot;              EMPR  true  false false  NULL NULL -1   false
+ &quot;Red Alert 2-1&quot;             &quot;Lob 33 0&quot;              RAL2  true  false false  NULL NULL -1   false
+ &quot;Red Alert 2-2&quot;             &quot;Lob 33 1&quot;              RAL2  true  false false  NULL NULL -1   false
+ &quot;Nox Quest-1&quot;               &quot;Lob 37 0&quot;              NOXQ  true  false false  NULL NULL -1   false
+ &quot;Yuri's Revenge-1&quot;          &quot;Lob 41 0&quot;              YURI  true  false false  NULL NULL -1   false
+ &quot;Yuri's Revenge-2&quot;          &quot;Lob 41 1&quot;              YURI  true  false false  NULL NULL -1   false
+-&quot;Emperor-1&quot;                 &quot;Emperor-1&quot;             EMPR  true  false false  NULL NULL -1   false
+-
+ #                                                                            #
+ ##############################################################################
+
+Modified: trunk/pvpgn/src/bnetd/handle_irc_common.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/handle_irc_common.cpp	2007-11-25 23:10:48 UTC (rev 421)
++++ trunk/pvpgn/src/bnetd/handle_irc_common.cpp	2007-11-27 14:15:50 UTC (rev 422)
+@@ -241,11 +241,16 @@
+     }
+ 
+     if (conn_get_state(conn)==conn_state_connected) {
+-	t_timer_data temp;
++	    conn_set_state(conn,conn_state_bot_username); /* PELISH: What is this for? */
+ 
+-	conn_set_state(conn,conn_state_bot_username);
+-	temp.n = prefs_get_irc_latency();
+-	conn_test_latency(conn,std::time(NULL),temp);
++        if ((conn_get_class(conn) != conn_class_wserv) &amp;&amp;
++            (conn_get_class(conn) != conn_class_wgameres) &amp;&amp;
++            (conn_get_class(conn) != conn_class_wladder)) {
++
++	        t_timer_data temp;
++	        temp.n = prefs_get_irc_latency();
++	        conn_test_latency(conn,std::time(NULL),temp);
++        }
+     }
+ 
+ 	if (handle_irc_common_con_command(conn, command, numparams, params, text)!=-1) {}
+
+Modified: trunk/pvpgn/src/bnetd/handle_wserv.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/handle_wserv.cpp	2007-11-25 23:10:48 UTC (rev 421)
++++ trunk/pvpgn/src/bnetd/handle_wserv.cpp	2007-11-27 14:15:50 UTC (rev 422)
+@@ -110,7 +110,6 @@
+     if (clienttag != CLIENTTAG_WWOL_UINT)
+         conn_set_clienttag(conn,clienttag);
+ 
+-    DEBUG0(&quot;[** WOL **] VERCHK :Update record non-existant&quot;);
+     irc_send(conn,RPL_UPDATE_NONEX,&quot;:Update record non-existant&quot;);
+ 
+     return 0;
+@@ -148,13 +147,13 @@
+     if (!tag_check_in_list(conn_get_clienttag(conn), prefs_get_allowed_clients())) {
+         /*  This is for anyone game but not for Emperor */
+         if (conn_get_clienttag(conn) != CLIENTTAG_EMPERORBD_UINT) {
+-            snprintf(temp, sizeof(temp), &quot;:%s %d '0:%s' %s %s %s&quot;, wolip, BNETD_WOL_PORT, wolname, woltimezone, wollong, wollat);
++            snprintf(temp, sizeof(temp), &quot;:%s %d '0:%s' %s %s %s&quot;, wolip, BNETD_WSERV_PORT, wolname, woltimezone, wollong, wollat);
+             irc_send(conn,RPL_WOLSERV,temp);
+         }
+ 
+         /*  Only for Emperor: Battle for Dune */
+         if (conn_get_clienttag(conn) == CLIENTTAG_EMPERORBD_UINT) {
+-            snprintf(temp, sizeof(temp), &quot;:%s %d '0:Emperor %s' %s %s %s&quot;, wolip, BNETD_WOL_PORT, wolname, woltimezone, wollong, wollat);
++            snprintf(temp, sizeof(temp), &quot;:%s %d '0:Emperor %s' %s %s %s&quot;, wolip, BNETD_WSERV_PORT, wolname, woltimezone, wollong, wollat);
+             irc_send(conn,RPL_WOLSERV,temp);
+         }
+ 
+
+Modified: trunk/pvpgn/src/bnetd/irc.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/irc.cpp	2007-11-25 23:10:48 UTC (rev 421)
++++ trunk/pvpgn/src/bnetd/irc.cpp	2007-11-27 14:15:50 UTC (rev 422)
+@@ -96,7 +96,7 @@
+ 
+     nick = conn_get_loggeduser(conn);
+     if (!nick)
+-    	nick = &quot;&quot;;
++    	nick = &quot;UserName&quot;;
+ 
+     /* snprintf isn't portable -&gt; check message length first */
+     if (params) {
+@@ -120,7 +120,6 @@
+ 	std::strcat(data,&quot;\r\n&quot;);
+     packet_set_size(p,0);
+     packet_append_data(p,data,len);
+-    // eventlog(eventlog_level_debug,__FUNCTION__,&quot;[%d] sent \&quot;%s\&quot;&quot;,conn_get_socket(conn),data);
+     conn_push_outqueue(conn,p);
+     packet_del_ref(p);
+     return 0;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000586.html">[pvpgn-dev] r421 - trunk/pvpgn/src/bnetd
+</A></li>
+	<LI>Next message: <A HREF="000588.html">[pvpgn-dev] [Bug #12534] ra2 can created games but cannot start	games
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#587">[ date ]</a>
+              <a href="thread.html#587">[ thread ]</a>
+              <a href="subject.html#587">[ subject ]</a>
+              <a href="author.html#587">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

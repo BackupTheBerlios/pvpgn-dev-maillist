@@ -1,0 +1,578 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r435 - trunk/pvpgn/src/bnetd
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2008-March/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r435%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200803171449.m2HEn4vp015821%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000651.html">
+   <LINK REL="Next"  HREF="000653.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r435 - trunk/pvpgn/src/bnetd</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r435%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200803171449.m2HEn4vp015821%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r435 - trunk/pvpgn/src/bnetd">svn at svn.berlios.de
+       </A><BR>
+    <I>Mon Mar 17 15:49:04 CET 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000651.html">[pvpgn-dev] [Bug #12172] Inaccurate gameinfo for w3
+</A></li>
+        <LI>Next message: <A HREF="000653.html">[pvpgn-dev] r436 - trunk/pvpgn/src/bnetd
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#652">[ date ]</a>
+              <a href="thread.html#652">[ thread ]</a>
+              <a href="subject.html#652">[ subject ]</a>
+              <a href="author.html#652">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pelish
+Date: 2008-03-17 15:49:02 +0100 (Mon, 17 Mar 2008)
+New Revision: 435
+
+Modified:
+   trunk/pvpgn/src/bnetd/clan.cpp
+   trunk/pvpgn/src/bnetd/clan.h
+   trunk/pvpgn/src/bnetd/command.cpp
+   trunk/pvpgn/src/bnetd/handle_wol.cpp
+   trunk/pvpgn/src/bnetd/irc.cpp
+   trunk/pvpgn/src/bnetd/message.cpp
+   trunk/pvpgn/src/bnetd/message.h
+Log:
+add clan_send_message_to_online_members() and command.*/handle_wol.* changes according to this. Cleanup of not needed debuglog messages, some minor changes according to RFC2812
+
+Modified: trunk/pvpgn/src/bnetd/clan.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/clan.cpp	2008-03-06 20:17:24 UTC (rev 434)
++++ trunk/pvpgn/src/bnetd/clan.cpp	2008-03-17 14:49:02 UTC (rev 435)
+@@ -36,6 +36,7 @@
+ #include &quot;prefs.h&quot;
+ #include &quot;friends.h&quot;
+ #include &quot;game.h&quot;
++#include &quot;message.h&quot;
+ #include &quot;account.h&quot;
+ #include &quot;channel.h&quot;
+ #include &quot;anongame.h&quot;
+@@ -69,6 +70,50 @@
+ }
+ 
+ /*
++** Message functions
++*/
++
++extern int clan_send_message_to_online_members(t_clan * clan, t_message_type type, t_connection * me, char const * text)
++{
++    /* PELISH: Send message to online clan_members
++       returns: an eroor == -1, done but no one heard == 0, done with message sended == 1 */
++    t_list * cl_member_list;
++    t_elem * curr;
++    t_clanmember * dest_member;
++    t_connection * dest_conn;
++    bool heard;
++
++    if (!clan) {
++        eventlog(eventlog_level_error, __FUNCTION__, &quot;got NULL clan&quot;);
++        return -1;
++    }
++
++    if (!me) {
++        eventlog(eventlog_level_error, __FUNCTION__, &quot;got NULL connecion&quot;);
++        return -1;
++    }
++
++    cl_member_list = clan_get_members(clan);
++
++    LIST_TRAVERSE(cl_member_list,curr) {
++        if (!(dest_member = (t_clanmember*)elem_get_data(curr))) {
++            eventlog(eventlog_level_error,__FUNCTION__,&quot;found NULL entry in list&quot;);
++            continue;
++        }
++
++        if ((dest_conn = clanmember_get_conn(dest_member)) &amp;&amp; (dest_conn != me)) {
++            message_send_text(dest_conn,type,me,text);
++            heard = true;
++        }
++    }
++    
++    if (heard)
++        return 1;
++    else
++        return 0;
++}
++
++/*
+ ** Packet Management
+ */
+ 
+
+Modified: trunk/pvpgn/src/bnetd/clan.h
+===================================================================
+--- trunk/pvpgn/src/bnetd/clan.h	2008-03-06 20:17:24 UTC (rev 434)
++++ trunk/pvpgn/src/bnetd/clan.h	2008-03-17 14:49:02 UTC (rev 435)
+@@ -21,11 +21,13 @@
+ #ifdef JUST_NEED_TYPES
+ # include &quot;common/bn_type.h&quot;
+ # include &quot;connection.h&quot;
++# include &quot;message.h&quot;
+ # include &quot;common/packet.h&quot;
+ #else
+ # define JUST_NEED_TYPES
+ # include &quot;common/bn_type.h&quot;
+ # include &quot;connection.h&quot;
++# include &quot;message.h&quot;
+ # include &quot;common/packet.h&quot;
+ # include &quot;common/tag.h&quot;
+ # undef JUST_NEED_TYPES
+@@ -176,6 +178,7 @@
+ extern t_clanmember *clan_find_member_by_name(t_clan * clan, char const *membername);
+ extern t_clanmember *clan_find_member_by_uid(t_clan * clan, unsigned int memberuid);
+ 
++extern int clan_send_message_to_online_members(t_clan * clan, t_message_type type, t_connection * me, char const * text);
+ extern int clan_send_packet_to_online_members(t_clan * clan, t_packet * packet);
+ extern int clan_get_possible_member(t_connection * c, t_packet const *const packet);
+ extern int clan_send_status_window(t_connection * c);
+
+Modified: trunk/pvpgn/src/bnetd/command.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/command.cpp	2008-03-06 20:17:24 UTC (rev 434)
++++ trunk/pvpgn/src/bnetd/command.cpp	2008-03-17 14:49:02 UTC (rev 435)
+@@ -574,27 +574,10 @@
+           message_send_text(c,message_type_info,c,&quot;Whispers a message to all your fellow clan members.&quot;);
+         }
+         else {
+-          int counter = 0;
+-          t_list * cl_member_list = clan_get_members(clan);
+-          t_elem * curr;
+-          t_connection * dest_conn;
+-          t_clanmember * dest_member;
+-
+-          LIST_TRAVERSE(cl_member_list,curr) {
+-    	        if (!(dest_member = (t_clanmember*)elem_get_data(curr))) {
+-    	           eventlog(eventlog_level_error,__FUNCTION__,&quot;found NULL entry in list&quot;);
+-    	           continue;
+-    	        }
+-
+-                if ((dest_conn = clanmember_get_conn(dest_member)) &amp;&amp; (dest_conn != c)) {
+-                   message_send_text(dest_conn,message_type_whisper,c,msg);
+-                   counter++;
+-                }
+-          }
+-          if(counter)
+-             message_send_text(c,message_type_info,c,&quot;Message was sent to all currently available clan members.&quot;);
+-          else
+-             message_send_text(c,message_type_info,c,&quot;All fellow members of your clan are currently offline.&quot;);
++            if (clan_send_message_to_online_members(clan,message_type_whisper,c,msg) &gt;= 1)
++                message_send_text(c,message_type_info,c,&quot;Message was sent to all currently available clan members.&quot;);
++            else
++                message_send_text(c,message_type_info,c,&quot;All fellow members of your clan are currently offline.&quot;);
+         }
+     }
+     else
+@@ -717,6 +700,9 @@
+                     clan_set_created(clan, 1);
+                     clan_set_creation_time(clan, std::time(NULL));
+                     /* FIXME: send message &quot;CLAN was be created&quot; to members */
++                    snprintf(msgtemp, sizeof(msgtemp), &quot;Clan %s was be created&quot;, clan_get_name(clan));
++                    clan_send_message_to_online_members(clan,message_type_whisper,c,msgtemp); /* Send message to all members */
++                    message_send_text(c,message_type_whisper,c,msgtemp);                      /* also to self */
+                     clan_save(clan);
+                 }
+                 else
+
+Modified: trunk/pvpgn/src/bnetd/handle_wol.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/handle_wol.cpp	2008-03-06 20:17:24 UTC (rev 434)
++++ trunk/pvpgn/src/bnetd/handle_wol.cpp	2008-03-17 14:49:02 UTC (rev 435)
+@@ -80,6 +80,7 @@
+ static int _handle_serial_command(t_connection * conn, int numparams, char ** params, char * text);
+ 
+ static int _handle_squadinfo_command(t_connection * conn, int numparams, char ** params, char * text);
++static int _handle_clanbyname_command(t_connection * conn, int numparams, char ** params, char * text);
+ static int _handle_setcodepage_command(t_connection * conn, int numparams, char ** params, char * text);
+ static int _handle_getcodepage_command(t_connection * conn, int numparams, char ** params, char * text);
+ static int _handle_setlocale_command(t_connection * conn, int numparams, char ** params, char * text);
+@@ -92,13 +93,14 @@
+ static int _handle_page_command(t_connection * conn, int numparams, char ** params, char * text);
+ static int _handle_startg_command(t_connection * conn, int numparams, char ** params, char * text);
+ static int _handle_advertr_command(t_connection * conn, int numparams, char ** params, char * text);
++static int _handle_advertc_command(t_connection * conn, int numparams, char ** params, char * text);
+ static int _handle_chanchk_command(t_connection * conn, int numparams, char ** params, char * text);
+ static int _handle_getbuddy_command(t_connection * conn, int numparams, char ** params, char * text);
+ static int _handle_addbuddy_command(t_connection * conn, int numparams, char ** params, char * text);
+ static int _handle_delbuddy_command(t_connection * conn, int numparams, char ** params, char * text);
+ static int _handle_host_command(t_connection * conn, int numparams, char ** params, char * text);
+-static int _handle_advertc_command(t_connection * conn, int numparams, char ** params, char * text);
+-static int _handle_clanbyname_command(t_connection * conn, int numparams, char ** params, char * text);
++static int _handle_invmsg_command(t_connection * conn, int numparams, char ** params, char * text);
++static int _handle_invdel_command(t_connection * conn, int numparams, char ** params, char * text);
+ static int _handle_userip_command(t_connection * conn, int numparams, char ** params, char * text);
+ 
+ /* Ladder server commands (we will probalby move this commands to any another handle file */
+@@ -163,7 +165,9 @@
+ 	{ &quot;KICK&quot;		, _handle_kick_command },
+ 	{ &quot;MODE&quot;		, _handle_mode_command },
+ 	{ &quot;HOST&quot;		, _handle_host_command },
+-	{ &quot;USERIP&quot;	    , _handle_userip_command },
++	{ &quot;INVMSG&quot;      , _handle_invmsg_command },
++	{ &quot;INVDEL&quot;      , _handle_invdel_command },
++	{ &quot;USERIP&quot;      , _handle_userip_command },
+ 
+ 	{ NULL			, NULL }
+ };
+@@ -294,7 +298,7 @@
+         irc_send(conn,RPL_BATTLECLAN,_temp);
+     }
+     else {
+-        snprintf(_temp, sizeof(_temp), &quot;ID does not exist&quot;);
++        snprintf(_temp, sizeof(_temp), &quot;:ID does not exist&quot;);
+ 	    irc_send(conn,ERR_IDNOEXIST,_temp);
+     }
+     return 0;
+@@ -829,17 +833,17 @@
+ 	    for (i=0; i&lt;numparams; i++) {
+     		t_connection * user;
+             int codepage;
+-    		char const * name;
+ 
+-    		if((user = connlist_find_connection_by_accountname(params[i]))) {
++    		if (user = connlist_find_connection_by_accountname(params[i]))
+     		    codepage = conn_wol_get_codepage(user);
+-    		    name = conn_get_chatname(user);
++    		if (!codepage)
++    		    codepage = 0;
+ 
+-    		    snprintf(_temp, sizeof(_temp), &quot;%s`%u&quot;, name, codepage);
+-    		    std::strcat(temp,_temp);
+-    		    if(i &lt; numparams-1)
+-    			     std::strcat(temp,&quot;`&quot;);
+-    		}
++    		snprintf(_temp, sizeof(_temp), &quot;%s`%u&quot;, params[i], codepage);
++    		std::strcat(temp,_temp);
++
++    		if(i &lt; numparams-1)
++    		    std::strcat(temp,&quot;`&quot;);
+ 	    }
+    	    irc_send(conn,RPL_GET_CODEPAGE,temp);
+ 	}
+@@ -853,7 +857,7 @@
+     t_account * account = conn_get_account(conn);
+     int locale;
+ 
+-    if((numparams&gt;=1)&amp;&amp;(params[0])) {
++    if ((numparams&gt;=1)&amp;&amp;(params[0])) {
+        locale = std::atoi(params[0]);
+        account_set_locale(account,locale);
+        irc_send(conn,RPL_SET_LOCALE,params[0]);
+@@ -871,22 +875,20 @@
+ 	std::memset(temp,0,sizeof(temp));
+ 	std::memset(_temp,0,sizeof(_temp));
+ 
+-	if((numparams&gt;=1)&amp;&amp;(params[0])) {
+-	    int i;
+-	    for (i=0; i&lt;numparams; i++) {
+-    		t_account * account;
+-    		int locale;
+-    		char const * name;
++	if ((numparams&gt;=1)&amp;&amp;(params[0])) {
++        int i;
++        for (i=0; i&lt;numparams; i++) {
++            t_account * account;
++            int locale;
+ 
+-    		if(account = accountlist_find_account(params[i])) {
++    		if (account = accountlist_find_account(params[i]))
+     		    locale = account_get_locale(account);
+-    		    if (!locale)
+-    		       locale = 0;
+-    		    snprintf(_temp, sizeof(_temp), &quot;%s`%u&quot;, params[i], locale);
+-    		    std::strcat(temp,_temp);
+-    		    if(i &lt; numparams-1)
+-           			std::strcat(temp,&quot;`&quot;);
+-    		}
++    		if (!locale)
++    		    locale = 0;
++    		snprintf(_temp, sizeof(_temp), &quot;%s`%u&quot;, params[i], locale);
++    		std::strcat(temp,_temp);
++    		if (i &lt; numparams-1)
++    		    std::strcat(temp,&quot;`&quot;);
+ 	    }
+ 	    irc_send(conn,RPL_GET_LOCALE,temp);
+ 	}
+@@ -897,18 +899,20 @@
+ 
+ static int _handle_getinsider_command(t_connection * conn, int numparams, char ** params, char * text)
+ {
++	char _temp[MAX_IRC_MESSAGE_LEN];
++
+     /**
+-     * FIXME:
+-     * XWIS working:
+-     *   GETINSIDER Pelish
+-     *   : 399 u Pelish`0
+-     * FSGS working: (used in PvPGN now)
+-     *   GETINSIDER Pelish
+-     *    :irc.westwood.com 399 Pelish
++     * Here is imput expected:
++     *   GETINSIDER [nickname]
++     * Here is output expected:
++     *   :[servername] 399 [nick] [nickname]`0
+      */
+ 
++	std::memset(_temp,0,sizeof(_temp));
++
+     if ((numparams&gt;=1)&amp;&amp;(params[0])) {
+-        irc_send(conn,RPL_GET_INSIDER,params[0]);
++        snprintf(_temp, sizeof(_temp), &quot;%s`%u&quot;, params[0], 0);
++        irc_send(conn,RPL_GET_INSIDER,_temp);
+     }
+     else
+         irc_send(conn,ERR_NEEDMOREPARAMS,&quot;GETINSIDER :Not enough parameters&quot;);
+@@ -1238,21 +1242,9 @@
+ 	    if (std::strcmp(params[0], &quot;0&quot;) == 0) {
+             /* PAGE for MY BATTLECLAN */
+             t_clan * clan = account_get_clan(conn_get_account(conn));
+-            t_list * cl_member_list;
+-            t_elem * curr;
+ 
+-            if (clan) {
+-               cl_member_list = clan_get_members(clan);
+-
+-               LIST_TRAVERSE(cl_member_list,curr) {
+-                   t_clanmember * member = (t_clanmember*)elem_get_data(curr);
+-
+-                   if ((user = clanmember_get_conn(member)) &amp;&amp; (conn_wol_get_pageme(user) == 33) &amp;&amp; (user != conn)) {
+-                       message_send_text(user,message_type_page,conn,text);
+-                       paged = true;
+-                   }
+-               }
+-            }
++            if ((clan) &amp;&amp; (clan_send_message_to_online_members(clan,message_type_page,conn,text) &gt;= 1))
++                paged = true;
+         }
+ 	    else if((user = connlist_find_connection_by_accountname(params[0]))&amp;&amp;(conn_wol_get_pageme(user) == 33)) {
+      		message_send_text(user,message_type_page,conn,text);
+@@ -1339,8 +1331,6 @@
+         snprintf(_temp_a, sizeof(_temp_a), &quot;%lu&quot;, now);
+         std::strcat(temp,_temp_a);
+ 
+-	    eventlog(eventlog_level_debug,__FUNCTION__,&quot;[** WOL **] STARTG: (%s)&quot;,temp);
+-
+         for (i=0;((e)&amp;&amp;(e[i]));i++) {
+    		        t_connection * user;
+    		        if((user = connlist_find_connection_by_accountname(e[i]))) {
+@@ -1371,9 +1361,7 @@
+     */
+ 
+     if ((numparams&gt;=1)&amp;&amp;(params[0])) {
+-        snprintf(temp,sizeof(temp),&quot;5 &quot;);
+-        std::strcat(temp,params[0]);
+-
++        snprintf(temp,sizeof(temp),&quot;5 %s&quot;,params[0]);
+         message_send_text(conn,message_wol_advertr,conn,temp);
+     }
+     else
+@@ -1458,7 +1446,6 @@
+    		    std::strcat(temp,_temp);
+         }
+     }
+-    eventlog(eventlog_level_debug,__FUNCTION__,&quot;[** WOL **] GETBUDDY (%s)&quot;,temp);
+ 	irc_send(conn,RPL_GET_BUDDY,temp);
+ 	return 0;
+ }
+@@ -1558,6 +1545,45 @@
+     return 0;
+ }
+ 
++static int _handle_invmsg_command(t_connection * conn, int numparams, char ** params, char * text)
++{
++    char temp[MAX_IRC_MESSAGE_LEN];
++    char ** e;
++    t_connection * user;
++    int i;
++
++    /**
++     *  Here is the imput expected:
++     *  INVMSG [channel] [unknown] [invited],[invited2_optional]
++     *  [unknown] can be 1 or 2
++     *
++     *  Here is the output expected:
++     *  :user!<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">WWOL at hostname</A> INVMSG [invited] [channel] [unknown]
++     */
++
++    if ((numparams&gt;=3)&amp;&amp;(params[0])&amp;&amp;(params[1])&amp;&amp;(params[2])) {
++    	std::memset(temp,0,sizeof(temp));
++        e = irc_get_listelems(params[2]);
++
++        for (i=0;((e)&amp;&amp;(e[i]));i++) {
++            if ((user = connlist_find_connection_by_accountname(e[i]))) {
++                snprintf(temp,sizeof(temp),&quot;%s %s&quot;, params[0], params[1]);
++                /* FIXME: set user to linvitelist! */
++                message_send_text(user,message_type_invmsg,conn,temp);
++            }
++        }
++    }
++    else {
++        irc_send(conn,ERR_NEEDMOREPARAMS,&quot;INVMSG :Not enough parameters&quot;);
++    }
++    return 0;
++}
++
++static int _handle_invdel_command(t_connection * conn, int numparams, char ** params, char * text)
++{
++    /* FIXME: Not implemented yet */
++}
++
+ static int _handle_userip_command(t_connection * conn, int numparams, char ** params, char * text)
+ {
+     char temp[MAX_IRC_MESSAGE_LEN];
+
+Modified: trunk/pvpgn/src/bnetd/irc.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/irc.cpp	2008-03-06 20:17:24 UTC (rev 434)
++++ trunk/pvpgn/src/bnetd/irc.cpp	2008-03-17 14:49:02 UTC (rev 435)
+@@ -1,7 +1,7 @@
+ /*
+  * Copyright (C) 2001  Marco Ziech (<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">mmz at gmx.net</A>)
+  * Copyright (C) 2005  Bryan Biedenkapp (<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">gatekeep at gmail.com</A>)
+- * Copyright (C) 2006,2007  Pelish (<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">pelish at gmail.com</A>)
++ * Copyright (C) 2006,2007,2008  Pelish (<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">pelish at gmail.com</A>)
+  *
+  * This program is free software; you can redistribute it and/or
+  * modify it under the terms of the GNU General Public License
+@@ -849,6 +849,13 @@
+         msg = irc_message_preformat(&amp;from,&quot;HOST&quot;,&quot;\r&quot;,text);
+         conn_unget_chatname(me,from.nick);
+     	break;
++    case message_type_invmsg:
++        from.nick = conn_get_chatname(me);
++        from.user = ctag;
++        from.host = addr_num_to_ip_str(conn_get_addr(me));
++        msg = irc_message_preformat(&amp;from,&quot;INVMSG&quot;,conn_get_loggeduser(dst),text);
++        conn_unget_chatname(me,from.nick);
++    	break;
+     case message_type_page:
+         {
+             char temp[MAX_IRC_MESSAGE_LEN];
+@@ -885,7 +892,7 @@
+         from.nick = conn_get_chatname(me);
+         from.user = ctag;
+         from.host = addr_num_to_ip_str(conn_get_addr(me));
+-        msg = irc_message_preformat(&amp;from,&quot;STARTG&quot;,&quot;u&quot;,text);
++        msg = irc_message_preformat(&amp;from,&quot;STARTG&quot;,conn_get_loggeduser(dst),text);
+         conn_unget_chatname(me,from.nick);
+         break;
+     case message_wol_advertr:
+@@ -1331,7 +1338,8 @@
+     else {
+         snprintf(temp, sizeof(temp), &quot;%s :&quot;, irc_convert_channel(channel,c));
+         irc_send(c, RPL_TOPIC, temp);
+-        //irc_send(c, RPL_NOTOPIC, &quot;:No topic is set&quot;);
++        //snprintf(temp, sizeof(temp), &quot;%s :No topic is set&quot;, irc_convert_channel(channel,c));
++        //irc_send(c, RPL_NOTOPIC, temp);
+     }
+ 	return 0;
+ }
+@@ -1339,8 +1347,10 @@
+ extern int _handle_topic_command(t_connection * conn, int numparams, char ** params, char * text)
+ {
+ 	char ** e = NULL;
++    char temp[MAX_IRC_MESSAGE_LEN];
+ 
+-	if((conn_get_wol(conn) == 1)) {
++	if ((conn_get_wol(conn) == 1)) {
++        /* FIXME: check if channel exist */
+ 	    t_channel * channel = conn_get_channel(conn);
+ 	    channel_set_topic(channel_get_name(channel),text,NO_SAVE_TOPIC);
+ 	}
+@@ -1356,11 +1366,14 @@
+ 			if ((ircname) &amp;&amp; (strcasecmp(channel_get_name(channel),ircname)==0)) {
+ 			    irc_send_topic(conn, channel);
+ 			}
+-			else
+-				irc_send(conn,ERR_NOTONCHANNEL,&quot;:You are not on that channel&quot;);
++			else {
++                snprintf(temp, sizeof(temp), &quot;%s :You're not on that channel&quot;, e[0]);
++                irc_send(conn, ERR_NOTONCHANNEL, temp);
++            }
+ 		}
+ 		else {
+-			irc_send(conn,ERR_NOTONCHANNEL,&quot;:You're not on a channel&quot;);
++            snprintf(temp, sizeof(temp), &quot;%s :You're not on that channel&quot;, e[0]);
++            irc_send(conn, ERR_NOTONCHANNEL, temp);
+ 		}
+ 		irc_unget_listelems(e);
+ 	}
+@@ -1504,8 +1517,11 @@
+                 snprintf(temp,sizeof(temp),&quot;%s %s %s&quot;, params[0], params[1], params[2]);
+        	        channel_message_send(channel,message_type_mode,conn,temp);                     
+             }
++            else if (std::strcmp(params[1], &quot;+i&quot;) == 0) {
++                /* FIXME: channel will be only for invited */
++            }
+        	    else {
+-                snprintf(temp,sizeof(temp),&quot;:%s is unknown mode char to me&quot;, params[1]);
++                snprintf(temp,sizeof(temp),&quot;:%s is unknown mode char to me for %s&quot;, params[1], params[0]);
+                 irc_send(conn,ERR_UNKNOWNMODE,temp);
+             }
+ 	    }
+
+Modified: trunk/pvpgn/src/bnetd/message.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/message.cpp	2008-03-06 20:17:24 UTC (rev 434)
++++ trunk/pvpgn/src/bnetd/message.cpp	2008-03-17 14:49:02 UTC (rev 435)
+@@ -107,6 +107,8 @@
+         return &quot;mode&quot;;
+     case message_type_host:
+         return &quot;host&quot;;
++    case message_type_invmsg:
++        return &quot;invmsg&quot;;
+     case message_type_page:
+         return &quot;page&quot;;
+     case message_type_kick:
+
+Modified: trunk/pvpgn/src/bnetd/message.h
+===================================================================
+--- trunk/pvpgn/src/bnetd/message.h	2008-03-06 20:17:24 UTC (rev 434)
++++ trunk/pvpgn/src/bnetd/message.h	2008-03-17 14:49:02 UTC (rev 435)
+@@ -73,6 +73,7 @@
+     *  Westwood Online Extensions
+     */
+     message_type_host,
++    message_type_invmsg,
+     message_type_page,
+     message_wol_joingame,
+     message_wol_gameopt_owner,
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000651.html">[pvpgn-dev] [Bug #12172] Inaccurate gameinfo for w3
+</A></li>
+	<LI>Next message: <A HREF="000653.html">[pvpgn-dev] r436 - trunk/pvpgn/src/bnetd
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#652">[ date ]</a>
+              <a href="thread.html#652">[ thread ]</a>
+              <a href="subject.html#652">[ subject ]</a>
+              <a href="author.html#652">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

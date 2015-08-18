@@ -1,0 +1,305 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r433 - trunk/pvpgn/src/bnetd
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2008-March/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r433%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200803032222.m23MMdEl002303%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000644.html">
+   <LINK REL="Next"  HREF="000646.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r433 - trunk/pvpgn/src/bnetd</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r433%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200803032222.m23MMdEl002303%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r433 - trunk/pvpgn/src/bnetd">svn at svn.berlios.de
+       </A><BR>
+    <I>Mon Mar  3 23:22:39 CET 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000644.html">[pvpgn-dev] r432 - in trunk/pvpgn: . conf src/bnetd
+</A></li>
+        <LI>Next message: <A HREF="000646.html">[pvpgn-dev] [Bug #13282] Diablo II Open B.net Clashes with wol
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#645">[ date ]</a>
+              <a href="thread.html#645">[ thread ]</a>
+              <a href="subject.html#645">[ subject ]</a>
+              <a href="author.html#645">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pelish
+Date: 2008-03-03 23:22:36 +0100 (Mon, 03 Mar 2008)
+New Revision: 433
+
+Modified:
+   trunk/pvpgn/src/bnetd/account_wrap.cpp
+   trunk/pvpgn/src/bnetd/handle_irc.cpp
+   trunk/pvpgn/src/bnetd/handle_wol.cpp
+   trunk/pvpgn/src/bnetd/irc.cpp
+   trunk/pvpgn/src/bnetd/irc.h
+Log:
+irc changes according to RFC2812, add TIME command, fix for bug if WOL/acct/locale == 0
+
+Modified: trunk/pvpgn/src/bnetd/account_wrap.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/account_wrap.cpp	2008-03-01 23:28:25 UTC (rev 432)
++++ trunk/pvpgn/src/bnetd/account_wrap.cpp	2008-03-03 22:22:36 UTC (rev 433)
+@@ -2451,10 +2451,6 @@
+ 		ERROR0(&quot;got NULL account&quot;);
+ 		return -1;
+ 	}
+-	if(!locale) {
+-		ERROR0(&quot;got NULL locale&quot;);
+-		return -1;
+-	}
+ 
+     eventlog(eventlog_level_debug,__FUNCTION__,&quot;[** WOL **] WOL\\acct\\locale = %u&quot;,locale);
+     return account_set_numattr(account,&quot;WOL\\acct\\locale&quot;,locale);
+
+Modified: trunk/pvpgn/src/bnetd/handle_irc.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/handle_irc.cpp	2008-03-01 23:28:25 UTC (rev 432)
++++ trunk/pvpgn/src/bnetd/handle_irc.cpp	2008-03-03 22:22:36 UTC (rev 433)
+@@ -106,6 +106,7 @@
+ 	{ &quot;WHOIS&quot;		, _handle_whois_command },
+ 	{ &quot;PART&quot;		, _handle_part_command },
+ 	{ &quot;KICK&quot;		, _handle_kick_command },
++    { &quot;TIME&quot;        , _handle_time_command },
+ 
+ 	{ NULL			, NULL }
+ };
+@@ -235,8 +236,8 @@
+    		}
+    	}
+ 	else {
+-	    irc_send(conn,ERR_NEEDMOREPARAMS,&quot;:Too few arguments to USER&quot;);
+-    	}
++        irc_send(conn,ERR_NEEDMOREPARAMS,&quot;USER :Not enough parameters&quot;);
++    }
+ 	return 0;
+ }
+ 
+@@ -250,10 +251,10 @@
+ 			conn_set_ircpass(conn,hash_get_str(h));
+ 	    }
+ 		else
+-			irc_send(conn,ERR_NEEDMOREPARAMS,&quot;:Too few arguments to PASS&quot;);
++			irc_send(conn,ERR_NEEDMOREPARAMS,&quot;PASS :Not enough parameters&quot;);
+     }
+ 	else {
+-	    eventlog(eventlog_level_warn,__FUNCTION__,&quot;[%d] client tried to set password twice with PASS&quot;,conn_get_socket(conn));
++	    irc_send(conn,ERR_ALREADYREGISTRED,&quot;:Unauthorized command (already registered)&quot;);
+     }
+ 	return 0;
+ }
+@@ -396,7 +397,7 @@
+ 	         irc_unget_listelems(e);
+ 	}
+ 	else
+-	    irc_send(conn,ERR_NEEDMOREPARAMS,&quot;:Too few arguments to PRIVMSG&quot;);
++	    irc_send(conn,ERR_NEEDMOREPARAMS,&quot;PRIVMSG :Not enough parameters&quot;);
+ 	return 0;
+ }
+ 
+@@ -425,7 +426,7 @@
+ 	        irc_unget_listelems(e);
+ 	}
+ 	else
+-	    irc_send(conn,ERR_NEEDMOREPARAMS,&quot;:Too few arguments to PRIVMSG&quot;);
++	    irc_send(conn,ERR_NEEDMOREPARAMS,&quot;NOTICE :Not enough parameters&quot;);
+ 	return 0;
+ }
+ 
+@@ -444,7 +445,7 @@
+ 			irc_unget_listelems(e);
+ 	}
+ 	else
+-	    irc_send(conn,ERR_NEEDMOREPARAMS,&quot;:Too few arguments to WHO&quot;);
++	    irc_send(conn,ERR_NEEDMOREPARAMS,&quot;WHO :Not enough parameters&quot;);
+ 	return 0;
+ }
+ 
+@@ -560,7 +561,7 @@
+ 	    irc_send(conn,RPL_ISON,temp);
+ 	}
+ 	else
+-	    irc_send(conn,ERR_NEEDMOREPARAMS,&quot;:Too few arguments to ISON&quot;);
++	    irc_send(conn,ERR_NEEDMOREPARAMS,&quot;ISON :Not enough parameters&quot;);
+ 	return 0;
+ }
+ 
+@@ -612,7 +613,7 @@
+ 			irc_unget_listelems(e);
+ 	}
+ 	else
+-	    irc_send(conn,ERR_NEEDMOREPARAMS,&quot;:Too few arguments to WHOIS&quot;);
++	    irc_send(conn,ERR_NEEDMOREPARAMS,&quot;WHOIS :Not enough parameters&quot;);
+ 	return 0;
+ }
+ 
+
+Modified: trunk/pvpgn/src/bnetd/handle_wol.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/handle_wol.cpp	2008-03-01 23:28:25 UTC (rev 432)
++++ trunk/pvpgn/src/bnetd/handle_wol.cpp	2008-03-03 22:22:36 UTC (rev 433)
+@@ -96,7 +96,6 @@
+ static int _handle_getbuddy_command(t_connection * conn, int numparams, char ** params, char * text);
+ static int _handle_addbuddy_command(t_connection * conn, int numparams, char ** params, char * text);
+ static int _handle_delbuddy_command(t_connection * conn, int numparams, char ** params, char * text);
+-static int _handle_time_command(t_connection * conn, int numparams, char ** params, char * text);
+ static int _handle_host_command(t_connection * conn, int numparams, char ** params, char * text);
+ static int _handle_advertc_command(t_connection * conn, int numparams, char ** params, char * text);
+ static int _handle_clanbyname_command(t_connection * conn, int numparams, char ** params, char * text);
+@@ -1537,20 +1536,6 @@
+ 	return 0;
+ }
+ 
+-static int _handle_time_command(t_connection * conn, int numparams, char ** params, char * text)
+-{
+-    /* FIXME: recode and move into irc.cpp */
+-    char temp[MAX_IRC_MESSAGE_LEN];
+-	std::time_t now;
+-
+-   	std::memset(temp,0,sizeof(temp));
+-    now = std::time(NULL);
+-
+-    snprintf(temp,sizeof(temp),&quot;irc.westwood.com :%lu&quot;, now);
+-	irc_send(conn,RPL_TIME,temp);
+-    return 0;
+-}
+-
+ static int _handle_host_command(t_connection * conn, int numparams, char ** params, char * text)
+ {
+     char temp[MAX_IRC_MESSAGE_LEN];
+
+Modified: trunk/pvpgn/src/bnetd/irc.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/irc.cpp	2008-03-01 23:28:25 UTC (rev 432)
++++ trunk/pvpgn/src/bnetd/irc.cpp	2008-03-03 22:22:36 UTC (rev 433)
+@@ -1211,7 +1211,7 @@
+ 			conn_set_loggeduser(conn,text);
+ 	    }
+ 	    else
+-	        irc_send(conn,ERR_NEEDMOREPARAMS,&quot;:Too few arguments to NICK&quot;);
++	        irc_send(conn,ERR_NEEDMOREPARAMS,&quot;NICK :Not enough parameters&quot;);
+ 
+ 	    if ((conn_get_user(conn))&amp;&amp;(conn_get_loggeduser(conn)))
+ 			irc_welcome(conn); /* only send the welcome if we have USER and NICK */
+@@ -1316,7 +1316,7 @@
+             irc_unget_listelems(e);
+     }
+     else
+-        irc_send(conn,ERR_NEEDMOREPARAMS,&quot;:Too few arguments to JOIN&quot;);
++        irc_send(conn,ERR_NEEDMOREPARAMS,&quot;JOIN :Not enough parameters&quot;);
+     return 0;
+ }
+ 
+@@ -1365,7 +1365,7 @@
+ 		irc_unget_listelems(e);
+ 	}
+ 	else
+-		irc_send(conn,ERR_NEEDMOREPARAMS,&quot;:too few arguments to TOPIC&quot;);
++		irc_send(conn,ERR_NEEDMOREPARAMS,&quot;TOPIC :Not enough parameters&quot;);
+ 	return 0;
+ }
+ 
+@@ -1415,7 +1415,7 @@
+     */
+ 
+     if ((numparams != 2) || !(params[1])) {
+-	    irc_send(conn,ERR_NEEDMOREPARAMS,&quot;:Too few arguments to KICK&quot;);
++	    irc_send(conn,ERR_NEEDMOREPARAMS,&quot;KICK :Not enough parameters&quot;);
+ 	    return 0;
+     }
+ 
+@@ -1448,7 +1448,7 @@
+     */
+ 
+     if (numparams == 1) {
+-        irc_send(conn,ERR_NEEDMOREPARAMS,&quot;:Not enough parameters&quot;);
++        irc_send(conn,ERR_NEEDMOREPARAMS,&quot;MODE :Not enough parameters&quot;);
+         return 0;
+     }
+ 
+@@ -1522,6 +1522,35 @@
+     return 0;
+ }
+ 
++extern int _handle_time_command(t_connection * conn, int numparams, char ** params, char * text)
++{
++    char temp[MAX_IRC_MESSAGE_LEN];
++    std::time_t now;
++    char const * ircname = server_get_hostname();
++
++    /* PELISH: According to RFC2812 */
++    std::memset(temp,0,sizeof(temp));
++
++    if ((numparams&gt;=1)&amp;&amp;(params[0])) {
++        if (std::strcmp(params[0], ircname) == 0) {
++            now = std::time(NULL);
++            snprintf(temp,sizeof(temp),&quot;%s :%lu&quot;, ircname, now);
++            irc_send(conn,RPL_TIME,temp);
++        }
++        else {
++            snprintf(temp,sizeof(temp),&quot;%s :No such server&quot;, params[0]);
++            irc_send(conn,ERR_NOSUCHSERVER,temp);
++        }
++    }
++    else {
++        /* RPL_TIME contains time and name of this server */
++        now = std::time(NULL);
++        snprintf(temp,sizeof(temp),&quot;%s :%lu&quot;, ircname, now);
++        irc_send(conn,RPL_TIME,temp);
++    }
++    return 0;
+ }
+ 
+ }
++
++}
+
+Modified: trunk/pvpgn/src/bnetd/irc.h
+===================================================================
+--- trunk/pvpgn/src/bnetd/irc.h	2008-03-01 23:28:25 UTC (rev 432)
++++ trunk/pvpgn/src/bnetd/irc.h	2008-03-03 22:22:36 UTC (rev 433)
+@@ -59,6 +59,7 @@
+ extern int _handle_names_command(t_connection * conn, int numparams, char ** params, char * text);
+ extern int _handle_kick_command(t_connection * conn, int numparams, char ** params, char * text);
+ extern int _handle_mode_command(t_connection * conn, int numparams, char ** params, char * text);
++extern int _handle_time_command(t_connection * conn, int numparams, char ** params, char * text);
+ }
+ 
+ }
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000644.html">[pvpgn-dev] r432 - in trunk/pvpgn: . conf src/bnetd
+</A></li>
+	<LI>Next message: <A HREF="000646.html">[pvpgn-dev] [Bug #13282] Diablo II Open B.net Clashes with wol
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#645">[ date ]</a>
+              <a href="thread.html#645">[ thread ]</a>
+              <a href="subject.html#645">[ subject ]</a>
+              <a href="author.html#645">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

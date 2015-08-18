@@ -1,0 +1,109 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] pvpgn UPDATE, 1.61, 1.62 version-history.txt, 1.280,	1.281
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2008-June/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20pvpgn%20UPDATE%2C%201.61%2C%201.62%20version-history.txt%2C%201.280%2C%0A%091.281&In-Reply-To=%3C20080605202124.7801D13710F%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000702.html">
+   <LINK REL="Next"  HREF="000705.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] pvpgn UPDATE, 1.61, 1.62 version-history.txt, 1.280,	1.281</H1>
+    <B>pelish</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20pvpgn%20UPDATE%2C%201.61%2C%201.62%20version-history.txt%2C%201.280%2C%0A%091.281&In-Reply-To=%3C20080605202124.7801D13710F%40mail.berlios.de%3E"
+       TITLE="[pvpgn-dev] pvpgn UPDATE, 1.61, 1.62 version-history.txt, 1.280,	1.281">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Thu Jun  5 22:21:24 CEST 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000702.html">[pvpgn-dev] pvpgn/conf versioncheck.conf,1.32,1.33
+</A></li>
+        <LI>Next message: <A HREF="000705.html">[pvpgn-dev] pvpgn UPDATE,1.62,1.63
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#703">[ date ]</a>
+              <a href="thread.html#703">[ thread ]</a>
+              <a href="subject.html#703">[ subject ]</a>
+              <a href="author.html#703">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/pvpgn/pvpgn
+In directory sheep:/tmp/cvs-serv17624
+
+Modified Files:
+	UPDATE version-history.txt 
+Log Message:
+rewrited all SC/BW/D1/W2 versioncheck entries to mach ver-ix86-1.mpq file
+
+Index: UPDATE
+===================================================================
+RCS file: /cvsroot/pvpgn/pvpgn/UPDATE,v
+retrieving revision 1.61
+retrieving revision 1.62
+diff -u -d -r1.61 -r1.62
+--- UPDATE	2 Dec 2007 16:17:53 -0000	1.61
++++ UPDATE	5 Jun 2008 20:21:21 -0000	1.62
+@@ -18,6 +18,8 @@
+ ===================================
+ Configuration files changed:
+ - conf/channels.conf : added channels needed by DUNE2000 clients
++- conf/versioncheck.conf : added WAR3/W3XP IX86 entries and
++  rewrited all STAR/SEXP/W2BN/DRTL IX86 vcheck entries
+ 
+  Updating from 1.8.1 to 1.8.2
+ ===================================
+
+Index: version-history.txt
+===================================================================
+RCS file: /cvsroot/pvpgn/pvpgn/version-history.txt,v
+retrieving revision 1.280
+retrieving revision 1.281
+diff -u -d -r1.280 -r1.281
+--- version-history.txt	1 Jun 2008 10:30:28 -0000	1.280
++++ version-history.txt	5 Jun 2008 20:21:21 -0000	1.281
+@@ -12,7 +12,11 @@
+   -- fixed malformed output by /cg list command
+ 
+ [VCHECK]
+-  -- added WAR3/W3XP IX86 1.21b version check entries
++  -- added WAR3/W3XP IX86 1.21b vcheck entries
++  -- added STAR/SEXP IX86 1.51.2 vcheck entries
++  -- rewrited all STAR/SEXP/W2BN/DRTL IX86 vcheck entries
++     to match new ver-ix86-1.mpq file (this fixes connecting
++     problems on Windows Vista systems)
+ 
+  ChangeLog for 1.8.2 (since 1.8.1)
+ =========================================
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000702.html">[pvpgn-dev] pvpgn/conf versioncheck.conf,1.32,1.33
+</A></li>
+	<LI>Next message: <A HREF="000705.html">[pvpgn-dev] pvpgn UPDATE,1.62,1.63
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#703">[ date ]</a>
+              <a href="thread.html#703">[ thread ]</a>
+              <a href="subject.html#703">[ subject ]</a>
+              <a href="author.html#703">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

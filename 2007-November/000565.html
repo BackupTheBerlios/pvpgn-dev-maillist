@@ -1,0 +1,92 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r409 - trunk/pvpgn/src/bnetd
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-November/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r409%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200711181644.lAIGiHSj015606%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000563.html">
+   <LINK REL="Next"  HREF="000566.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r409 - trunk/pvpgn/src/bnetd</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r409%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200711181644.lAIGiHSj015606%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r409 - trunk/pvpgn/src/bnetd">svn at svn.berlios.de
+       </A><BR>
+    <I>Sun Nov 18 17:44:17 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000563.html">[pvpgn-dev] r408 - trunk/pvpgn/src/bnetd
+</A></li>
+        <LI>Next message: <A HREF="000566.html">[pvpgn-dev] pvpgn version-history.txt,1.276,1.277
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#565">[ date ]</a>
+              <a href="thread.html#565">[ thread ]</a>
+              <a href="subject.html#565">[ subject ]</a>
+              <a href="author.html#565">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pandaemonium
+Date: 2007-11-18 17:44:17 +0100 (Sun, 18 Nov 2007)
+New Revision: 409
+
+Modified:
+   trunk/pvpgn/src/bnetd/command.cpp
+Log:
+fix bug reported in <A HREF="http://pelish.spfree.net/index.php?topic=183.0">http://pelish.spfree.net/index.php?topic=183.0</A>
+
+Modified: trunk/pvpgn/src/bnetd/command.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/command.cpp	2007-11-13 11:25:34 UTC (rev 408)
++++ trunk/pvpgn/src/bnetd/command.cpp	2007-11-18 16:44:17 UTC (rev 409)
+@@ -4378,7 +4378,7 @@
+     char *	username;
+     unsigned int usergroups;	// from user account
+     unsigned int groups = 0;	// converted from arg3
+-    char	tempgroups[8];	// converted from usergroups
++    char	tempgroups[9];	// converted from usergroups
+     char 	t[MAX_MESSAGE_LEN];
+     unsigned int i,j;
+     char	arg1[256];
+@@ -4440,6 +4440,7 @@
+ 	if (usergroups &amp; 32) tempgroups[5] = '6'; else tempgroups[5] = ' ';
+ 	if (usergroups &amp; 64) tempgroups[6] = '7'; else tempgroups[6] = ' ';
+ 	if (usergroups &amp; 128) tempgroups[7] = '8'; else tempgroups[7] = ' ';
++	tempgroups[8] = '\0';
+ 	snprintf(msgtemp, sizeof(msgtemp), &quot;%.64s's command group(s): %.64s&quot;, username, tempgroups);
+ 	message_send_text(c,message_type_info,c,msgtemp);
+ 	return 0;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000563.html">[pvpgn-dev] r408 - trunk/pvpgn/src/bnetd
+</A></li>
+	<LI>Next message: <A HREF="000566.html">[pvpgn-dev] pvpgn version-history.txt,1.276,1.277
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#565">[ date ]</a>
+              <a href="thread.html#565">[ thread ]</a>
+              <a href="subject.html#565">[ subject ]</a>
+              <a href="author.html#565">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

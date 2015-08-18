@@ -1,0 +1,284 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r334 - in trunk/pvpgn: . src/bnetd src/bntrackd	src/client src/d2cs src/d2dbs
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-August/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r334%20-%20in%20trunk/pvpgn%3A%20.%20src/bnetd%20src/bntrackd%0A%09src/client%20src/d2cs%20src/d2dbs&In-Reply-To=%3C200708201703.l7KH3YRm007911%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000381.html">
+   <LINK REL="Next"  HREF="000383.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r334 - in trunk/pvpgn: . src/bnetd src/bntrackd	src/client src/d2cs src/d2dbs</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r334%20-%20in%20trunk/pvpgn%3A%20.%20src/bnetd%20src/bntrackd%0A%09src/client%20src/d2cs%20src/d2dbs&In-Reply-To=%3C200708201703.l7KH3YRm007911%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r334 - in trunk/pvpgn: . src/bnetd src/bntrackd	src/client src/d2cs src/d2dbs">svn at svn.berlios.de
+       </A><BR>
+    <I>Mon Aug 20 19:03:34 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000381.html">[pvpgn-dev] r333 - trunk/pvpgn/src/bntrackd
+</A></li>
+        <LI>Next message: <A HREF="000383.html">[pvpgn-dev] r335 - trunk/pvpgn/src/compat
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#382">[ date ]</a>
+              <a href="thread.html#382">[ thread ]</a>
+              <a href="subject.html#382">[ subject ]</a>
+              <a href="author.html#382">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: d1zzy
+Date: 2007-08-20 19:03:20 +0200 (Mon, 20 Aug 2007)
+New Revision: 334
+
+Modified:
+   trunk/pvpgn/ConfigureChecks.cmake
+   trunk/pvpgn/src/bnetd/CMakeLists.txt
+   trunk/pvpgn/src/bntrackd/CMakeLists.txt
+   trunk/pvpgn/src/client/CMakeLists.txt
+   trunk/pvpgn/src/d2cs/CMakeLists.txt
+   trunk/pvpgn/src/d2dbs/CMakeLists.txt
+Log:
+Moved the &quot;ws_32&quot; dependency decision in ConfigureChecks, also added 
+some other network libraries detection and dependency (as we have in 
+configure.ac) and more cleaning.
+
+
+Modified: trunk/pvpgn/ConfigureChecks.cmake
+===================================================================
+--- trunk/pvpgn/ConfigureChecks.cmake	2007-08-20 16:06:13 UTC (rev 333)
++++ trunk/pvpgn/ConfigureChecks.cmake	2007-08-20 17:03:20 UTC (rev 334)
+@@ -1,3 +1,7 @@
++# put in this file everything that needs to be setup depending
++# on the target architecture
++
++# our own modules
+ set(CMAKE_MODULE_PATH
+   ${CMAKE_SOURCE_DIR}/cmake/Modules
+ )
+@@ -2,2 +6,3 @@
+ 
++# include used modules
+ include(CheckIncludeFileCXX)
+@@ -10,6 +15,48 @@
+ include(CheckCXXCompilerFlag)
+ include(CheckMkdirArgs)
+ 
++# library checks
++find_package(ZLIB REQUIRED)
++check_library_exists(pcap pcap_open_offline &quot;&quot; HAVE_LIBPCAP)
++check_library_exists(nsl gethostbyname &quot;&quot; HAVE_LIBNSL)
++check_library_exists(socket socket &quot;&quot; HAVE_LIBSOCKET)
++check_library_exists(resolv inet_aton &quot;&quot; HAVE_LIBRESOLV)
++check_library_exists(bind __inet_aton &quot;&quot; HAVE_LIBBIND)
++
++# storage module checks
++if(WITH_MYSQL)
++    find_package(MySQL REQUIRED)
++endif(WITH_MYSQL)
++if(WITH_SQLITE3)
++    find_package(SQLite3 REQUIRED)
++endif(WITH_SQLITE3)
++
++# if any of nsl or socket exists we need to make sure the following tests
++# use them otherwise some functions may not be found
++if(HAVE_LIBNSL)
++	SET(CMAKE_REQUIRED_LIBRARIES ${CMAKE_REQUIRED_LIBRARIES} nsl)
++	SET(NETWORK_LIBRARIES ${NETWORK_LIBRARIES} nsl)
++endif(HAVE_LIBNSL)
++if(HAVE_LIBSOCKET)
++	SET(CMAKE_REQUIRED_LIBRARIES ${CMAKE_REQUIRED_LIBRARIES} socket)
++	SET(NETWORK_LIBRARIES ${NETWORK_LIBRARIES} socket)
++endif(HAVE_LIBSOCKET)
++if(HAVE_LIBRESOLV)
++	SET(CMAKE_REQUIRED_LIBRARIES ${CMAKE_REQUIRED_LIBRARIES} resolv)
++	SET(NETWORK_LIBRARIES ${NETWORK_LIBRARIES} resolv)
++endif(HAVE_LIBRESOLV)
++if(HAVE_LIBBIND)
++	# this is used for BeOS BONE, when someone will want
++	# to test pvpgn with cmake on BeOS please contact us
++	SET(CMAKE_REQUIRED_LIBRARIES ${CMAKE_REQUIRED_LIBRARIES} bind)
++	SET(NETWORK_LIBRARIES ${NETWORK_LIBRARIES} bind)
++endif(HAVE_LIBBIND)
++
++# for win32 unconditionally add network library linking to &quot;ws_32&quot;
++if(WIN32)
++	SET(NETWORK_LIBRARIES ${NETWORK_LIBRARIES} ws_32)
++endif(WIN32)
++
+ check_include_files_cxx(&quot;cassert;cctype;cerrno;cmath;climits;csignal;cstdarg;cstddef;cstdio;cstdlib;cstring;ctime;deque;exception;fstream;iomanip;iostream;limits;list;map;memory;sstream;stdexcept;string;utility;vector&quot; HAVE_STD_HEADERS)
+ if(NOT HAVE_STD_HEADERS)
+     MESSAGE(FATAL_ERROR &quot;Standard C90/C++98 header missing, you need a fully standard compliant compiler/enviroment.&quot;)
+@@ -142,17 +189,6 @@
+ 
+ check_mkdir_args(MKDIR_TAKES_ONE_ARG)
+ 
+-find_package(ZLIB REQUIRED)
+-check_library_exists(pcap pcap_open_offline &quot;&quot; HAVE_LIBPCAP)
+-
+-#storage module checks
+-if(WITH_MYSQL)
+-    find_package(MySQL REQUIRED)
+-endif(WITH_MYSQL)
+-if(WITH_SQLITE3)
+-    find_package(SQLite3 REQUIRED)
+-endif(WITH_SQLITE3)
+-
+ configure_file(config.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/config.h)
+ 
+ #check_cxx_compiler_flag(&quot;-Wall&quot; WITH_FLAG_WALL)
+
+Modified: trunk/pvpgn/src/bnetd/CMakeLists.txt
+===================================================================
+--- trunk/pvpgn/src/bnetd/CMakeLists.txt	2007-08-20 16:06:13 UTC (rev 333)
++++ trunk/pvpgn/src/bnetd/CMakeLists.txt	2007-08-20 17:03:20 UTC (rev 334)
+@@ -1,20 +1,31 @@
+-add_executable(bnetd account.cpp account_wrap.cpp adbanner.cpp alias_command.cpp anongame.cpp 
+-anongame_gameresult.cpp anongame_infos.cpp anongame_maplists.cpp attrgroup.cpp 
+-attrlayer.cpp autoupdate.cpp channel.cpp channel_conv.cpp character.cpp clan.cpp 
+-cmdline.cpp command.cpp command_groups.cpp connection.cpp file.cpp file_cdb.cpp 
+-file_plain.cpp friends.cpp game.cpp game_conv.cpp handle_anongame.cpp 
+-handle_bnet.cpp handle_bot.cpp handle_d2cs.cpp handle_file.cpp handle_init.cpp 
+-handle_irc.cpp handle_telnet.cpp handle_udp.cpp helpfile.cpp ipban.cpp irc.cpp 
+-ladder.cpp ladder_calc.cpp mail.cpp main.cpp message.cpp news.cpp 
+-output.cpp prefs.cpp realm.cpp runprog.cpp server.cpp sql_dbcreator.cpp 
+-sql_mysql.cpp sql_odbc.cpp sql_pgsql.cpp sql_sqlite3.cpp storage.cpp 
+-storage_file.cpp storage_sql.cpp support.cpp team.cpp tick.cpp timer.cpp topic.cpp 
+-tournament.cpp tracker.cpp udptest_send.cpp versioncheck.cpp watch.cpp 
+-storage_sql2.cpp sql_common.cpp handle_wol.cpp handle_irc_common.cpp 
+-handle_apireg.cpp)
+-target_link_libraries(bnetd compat common tinycdb 
++add_executable(bnetd
++	account.cpp account.h account_wrap.cpp account_wrap.h adbanner.cpp
++	adbanner.h alias_command.cpp alias_command.h anongame.cpp
++	anongame_gameresult.cpp anongame_gameresult.h anongame.h 
++	anongame_infos.cpp anongame_infos.h anongame_maplists.cpp 
++	anongame_maplists.h attrgroup.cpp attrgroup.h attr.h attrlayer.cpp 
++	attrlayer.h autoupdate.cpp autoupdate.h channel_conv.cpp channel_conv.h 
++	channel.cpp channel.h character.cpp character.h clan.cpp clan.h 
++	cmdline.cpp cmdline.h command.cpp command_groups.cpp command_groups.h 
++	command.h connection.cpp connection.h file_cdb.cpp file_cdb.h file.cpp 
++	file.h file_plain.cpp file_plain.h friends.cpp friends.h game_conv.cpp 
++	game_conv.h game.cpp game.h handle_anongame.cpp handle_anongame.h 
++	handle_apireg.cpp handle_apireg.h handle_bnet.cpp handle_bnet.h 
++	handle_bot.cpp handle_bot.h handle_d2cs.cpp handle_d2cs.h 
++	handle_file.cpp handle_file.h handle_init.cpp handle_init.h 
++	handle_irc_common.cpp handle_irc_common.h handle_irc.cpp handle_irc.h 
++	handlers.h handle_telnet.cpp handle_telnet.h handle_udp.cpp 
++	handle_udp.h handle_wol.cpp handle_wol.h helpfile.cpp helpfile.h 
++	ipban.cpp ipban.h irc.cpp irc.h ladder_calc.cpp ladder_calc.h ladder.cpp 
++	ladder.h mail.cpp mail.h main.cpp message.cpp message.h news.cpp news.h
++	output.cpp output.h prefs.cpp prefs.h quota.h realm.cpp realm.h 
++	runprog.cpp runprog.h server.cpp server.h sql_common.cpp sql_common.h
++	sql_dbcreator.cpp sql_dbcreator.h sql_mysql.cpp sql_mysql.h sql_odbc.cpp
++	sql_odbc.h sql_pgsql.cpp sql_pgsql.h sql_sqlite3.cpp sql_sqlite3.h 
++	storage.cpp storage_file.cpp storage_file.h storage.h storage_sql2.cpp
++	storage_sql2.h storage_sql.cpp storage_sql.h support.cpp support.h
++	team.cpp team.h tick.cpp tick.h timer.cpp timer.h topic.cpp topic.h 
++	tournament.cpp tournament.h tracker.cpp tracker.h udptest_send.cpp 
++	udptest_send.h versioncheck.cpp versioncheck.h watch.cpp watch.h)
++target_link_libraries(bnetd compat common tinycdb win32 ${NETWORK_LIBRARIES}
+ ${ZLIB_LIBRARIES} ${MYSQL_LIBRARIES} ${SQLITE3_LIBRARIES})
+-
+-IF(WIN32)
+-target_link_libraries(bnetd win32 ws2_32)
+-ENDIF(WIN32)
+
+Modified: trunk/pvpgn/src/bntrackd/CMakeLists.txt
+===================================================================
+--- trunk/pvpgn/src/bntrackd/CMakeLists.txt	2007-08-20 16:06:13 UTC (rev 333)
++++ trunk/pvpgn/src/bntrackd/CMakeLists.txt	2007-08-20 17:03:20 UTC (rev 334)
+@@ -1,2 +1,2 @@
+ add_executable(bntrackd bntrackd.cpp)
+-target_link_libraries(bntrackd common compat)
++target_link_libraries(bntrackd common compat ${NETWORK_LIBRARIES})
+
+Modified: trunk/pvpgn/src/client/CMakeLists.txt
+===================================================================
+--- trunk/pvpgn/src/client/CMakeLists.txt	2007-08-20 16:06:13 UTC (rev 333)
++++ trunk/pvpgn/src/client/CMakeLists.txt	2007-08-20 17:03:20 UTC (rev 334)
+@@ -1,18 +1,11 @@
+ add_executable(bnchat bnchat.cpp client.cpp client_connect.cpp udptest.cpp)
+-target_link_libraries(bnchat common compat)
++target_link_libraries(bnchat common compat ${NETWORK_LIBRARIES})
+ 
+ add_executable(bnftp bnftp.cpp client.cpp)
+-target_link_libraries(bnftp common compat)
++target_link_libraries(bnftp common compat ${NETWORK_LIBRARIES})
+ 
+ add_executable(bnbot bnbot.cpp client.cpp)
+-target_link_libraries(bnbot common compat)
++target_link_libraries(bnbot common compat ${NETWORK_LIBRARIES})
+ 
+ add_executable(bnstat bnstat.cpp client.cpp client_connect.cpp udptest.cpp)
+-target_link_libraries(bnstat common compat)
+-
+-IF(WIN32)
+- target_link_libraries(bnchat ws2_32)
+- target_link_libraries(bnftp ws2_32)
+- target_link_libraries(bnbot ws2_32)
+- target_link_libraries(bnstat ws2_32)
+-ENDIF(WIN32)
++target_link_libraries(bnstat common compat ${NETWORK_LIBRARIES})
+
+Modified: trunk/pvpgn/src/d2cs/CMakeLists.txt
+===================================================================
+--- trunk/pvpgn/src/d2cs/CMakeLists.txt	2007-08-20 16:06:13 UTC (rev 333)
++++ trunk/pvpgn/src/d2cs/CMakeLists.txt	2007-08-20 17:03:20 UTC (rev 334)
+@@ -2,8 +2,4 @@
+ d2charlist.cpp d2gs.cpp d2ladder.cpp game.cpp gamequeue.cpp handle_bnetd.cpp 
+ handle_d2cs.cpp handle_d2gs.cpp handle_init.cpp handle_signal.cpp main.cpp 
+ net.cpp prefs.cpp s2s.cpp server.cpp serverqueue.cpp)
+-target_link_libraries(d2cs common compat win32)
+-
+-IF(WIN32)
+-target_link_libraries(d2cs win32 ws2_32)
+-ENDIF(WIN32)
++target_link_libraries(d2cs common compat win32 ${NETWORK_LIBRARIES})
+
+Modified: trunk/pvpgn/src/d2dbs/CMakeLists.txt
+===================================================================
+--- trunk/pvpgn/src/d2dbs/CMakeLists.txt	2007-08-20 16:06:13 UTC (rev 333)
++++ trunk/pvpgn/src/d2dbs/CMakeLists.txt	2007-08-20 17:03:20 UTC (rev 334)
+@@ -1,7 +1,3 @@
+ add_executable(d2dbs charlock.cpp d2ladder.cpp dbserver.cpp dbspacket.cpp 
+ cmdline.cpp prefs.cpp handle_signal.cpp dbsdupecheck.cpp main.cpp)
+-target_link_libraries(d2dbs common compat)
+-
+-IF(WIN32)
+-target_link_libraries(d2dbs win32 ws2_32)
+-ENDIF(WIN32)
++target_link_libraries(d2dbs common compat win32 ${NETWORK_LIBRARIES})
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000381.html">[pvpgn-dev] r333 - trunk/pvpgn/src/bntrackd
+</A></li>
+	<LI>Next message: <A HREF="000383.html">[pvpgn-dev] r335 - trunk/pvpgn/src/compat
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#382">[ date ]</a>
+              <a href="thread.html#382">[ thread ]</a>
+              <a href="subject.html#382">[ subject ]</a>
+              <a href="author.html#382">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

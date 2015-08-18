@@ -1,0 +1,1791 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r479 - in trunk/pvpgn/src: bnetd client common
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2008-July/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r479%20-%20in%20trunk/pvpgn/src%3A%20bnetd%20client%20common&In-Reply-To=%3C200807271854.m6RIsDm1029320%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000770.html">
+   <LINK REL="Next"  HREF="000772.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r479 - in trunk/pvpgn/src: bnetd client common</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r479%20-%20in%20trunk/pvpgn/src%3A%20bnetd%20client%20common&In-Reply-To=%3C200807271854.m6RIsDm1029320%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r479 - in trunk/pvpgn/src: bnetd client common">svn at svn.berlios.de
+       </A><BR>
+    <I>Sun Jul 27 20:54:13 CEST 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000770.html">[pvpgn-dev] [Patch #2531] spell error
+</A></li>
+        <LI>Next message: <A HREF="000772.html">[pvpgn-dev] r480 - trunk/pvpgn/src/bnetd
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#771">[ date ]</a>
+              <a href="thread.html#771">[ thread ]</a>
+              <a href="subject.html#771">[ subject ]</a>
+              <a href="author.html#771">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pandaemonium
+Date: 2008-07-27 20:54:07 +0200 (Sun, 27 Jul 2008)
+New Revision: 479
+
+Modified:
+   trunk/pvpgn/src/bnetd/clan.cpp
+   trunk/pvpgn/src/bnetd/handle_bnet.cpp
+   trunk/pvpgn/src/client/bnchat.cpp
+   trunk/pvpgn/src/common/bnet_protocol.h
+   trunk/pvpgn/src/common/packet.cpp
+   trunk/pvpgn/src/common/packet.h
+Log:
+harmonize clan related packet names, add missing packet identification data
+
+Modified: trunk/pvpgn/src/bnetd/clan.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/clan.cpp	2008-07-27 11:43:55 UTC (rev 478)
++++ trunk/pvpgn/src/bnetd/clan.cpp	2008-07-27 18:54:07 UTC (rev 479)
+@@ -106,7 +106,7 @@
+             heard = true;
+         }
+     }
+-    
++
+     if (heard)
+         return 1;
+     else
+@@ -184,10 +184,10 @@
+ 	    eventlog(eventlog_level_error,__FUNCTION__,&quot;clan has NULL clantag&quot;);
+ 	}
+ 
+-	packet_set_size(rpacket, sizeof(t_server_w3xp_clan_clanack));
+-	packet_set_type(rpacket, SERVER_W3XP_CLAN_CLANACK);
+-	bn_byte_set(&amp;rpacket-&gt;u.server_w3xp_clan_clanack.unknow1, 0);
+-	bn_int_set(&amp;rpacket-&gt;u.server_w3xp_clan_clanack.clantag, clan-&gt;tag);
++	packet_set_size(rpacket, sizeof(t_server_clan_clanack));
++	packet_set_type(rpacket, SERVER_CLAN_CLANACK);
++	bn_byte_set(&amp;rpacket-&gt;u.server_clan_clanack.unknow1, 0);
++	bn_int_set(&amp;rpacket-&gt;u.server_clan_clanack.clantag, clan-&gt;tag);
+ 
+ 	LIST_TRAVERSE(clan-&gt;members, curr)
+ 	{
+@@ -218,7 +218,7 @@
+ 	        if (conn_set_channel(conn, channelname) &lt; 0)
+ 		    conn_set_channel(conn, CHANNEL_NAME_BANNED);	/* should not fail */
+ 	    }
+-	    bn_byte_set(&amp;rpacket-&gt;u.server_w3xp_clan_clanack.status, member-&gt;status);
++	    bn_byte_set(&amp;rpacket-&gt;u.server_clan_clanack.status, member-&gt;status);
+ 	    conn_push_outqueue(conn, rpacket);
+ 	}
+ 	packet_del_ref(rpacket);
+@@ -239,9 +239,9 @@
+ 
+     if ((rpacket = packet_create(packet_class_bnet)))
+     {
+-	packet_set_size(rpacket, sizeof(t_server_w3xp_clanquitnotify));
+-	packet_set_type(rpacket, SERVER_W3XP_CLANQUITNOTIFY);
+-	bn_byte_set(&amp;rpacket-&gt;u.server_w3xp_clan_clanack.status, SERVER_W3XP_CLANQUITNOTIFY_STATUS_REMOVED_FROM_CLAN);
++	packet_set_size(rpacket, sizeof(t_server_clanquitnotify));
++	packet_set_type(rpacket, SERVER_CLANQUITNOTIFY);
++	bn_byte_set(&amp;rpacket-&gt;u.server_clan_clanack.status, SERVER_CLANQUITNOTIFY_STATUS_REMOVED_FROM_CLAN);
+ 	LIST_TRAVERSE(clan-&gt;members, curr)
+ 	{
+ 	    t_clanmember *	member;
+@@ -312,11 +312,11 @@
+ 
+     if ((rpacket = packet_create(packet_class_bnet)))
+     {
+-	    packet_set_size(rpacket, sizeof(t_server_w3xp_clan_clanack));
+-	    packet_set_type(rpacket, SERVER_W3XP_CLAN_CLANACK);
+-	    bn_byte_set(&amp;rpacket-&gt;u.server_w3xp_clan_clanack.unknow1, 0);
+-	    bn_int_set(&amp;rpacket-&gt;u.server_w3xp_clan_clanack.clantag, member-&gt;clan-&gt;tag);
+-	    bn_byte_set(&amp;rpacket-&gt;u.server_w3xp_clan_clanack.status, member-&gt;status);
++	    packet_set_size(rpacket, sizeof(t_server_clan_clanack));
++	    packet_set_type(rpacket, SERVER_CLAN_CLANACK);
++	    bn_byte_set(&amp;rpacket-&gt;u.server_clan_clanack.unknow1, 0);
++	    bn_int_set(&amp;rpacket-&gt;u.server_clan_clanack.clantag, member-&gt;clan-&gt;tag);
++	    bn_byte_set(&amp;rpacket-&gt;u.server_clan_clanack.status, member-&gt;status);
+ 	    conn_push_outqueue(c, rpacket);
+ 	    packet_del_ref(rpacket);
+     }
+@@ -339,9 +339,9 @@
+ 
+     if ((rpacket = packet_create(packet_class_bnet)))
+     {
+-	packet_set_size(rpacket, sizeof(t_server_w3xp_clanquitnotify));
+-	packet_set_type(rpacket, SERVER_W3XP_CLANQUITNOTIFY);
+-	bn_byte_set(&amp;rpacket-&gt;u.server_w3xp_clanquitnotify.status, SERVER_W3XP_CLANQUITNOTIFY_STATUS_REMOVED_FROM_CLAN);
++	packet_set_size(rpacket, sizeof(t_server_clanquitnotify));
++	packet_set_type(rpacket, SERVER_CLANQUITNOTIFY);
++	bn_byte_set(&amp;rpacket-&gt;u.server_clanquitnotify.status, SERVER_CLANQUITNOTIFY_STATUS_REMOVED_FROM_CLAN);
+ 	conn_push_outqueue(c, rpacket);
+ 	packet_del_ref(rpacket);
+     }
+@@ -370,10 +370,10 @@
+     {
+     	t_account * memberacc;
+ 
+-	packet_set_size(rpacket, sizeof(t_server_w3xp_clanmemberlist_reply));
+-	packet_set_type(rpacket, SERVER_W3XP_CLANMEMBERLIST_REPLY);
+-	bn_int_set(&amp;rpacket-&gt;u.server_w3xp_clanmemberlist_reply.count,
+-	           bn_int_get(packet-&gt;u.client_w3xp_clanmemberlist_req.count));
++	packet_set_size(rpacket, sizeof(t_server_clanmemberlist_reply));
++	packet_set_type(rpacket, SERVER_CLANMEMBERLIST_REPLY);
++	bn_int_set(&amp;rpacket-&gt;u.server_clanmemberlist_reply.count,
++	           bn_int_get(packet-&gt;u.client_clanmemberlist_req.count));
+ 	LIST_TRAVERSE(clan-&gt;members, curr)
+ 	{
+ 	    if (!(member = (t_clanmember*)elem_get_data(curr)))
+@@ -399,7 +399,7 @@
+ 		packet_append_string(rpacket, &quot;&quot;);
+ 	    count++;
+ 	}
+-	bn_byte_set(&amp;rpacket-&gt;u.server_w3xp_clanmemberlist_reply.member_count, count);
++	bn_byte_set(&amp;rpacket-&gt;u.server_clanmemberlist_reply.member_count, count);
+ 	conn_push_outqueue(c, rpacket);
+ 	packet_del_ref(rpacket);
+ 	return 0;
+@@ -419,7 +419,7 @@
+ 	return -1;
+     if ((clan = account_get_clan(account)) == NULL)
+ 	return -1;
+-    offset = sizeof(packet-&gt;u.client_w3xp_clan_motdchg);
++    offset = sizeof(packet-&gt;u.client_clan_motdchg);
+     motd = packet_get_str_const(packet, offset, 25);
+     eventlog(eventlog_level_trace, __FUNCTION__, &quot;[%d] got W3XP_CLAN_MOTDCHG packet : %s&quot;, conn_get_socket(c), motd);
+     if (clan_set_motd(clan, motd) != 0)
+@@ -449,10 +449,10 @@
+     }
+     if ((rpacket = packet_create(packet_class_bnet)))
+     {
+-	packet_set_size(rpacket, sizeof(t_server_w3xp_clan_motdreply));
+-	packet_set_type(rpacket, SERVER_W3XP_CLAN_MOTDREPLY);
+-	bn_int_set(&amp;rpacket-&gt;u.server_w3xp_clan_motdreply.count, bn_int_get(packet-&gt;u.client_w3xp_clan_motdreq.count));
+-	bn_int_set(&amp;rpacket-&gt;u.server_w3xp_clan_motdreply.unknow1, SERVER_W3XP_CLAN_MOTDREPLY_UNKNOW1);
++	packet_set_size(rpacket, sizeof(t_server_clan_motdreply));
++	packet_set_type(rpacket, SERVER_CLAN_MOTDREPLY);
++	bn_int_set(&amp;rpacket-&gt;u.server_clan_motdreply.count, bn_int_get(packet-&gt;u.client_clan_motdreq.count));
++	bn_int_set(&amp;rpacket-&gt;u.server_clan_motdreply.unknow1, SERVER_CLAN_MOTDREPLY_UNKNOW1);
+ 	packet_append_string(rpacket, clan-&gt;clan_motd);
+ 	conn_push_outqueue(c, rpacket);
+ 	packet_del_ref(rpacket);
+@@ -475,31 +475,31 @@
+ 
+     int friend_count = 0;
+     t_clantag clantag;
+-    clantag = bn_int_get(packet-&gt;u.client_w3xp_clan_createreq.clantag);
++    clantag = bn_int_get(packet-&gt;u.client_clan_createreq.clantag);
+     if ((rpacket = packet_create(packet_class_bnet)) == NULL)
+     {
+ 	return -1;
+     }
+-    packet_set_size(rpacket, sizeof(t_server_w3xp_clan_createreply));
+-    packet_set_type(rpacket, SERVER_W3XP_CLAN_CREATEREPLY);
+-    bn_int_set(&amp;rpacket-&gt;u.server_w3xp_clan_createreply.count, bn_int_get(packet-&gt;u.client_w3xp_clan_createreq.count));
++    packet_set_size(rpacket, sizeof(t_server_clan_createreply));
++    packet_set_type(rpacket, SERVER_CLAN_CREATEREPLY);
++    bn_int_set(&amp;rpacket-&gt;u.server_clan_createreply.count, bn_int_get(packet-&gt;u.client_clan_createreq.count));
+     if (clanlist_find_clan_by_clantag(clantag) != NULL)
+     {
+-	bn_byte_set(&amp;rpacket-&gt;u.server_w3xp_clan_createreply.check_result, SERVER_W3XP_CLAN_CREATEREPLY_CHECK_ALLREADY_IN_USE);
+-	bn_byte_set(&amp;rpacket-&gt;u.server_w3xp_clan_createreply.friend_count, 0);
++	bn_byte_set(&amp;rpacket-&gt;u.server_clan_createreply.check_result, SERVER_CLAN_CREATEREPLY_CHECK_ALLREADY_IN_USE);
++	bn_byte_set(&amp;rpacket-&gt;u.server_clan_createreply.friend_count, 0);
+ 	conn_push_outqueue(c, rpacket);
+ 	packet_del_ref(rpacket);
+ 	return 0;
+     }
+     if ((account = conn_get_account(c)) &amp;&amp; (account_get_clan(account) != NULL || account_get_creating_clan(account) != NULL))
+     {
+-	bn_byte_set(&amp;rpacket-&gt;u.server_w3xp_clan_createreply.check_result, SERVER_W3XP_CLAN_CREATEREPLY_CHECK_EXCEPTION);
+-	bn_byte_set(&amp;rpacket-&gt;u.server_w3xp_clan_createreply.friend_count, 0);
++	bn_byte_set(&amp;rpacket-&gt;u.server_clan_createreply.check_result, SERVER_CLAN_CREATEREPLY_CHECK_EXCEPTION);
++	bn_byte_set(&amp;rpacket-&gt;u.server_clan_createreply.friend_count, 0);
+ 	conn_push_outqueue(c, rpacket);
+ 	packet_del_ref(rpacket);
+ 	return 0;
+     }
+-    bn_byte_set(&amp;rpacket-&gt;u.server_w3xp_clan_createreply.check_result, SERVER_W3XP_CLAN_CREATEREPLY_CHECK_OK);
++    bn_byte_set(&amp;rpacket-&gt;u.server_clan_createreply.check_result, SERVER_CLAN_CREATEREPLY_CHECK_OK);
+     channel = conn_get_channel(c);
+     if (channel_get_permanent(channel))
+     {
+@@ -548,7 +548,7 @@
+ 	    }
+ 	}
+     }
+-    bn_byte_set(&amp;rpacket-&gt;u.server_w3xp_clan_createreply.friend_count, friend_count);
++    bn_byte_set(&amp;rpacket-&gt;u.server_clan_createreply.friend_count, friend_count);
+     conn_push_outqueue(c, rpacket);
+     packet_del_ref(rpacket);
+ 
+@@ -572,8 +572,8 @@
+     {
+ 	char tmpstr[2];
+ 	const char *append_str;
+-	packet_set_size(rpacket, sizeof(t_server_w3xp_clanmemberupdate));
+-	packet_set_type(rpacket, SERVER_W3XP_CLANMEMBERUPDATE);
++	packet_set_size(rpacket, sizeof(t_server_clanmemberupdate));
++	packet_set_type(rpacket, SERVER_CLANMEMBERUPDATE);
+ 	packet_append_string(rpacket, account_get_name((t_account*)member-&gt;memberacc));
+ 	tmpstr[0] = member-&gt;status;
+ 	append_str = clanmember_get_online_status(member, &amp;tmpstr[1]);
+@@ -608,8 +608,8 @@
+     {
+ 	char tmpstr[2];
+ 	const char *append_str;
+-	packet_set_size(rpacket, sizeof(t_server_w3xp_clanmemberupdate));
+-	packet_set_type(rpacket, SERVER_W3XP_CLANMEMBERUPDATE);
++	packet_set_size(rpacket, sizeof(t_server_clanmemberupdate));
++	packet_set_type(rpacket, SERVER_CLANMEMBERUPDATE);
+ 	packet_append_string(rpacket, account_get_name(acc));
+ 	tmpstr[0] = member-&gt;status;
+ 	append_str = clanmember_get_online_status_by_connection(conn, &amp;tmpstr[1]);
+@@ -1104,20 +1104,20 @@
+ 	if ((game = conn_get_game(conn)) != NULL)
+ 	{
+ 	    if (game_get_flag(game) == game_flag_private)
+-		(*status) = SERVER_W3XP_CLAN_MEMBER_PRIVATE_GAME;
++		(*status) = SERVER_CLAN_MEMBER_PRIVATE_GAME;
+ 	    else
+-		(*status) = SERVER_W3XP_CLAN_MEMBER_GAME;
++		(*status) = SERVER_CLAN_MEMBER_GAME;
+ 	    return game_get_name(game);
+ 	}
+ 	if ((channel = conn_get_channel(conn)) != NULL)
+ 	{
+-	    (*status) = SERVER_W3XP_CLAN_MEMBER_CHANNEL;
++	    (*status) = SERVER_CLAN_MEMBER_CHANNEL;
+ 	    return channel_get_name(channel);
+ 	}
+ 
+-	(*status) = SERVER_W3XP_CLAN_MEMBER_ONLINE;
++	(*status) = SERVER_CLAN_MEMBER_ONLINE;
+     } else
+-	(*status) = SERVER_W3XP_CLAN_MEMBER_OFFLINE;
++	(*status) = SERVER_CLAN_MEMBER_OFFLINE;
+     return NULL;
+ }
+ 
+
+Modified: trunk/pvpgn/src/bnetd/handle_bnet.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/handle_bnet.cpp	2008-07-27 11:43:55 UTC (rev 478)
++++ trunk/pvpgn/src/bnetd/handle_bnet.cpp	2008-07-27 18:54:07 UTC (rev 479)
+@@ -148,16 +148,16 @@
+ static int _client_mapauthreq1(t_connection * c, t_packet const *const packet);
+ static int _client_mapauthreq2(t_connection * c, t_packet const *const packet);
+ static int _client_changeclient(t_connection * c, t_packet const *const packet);
+-static int _client_w3xp_clanmemberlistreq(t_connection * c, t_packet const *const packet);
+-static int _client_w3xp_clan_motdreq(t_connection * c, t_packet const *const packet);
+-static int _client_w3xp_clan_motdchg(t_connection * c, t_packet const *const packet);
+-static int _client_w3xp_clan_createreq(t_connection * c, t_packet const *const packet);
++static int _client_clanmemberlistreq(t_connection * c, t_packet const *const packet);
++static int _client_clan_motdreq(t_connection * c, t_packet const *const packet);
++static int _client_clan_motdchg(t_connection * c, t_packet const *const packet);
++static int _client_clan_createreq(t_connection * c, t_packet const *const packet);
+ static int _client_clan_createinvitereq(t_connection * c, t_packet const *const packet);
+-static int _client_w3xp_clan_createinvitereply(t_connection * c, t_packet const *const packet);
+-static int _client_w3xp_clan_disbandreq(t_connection * c, t_packet const *const packet);
+-static int _client_w3xp_clanmember_rankupdatereq(t_connection * c, t_packet const *const packet);
+-static int _client_w3xp_clanmember_removereq(t_connection * c, t_packet const *const packet);
+-static int _client_w3xp_clan_membernewchiefreq(t_connection * c, t_packet const *const packet);
++static int _client_clan_createinvitereply(t_connection * c, t_packet const *const packet);
++static int _client_clan_disbandreq(t_connection * c, t_packet const *const packet);
++static int _client_clanmember_rankupdatereq(t_connection * c, t_packet const *const packet);
++static int _client_clanmember_removereq(t_connection * c, t_packet const *const packet);
++static int _client_clan_membernewchiefreq(t_connection * c, t_packet const *const packet);
+ static int _client_clan_invitereq(t_connection * c, t_packet const *const packet);
+ static int _client_clan_invitereply(t_connection * c, t_packet const *const packet);
+ static int _client_crashdump(t_connection * c, t_packet const *const packet);
+@@ -247,16 +247,16 @@
+     {CLIENT_LADDERSEARCHREQ, _client_laddersearchreq},
+     {CLIENT_MAPAUTHREQ1, _client_mapauthreq1},
+     {CLIENT_MAPAUTHREQ2, _client_mapauthreq2},
+-    {CLIENT_W3XP_CLAN_DISBANDREQ, _client_w3xp_clan_disbandreq},
+-    {CLIENT_W3XP_CLANMEMBERLIST_REQ, _client_w3xp_clanmemberlistreq},
+-    {CLIENT_W3XP_CLAN_MOTDCHG, _client_w3xp_clan_motdchg},
+-    {CLIENT_W3XP_CLAN_MOTDREQ, _client_w3xp_clan_motdreq},
+-    {CLIENT_W3XP_CLAN_CREATEREQ, _client_w3xp_clan_createreq},
++    {CLIENT_CLAN_DISBANDREQ, _client_clan_disbandreq},
++    {CLIENT_CLANMEMBERLIST_REQ, _client_clanmemberlistreq},
++    {CLIENT_CLAN_MOTDCHG, _client_clan_motdchg},
++    {CLIENT_CLAN_MOTDREQ, _client_clan_motdreq},
++    {CLIENT_CLAN_CREATEREQ, _client_clan_createreq},
+     {CLIENT_CLAN_CREATEINVITEREQ, _client_clan_createinvitereq},
+-    {CLIENT_W3XP_CLAN_CREATEINVITEREPLY, _client_w3xp_clan_createinvitereply},
+-    {CLIENT_W3XP_CLANMEMBER_RANKUPDATE_REQ, _client_w3xp_clanmember_rankupdatereq},
+-    {CLIENT_W3XP_CLANMEMBER_REMOVE_REQ, _client_w3xp_clanmember_removereq},
+-    {CLIENT_W3XP_CLAN_MEMBERNEWCHIEFREQ, _client_w3xp_clan_membernewchiefreq},
++    {CLIENT_CLAN_CREATEINVITEREPLY, _client_clan_createinvitereply},
++    {CLIENT_CLANMEMBER_RANKUPDATE_REQ, _client_clanmember_rankupdatereq},
++    {CLIENT_CLANMEMBER_REMOVE_REQ, _client_clanmember_removereq},
++    {CLIENT_CLAN_MEMBERNEWCHIEFREQ, _client_clan_membernewchiefreq},
+     {CLIENT_CLAN_INVITEREQ, _client_clan_invitereq},
+     {CLIENT_CLAN_INVITEREPLY, _client_clan_invitereply},
+     {CLIENT_CRASHDUMP, _client_crashdump},
+@@ -4324,10 +4324,10 @@
+     return 0;
+ }
+ 
+-static int _client_w3xp_clanmemberlistreq(t_connection * c, t_packet const *const packet)
++static int _client_clanmemberlistreq(t_connection * c, t_packet const *const packet)
+ {
+-    if (packet_get_size(packet) &lt; sizeof(t_client_w3xp_clanmemberlist_req)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad W3XP_CLANMEMBERLIST_REQ packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_w3xp_clanmemberlist_req), packet_get_size(packet));
++    if (packet_get_size(packet) &lt; sizeof(t_client_clanmemberlist_req)) {
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad W3XP_CLANMEMBERLIST_REQ packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_clanmemberlist_req), packet_get_size(packet));
+ 	return -1;
+     }
+ 
+@@ -4335,10 +4335,10 @@
+     return 0;
+ }
+ 
+-static int _client_w3xp_clan_motdreq(t_connection * c, t_packet const *const packet)
++static int _client_clan_motdreq(t_connection * c, t_packet const *const packet)
+ {
+-    if (packet_get_size(packet) &lt; sizeof(t_client_w3xp_clan_motdreq)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad W3XP_CLAN_MOTDREQ packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_w3xp_clan_motdreq), packet_get_size(packet));
++    if (packet_get_size(packet) &lt; sizeof(t_client_clan_motdreq)) {
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad W3XP_CLAN_MOTDREQ packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_clan_motdreq), packet_get_size(packet));
+ 	return -1;
+     }
+ 
+@@ -4346,10 +4346,10 @@
+     return 0;
+ }
+ 
+-static int _client_w3xp_clan_motdchg(t_connection * c, t_packet const *const packet)
++static int _client_clan_motdchg(t_connection * c, t_packet const *const packet)
+ {
+-    if (packet_get_size(packet) &lt; sizeof(t_client_w3xp_clan_motdreq)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad W3XP_CLAN_MOTDCHGREQ packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_w3xp_clan_motdreq), packet_get_size(packet));
++    if (packet_get_size(packet) &lt; sizeof(t_client_clan_motdreq)) {
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad W3XP_CLAN_MOTDCHGREQ packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_clan_motdreq), packet_get_size(packet));
+ 	return -1;
+     }
+ 
+@@ -4357,12 +4357,12 @@
+     return 0;
+ }
+ 
+-static int _client_w3xp_clan_disbandreq(t_connection * c, t_packet const *const packet)
++static int _client_clan_disbandreq(t_connection * c, t_packet const *const packet)
+ {
+     t_packet *rpacket;
+ 
+-    if (packet_get_size(packet) &lt; sizeof(t_client_w3xp_clan_disbandreq)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad W3XP_CLAN_DISBANDREQ packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_w3xp_clan_disbandreq), packet_get_size(packet));
++    if (packet_get_size(packet) &lt; sizeof(t_client_clan_disbandreq)) {
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad W3XP_CLAN_DISBANDREQ packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_clan_disbandreq), packet_get_size(packet));
+ 	return -1;
+     }
+ 
+@@ -4371,17 +4371,17 @@
+ 	t_account *myacc;
+ 	myacc = conn_get_account(c);
+ 	clan = account_get_clan(myacc);
+-	packet_set_size(rpacket, sizeof(t_server_w3xp_clan_disbandreply));
+-	packet_set_type(rpacket, SERVER_W3XP_CLAN_DISBANDREPLY);
+-	bn_int_set(&amp;rpacket-&gt;u.server_w3xp_clan_disbandreply.count, bn_int_get(packet-&gt;u.client_w3xp_clan_disbandreq.count));
++	packet_set_size(rpacket, sizeof(t_server_clan_disbandreply));
++	packet_set_type(rpacket, SERVER_CLAN_DISBANDREPLY);
++	bn_int_set(&amp;rpacket-&gt;u.server_clan_disbandreply.count, bn_int_get(packet-&gt;u.client_clan_disbandreq.count));
+ 	if ((clanlist_remove_clan(clan) == 0) &amp;&amp; (clan_remove(clan_get_clantag(clan)) == 0)) {
+-	    bn_byte_set(&amp;rpacket-&gt;u.server_w3xp_clan_disbandreply.result, SERVER_W3XP_CLAN_DISBANDREPLY_RESULT_OK);
++	    bn_byte_set(&amp;rpacket-&gt;u.server_clan_disbandreply.result, SERVER_CLAN_DISBANDREPLY_RESULT_OK);
+ 	    clan_close_status_window_on_disband(clan);
+ 	    clan_send_packet_to_online_members(clan, rpacket);
+ 	    packet_del_ref(rpacket);
+ 	    clan_destroy(clan);
+ 	} else {
+-	    bn_byte_set(&amp;rpacket-&gt;u.server_w3xp_clan_disbandreply.result, SERVER_W3XP_CLAN_DISBANDREPLY_RESULT_EXCEPTION);
++	    bn_byte_set(&amp;rpacket-&gt;u.server_clan_disbandreply.result, SERVER_CLAN_DISBANDREPLY_RESULT_EXCEPTION);
+ 	    conn_push_outqueue(c, rpacket);
+ 	    packet_del_ref(rpacket);
+ 	}
+@@ -4390,10 +4390,10 @@
+     return 0;
+ }
+ 
+-static int _client_w3xp_clan_createreq(t_connection * c, t_packet const *const packet)
++static int _client_clan_createreq(t_connection * c, t_packet const *const packet)
+ {
+-    if (packet_get_size(packet) &lt; sizeof(t_client_w3xp_clan_createreq)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad W3XP_CLAN_INFOREQ packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_w3xp_clan_createreq), packet_get_size(packet));
++    if (packet_get_size(packet) &lt; sizeof(t_client_clan_createreq)) {
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad W3XP_CLAN_INFOREQ packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_clan_createreq), packet_get_size(packet));
+ 	return -1;
+     }
+ 
+@@ -4417,14 +4417,14 @@
+         return -1;
+     }
+     offset = sizeof(t_client_clan_createinvitereq);
+-    
++
+ 	if (!(clanname = packet_get_str_const(packet, offset, CLAN_NAME_MAX))) {
+         eventlog(eventlog_level_error,__FUNCTION__, &quot;[%d] got bad CLAN_CREATEINVITEREQ packet (missing clanname)&quot;, conn_get_socket(c));
+         return -1;
+     }
+ 	offset += (std::strlen(clanname) + 1);
+ 
+-	if (!(packet_get_data_const(packet, offset, 4))) { 
++	if (!(packet_get_data_const(packet, offset, 4))) {
+         eventlog(eventlog_level_error,__FUNCTION__, &quot;[%d] got bad CLAN_CREATEINVITEREQ packet (missing clantag)&quot;, conn_get_socket(c));
+         return -1;
+     }
+@@ -4468,10 +4468,10 @@
+ 		}
+ 	    } while (username &amp;&amp; (offset &lt; size));
+ 	} else {
+-	    packet_set_size(rpacket, sizeof(t_server_w3xp_clan_createinvitereply));
+-	    packet_set_type(rpacket, SERVER_W3XP_CLAN_CREATEINVITEREPLY);
+-	    bn_int_set(&amp;rpacket-&gt;u.server_w3xp_clan_createinvitereply.count, bn_int_get(packet-&gt;u.client_w3xp_clan_createinvitereply.count));
+-	    bn_byte_set(&amp;rpacket-&gt;u.server_w3xp_clan_createinvitereply.status, 0);
++	    packet_set_size(rpacket, sizeof(t_server_clan_createinvitereply));
++	    packet_set_type(rpacket, SERVER_CLAN_CREATEINVITEREPLY);
++	    bn_int_set(&amp;rpacket-&gt;u.server_clan_createinvitereply.count, bn_int_get(packet-&gt;u.client_clan_createinvitereply.count));
++	    bn_byte_set(&amp;rpacket-&gt;u.server_clan_createinvitereply.status, 0);
+ 	}
+ 	packet_del_ref(rpacket);
+     }
+@@ -4479,7 +4479,7 @@
+     return 0;
+ }
+ 
+-static int _client_w3xp_clan_createinvitereply(t_connection * c, t_packet const *const packet)
++static int _client_clan_createinvitereply(t_connection * c, t_packet const *const packet)
+ {
+     t_packet *rpacket;
+     t_connection *conn;
+@@ -4488,11 +4488,11 @@
+     int offset;
+     char status;
+ 
+-    if (packet_get_size(packet) &lt; sizeof(t_client_w3xp_clan_createinvitereply)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad CLAN_CREATEINVITEREPLY packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_clan_createinvitereq), packet_get_size(packet));
++    if (packet_get_size(packet) &lt; sizeof(t_client_clan_createinvitereply)) {
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad W3XP_CLAN_CREATEINVITEREPLY packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_clan_createinvitereq), packet_get_size(packet));
+ 	return -1;
+     }
+-    offset = sizeof(t_client_w3xp_clan_createinvitereply);
++    offset = sizeof(t_client_clan_createinvitereply);
+     username = packet_get_str_const(packet, offset, MAX_USERNAME_LEN);
+     offset += (std::strlen(username) + 1);
+     status = *((char *) packet_get_data_const(packet, offset, 1));
+@@ -4501,10 +4501,10 @@
+     if ((clan = account_get_creating_clan(conn_get_account(conn))) == NULL)
+ 	return -1;
+     if ((status != CLAN_RESPONSE_ACCEPT) &amp;&amp; (rpacket = packet_create(packet_class_bnet))) {
+-	packet_set_size(rpacket, sizeof(t_server_w3xp_clan_createinvitereply));
+-	packet_set_type(rpacket, SERVER_W3XP_CLAN_CREATEINVITEREPLY);
+-	bn_int_set(&amp;rpacket-&gt;u.server_w3xp_clan_createinvitereply.count, bn_int_get(packet-&gt;u.client_w3xp_clan_createinvitereply.count));
+-	bn_byte_set(&amp;rpacket-&gt;u.server_w3xp_clan_createinvitereply.status, status);
++	packet_set_size(rpacket, sizeof(t_server_clan_createinvitereply));
++	packet_set_type(rpacket, SERVER_CLAN_CREATEINVITEREPLY);
++	bn_int_set(&amp;rpacket-&gt;u.server_clan_createinvitereply.count, bn_int_get(packet-&gt;u.client_clan_createinvitereply.count));
++	bn_byte_set(&amp;rpacket-&gt;u.server_clan_createinvitereply.status, status);
+ 	packet_append_string(rpacket, conn_get_username(c));
+ 	conn_push_outqueue(conn, rpacket);
+ 	packet_del_ref(rpacket);
+@@ -4522,10 +4522,10 @@
+ 	if ((created &gt;= 0) &amp;&amp; (rpacket = packet_create(packet_class_bnet))) {
+ 	    clan_set_created(clan, 1);
+ 	    clan_set_creation_time(clan, std::time(NULL));
+-	    packet_set_size(rpacket, sizeof(t_server_w3xp_clan_createinvitereply));
+-	    packet_set_type(rpacket, SERVER_W3XP_CLAN_CREATEINVITEREPLY);
+-	    bn_int_set(&amp;rpacket-&gt;u.server_w3xp_clan_createinvitereply.count, bn_int_get(packet-&gt;u.client_w3xp_clan_createinvitereply.count));
+-	    bn_byte_set(&amp;rpacket-&gt;u.server_w3xp_clan_createinvitereply.status, 0);
++	    packet_set_size(rpacket, sizeof(t_server_clan_createinvitereply));
++	    packet_set_type(rpacket, SERVER_CLAN_CREATEINVITEREPLY);
++	    bn_int_set(&amp;rpacket-&gt;u.server_clan_createinvitereply.count, bn_int_get(packet-&gt;u.client_clan_createinvitereply.count));
++	    bn_byte_set(&amp;rpacket-&gt;u.server_clan_createinvitereply.status, 0);
+ 	    packet_append_string(rpacket, &quot;&quot;);
+ 	    conn_push_outqueue(conn, rpacket);
+ 	    packet_del_ref(rpacket);
+@@ -4537,26 +4537,26 @@
+     return 0;
+ }
+ 
+-static int _client_w3xp_clanmember_rankupdatereq(t_connection * c, t_packet const *const packet)
++static int _client_clanmember_rankupdatereq(t_connection * c, t_packet const *const packet)
+ {
+     t_packet *rpacket;
+ 
+-    if (packet_get_size(packet) &lt; sizeof(t_client_w3xp_clanmember_rankupdate_req)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad W3XP_CLANMEMBER_RANKUPDATE_REQ packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_w3xp_clanmember_rankupdate_req), packet_get_size(packet));
++    if (packet_get_size(packet) &lt; sizeof(t_client_clanmember_rankupdate_req)) {
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad W3XP_CLANMEMBER_RANKUPDATE_REQ packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_clanmember_rankupdate_req), packet_get_size(packet));
+ 	return -1;
+     }
+ 
+     if ((rpacket = packet_create(packet_class_bnet)) != NULL) {
+-	int offset = sizeof(t_client_w3xp_clanmember_rankupdate_req);
++	int offset = sizeof(t_client_clanmember_rankupdate_req);
+ 	const char *username;
+ 	char status;
+ 	t_clan *clan;
+ 	t_clanmember *dest_member;
+ 
+-	packet_set_size(rpacket, sizeof(t_server_w3xp_clanmember_rankupdate_reply));
+-	packet_set_type(rpacket, SERVER_W3XP_CLANMEMBER_RANKUPDATE_REPLY);
+-	bn_int_set(&amp;rpacket-&gt;u.server_w3xp_clanmember_rankupdate_reply.count,
+-	           bn_int_get(packet-&gt;u.client_w3xp_clanmember_rankupdate_req.count));
++	packet_set_size(rpacket, sizeof(t_server_clanmember_rankupdate_reply));
++	packet_set_type(rpacket, SERVER_CLANMEMBER_RANKUPDATE_REPLY);
++	bn_int_set(&amp;rpacket-&gt;u.server_clanmember_rankupdate_reply.count,
++	           bn_int_get(packet-&gt;u.client_clanmember_rankupdate_req.count));
+ 	username = packet_get_str_const(packet, offset, MAX_USERNAME_LEN);
+ 	offset += (std::strlen(username) + 1);
+ 	status = *((char *) packet_get_data_const(packet, offset, 1));
+@@ -4565,14 +4565,14 @@
+ 	dest_member = clan_find_member_by_name(clan, username);
+ 	if (clanmember_set_status(dest_member, status) == 0)
+ 	{
+-	    bn_byte_set(&amp;rpacket-&gt;u.server_w3xp_clanmember_rankupdate_reply.result,
+-	                SERVER_W3XP_CLANMEMBER_RANKUPDATE_SUCCESS);
++	    bn_byte_set(&amp;rpacket-&gt;u.server_clanmember_rankupdate_reply.result,
++	                SERVER_CLANMEMBER_RANKUPDATE_SUCCESS);
+ 	    clanmember_on_change_status(dest_member);
+ 	}
+ 	else
+ 	{
+-	    bn_byte_set(&amp;rpacket-&gt;u.server_w3xp_clanmember_rankupdate_reply.result,
+-	                SERVER_W3XP_CLANMEMBER_RANKUPDATE_FAILED);
++	    bn_byte_set(&amp;rpacket-&gt;u.server_clanmember_rankupdate_reply.result,
++	                SERVER_CLANMEMBER_RANKUPDATE_FAILED);
+ 	}
+ 	conn_push_outqueue(c, rpacket);
+ 	packet_del_ref(rpacket);
+@@ -4581,12 +4581,12 @@
+     return 0;
+ }
+ 
+-static int _client_w3xp_clanmember_removereq(t_connection * c, t_packet const *const packet)
++static int _client_clanmember_removereq(t_connection * c, t_packet const *const packet)
+ {
+     t_packet *rpacket;
+ 
+-    if (packet_get_size(packet) &lt; sizeof(t_client_w3xp_clanmember_remove_req)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad W3XP_CLANMEMBER_REMOVE_REQ packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_w3xp_clanmember_remove_req), packet_get_size(packet));
++    if (packet_get_size(packet) &lt; sizeof(t_client_clanmember_remove_req)) {
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad W3XP_CLANMEMBER_REMOVE_REQ packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_clanmember_remove_req), packet_get_size(packet));
+ 	return -1;
+     }
+ 
+@@ -4596,13 +4596,13 @@
+ 	const char *username;
+ 	t_clanmember *member;
+ 	t_connection *dest_conn;
+-	packet_set_size(rpacket, sizeof(t_server_w3xp_clanmember_remove_reply));
+-	packet_set_type(rpacket, SERVER_W3XP_CLANMEMBER_REMOVE_REPLY);
+-	bn_int_set(&amp;rpacket-&gt;u.server_w3xp_clanmember_remove_reply.count,
+-	           bn_int_get(packet-&gt;u.client_w3xp_clanmember_remove_req.count));
+-	username = packet_get_str_const(packet, sizeof(t_client_w3xp_clanmember_remove_req), MAX_USERNAME_LEN);
+-	bn_byte_set(&amp;rpacket-&gt;u.server_w3xp_clanmember_remove_reply.result,
+-	            SERVER_W3XP_CLANMEMBER_REMOVE_FAILED); // initially presume it failed
++	packet_set_size(rpacket, sizeof(t_server_clanmember_remove_reply));
++	packet_set_type(rpacket, SERVER_CLANMEMBER_REMOVE_REPLY);
++	bn_int_set(&amp;rpacket-&gt;u.server_clanmember_remove_reply.count,
++	           bn_int_get(packet-&gt;u.client_clanmember_remove_req.count));
++	username = packet_get_str_const(packet, sizeof(t_client_clanmember_remove_req), MAX_USERNAME_LEN);
++	bn_byte_set(&amp;rpacket-&gt;u.server_clanmember_remove_reply.result,
++	            SERVER_CLANMEMBER_REMOVE_FAILED); // initially presume it failed
+ 
+ 	if ((acc = conn_get_account(c)) &amp;&amp; (clan = account_get_clan(acc)) &amp;&amp; (member = clan_find_member_by_name(clan, username))) {
+ 	    dest_conn = clanmember_get_conn(member);
+@@ -4614,14 +4614,14 @@
+ 		    channel_rejoin(dest_conn);
+ 		}
+ 		if ((rpacket2 = packet_create(packet_class_bnet)) != NULL) {
+-		    packet_set_size(rpacket2, sizeof(t_server_w3xp_clanmember_removed_notify));
+-		    packet_set_type(rpacket2, SERVER_W3XP_CLANMEMBER_REMOVED_NOTIFY);
++		    packet_set_size(rpacket2, sizeof(t_server_clanmember_removed_notify));
++		    packet_set_type(rpacket2, SERVER_CLANMEMBER_REMOVED_NOTIFY);
+ 		    packet_append_string(rpacket2, username);
+ 		    clan_send_packet_to_online_members(clan, rpacket2);
+ 		    packet_del_ref(rpacket2);
+ 		}
+-		bn_byte_set(&amp;rpacket-&gt;u.server_w3xp_clanmember_remove_reply.result,
+-		            SERVER_W3XP_CLANMEMBER_REMOVE_SUCCESS);
++		bn_byte_set(&amp;rpacket-&gt;u.server_clanmember_remove_reply.result,
++		            SERVER_CLANMEMBER_REMOVE_SUCCESS);
+ 	    }
+ 	}
+ 	conn_push_outqueue(c, rpacket);
+@@ -4631,12 +4631,12 @@
+     return 0;
+ }
+ 
+-static int _client_w3xp_clan_membernewchiefreq(t_connection * c, t_packet const *const packet)
++static int _client_clan_membernewchiefreq(t_connection * c, t_packet const *const packet)
+ {
+     t_packet *rpacket;
+ 
+-    if (packet_get_size(packet) &lt; sizeof(t_client_w3xp_clan_membernewchiefreq)) {
+-	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad W3XP_CLAN_MEMBERNEWCHIEFREQ packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_w3xp_clan_createreq), packet_get_size(packet));
++    if (packet_get_size(packet) &lt; sizeof(t_client_clan_membernewchiefreq)) {
++	eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad W3XP_CLAN_MEMBERNEWCHIEFREQ packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_clan_createreq), packet_get_size(packet));
+ 	return -1;
+     }
+ 
+@@ -4646,18 +4646,18 @@
+ 	t_clanmember *oldmember;
+ 	t_clanmember *newmember;
+ 	const char *username;
+-	packet_set_size(rpacket, sizeof(t_server_w3xp_clan_membernewchiefreply));
+-	packet_set_type(rpacket, SERVER_W3XP_CLAN_MEMBERNEWCHIEFREPLY);
+-	bn_int_set(&amp;rpacket-&gt;u.server_w3xp_clan_membernewchiefreply.count, bn_int_get(packet-&gt;u.client_w3xp_clan_membernewchiefreq.count));
+-	username = packet_get_str_const(packet, sizeof(t_client_w3xp_clan_membernewchiefreq), MAX_USERNAME_LEN);
++	packet_set_size(rpacket, sizeof(t_server_clan_membernewchiefreply));
++	packet_set_type(rpacket, SERVER_CLAN_MEMBERNEWCHIEFREPLY);
++	bn_int_set(&amp;rpacket-&gt;u.server_clan_membernewchiefreply.count, bn_int_get(packet-&gt;u.client_clan_membernewchiefreq.count));
++	username = packet_get_str_const(packet, sizeof(t_client_clan_membernewchiefreq), MAX_USERNAME_LEN);
+ 	if ((acc = conn_get_account(c)) &amp;&amp; (oldmember = account_get_clanmember(acc)) &amp;&amp; (clanmember_get_status(oldmember) == CLAN_CHIEFTAIN) &amp;&amp; (clan = clanmember_get_clan(oldmember)) &amp;&amp; (newmember = clan_find_member_by_name(clan, username)) &amp;&amp; (clanmember_set_status(oldmember, CLAN_GRUNT) == 0) &amp;&amp; (clanmember_set_status(newmember, CLAN_CHIEFTAIN) == 0)) {
+ 	    clanmember_on_change_status(oldmember);
+ 	    clanmember_on_change_status(newmember);
+-	    bn_byte_set(&amp;rpacket-&gt;u.server_w3xp_clan_membernewchiefreply.result, SERVER_W3XP_CLAN_MEMBERNEWCHIEFREPLY_SUCCESS);
++	    bn_byte_set(&amp;rpacket-&gt;u.server_clan_membernewchiefreply.result, SERVER_CLAN_MEMBERNEWCHIEFREPLY_SUCCESS);
+ 	    clan_send_packet_to_online_members(clan, rpacket);
+ 	    packet_del_ref(rpacket);
+ 	} else {
+-	    bn_byte_set(&amp;rpacket-&gt;u.server_w3xp_clan_membernewchiefreply.result, SERVER_W3XP_CLAN_MEMBERNEWCHIEFREPLY_FAILED);
++	    bn_byte_set(&amp;rpacket-&gt;u.server_clan_membernewchiefreply.result, SERVER_CLAN_MEMBERNEWCHIEFREPLY_FAILED);
+ 	    conn_push_outqueue(c, rpacket);
+ 	    packet_del_ref(rpacket);
+ 	}
+@@ -4757,7 +4757,7 @@
+     char status;
+ 
+     if (packet_get_size(packet) &lt; sizeof(t_client_clan_invitereply)) {
+-		eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad CLAN_INVITEREPLY packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_w3xp_clan_createreq), packet_get_size(packet));
++		eventlog(eventlog_level_error, __FUNCTION__, &quot;[%d] got bad CLAN_INVITEREPLY packet (expected %lu bytes, got %u)&quot;, conn_get_socket(c), sizeof(t_client_clan_createreq), packet_get_size(packet));
+ 		return -1;
+     }
+ 
+
+Modified: trunk/pvpgn/src/client/bnchat.cpp
+===================================================================
+--- trunk/pvpgn/src/client/bnchat.cpp	2008-07-27 11:43:55 UTC (rev 478)
++++ trunk/pvpgn/src/client/bnchat.cpp	2008-07-27 18:54:07 UTC (rev 479)
+@@ -1741,7 +1741,7 @@
+ 			if (packet_get_size(rpacket)&lt;sizeof(t_server_clan_invitereq))
+ 			{
+ 		            munge(&amp;client);
+-			    std::printf(&quot;Got bad SERVER_W3XP_CLAN_INVITEREQ packet (expected %lu bytes, got %u)\n&quot;,sizeof(t_server_clan_invitereq),packet_get_size(rpacket));
++			    std::printf(&quot;Got bad SERVER_CLAN_INVITEREQ packet (expected %lu bytes, got %u)\n&quot;,sizeof(t_server_clan_invitereq),packet_get_size(rpacket));
+ 			    break;
+ 			}
+ 
+@@ -1793,11 +1793,11 @@
+ 			}
+ 
+ 
+-		    case SERVER_W3XP_CLANMEMBERUPDATE:
+-			if (packet_get_size(rpacket)&lt;sizeof(t_server_w3xp_clanmemberupdate))
++		    case SERVER_CLANMEMBERUPDATE:
++			if (packet_get_size(rpacket)&lt;sizeof(t_server_clanmemberupdate))
+ 			{
+ 		            munge(&amp;client);
+-			    std::printf(&quot;Got bad SERVER_W3XP_CLANMEMBERUPDATE packet (expected %lu bytes, got %u)\n&quot;,sizeof(t_server_w3xp_clanmemberupdate),packet_get_size(rpacket));
++			    std::printf(&quot;Got bad SERVER_CLANMEMBERUPDATE packet (expected %lu bytes, got %u)\n&quot;,sizeof(t_server_clanmemberupdate),packet_get_size(rpacket));
+ 			    break;
+ 			}
+ 
+@@ -1814,18 +1814,18 @@
+ 			    char const * rank_str;
+ 			    char const * online_str;
+ 
+-			    offset = sizeof(t_server_w3xp_clanmemberupdate);
++			    offset = sizeof(t_server_clanmemberupdate);
+ 			    if (!(member = packet_get_str_const(rpacket,offset,MAX_USERNAME_LEN)))
+ 			    {
+ 				munge(&amp;client);
+-				std::printf(&quot;Got SERVER_W3XP_CLANMEMBERUPDATE with bad or missing member\n&quot;);
++				std::printf(&quot;Got SERVER_CLANMEMBERUPDATE with bad or missing member\n&quot;);
+ 				break;
+ 			    }
+ 			    offset+=std::strlen(member)+1;
+ 			    if (!(rank_p = (char *)packet_get_data_const(rpacket,offset,1)))
+ 			    {
+ 				munge(&amp;client);
+-				std::printf(&quot;Got SERVER_W3XP_CLANMEMBERUPDATE with bad or missing rank\n&quot;);
++				std::printf(&quot;Got SERVER_CLANMEMBERUPDATE with bad or missing rank\n&quot;);
+ 				break;
+ 			    }
+ 			    rank = *rank_p;
+@@ -1833,7 +1833,7 @@
+ 			    if (!(online_p = (char *)packet_get_data_const(rpacket,offset,1)))
+ 			    {
+ 				munge(&amp;client);
+-				std::printf(&quot;Got SERVER_W3XP_CLAN_MEMBERUPDATE with bad or missing online status\n&quot;);
++				std::printf(&quot;Got SERVER_CLAN_MEMBERUPDATE with bad or missing online status\n&quot;);
+ 				break;
+ 			    }
+ 			    online = *online_p;
+@@ -1841,25 +1841,25 @@
+ 			    if (!(append_str = packet_get_str_const(rpacket,offset,MAX_USERNAME_LEN)))
+ 			    {
+ 				munge(&amp;client);
+-				std::printf(&quot;Got SERVER_W3XP_CLANMEMBERUPDATE with bad or missing append_str\n&quot;);
++				std::printf(&quot;Got SERVER_CLANMEMBERUPDATE with bad or missing append_str\n&quot;);
+ 				break;
+ 			    }
+ 
+ 			    switch (rank)
+ 			    {
+-				case SERVER_W3XP_CLAN_MEMBER_NEW:
++				case SERVER_CLAN_MEMBER_NEW:
+ 					rank_str = &quot;New clan member&quot;;
+ 					break;
+-				case SERVER_W3XP_CLAN_MEMBER_PEON:
++				case SERVER_CLAN_MEMBER_PEON:
+ 					rank_str = &quot;Peon&quot;;
+ 					break;
+-				case SERVER_W3XP_CLAN_MEMBER_GRUNT:
++				case SERVER_CLAN_MEMBER_GRUNT:
+ 					rank_str = &quot;Grunt&quot;;
+ 					break;
+-				case SERVER_W3XP_CLAN_MEMBER_SHAMAN:
++				case SERVER_CLAN_MEMBER_SHAMAN:
+ 					rank_str = &quot;Shaman&quot;;
+ 					break;
+-				case SERVER_W3XP_CLAN_MEMBER_CHIEFTAIN:
++				case SERVER_CLAN_MEMBER_CHIEFTAIN:
+ 					rank_str = &quot;Chieftain&quot;;
+ 					break;
+ 				default:
+@@ -1869,19 +1869,19 @@
+ 
+ 			    switch (online)
+ 			    {
+-				case SERVER_W3XP_CLAN_MEMBER_OFFLINE:
++				case SERVER_CLAN_MEMBER_OFFLINE:
+ 					online_str = &quot;offline&quot;;
+ 					break;
+-				case SERVER_W3XP_CLAN_MEMBER_ONLINE:
++				case SERVER_CLAN_MEMBER_ONLINE:
+ 					online_str = &quot;online&quot;;
+ 					break;
+-				case SERVER_W3XP_CLAN_MEMBER_CHANNEL:
++				case SERVER_CLAN_MEMBER_CHANNEL:
+ 					online_str = &quot;in channel&quot;;
+ 					break;
+-				case SERVER_W3XP_CLAN_MEMBER_GAME:
++				case SERVER_CLAN_MEMBER_GAME:
+ 					online_str = &quot;in game&quot;;
+ 					break;
+-				case SERVER_W3XP_CLAN_MEMBER_PRIVATE_GAME:
++				case SERVER_CLAN_MEMBER_PRIVATE_GAME:
+ 					online_str = &quot;in private game&quot;;
+ 					break;
+ 				default:
+
+Modified: trunk/pvpgn/src/common/bnet_protocol.h
+===================================================================
+--- trunk/pvpgn/src/common/bnet_protocol.h	2008-07-27 11:43:55 UTC (rev 478)
++++ trunk/pvpgn/src/common/bnet_protocol.h	2008-07-27 18:54:07 UTC (rev 479)
+@@ -3696,16 +3696,16 @@
+ 
+ /* clan handling */
+ 
+-#define SERVER_W3XP_CLAN_MEMBER_CHIEFTAIN 0x04
+-#define SERVER_W3XP_CLAN_MEMBER_SHAMAN 0x03
+-#define SERVER_W3XP_CLAN_MEMBER_GRUNT 0x02
+-#define SERVER_W3XP_CLAN_MEMBER_PEON 0x01
+-#define SERVER_W3XP_CLAN_MEMBER_NEW 0x00
+-#define SERVER_W3XP_CLAN_MEMBER_OFFLINE 0x00
+-#define SERVER_W3XP_CLAN_MEMBER_ONLINE 0x01
+-#define SERVER_W3XP_CLAN_MEMBER_CHANNEL 0x02
+-#define SERVER_W3XP_CLAN_MEMBER_GAME 0x03
+-#define SERVER_W3XP_CLAN_MEMBER_PRIVATE_GAME 0x04
++#define SERVER_CLAN_MEMBER_CHIEFTAIN 0x04
++#define SERVER_CLAN_MEMBER_SHAMAN 0x03
++#define SERVER_CLAN_MEMBER_GRUNT 0x02
++#define SERVER_CLAN_MEMBER_PEON 0x01
++#define SERVER_CLAN_MEMBER_NEW 0x00
++#define SERVER_CLAN_MEMBER_OFFLINE 0x00
++#define SERVER_CLAN_MEMBER_ONLINE 0x01
++#define SERVER_CLAN_MEMBER_CHANNEL 0x02
++#define SERVER_CLAN_MEMBER_GAME 0x03
++#define SERVER_CLAN_MEMBER_PRIVATE_GAME 0x04
+ 
+ /*Paquet #267
+ 0x0000   FF 75 0A 00 00 00 42 54-54 04                     u....BTT.
+@@ -3737,15 +3737,15 @@
+ 0000:   FF 66 0C 00 02 00 00 00   00 00 00 00                .f..........
+ */
+ 
+-#define CLIENT_W3XP_CLAN_CREATEREQ 0x70ff
++#define CLIENT_CLAN_CREATEREQ 0x70ff
+ typedef struct{
+   t_bnet_header        h;
+   bn_int               count;
+   bn_int               clantag;
+-} PACKED_ATTR() t_client_w3xp_clan_createreq;
++} PACKED_ATTR() t_client_clan_createreq;
+ 
+ 
+-#define SERVER_W3XP_CLAN_CREATEREPLY 0x70ff
++#define SERVER_CLAN_CREATEREPLY 0x70ff
+ typedef struct{
+   t_bnet_header        h;
+   bn_int               count;
+@@ -3753,12 +3753,12 @@
+   bn_byte			   friend_count;
+   /* player name in chan or mutual
+   char player_name[sizeof (friend_name)]; */
+-} PACKED_ATTR() t_server_w3xp_clan_createreply;
+-#define SERVER_W3XP_CLAN_CREATEREPLY_CHECK_OK 0x00
+-#define SERVER_W3XP_CLAN_CREATEREPLY_CHECK_ALLREADY_IN_USE 0x01
+-#define SERVER_W3XP_CLAN_CREATEREPLY_CHECK_TIME_LIMIT 0x02
+-#define SERVER_W3XP_CLAN_CREATEREPLY_CHECK_EXCEPTION 0x04
+-#define SERVER_W3XP_CLAN_CREATEREPLY_CHECK_INVALID_CLAN_TAG 0x0a
++} PACKED_ATTR() t_server_clan_createreply;
++#define SERVER_CLAN_CREATEREPLY_CHECK_OK 0x00
++#define SERVER_CLAN_CREATEREPLY_CHECK_ALLREADY_IN_USE 0x01
++#define SERVER_CLAN_CREATEREPLY_CHECK_TIME_LIMIT 0x02
++#define SERVER_CLAN_CREATEREPLY_CHECK_EXCEPTION 0x04
++#define SERVER_CLAN_CREATEREPLY_CHECK_INVALID_CLAN_TAG 0x0a
+ 
+ /*
+ 3852: recv class=bnet[0x02] type=unknown[0x71ff] length=70
+@@ -3786,13 +3786,13 @@
+ Paquet #266
+ 0x0000   FF 71 0A 00 05 00 00 00-00 00                     q........
+ &lt;- Clan invitation = Sucessfully done */
+-#define SERVER_W3XP_CLAN_CREATEINVITEREPLY 0x71ff
++#define SERVER_CLAN_CREATEINVITEREPLY 0x71ff
+ typedef struct{
+   t_bnet_header        h;
+   bn_int               count;
+   bn_byte			   status; /* 0x05 = Cannot contact(not in channel screen) or already in clan | 0x04 = Decline | 0x00 = OK :)
+   Name of failed member(\0 terminated string) */
+-} PACKED_ATTR() t_server_w3xp_clan_createinvitereply;
++} PACKED_ATTR() t_server_clan_createinvitereply;
+ 
+ #define SERVER_CLAN_CREATEINVITEREQ 0x72ff
+ typedef struct{
+@@ -3805,64 +3805,64 @@
+      Name of friend (\0 terminated string) */
+ } PACKED_ATTR() t_server_clan_createinvitereq;
+ 
+-#define CLIENT_W3XP_CLAN_CREATEINVITEREPLY 0x72ff
++#define CLIENT_CLAN_CREATEINVITEREPLY 0x72ff
+ typedef struct{
+   t_bnet_header        h;
+   bn_int               count;
+   bn_int			   clantag;
+   /* Clan Creator (\0 terminated string)
+      bn_byte			reply */ /* 0x04--decline 0x05--Cannot contact(not in channel screen) or already in clan 0x06--accept*/
+-} PACKED_ATTR() t_client_w3xp_clan_createinvitereply;
++} PACKED_ATTR() t_client_clan_createinvitereply;
+ 
+ /*
+ 3876: recv class=bnet[0x02] type=unknown[0x73ff] length=8
+ 0000:   FF 73 08 00 01 00 00 00                              .s......      */
+-#define CLIENT_W3XP_CLAN_DISBANDREQ 0x73ff
++#define CLIENT_CLAN_DISBANDREQ 0x73ff
+ typedef struct{
+   t_bnet_header        h;
+   bn_int               count;
+-} PACKED_ATTR() t_client_w3xp_clan_disbandreq;
++} PACKED_ATTR() t_client_clan_disbandreq;
+ 
+-#define SERVER_W3XP_CLAN_DISBANDREPLY 0x73ff
++#define SERVER_CLAN_DISBANDREPLY 0x73ff
+ typedef struct{
+   t_bnet_header        h;
+   bn_int               count;
+   bn_byte              result;   /* 0-- Success  1-- Exception raised  2-- Clan exists less than 1 week, cannot remove */
+-} PACKED_ATTR() t_server_w3xp_clan_disbandreply;
+-#define SERVER_W3XP_CLAN_DISBANDREPLY_RESULT_OK 0x0
+-#define SERVER_W3XP_CLAN_DISBANDREPLY_RESULT_EXCEPTION 0x1
+-#define SERVER_W3XP_CLAN_DISBANDREPLY_RESULT_FAILED 0x2
++} PACKED_ATTR() t_server_clan_disbandreply;
++#define SERVER_CLAN_DISBANDREPLY_RESULT_OK 0x0
++#define SERVER_CLAN_DISBANDREPLY_RESULT_EXCEPTION 0x1
++#define SERVER_CLAN_DISBANDREPLY_RESULT_FAILED 0x2
+ 
+-#define CLIENT_W3XP_CLAN_MEMBERNEWCHIEFREQ 0x74ff
++#define CLIENT_CLAN_MEMBERNEWCHIEFREQ 0x74ff
+ typedef struct{
+   t_bnet_header        h;
+   bn_int               count;
+   /*Player_Name deleted(\0 terminated) */
+-} PACKED_ATTR() t_client_w3xp_clan_membernewchiefreq;
++} PACKED_ATTR() t_client_clan_membernewchiefreq;
+ 
+-#define SERVER_W3XP_CLAN_MEMBERNEWCHIEFREPLY 0x74ff
++#define SERVER_CLAN_MEMBERNEWCHIEFREPLY 0x74ff
+ typedef struct{
+   t_bnet_header        h;
+   bn_int               count;
+   bn_byte              result; /* 0-successful 1-failed */
+-} PACKED_ATTR() t_server_w3xp_clan_membernewchiefreply;
+-#define SERVER_W3XP_CLAN_MEMBERNEWCHIEFREPLY_SUCCESS 0x00
+-#define SERVER_W3XP_CLAN_MEMBERNEWCHIEFREPLY_FAILED 0x01
++} PACKED_ATTR() t_server_clan_membernewchiefreply;
++#define SERVER_CLAN_MEMBERNEWCHIEFREPLY_SUCCESS 0x00
++#define SERVER_CLAN_MEMBERNEWCHIEFREPLY_FAILED 0x01
+ 
+-#define SERVER_W3XP_CLAN_CLANACK 0x75ff
++#define SERVER_CLAN_CLANACK 0x75ff
+ typedef struct{
+   t_bnet_header		h;
+   bn_byte		unknow1; /* 0x00 */
+   bn_int		clantag;
+   bn_byte		status;  /* member status */
+-} PACKED_ATTR() t_server_w3xp_clan_clanack;
++} PACKED_ATTR() t_server_clan_clanack;
+ 
+-#define SERVER_W3XP_CLANQUITNOTIFY 0x76ff
++#define SERVER_CLANQUITNOTIFY 0x76ff
+ typedef struct{
+   t_bnet_header        h;
+   bn_byte              status;
+-} PACKED_ATTR() t_server_w3xp_clanquitnotify;
+-#define SERVER_W3XP_CLANQUITNOTIFY_STATUS_REMOVED_FROM_CLAN 0x01
++} PACKED_ATTR() t_server_clanquitnotify;
++#define SERVER_CLANQUITNOTIFY_STATUS_REMOVED_FROM_CLAN 0x01
+ 
+ /*
+ 3876: recv class=bnet[0x02] type=unknown[0x77ff] length=13
+@@ -3881,21 +3881,21 @@
+   bn_byte              result;  /* 0x04--decline 0x05--Cannot contact(not in channel screen) or already in clan */
+ } PACKED_ATTR() t_server_clan_invitereply;
+ 
+-#define CLIENT_W3XP_CLANMEMBER_REMOVE_REQ 0x78ff
++#define CLIENT_CLANMEMBER_REMOVE_REQ 0x78ff
+ typedef struct{
+   t_bnet_header        h;
+   bn_int               count;
+   /*Player_Name deleted(\0 terminated) */
+-} PACKED_ATTR() t_client_w3xp_clanmember_remove_req;
++} PACKED_ATTR() t_client_clanmember_remove_req;
+ 
+-#define SERVER_W3XP_CLANMEMBER_REMOVE_REPLY 0x78ff
++#define SERVER_CLANMEMBER_REMOVE_REPLY 0x78ff
+ typedef struct{
+   t_bnet_header        h;
+   bn_int               count;
+   bn_byte              result; /* 0-successful 1-failed */
+-} PACKED_ATTR() t_server_w3xp_clanmember_remove_reply;
+-#define SERVER_W3XP_CLANMEMBER_REMOVE_SUCCESS 0x00
+-#define SERVER_W3XP_CLANMEMBER_REMOVE_FAILED 0x01
++} PACKED_ATTR() t_server_clanmember_remove_reply;
++#define SERVER_CLANMEMBER_REMOVE_SUCCESS 0x00
++#define SERVER_CLANMEMBER_REMOVE_FAILED 0x01
+ 
+ #define SERVER_CLAN_INVITEREQ 0x79ff
+ typedef struct{
+@@ -3947,44 +3947,44 @@
+ #define CLAN_RESPONSE_BAD_NAME		0x0b
+ #define CLAN_RESPONSE_NOT_MEMBER	0x0c
+ 
+-#define CLIENT_W3XP_CLANMEMBER_RANKUPDATE_REQ 0x7aff
++#define CLIENT_CLANMEMBER_RANKUPDATE_REQ 0x7aff
+ typedef struct{
+   t_bnet_header        h;
+   bn_int               count;
+   /*Player_Name invited(\0 terminated)
+     Player_Status(bn_byte: 1~4) */
+-} PACKED_ATTR() t_client_w3xp_clanmember_rankupdate_req;
++} PACKED_ATTR() t_client_clanmember_rankupdate_req;
+ 
+-#define SERVER_W3XP_CLANMEMBER_RANKUPDATE_REPLY 0x7aff
++#define SERVER_CLANMEMBER_RANKUPDATE_REPLY 0x7aff
+ typedef struct{
+   t_bnet_header        h;
+   bn_int               count;
+   bn_byte              result; /* 0-successful 1-failed */
+-} PACKED_ATTR() t_server_w3xp_clanmember_rankupdate_reply;
+-#define SERVER_W3XP_CLANMEMBER_RANKUPDATE_SUCCESS 0x00
+-#define SERVER_W3XP_CLANMEMBER_RANKUPDATE_FAILED 0x01
++} PACKED_ATTR() t_server_clanmember_rankupdate_reply;
++#define SERVER_CLANMEMBER_RANKUPDATE_SUCCESS 0x00
++#define SERVER_CLANMEMBER_RANKUPDATE_FAILED 0x01
+ 
+-#define CLIENT_W3XP_CLAN_MOTDCHG 0x7bff
++#define CLIENT_CLAN_MOTDCHG 0x7bff
+ typedef struct{
+   t_bnet_header        h;
+   bn_int               unknow1;
+   /* Motd en string ^^ */
+-} PACKED_ATTR() t_client_w3xp_clan_motdchg;
+-#define SERVER_W3XP_CLAN_MOTDREPLY_UNKNOW1 0x00000000
++} PACKED_ATTR() t_client_clan_motdchg;
++#define SERVER_CLAN_MOTDREPLY_UNKNOW1 0x00000000
+ 
+-#define SERVER_W3XP_CLAN_MOTDREPLY 0x7cff
++#define SERVER_CLAN_MOTDREPLY 0x7cff
+ typedef struct{
+   t_bnet_header        h;
+   bn_int               count;
+   bn_int			   unknow1; /* 0x00000000 */
+   /* MOTD */
+-} PACKED_ATTR() t_server_w3xp_clan_motdreply;
++} PACKED_ATTR() t_server_clan_motdreply;
+ 
+-#define CLIENT_W3XP_CLAN_MOTDREQ 0x7cff
++#define CLIENT_CLAN_MOTDREQ 0x7cff
+ typedef struct{
+   t_bnet_header        h;
+   bn_int               count;
+-} PACKED_ATTR() t_client_w3xp_clan_motdreq;
++} PACKED_ATTR() t_client_clan_motdreq;
+ 
+ /*
+ Paquet #52
+@@ -4006,7 +4006,7 @@
+ 0x00F0   53 77 5A 00 02 00 00 54-72 6F 6C 6C 6F 00 02 00   SwZ....Trollo...
+ 0x0100   00 53 69 6C 76 65 72 62-65 61 72 64 00 00 00 00   .Silverbeard....
+ */
+-#define SERVER_W3XP_CLANMEMBERLIST_REPLY 0x7dff
++#define SERVER_CLANMEMBERLIST_REPLY 0x7dff
+ typedef struct{
+   t_bnet_header        h;
+   bn_int               count;
+@@ -4022,33 +4022,33 @@
+    * unknown(always \0)
+    * repeat end
+    */
+-} PACKED_ATTR() t_server_w3xp_clanmemberlist_reply;
++} PACKED_ATTR() t_server_clanmemberlist_reply;
+ 
+ /*
+ Paquet #51
+ 0x0000   FF 7D 08 00 01 00 00 00-                          }......
+ */
+ 
+-#define CLIENT_W3XP_CLANMEMBERLIST_REQ 0x7dff
++#define CLIENT_CLANMEMBERLIST_REQ 0x7dff
+ typedef struct{
+   t_bnet_header        h;
+   bn_int               count;
+-} PACKED_ATTR() t_client_w3xp_clanmemberlist_req;
++} PACKED_ATTR() t_client_clanmemberlist_req;
+ 
+-#define SERVER_W3XP_CLANMEMBER_REMOVED_NOTIFY 0x7eff
++#define SERVER_CLANMEMBER_REMOVED_NOTIFY 0x7eff
+ typedef struct{
+   t_bnet_header        h;
+   /* Player_Name deleted(\0 terminated) */
+-} PACKED_ATTR() t_server_w3xp_clanmember_removed_notify;
++} PACKED_ATTR() t_server_clanmember_removed_notify;
+ 
+-#define SERVER_W3XP_CLANMEMBERUPDATE 0x7fff
++#define SERVER_CLANMEMBERUPDATE 0x7fff
+ typedef struct{
+   t_bnet_header        h;
+   /* Player_Name invited(\0 terminated)
+    * Player_Status(bn_byte: 1~4)
+    * Player_Online(bn_short: 0x0/0x1)
+    */
+-} PACKED_ATTR() t_server_w3xp_clanmemberupdate;
++} PACKED_ATTR() t_server_clanmemberupdate;
+ 
+ }
+ 
+
+Modified: trunk/pvpgn/src/common/packet.cpp
+===================================================================
+--- trunk/pvpgn/src/common/packet.cpp	2008-07-27 11:43:55 UTC (rev 478)
++++ trunk/pvpgn/src/common/packet.cpp	2008-07-27 18:54:07 UTC (rev 479)
+@@ -321,153 +321,177 @@
+ 	    switch (bn_short_get(packet-&gt;u.bnet.h.type))
+ 	    {
+ 	    case CLIENT_COMPINFO1:
+-		return &quot;CLIENT_COMPINFO1&quot;;
+-	    case CLIENT_COMPINFO2:
+-		return &quot;CLIENT_COMPINFO2&quot;;
+-	    case CLIENT_COUNTRYINFO1:
+-		return &quot;CLIENT_COUNTRYINFO1&quot;;
+-	    case CLIENT_COUNTRYINFO_109:
+-		return &quot;CLIENT_COUNTRYINFO_109&quot;;
+-	    case CLIENT_CREATEACCTREQ1:
+-		return &quot;CLIENT_CREATEACCTREQ1&quot;;
+-	    case CLIENT_UNKNOWN_2B:
+-		return &quot;CLIENT_UNKNOWN_2B&quot;;
+-	    case CLIENT_PROGIDENT:
+-		return &quot;CLIENT_PROGIDENT&quot;;
+-	    case CLIENT_AUTHREQ1:
+-		return &quot;CLIENT_AUTHREQ1&quot;;
+-	    case CLIENT_AUTHREQ_109:
+-		return &quot;CLIENT_AUTHREQ_109&quot;;
+-	    case CLIENT_REGSNOOPREPLY:
+-		return &quot;CLIENT_REGSNOOPREPLY&quot;;
+-	    case CLIENT_ICONREQ:
+-		return &quot;CLIENT_ICONREQ&quot;;
+-	    case CLIENT_LADDERSEARCHREQ:
+-		return &quot;CLIENT_LADDERSEARCHREQ&quot;;
+-	    case CLIENT_CDKEY:
+-		return &quot;CLIENT_CDKEY&quot;;
+-	    case CLIENT_CDKEY2:
+-		return &quot;CLIENT_CDKEY2&quot;;
+-	    case CLIENT_CDKEY3:
+-		return &quot;CLIENT_CDKEY3&quot;;
+-	    case CLIENT_REALMLISTREQ:
+-		return &quot;CLIENT_REALMLISTREQ&quot;;
+-	    case CLIENT_REALMLISTREQ_110:
+-		return &quot;CLIENT_REALMLISTREQ_110&quot;;
+-	    case CLIENT_PROFILEREQ:
+-		return &quot;CLIENT_PROFILEREQ&quot;;
+-	    case CLIENT_UNKNOWN_37:
+-		return &quot;CLIENT_UNKNOWN_37&quot;;
+-	    case CLIENT_UNKNOWN_39:
+-		return &quot;CLIENT_UNKNOWN_39&quot;;
+-	    case CLIENT_LOGINREQ2:
+-		return &quot;CLIENT_LOGINREQ2&quot;;
+-	    case CLIENT_MOTD_W3:
+-		return &quot;CLIENT_MOTD_W3&quot;;
+-	    case CLIENT_LOGINREQ_W3:
+-                return &quot;CLIENT_LOGINREQ_W3&quot;;
+-	    case CLIENT_LOGONPROOFREQ:
+-                return &quot;CLIENT_LOGONPROOFREQ&quot;;
+-	    case CLIENT_CREATEACCOUNT_W3:
+-		return &quot;CLIENT_CREATEACCOUNT_W3&quot;;
+-	    case CLIENT_PASSCHANGEREQ:
+-		return &quot;CLIENT_PASSCHANGEREQ&quot;;
+-	    case CLIENT_PASSCHANGEPROOFREQ:
+-		return &quot;CLIENT_PASSCHANGEPROOFREQ&quot;;
+-	    case CLIENT_CHANGEGAMEPORT:
+-                return &quot;CLIENT_CHANGEGAMEPORT&quot;;
+-            case CLIENT_CREATEACCTREQ2:
+-		return &quot;CLIENT_CREATEACCTREQ2&quot;;
+-	    case CLIENT_UDPOK:
+-		return &quot;CLIENT_UDPOK&quot;;
+-	    case CLIENT_FILEINFOREQ:
+-		return &quot;CLIENT_FILEINFOREQ&quot;;
+-	    case CLIENT_STATSREQ:
+-		return &quot;CLIENT_STATSREQ&quot;;
+-	    case CLIENT_LOGINREQ1:
+-		return &quot;CLIENT_LOGINREQ1&quot;;
+-	    case CLIENT_CHANGEPASSREQ:
+-		return &quot;CLIENT_CHANGEPASSREQ&quot;;
+-	    case CLIENT_PLAYERINFOREQ:
+-		return &quot;CLIENT_PLAYERINFOREQ&quot;;
+-	    case CLIENT_PROGIDENT2:
+-		return &quot;CLIENT_PROGIDENT2&quot;;
+-	    case CLIENT_JOINCHANNEL:
+-		return &quot;CLIENT_JOINCHANNEL&quot;;
+-	    case CLIENT_MESSAGE:
+-		return &quot;CLIENT_MESSAGE&quot;;
+-	    case CLIENT_GAMELISTREQ:
+-		return &quot;CLIENT_GAMELISTREQ&quot;;
+-	    case CLIENT_STARTGAME1:
+-		return &quot;CLIENT_STARTGAME1&quot;;
+-	    case CLIENT_UNKNOWN_1B:
+-		return &quot;CLIENT_UNKNOWN_1B&quot;;
+-	    case CLIENT_STARTGAME3:
+-		return &quot;CLIENT_STARTGAME3&quot;;
+-	    case CLIENT_STARTGAME4:
+-		return &quot;CLIENT_STARTGAME4&quot;;
+-	    case CLIENT_CLOSEGAME:
+-		return &quot;CLIENT_CLOSEGAME&quot;;
+-	    case CLIENT_CLOSEGAME2:
+-		return &quot;CLIENT_CLOSEGAME2&quot;;
+-	    case CLIENT_LEAVECHANNEL:
+-		return &quot;CLIENT_LEAVECHANNEL&quot;;
+-	    case CLIENT_MAPAUTHREQ1:
+-		return &quot;CLIENT_MAPAUTHREQ1&quot;;
+-	    case CLIENT_MAPAUTHREQ2:
+-		return &quot;CLIENT_MAPAUTHREQ2&quot;;
+-	    case CLIENT_ADREQ:
+-		return &quot;CLIENT_ADREQ&quot;;
+-	    case CLIENT_ADACK:
+-		return &quot;CLIENT_ADACK&quot;;
+-	    case CLIENT_ADCLICK:
+-		return &quot;CLIENT_ADCLICK&quot;;
+-	    case CLIENT_ADCLICK2:
+-		return &quot;CLIENT_ADCLICK2&quot;;
+-	    case CLIENT_UNKNOWN_17:
+-		return &quot;CLIENT_UNKNOWN_17&quot;;
+-	    case CLIENT_UNKNOWN_24:
+-		return &quot;CLIENT_UNKNOWN_24&quot;;
+-	    case CLIENT_LADDERREQ:
+-		return &quot;CLIENT_LADDERREQ&quot;;
+-	    case CLIENT_ECHOREPLY:
+-		return &quot;CLIENT_ECHOREPLY&quot;;
+-	    case CLIENT_PINGREQ:
+-		return &quot;CLIENT_PINGREQ&quot;;
+-	    case CLIENT_GAME_REPORT:
+-		return &quot;CLIENT_GAME_REPORT&quot;;
+-	    case CLIENT_JOIN_GAME:
+-		return &quot;CLIENT_JOIN_GAME&quot;;
+-	    case CLIENT_STATSUPDATE:
+-		return &quot;CLIENT_STATSUPDATE&quot;;
+-	    case CLIENT_REALMJOINREQ_109:
+-		return &quot;CLIENT_REALMJOINREQ_109&quot;;
+-	    case CLIENT_CHANGECLIENT:
+-		return &quot;CLIENT_CHANGECLIENT&quot;;
+-	    case CLIENT_SETEMAILREPLY:
+-		return &quot;CLIENT_SETEMAILREPLY&quot;;
+-	    case CLIENT_GETPASSWORDREQ:
+-		return &quot;CLIENT_GETPASSWORDREQ&quot;;
+-	    case CLIENT_CHANGEEMAILREQ:
+-		return &quot;CLIENT_CHANGEEMAILREQ&quot;;
+-	    case CLIENT_CRASHDUMP:
+-		return &quot;CLIENT_CRASHDUMP&quot;;
+-	    case CLIENT_FINDANONGAME:
+-		return &quot;CLIENT_FINDANONGAME&quot;;
+-	    case CLIENT_ARRANGEDTEAM_FRIENDSCREEN:
+-		return &quot;CLIENT_ARRANGEDTEAM_FRIENDSCREEN&quot;;
+-	    case CLIENT_ARRANGEDTEAM_INVITE_FRIEND:
+-		return &quot;CLIENT_ARRANGEDTEAM_INVITE_FRIEND&quot;;
+-	    case CLIENT_ARRANGEDTEAM_ACCEPT_DECLINE_INVITE:
+-		return &quot;CLIENT_ARRANGEDTEAM_ACCEPT_DECLINE_INVITE&quot;;
+-	    case CLIENT_FRIENDSLISTREQ:
+-		return &quot;CLIENT_FRIENDSLISTREQ&quot;;
+-	    case CLIENT_FRIENDINFOREQ:
+-		return &quot;CLIENT_FRIENDINFOREQ&quot;;
+-	    case CLIENT_CLANINFOREQ:
+-	    	return &quot;CLIENT_CLANINFOREQ&quot;;
+-	    }
+-	    return &quot;unknown&quot;;
++				return &quot;CLIENT_COMPINFO1&quot;;
++			case CLIENT_COMPINFO2:
++				return &quot;CLIENT_COMPINFO2&quot;;
++			case CLIENT_COUNTRYINFO1:
++				return &quot;CLIENT_COUNTRYINFO1&quot;;
++			case CLIENT_COUNTRYINFO_109:
++				return &quot;CLIENT_COUNTRYINFO_109&quot;;
++			case CLIENT_CREATEACCTREQ1:
++				return &quot;CLIENT_CREATEACCTREQ1&quot;;
++			case CLIENT_UNKNOWN_2B:
++				return &quot;CLIENT_UNKNOWN_2B&quot;;
++			case CLIENT_PROGIDENT:
++				return &quot;CLIENT_PROGIDENT&quot;;
++			case CLIENT_AUTHREQ1:
++				return &quot;CLIENT_AUTHREQ1&quot;;
++			case CLIENT_AUTHREQ_109:
++				return &quot;CLIENT_AUTHREQ_109&quot;;
++			case CLIENT_REGSNOOPREPLY:
++				return &quot;CLIENT_REGSNOOPREPLY&quot;;
++			case CLIENT_ICONREQ:
++				return &quot;CLIENT_ICONREQ&quot;;
++			case CLIENT_LADDERSEARCHREQ:
++				return &quot;CLIENT_LADDERSEARCHREQ&quot;;
++			case CLIENT_CDKEY:
++				return &quot;CLIENT_CDKEY&quot;;
++			case CLIENT_CDKEY2:
++				return &quot;CLIENT_CDKEY2&quot;;
++			case CLIENT_CDKEY3:
++				return &quot;CLIENT_CDKEY3&quot;;
++			case CLIENT_REALMLISTREQ:
++				return &quot;CLIENT_REALMLISTREQ&quot;;
++			case CLIENT_REALMLISTREQ_110:
++				return &quot;CLIENT_REALMLISTREQ_110&quot;;
++			case CLIENT_PROFILEREQ:
++				return &quot;CLIENT_PROFILEREQ&quot;;
++			case CLIENT_UNKNOWN_37:
++				return &quot;CLIENT_UNKNOWN_37&quot;;
++			case CLIENT_UNKNOWN_39:
++				return &quot;CLIENT_UNKNOWN_39&quot;;
++			case CLIENT_LOGINREQ2:
++				return &quot;CLIENT_LOGINREQ2&quot;;
++			case CLIENT_MOTD_W3:
++				return &quot;CLIENT_MOTD_W3&quot;;
++			case CLIENT_LOGINREQ_W3:
++				return &quot;CLIENT_LOGINREQ_W3&quot;;
++			case CLIENT_LOGONPROOFREQ:
++				return &quot;CLIENT_LOGONPROOFREQ&quot;;
++			case CLIENT_CREATEACCOUNT_W3:
++				return &quot;CLIENT_CREATEACCOUNT_W3&quot;;
++			case CLIENT_PASSCHANGEREQ:
++				return &quot;CLIENT_PASSCHANGEREQ&quot;;
++			case CLIENT_PASSCHANGEPROOFREQ:
++				return &quot;CLIENT_PASSCHANGEPROOFREQ&quot;;
++			case CLIENT_CHANGEGAMEPORT:
++				return &quot;CLIENT_CHANGEGAMEPORT&quot;;
++			case CLIENT_CREATEACCTREQ2:
++				return &quot;CLIENT_CREATEACCTREQ2&quot;;
++			case CLIENT_UDPOK:
++				return &quot;CLIENT_UDPOK&quot;;
++			case CLIENT_FILEINFOREQ:
++				return &quot;CLIENT_FILEINFOREQ&quot;;
++			case CLIENT_STATSREQ:
++				return &quot;CLIENT_STATSREQ&quot;;
++			case CLIENT_LOGINREQ1:
++				return &quot;CLIENT_LOGINREQ1&quot;;
++			case CLIENT_CHANGEPASSREQ:
++				return &quot;CLIENT_CHANGEPASSREQ&quot;;
++			case CLIENT_PLAYERINFOREQ:
++				return &quot;CLIENT_PLAYERINFOREQ&quot;;
++			case CLIENT_PROGIDENT2:
++				return &quot;CLIENT_PROGIDENT2&quot;;
++			case CLIENT_JOINCHANNEL:
++				return &quot;CLIENT_JOINCHANNEL&quot;;
++			case CLIENT_MESSAGE:
++				return &quot;CLIENT_MESSAGE&quot;;
++			case CLIENT_GAMELISTREQ:
++				return &quot;CLIENT_GAMELISTREQ&quot;;
++			case CLIENT_STARTGAME1:
++				return &quot;CLIENT_STARTGAME1&quot;;
++			case CLIENT_UNKNOWN_1B:
++				return &quot;CLIENT_UNKNOWN_1B&quot;;
++			case CLIENT_STARTGAME3:
++				return &quot;CLIENT_STARTGAME3&quot;;
++			case CLIENT_STARTGAME4:
++				return &quot;CLIENT_STARTGAME4&quot;;
++			case CLIENT_CLOSEGAME:
++				return &quot;CLIENT_CLOSEGAME&quot;;
++			case CLIENT_CLOSEGAME2:
++				return &quot;CLIENT_CLOSEGAME2&quot;;
++			case CLIENT_LEAVECHANNEL:
++				return &quot;CLIENT_LEAVECHANNEL&quot;;
++			case CLIENT_MAPAUTHREQ1:
++				return &quot;CLIENT_MAPAUTHREQ1&quot;;
++			case CLIENT_MAPAUTHREQ2:
++				return &quot;CLIENT_MAPAUTHREQ2&quot;;
++			case CLIENT_ADREQ:
++				return &quot;CLIENT_ADREQ&quot;;
++			case CLIENT_ADACK:
++				return &quot;CLIENT_ADACK&quot;;
++			case CLIENT_ADCLICK:
++				return &quot;CLIENT_ADCLICK&quot;;
++			case CLIENT_ADCLICK2:
++				return &quot;CLIENT_ADCLICK2&quot;;
++			case CLIENT_UNKNOWN_17:
++				return &quot;CLIENT_UNKNOWN_17&quot;;
++			case CLIENT_UNKNOWN_24:
++				return &quot;CLIENT_UNKNOWN_24&quot;;
++			case CLIENT_LADDERREQ:
++				return &quot;CLIENT_LADDERREQ&quot;;
++			case CLIENT_ECHOREPLY:
++				return &quot;CLIENT_ECHOREPLY&quot;;
++			case CLIENT_PINGREQ:
++				return &quot;CLIENT_PINGREQ&quot;;
++			case CLIENT_GAME_REPORT:
++				return &quot;CLIENT_GAME_REPORT&quot;;
++			case CLIENT_JOIN_GAME:
++				return &quot;CLIENT_JOIN_GAME&quot;;
++			case CLIENT_STATSUPDATE:
++				return &quot;CLIENT_STATSUPDATE&quot;;
++			case CLIENT_REALMJOINREQ_109:
++				return &quot;CLIENT_REALMJOINREQ_109&quot;;
++			case CLIENT_CHANGECLIENT:
++				return &quot;CLIENT_CHANGECLIENT&quot;;
++			case CLIENT_SETEMAILREPLY:
++				return &quot;CLIENT_SETEMAILREPLY&quot;;
++			case CLIENT_GETPASSWORDREQ:
++				return &quot;CLIENT_GETPASSWORDREQ&quot;;
++			case CLIENT_CHANGEEMAILREQ:
++				return &quot;CLIENT_CHANGEEMAILREQ&quot;;
++			case CLIENT_CRASHDUMP:
++				return &quot;CLIENT_CRASHDUMP&quot;;
++			case CLIENT_FINDANONGAME:
++				return &quot;CLIENT_FINDANONGAME&quot;;
++			case CLIENT_ARRANGEDTEAM_FRIENDSCREEN:
++				return &quot;CLIENT_ARRANGEDTEAM_FRIENDSCREEN&quot;;
++			case CLIENT_ARRANGEDTEAM_INVITE_FRIEND:
++				return &quot;CLIENT_ARRANGEDTEAM_INVITE_FRIEND&quot;;
++			case CLIENT_ARRANGEDTEAM_ACCEPT_DECLINE_INVITE:
++				return &quot;CLIENT_ARRANGEDTEAM_ACCEPT_DECLINE_INVITE&quot;;
++			case CLIENT_FRIENDSLISTREQ:
++				return &quot;CLIENT_FRIENDSLISTREQ&quot;;
++			case CLIENT_FRIENDINFOREQ:
++				return &quot;CLIENT_FRIENDINFOREQ&quot;;
++			case CLIENT_CLANINFOREQ:
++				return &quot;CLIENT_CLANINFOREQ&quot;;
++			case CLIENT_CLAN_CREATEREQ:
++				return &quot;CLIENT_CLAN_CREATEREQ&quot;;
++			case CLIENT_CLAN_CREATEINVITEREQ:
++				return &quot;CLIENT_CLAN_CREATEINVITEREQ&quot;;
++			case CLIENT_CLAN_CREATEINVITEREPLY:
++				return &quot;CLIENT_CLAN_CREATEINVITEREPLY&quot;;
++			case CLIENT_CLAN_DISBANDREQ:
++				return &quot;CLIENT_CLAN_DISBANDREQ&quot;;
++			case CLIENT_CLAN_MEMBERNEWCHIEFREQ:
++				return &quot;CLIENT_CLAN_MEMBERNEWCHIEFREQ&quot;;
++			case CLIENT_CLAN_INVITEREQ:
++				return &quot;CLIENT_CLAN_INVITEREQ&quot;;
++			case CLIENT_CLANMEMBER_REMOVE_REQ:
++				return &quot;CLIENT_CLANMEMBER_REMOVE_REQ&quot;;
++			case CLIENT_CLAN_INVITEREPLY:
++				return &quot;CLIENT_CLAN_INVITEREPLY&quot;;
++			case CLIENT_CLANMEMBER_RANKUPDATE_REQ:
++				return &quot;CLIENT_CLANMEMBER_RANKUPDATE_REQ&quot;;
++			case CLIENT_CLAN_MOTDCHG:
++				return &quot;CLIENT_CLAN_MOTDCHG&quot;;
++			case CLIENT_CLAN_MOTDREQ:
++				return &quot;CLIENT_CLAN_MOTDREQ&quot;;
++			case CLIENT_CLANMEMBERLIST_REQ:
++				return &quot;CLIENT_CLANMEMBERLIST_REQ&quot;;
++			}
++			return &quot;unknown&quot;;
+ 
+ 	case packet_class_file:
+ 	    if (packet_get_size(packet)&lt;sizeof(t_file_header))
+@@ -570,123 +594,153 @@
+ 	    switch (bn_short_get(packet-&gt;u.bnet.h.type))
+ 	    {
+ 	    case SERVER_COMPREPLY:
+-		return &quot;SERVER_COMPREPLY&quot;;
+-	    case SERVER_SESSIONKEY1:
+-		return &quot;SERVER_SESSIONKEY1&quot;;
+-	    case SERVER_SESSIONKEY2:
+-		return &quot;SERVER_SESSIONKEY2&quot;;
+-	    case SERVER_CREATEACCTREPLY1:
+-		return &quot;SERVER_CREATEACCTREPLY1&quot;;
+-	    case SERVER_AUTHREQ1:
+-		return &quot;SERVER_AUTHREQ1&quot;;
+-	    case SERVER_AUTHREQ_109:
+-		return &quot;SERVER_AUTHREQ_109&quot;;
+-	    case SERVER_AUTHREPLY1:
+-		return &quot;SERVER_AUTHREPLY1&quot;;
+-	    case SERVER_AUTHREPLY_109:
+-		return &quot;SERVER_AUTHREPLY_109&quot;;
+-	    case SERVER_REGSNOOPREQ:
+-		return &quot;SERVER_REGSNOOPREQ&quot;;
+-	    case SERVER_ICONREPLY:
+-		return &quot;SERVER_ICONREPLY&quot;;
+-	    case SERVER_LADDERSEARCHREPLY:
+-		return &quot;SERVER_LADDERSEARCHREPLY&quot;;
+-	    case SERVER_CDKEYREPLY:
+-		return &quot;SERVER_CDKEYREPLY&quot;;
+-	    case SERVER_CDKEYREPLY2:
+-		return &quot;SERVER_CDKEYREPLY2&quot;;
+-	    case SERVER_CDKEYREPLY3:
+-		return &quot;SERVER_CDKEYREPLY3&quot;;
+-	    case SERVER_REALMLISTREPLY:
+-		return &quot;SERVER_REALMLISTREPLY&quot;;
+-	    case SERVER_REALMLISTREPLY_110:
+-		return &quot;SERVER_REALMLISTREPLY_110&quot;;
+-	    case SERVER_PROFILEREPLY:
+-		return &quot;SERVER_PROFILEREPLY&quot;;
+-	    case SERVER_UNKNOWN_37:
+-		return &quot;SERVER_UNKNOWN_37&quot;;
+-	    case SERVER_MOTD_W3:
+-		return &quot;SERVER_MOTD_W3&quot;;
+-	    case SERVER_LOGINREPLY_W3:
+-		return &quot;SERVER_LOGINREPLY_W3&quot;;
+-	    case SERVER_LOGONPROOFREPLY:
+-		return &quot;SERVER_LOGONPROOFREPLY&quot;;
+-	    case SERVER_CREATEACCOUNT_W3:
+-		return &quot;SERVER_CREATEACCOUNT_W3&quot;;
+-	    case SERVER_PASSCHANGEREPLY:
+-		return &quot;SERVER_PASSCHANGEREPLY&quot;;
+-	    case SERVER_PASSCHANGEPROOFREPLY:
+-		return &quot;SERVER_PASSCHANGEPROOFREPLY&quot;;
+-	    case SERVER_LOGINREPLY2:
+-		return &quot;SERVER_LOGINREPLY2&quot;;
+-	    case SERVER_CREATEACCTREPLY2:
+-		return &quot;SERVER_CREATEACCTREPLY2&quot;;
+-	    case SERVER_FILEINFOREPLY:
+-		return &quot;SERVER_FILEINFOREPLY&quot;;
+-	    case SERVER_STATSREPLY:
+-		return &quot;SERVER_STATSREPLY&quot;;
+-	    case SERVER_LOGINREPLY1:
+-		return &quot;SERVER_LOGINREPLY1&quot;;
+-	    case SERVER_CHANGEPASSACK:
+-		return &quot;SERVER_CHANGEPASSACK&quot;;
+-	    case SERVER_PLAYERINFOREPLY:
+-		return &quot;SERVER_PLAYERINFOREPLY&quot;;
+-	    case SERVER_CHANNELLIST:
+-		return &quot;SERVER_CHANNELLIST&quot;;
+-	    case SERVER_SERVERLIST:
+-		return &quot;SERVER_SERVERLIST&quot;;
+-	    case SERVER_MESSAGE:
+-		return &quot;SERVER_MESSAGE&quot;;
+-	    case SERVER_GAMELISTREPLY:
+-		return &quot;SERVER_GAMELISTREPLY&quot;;
+-	    case SERVER_STARTGAME1_ACK:
+-		return &quot;SERVER_STARTGAME1_ACK&quot;;
+-	    case SERVER_STARTGAME3_ACK:
+-		return &quot;SERVER_STARTGAME3_ACK&quot;;
+-	    case SERVER_STARTGAME4_ACK:
+-		return &quot;SERVER_STARTGAME4_ACK&quot;;
+-	    case SERVER_MAPAUTHREPLY1:
+-		return &quot;SERVER_MAPAUTHREPLY1&quot;;
+-	    case SERVER_MAPAUTHREPLY2:
+-		return &quot;SERVER_MAPAUTHREPLY2&quot;;
+-	    case SERVER_ADREPLY:
+-		return &quot;SERVER_ADREPLY&quot;;
+-	    case SERVER_ADCLICKREPLY2:
+-		return &quot;SERVER_ADCLICKREPLY2&quot;;
+-	    case SERVER_LADDERREPLY:
+-		return &quot;SERVER_LADDERREPLY&quot;;
+-	    case SERVER_ECHOREQ:
+-		return &quot;SERVER_ECHOREQ&quot;;
+-	    case SERVER_PINGREPLY:
+-		return &quot;SERVER_PINGREPLY&quot;;
+-	    case SERVER_REALMJOINREPLY_109:
+-		return &quot;SERVER_REALMJOINREPLY_109&quot;;
+-	    case SERVER_SETEMAILREQ:
+-		return &quot;SERVER_SETEMAILREQ&quot;;
+-	    case SERVER_FINDANONGAME:
+-		return &quot;SERVER_FINDANONGAME&quot;;
+-	    case SERVER_ARRANGEDTEAM_FRIENDSCREEN:
+-		return &quot;SERVER_ARRANGEDTEAM_FRIENDSCREEN&quot;;
+-	    case SERVER_ARRANGEDTEAM_INVITE_FRIEND_ACK:
+-		return &quot;SERVER_ARRANGEDTEAM_INVITE_FRIEND_ACK&quot;;
+-	    case SERVER_ARRANGEDTEAM_SEND_INVITE:
+-		return &quot;SERVER_ARRANGEDTEAM_SEND_INVITE&quot;;
+-	    case SERVER_ARRANGEDTEAM_MEMBER_DECLINE:
+-		return &quot;SERVER_ARRANGEDTEAM_MEMBER_DECLINE&quot;;
+-	    case SERVER_FRIENDSLISTREPLY:
+-		return &quot;SERVER_FRIENDSLISTREPLY&quot;;
+-	    case SERVER_FRIENDINFOREPLY:
+-		return &quot;SERVER_FRIENDINFOREPLY&quot;;
+-	    case SERVER_FRIENDADD_ACK:
+-		return &quot;SERVER_FRIENDADD_ACK&quot;;
+-	    case SERVER_FRIENDDEL_ACK:
+-		return &quot;SERVER_FRIENDDEL_ACK&quot;;
+-	    case SERVER_FRIENDMOVE_ACK:
+-		return &quot;SERVER_FRIENDMOVE_ACK&quot;;
+-	    case SERVER_CLANINFOREPLY:
+-	    	return &quot;SERVER_CLANINFO_REPLY&quot;;
+-	    }
+-	    return &quot;unknown&quot;;
++				return &quot;SERVER_COMPREPLY&quot;;
++			case SERVER_SESSIONKEY1:
++				return &quot;SERVER_SESSIONKEY1&quot;;
++			case SERVER_SESSIONKEY2:
++				return &quot;SERVER_SESSIONKEY2&quot;;
++			case SERVER_CREATEACCTREPLY1:
++				return &quot;SERVER_CREATEACCTREPLY1&quot;;
++			case SERVER_AUTHREQ1:
++				return &quot;SERVER_AUTHREQ1&quot;;
++			case SERVER_AUTHREQ_109:
++				return &quot;SERVER_AUTHREQ_109&quot;;
++			case SERVER_AUTHREPLY1:
++				return &quot;SERVER_AUTHREPLY1&quot;;
++			case SERVER_AUTHREPLY_109:
++				return &quot;SERVER_AUTHREPLY_109&quot;;
++			case SERVER_REGSNOOPREQ:
++				return &quot;SERVER_REGSNOOPREQ&quot;;
++			case SERVER_ICONREPLY:
++				return &quot;SERVER_ICONREPLY&quot;;
++			case SERVER_LADDERSEARCHREPLY:
++				return &quot;SERVER_LADDERSEARCHREPLY&quot;;
++			case SERVER_CDKEYREPLY:
++				return &quot;SERVER_CDKEYREPLY&quot;;
++			case SERVER_CDKEYREPLY2:
++				return &quot;SERVER_CDKEYREPLY2&quot;;
++			case SERVER_CDKEYREPLY3:
++				return &quot;SERVER_CDKEYREPLY3&quot;;
++			case SERVER_REALMLISTREPLY:
++				return &quot;SERVER_REALMLISTREPLY&quot;;
++			case SERVER_REALMLISTREPLY_110:
++				return &quot;SERVER_REALMLISTREPLY_110&quot;;
++			case SERVER_PROFILEREPLY:
++				return &quot;SERVER_PROFILEREPLY&quot;;
++			case SERVER_UNKNOWN_37:
++				return &quot;SERVER_UNKNOWN_37&quot;;
++			case SERVER_MOTD_W3:
++				return &quot;SERVER_MOTD_W3&quot;;
++			case SERVER_LOGINREPLY_W3:
++				return &quot;SERVER_LOGINREPLY_W3&quot;;
++			case SERVER_LOGONPROOFREPLY:
++				return &quot;SERVER_LOGONPROOFREPLY&quot;;
++			case SERVER_CREATEACCOUNT_W3:
++				return &quot;SERVER_CREATEACCOUNT_W3&quot;;
++			case SERVER_PASSCHANGEREPLY:
++				return &quot;SERVER_PASSCHANGEREPLY&quot;;
++			case SERVER_PASSCHANGEPROOFREPLY:
++				return &quot;SERVER_PASSCHANGEPROOFREPLY&quot;;
++			case SERVER_LOGINREPLY2:
++				return &quot;SERVER_LOGINREPLY2&quot;;
++			case SERVER_CREATEACCTREPLY2:
++				return &quot;SERVER_CREATEACCTREPLY2&quot;;
++			case SERVER_FILEINFOREPLY:
++				return &quot;SERVER_FILEINFOREPLY&quot;;
++			case SERVER_STATSREPLY:
++				return &quot;SERVER_STATSREPLY&quot;;
++			case SERVER_LOGINREPLY1:
++				return &quot;SERVER_LOGINREPLY1&quot;;
++			case SERVER_CHANGEPASSACK:
++				return &quot;SERVER_CHANGEPASSACK&quot;;
++			case SERVER_PLAYERINFOREPLY:
++				return &quot;SERVER_PLAYERINFOREPLY&quot;;
++			case SERVER_CHANNELLIST:
++				return &quot;SERVER_CHANNELLIST&quot;;
++			case SERVER_SERVERLIST:
++				return &quot;SERVER_SERVERLIST&quot;;
++			case SERVER_MESSAGE:
++				return &quot;SERVER_MESSAGE&quot;;
++			case SERVER_GAMELISTREPLY:
++				return &quot;SERVER_GAMELISTREPLY&quot;;
++			case SERVER_STARTGAME1_ACK:
++				return &quot;SERVER_STARTGAME1_ACK&quot;;
++			case SERVER_STARTGAME3_ACK:
++				return &quot;SERVER_STARTGAME3_ACK&quot;;
++			case SERVER_STARTGAME4_ACK:
++				return &quot;SERVER_STARTGAME4_ACK&quot;;
++			case SERVER_MAPAUTHREPLY1:
++				return &quot;SERVER_MAPAUTHREPLY1&quot;;
++			case SERVER_MAPAUTHREPLY2:
++				return &quot;SERVER_MAPAUTHREPLY2&quot;;
++			case SERVER_ADREPLY:
++				return &quot;SERVER_ADREPLY&quot;;
++			case SERVER_ADCLICKREPLY2:
++				return &quot;SERVER_ADCLICKREPLY2&quot;;
++			case SERVER_LADDERREPLY:
++				return &quot;SERVER_LADDERREPLY&quot;;
++			case SERVER_ECHOREQ:
++				return &quot;SERVER_ECHOREQ&quot;;
++			case SERVER_PINGREPLY:
++				return &quot;SERVER_PINGREPLY&quot;;
++			case SERVER_REALMJOINREPLY_109:
++				return &quot;SERVER_REALMJOINREPLY_109&quot;;
++			case SERVER_SETEMAILREQ:
++				return &quot;SERVER_SETEMAILREQ&quot;;
++			case SERVER_FINDANONGAME:
++				return &quot;SERVER_FINDANONGAME&quot;;
++			case SERVER_ARRANGEDTEAM_FRIENDSCREEN:
++				return &quot;SERVER_ARRANGEDTEAM_FRIENDSCREEN&quot;;
++			case SERVER_ARRANGEDTEAM_INVITE_FRIEND_ACK:
++				return &quot;SERVER_ARRANGEDTEAM_INVITE_FRIEND_ACK&quot;;
++			case SERVER_ARRANGEDTEAM_SEND_INVITE:
++				return &quot;SERVER_ARRANGEDTEAM_SEND_INVITE&quot;;
++			case SERVER_ARRANGEDTEAM_MEMBER_DECLINE:
++				return &quot;SERVER_ARRANGEDTEAM_MEMBER_DECLINE&quot;;
++			case SERVER_FRIENDSLISTREPLY:
++				return &quot;SERVER_FRIENDSLISTREPLY&quot;;
++			case SERVER_FRIENDINFOREPLY:
++				return &quot;SERVER_FRIENDINFOREPLY&quot;;
++			case SERVER_FRIENDADD_ACK:
++				return &quot;SERVER_FRIENDADD_ACK&quot;;
++			case SERVER_FRIENDDEL_ACK:
++				return &quot;SERVER_FRIENDDEL_ACK&quot;;
++			case SERVER_FRIENDMOVE_ACK:
++				return &quot;SERVER_FRIENDMOVE_ACK&quot;;
++			case SERVER_CLANINFOREPLY:
++				return &quot;SERVER_CLANINFO_REPLY&quot;;
++			case SERVER_CLAN_CREATEREPLY:
++				return &quot;SERVER_CLAN_CREATEREPLY&quot;;
++			case SERVER_CLAN_CREATEINVITEREPLY:
++				return &quot;SERVER_CLAN_CREATEINVITEREPLY&quot;;
++			case SERVER_CLAN_CREATEINVITEREQ:
++				return &quot;SERVER_CLAN_CREATEINVITEREQ&quot;;
++			case SERVER_CLAN_DISBANDREPLY:
++				return &quot;SERVER_CLAN_DISBANDREPLY&quot;;
++			case SERVER_CLAN_MEMBERNEWCHIEFREPLY:
++				return &quot;SERVER_CLAN_MEMBERNEWCHIEFREPLY&quot;;
++			case SERVER_CLAN_CLANACK:
++				return &quot;SERVER_CLAN_CLANACK&quot;;
++			case SERVER_CLANQUITNOTIFY:
++				return &quot;SERVER_CLANQUITNOTIFY&quot;;
++			case SERVER_CLAN_INVITEREPLY:
++				return &quot;SERVER_CLAN_INVITEREPLY&quot;;
++			case SERVER_CLANMEMBER_REMOVE_REPLY:
++				return &quot;SERVER_CLANMEMBER_REMOVE_REPLY&quot;;
++			case SERVER_CLAN_INVITEREQ:
++				return &quot;SERVER_CLAN_INVITEREQ&quot;;
++			case SERVER_CLANMEMBER_RANKUPDATE_REPLY:
++				return &quot;SERVER_CLANMEMBER_RANKUPDATE_REPLY&quot;;
++			case SERVER_CLAN_MOTDREPLY:
++				return &quot;SERVER_CLAN_MOTDREPLY&quot;;
++			case SERVER_CLANMEMBERLIST_REPLY:
++				return &quot;SERVER_CLANMEMBERLIST_REPLY&quot;;
++			case SERVER_CLANMEMBER_REMOVED_NOTIFY:
++				return &quot;SERVER_CLANMEMBER_REMOVED_NOTIFY&quot;;
++			case SERVER_CLANMEMBERUPDATE:
++				return &quot;SERVER_CLANMEMBERUPDATE&quot;;
++			}
++			return &quot;unknown&quot;;
+ 
+ 	case packet_class_file:
+ 	    if (packet_get_size(packet)&lt;sizeof(t_file_header))
+
+Modified: trunk/pvpgn/src/common/packet.h
+===================================================================
+--- trunk/pvpgn/src/common/packet.h	2008-07-27 11:43:55 UTC (rev 478)
++++ trunk/pvpgn/src/common/packet.h	2008-07-27 18:54:07 UTC (rev 479)
+@@ -316,33 +316,33 @@
+ 	t_client_findanongame_inforeq		client_findanongame_inforeq;
+ 	t_server_findanongame_inforeply		server_findanongame_inforeply;
+ 
+-	t_client_clan_invitereq		client_clan_invitereq;
+-   	t_server_clan_invitereply	server_clan_invitereply;
+-	t_server_clan_invitereq		server_clan_invitereq;
+-	t_client_clan_invitereply	client_clan_invitereply;
+-	t_client_w3xp_clan_disbandreq		client_w3xp_clan_disbandreq;
+-	t_server_w3xp_clan_disbandreply		server_w3xp_clan_disbandreply;
+-	t_client_w3xp_clan_motdchg		client_w3xp_clan_motdchg;
+-	t_client_w3xp_clan_motdreq		client_w3xp_clan_motdreq;
+-	t_server_w3xp_clan_motdreply		server_w3xp_clan_motdreply;
+-	t_client_w3xp_clanmemberlist_req	client_w3xp_clanmemberlist_req;
+-	t_server_w3xp_clanmemberlist_reply	server_w3xp_clanmemberlist_reply;
+-	t_client_w3xp_clan_createreq		client_w3xp_clan_createreq;
+-	t_server_w3xp_clan_createreply		server_w3xp_clan_createreply;
+-	t_client_clan_createinvitereq       client_clan_createinvitereq;
+-	t_server_w3xp_clan_createinvitereply	server_w3xp_clan_createinvitereply;
+-	t_server_clan_createinvitereq	     server_clan_createinvitereq;
+-	t_client_w3xp_clan_createinvitereply	client_w3xp_clan_createinvitereply;
+-	t_server_w3xp_clan_clanack		server_w3xp_clan_clanack;
+-	t_server_w3xp_clanmemberupdate          server_w3xp_clanmemberupdate;
+-	t_client_w3xp_clanmember_rankupdate_req   client_w3xp_clanmember_rankupdate_req;
+-	t_server_w3xp_clanmember_rankupdate_reply server_w3xp_clanmember_rankupdate_reply;
+-	t_client_w3xp_clanmember_remove_req     client_w3xp_clanmember_remove_req;
+-	t_server_w3xp_clanmember_remove_reply   server_w3xp_clanmember_remove_reply;
+-	t_client_w3xp_clan_membernewchiefreq    client_w3xp_clan_membernewchiefreq;
+-	t_server_w3xp_clan_membernewchiefreply  server_w3xp_clan_membernewchiefreply;
+-	t_server_w3xp_clanquitnotify            server_w3xp_clanquitnotify;
+-	t_server_w3xp_clanmember_removed_notify server_w3xp_clanmember_removed_notify;
++	t_client_clan_invitereq client_clan_invitereq;
++	t_server_clan_invitereply server_clan_invitereply;
++	t_server_clan_invitereq server_clan_invitereq;
++	t_client_clan_invitereply client_clan_invitereply;
++	t_client_clan_disbandreq client_clan_disbandreq;
++	t_server_clan_disbandreply server_clan_disbandreply;
++	t_client_clan_motdchg client_clan_motdchg;
++	t_client_clan_motdreq client_clan_motdreq;
++	t_server_clan_motdreply server_clan_motdreply;
++	t_client_clanmemberlist_req client_clanmemberlist_req;
++	t_server_clanmemberlist_reply server_clanmemberlist_reply;
++	t_client_clan_createreq client_clan_createreq;
++	t_server_clan_createreply server_clan_createreply;
++	t_client_clan_createinvitereq client_clan_createinvitereq;
++	t_server_clan_createinvitereply server_clan_createinvitereply;
++	t_server_clan_createinvitereq server_clan_createinvitereq;
++	t_client_clan_createinvitereply client_clan_createinvitereply;
++	t_server_clan_clanack server_clan_clanack;
++	t_server_clanmemberupdate server_clanmemberupdate;
++	t_client_clanmember_rankupdate_req client_clanmember_rankupdate_req;
++	t_server_clanmember_rankupdate_reply server_clanmember_rankupdate_reply;
++	t_client_clanmember_remove_req client_clanmember_remove_req;
++	t_server_clanmember_remove_reply server_clanmember_remove_reply;
++	t_client_clan_membernewchiefreq client_clan_membernewchiefreq;
++	t_server_clan_membernewchiefreply server_clan_membernewchiefreply;
++	t_server_clanquitnotify server_clanquitnotify;
++	t_server_clanmember_removed_notify server_clanmember_removed_notify;
+ 
+ 	t_server_findanongame_iconreply		server_findanongame_iconreply;
+ 	t_client_changeclient			client_changeclient;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000770.html">[pvpgn-dev] [Patch #2531] spell error
+</A></li>
+	<LI>Next message: <A HREF="000772.html">[pvpgn-dev] r480 - trunk/pvpgn/src/bnetd
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#771">[ date ]</a>
+              <a href="thread.html#771">[ thread ]</a>
+              <a href="subject.html#771">[ subject ]</a>
+              <a href="author.html#771">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

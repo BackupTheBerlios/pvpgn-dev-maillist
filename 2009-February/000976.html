@@ -1,0 +1,124 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] [Bug #15149] clan whisper doesn't return
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2009-February/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BBug%20%2315149%5D%20clan%20whisper%20doesn%27t%20return&In-Reply-To=%3C200902082144.n18LiUHT025630%40unicorn.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000975.html">
+   <LINK REL="Next"  HREF="000977.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] [Bug #15149] clan whisper doesn't return</H1>
+    <B>admin at berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BBug%20%2315149%5D%20clan%20whisper%20doesn%27t%20return&In-Reply-To=%3C200902082144.n18LiUHT025630%40unicorn.berlios.de%3E"
+       TITLE="[pvpgn-dev] [Bug #15149] clan whisper doesn't return">admin at berlios.de
+       </A><BR>
+    <I>Sun Feb  8 22:44:30 CET 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000975.html">[pvpgn-dev] r531 - in trunk/pvpgn: . conf
+</A></li>
+        <LI>Next message: <A HREF="000977.html">[pvpgn-dev] [Bug #15150] chieftain removed from clan after creation
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#976">[ date ]</a>
+              <a href="thread.html#976">[ thread ]</a>
+              <a href="subject.html#976">[ subject ]</a>
+              <a href="author.html#976">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Bug #15149, was updated on 2009-Jan-29 00:09
+Here is a current snapshot of the bug.
+
+Project: Player vs Player Gaming Network
+Category: General
+Status: Open
+Resolution: Fixed
+Bug Group: bnetd
+Priority: 5
+Submitted by: saidin
+Assigned to : none
+Summary: clan whisper doesn't return
+
+Details: This bug is current in SVN (at revision 524)
+
+&quot;/clan whisper&quot; doesn't behave properly. Instead of returning, it just filters down the command. For chieftains, this means nothing. For normal users, it means they get a message &quot;You are not the chieftain of clan!&quot;, even though the message was sent.
+
+The fix is just to return out the command, example in this commit:
+<A HREF="http://github.com/marcbowes/pvpgn-twilight/commit/c10ba44b98f5612aa05a63d197ecf9c39f41430f">http://github.com/marcbowes/pvpgn-twilight/commit/c10ba44b98f5612aa05a63d197ecf9c39f41430f</A>
+
+Follow-Ups:
+
+Date: 2009-Feb-08 23:44
+By: saidin
+
+Comment:
+I have (mostly) refactored _handle_clan_command (temporarily called _handle_newclan_command). See the commit below. Just ignore the group* stuff at the bottom as it relates to Twilight only.
+
+Some of the changes won't work as out of the box. For example, my fork overloads message_send_text to accept a std::stringstream. Once I'm happy that the code works (I haven't tested yet), and if the PVPGN devs are happy with it, then you are more than welcome to commandeer it as your own (just a couple of snprintfs instead of stringstreams and you should be good to go). 
+
+<A HREF="http://github.com/marcbowes/pvpgn-twilight/commit/a2219e0831130726b8354cd91ffc95f3a6380a07">http://github.com/marcbowes/pvpgn-twilight/commit/a2219e0831130726b8354cd91ffc95f3a6380a07</A>
+-------------------------------------------------------
+
+Date: 2009-Feb-06 23:48
+By: saidin
+
+Comment:
+Hey, just as a follow-up, it's weekend - so I will probably rewrite this and submit a patch within the next 2 days.
+-------------------------------------------------------
+
+Date: 2009-Feb-02 19:42
+By: pandaemonium
+
+Comment:
+Splitting this method into a bunch of sub-methods (for each subcommand) due to it being an unmaintainable &quot;250 lines of code monster&quot; is exactly what I spoke about with Pelish last evening. Good to know I'm not alone with this feeling. :-)
+-------------------------------------------------------
+
+Date: 2009-Feb-02 19:32
+By: saidin
+
+Comment:
+Some other clan command doesn't return. I can't remember what, and I confess I haven't bothered to check. My feeling is that the method is far too long anyway, and should be split into sub-methods. Thus, when I have time, I'll refactor it -- meaning, I'm not going to bother making one fix now, when I can just fix it properly in a few days. Such a long method is very difficult to maintain/read, so I'm not even remotely surprised bugs have crept into it. I will come back to this bug and post by full patch once I'm done.
+-------------------------------------------------------
+
+Date: 2009-Feb-01 12:02
+By: pandaemonium
+
+Comment:
+Thanks alot for the report. The issue should now be fixed in SVN.
+-------------------------------------------------------
+
+For detailed info, follow this link:
+<A HREF="http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=15149&amp;group_id=2291">http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=15149&amp;group_id=2291</A>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000975.html">[pvpgn-dev] r531 - in trunk/pvpgn: . conf
+</A></li>
+	<LI>Next message: <A HREF="000977.html">[pvpgn-dev] [Bug #15150] chieftain removed from clan after creation
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#976">[ date ]</a>
+              <a href="thread.html#976">[ thread ]</a>
+              <a href="subject.html#976">[ subject ]</a>
+              <a href="author.html#976">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

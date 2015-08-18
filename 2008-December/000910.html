@@ -1,0 +1,162 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] cd-key check idea
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2008-December/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20cd-key%20check%20idea&In-Reply-To=%3Ccec2dff456c052de6083ac08cdccf89f%40127.0.0.1%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000909.html">
+   <LINK REL="Next"  HREF="000911.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] cd-key check idea</H1>
+    <B>Pieter De Wit</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20cd-key%20check%20idea&In-Reply-To=%3Ccec2dff456c052de6083ac08cdccf89f%40127.0.0.1%3E"
+       TITLE="[pvpgn-dev] cd-key check idea">pieter at insync.za.net
+       </A><BR>
+    <I>Mon Dec 15 21:35:14 CET 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000909.html">[pvpgn-dev] cd-key check idea
+</A></li>
+        <LI>Next message: <A HREF="000911.html">[pvpgn-dev] cd-key check idea
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#910">[ date ]</a>
+              <a href="thread.html#910">[ thread ]</a>
+              <a href="subject.html#910">[ subject ]</a>
+              <a href="author.html#910">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>
+Hi d1zzy,
+
+What do you expect to get out of this &quot;after all is said and done&quot; ?
+
+The idea of a secure &quot;tunnel&quot; for these cd-key checks makes sense no
+matter how you look at it. The fact that Blizzard didn't go for this
+option was their own choice.
+
+With PvPGN attempting to intersect/proxy these requests I think it will
+restart Blizzard's hunt to close PvPGN down. I think, if PvPGN is to do
+cd-keys, it should be via the secure tunnel, and every admin is giving
+a server login.
+
+If anything is tracked to that server admin, they will know where to
+look (stolen keys etc.)
+
+Either way, what would happen if the key failed a check ? What good 
+is it to PvPGN to check the key (not talking legally now :) )
+
+Cheers
+
+On Mon, 15 Dec 2008 12:13:31 -0800, dizzy &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">dizone at gmail.com</A>&gt; wrote:
+&gt;<i> Hi there
+</I>&gt;<i> 
+</I>&gt;<i> 0. Background
+</I>&gt;<i> 
+</I>&gt;<i> One of the major reasons of Blizzard suing bnetd (or at least what they
+</I>&gt;<i> stated 
+</I>&gt;<i> in court and publicly) was that bnetd was adding value to pirated copies
+</I>&gt;<i> thus 
+</I>&gt;<i> somehow making people pirate more Blizzard games because of no cd key
+</I>&gt;<i> check 
+</I>&gt;<i> (which IMO is kinda stupid but anyway, for the sake of the argument).
+</I>&gt;<i> 
+</I>&gt;<i> I remember sometime back in the lawsuit a bnetd dev came with the idea of
+</I>&gt;<i> a 
+</I>&gt;<i> secure cd-key check relay protocol that would be implemented on bnetd and
+</I>
+&gt;<i> battle.net servers so that bnetd would use it to check cd-keys against
+</I>&gt;<i> b.net 
+</I>&gt;<i> servers. Blizzard however did not wanted that (maybe they were lying
+</I>about
+&gt;<i> 
+</I>&gt;<i> that being the reason to sue bnetd after all?).
+</I>&gt;<i> 
+</I>&gt;<i> Another idea that popped up (more recently) was to have pvpgn proxy the
+</I>&gt;<i> cdkey 
+</I>&gt;<i> verification to the battle.net server. There is a technical challange if 
+</I>&gt;<i> that's even possible (there are some session IDs exchanged that may make
+</I>&gt;<i> it 
+</I>&gt;<i> technically impossible) but even if it is the major problem with this is
+</I>&gt;<i> that 
+</I>&gt;<i> all cd-key checks would come from a single IP (the pvpgn one) and
+</I>&gt;<i> considering 
+</I>&gt;<i> b.net's very agressive cd-key failed check (they ban the IP from which a 
+</I>&gt;<i> failed cd-key check was made for a couple of hours) it makes it
+</I>impossible
+&gt;<i> to 
+</I>&gt;<i> really have pvpgn proxy cdkey checks to b.net. Another problem with the 
+</I>&gt;<i> server side cdkey proxy is that people can modify the source (it's open 
+</I>&gt;<i> source) and disable it easily.
+</I>&gt;<i> 
+</I>&gt;<i> 1. New idea
+</I>&gt;<i> 
+</I>&gt;<i> Some guy on the Internet came up with the idea to still proxy cdkey
+</I>checks
+&gt;<i> but 
+</I>&gt;<i> not from pvpgn but from the client somehow. That is, say have on the
+</I>&gt;<i> client a 
+</I>&gt;<i> launcher/proxy software (closed source, more about that below) that would
+</I>
+&gt;<i> modify registry settings to localhost (tho that means to modify the
+</I>&gt;<i> gameport 
+</I>&gt;<i> cause the game also listens on 6112) and a bnet protocol proxy process
+</I>&gt;<i> that 
+</I>&gt;<i> catchs on the CDKEY packets and proxies them to b.net and if cdkey check 
+</I>&gt;<i> fails it will drop the connection and continue to proxy to the original
+</I>&gt;<i> pvpgn 
+</I>&gt;<i> if it succeeds.
+</I>&gt;<i> 
+</I>&gt;<i> On the server side we could modify it to accept only the proxy or just
+</I>&gt;<i> leave 
+</I>&gt;<i> it untouched and we advertise the proxy as the only supported connection 
+</I>&gt;<i> solution to pvpgn for bnet clients. The fact that other people modify the
+</I>
+&gt;<i> server to not require the proxy or (in case we don't modify the server)
+</I>&gt;<i> use 
+</I>&gt;<i> the existent gateway editor should not be our problem.
+</I>&gt;<i> 
+</I>&gt;<i> 2. Sense of purpose
+</I>&gt;<i> 
+</I>&gt;<i> I wonder if there is any purpose in all this. Blizzard does not seem to
+</I>&gt;<i> care 
+</I>&gt;<i> about pvpgn anymore tho with sc2 release I believe that will change 
+</I>&gt;<i> drastically if pvpgn is to support sc2 but at the same time do we get any
+</I>
+&gt;<i> legal guarantee they will not threaten us if we implement such a system?
+</I>&gt;<i> 
+</I>&gt;<i>
+</I>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000909.html">[pvpgn-dev] cd-key check idea
+</A></li>
+	<LI>Next message: <A HREF="000911.html">[pvpgn-dev] cd-key check idea
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#910">[ date ]</a>
+              <a href="thread.html#910">[ thread ]</a>
+              <a href="subject.html#910">[ subject ]</a>
+              <a href="author.html#910">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

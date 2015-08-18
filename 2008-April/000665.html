@@ -1,0 +1,1314 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r446 - in trunk/pvpgn: Win32-Projects conf src/bnetd	src/common
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2008-April/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r446%20-%20in%20trunk/pvpgn%3A%20Win32-Projects%20conf%20src/bnetd%0A%09src/common&In-Reply-To=%3C200804171341.m3HDfAq5005970%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000664.html">
+   <LINK REL="Next"  HREF="000666.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r446 - in trunk/pvpgn: Win32-Projects conf src/bnetd	src/common</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r446%20-%20in%20trunk/pvpgn%3A%20Win32-Projects%20conf%20src/bnetd%0A%09src/common&In-Reply-To=%3C200804171341.m3HDfAq5005970%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r446 - in trunk/pvpgn: Win32-Projects conf src/bnetd	src/common">svn at svn.berlios.de
+       </A><BR>
+    <I>Thu Apr 17 15:41:10 CEST 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000664.html">[pvpgn-dev] r445 - trunk/pvpgn/src/common
+</A></li>
+        <LI>Next message: <A HREF="000666.html">[pvpgn-dev] pvpgn version-history.txt,1.278,1.279
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#665">[ date ]</a>
+              <a href="thread.html#665">[ thread ]</a>
+              <a href="subject.html#665">[ subject ]</a>
+              <a href="author.html#665">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pelish
+Date: 2008-04-17 15:41:10 +0200 (Thu, 17 Apr 2008)
+New Revision: 446
+
+Modified:
+   trunk/pvpgn/Win32-Projects/PvPGN.dev
+   trunk/pvpgn/conf/bnetd.conf.in
+   trunk/pvpgn/conf/bnetd.conf.win32
+   trunk/pvpgn/src/bnetd/handle_irc.cpp
+   trunk/pvpgn/src/bnetd/handle_irc_common.cpp
+   trunk/pvpgn/src/bnetd/handle_wserv.cpp
+   trunk/pvpgn/src/bnetd/prefs.cpp
+   trunk/pvpgn/src/bnetd/prefs.h
+   trunk/pvpgn/src/bnetd/server.cpp
+   trunk/pvpgn/src/bnetd/server.h
+   trunk/pvpgn/src/common/setup_before.h
+Log:
+add variables for wol autoupdate ftp into bnetd.conf, changed woladdrs and wservaddrs to wolv1addrs and wolv2addrs
+
+Modified: trunk/pvpgn/Win32-Projects/PvPGN.dev
+===================================================================
+--- trunk/pvpgn/Win32-Projects/PvPGN.dev	2008-04-16 16:30:35 UTC (rev 445)
++++ trunk/pvpgn/Win32-Projects/PvPGN.dev	2008-04-17 13:41:10 UTC (rev 446)
+@@ -1,7 +1,7 @@
+ [Project]
+ FileName=PvPGN.dev
+ Name=PvPGN
+-UnitCount=278
++UnitCount=276
+ Type=0
+ Ver=1
+ ObjFiles=
+@@ -2118,7 +2118,7 @@
+ BuildCmd=
+ 
+ [Unit208]
+-FileName=..\src\compat\strchr.h
++FileName=..\src\compat\strdup.h
+ CompileCpp=0
+ Folder=compat/Header Files
+ Compile=1
+@@ -2128,7 +2128,7 @@
+ BuildCmd=
+ 
+ [Unit209]
+-FileName=..\src\compat\strdup.h
++FileName=..\src\compat\strerror.h
+ CompileCpp=0
+ Folder=compat/Header Files
+ Compile=1
+@@ -2138,7 +2138,7 @@
+ BuildCmd=
+ 
+ [Unit210]
+-FileName=..\src\compat\strerror.h
++FileName=..\src\compat\strncasecmp.h
+ CompileCpp=0
+ Folder=compat/Header Files
+ Compile=1
+@@ -2148,7 +2148,7 @@
+ BuildCmd=
+ 
+ [Unit211]
+-FileName=..\src\compat\strncasecmp.h
++FileName=..\src\compat\strsep.h
+ CompileCpp=0
+ Folder=compat/Header Files
+ Compile=1
+@@ -2158,7 +2158,7 @@
+ BuildCmd=
+ 
+ [Unit212]
+-FileName=..\src\compat\strrchr.h
++FileName=..\src\compat\strtoul.h
+ CompileCpp=0
+ Folder=compat/Header Files
+ Compile=1
+@@ -2168,7 +2168,7 @@
+ BuildCmd=
+ 
+ [Unit213]
+-FileName=..\src\compat\strsep.h
++FileName=..\src\compat\termios.h
+ CompileCpp=0
+ Folder=compat/Header Files
+ Compile=1
+@@ -2178,7 +2178,7 @@
+ BuildCmd=
+ 
+ [Unit214]
+-FileName=..\src\compat\strtoul.h
++FileName=..\src\compat\uint.h
+ CompileCpp=0
+ Folder=compat/Header Files
+ Compile=1
+@@ -2188,26 +2188,6 @@
+ BuildCmd=
+ 
+ [Unit215]
+-FileName=..\src\compat\termios.h
+-CompileCpp=0
+-Folder=compat/Header Files
+-Compile=1
+-Link=1
+-Priority=1000
+-OverrideBuildCmd=0
+-BuildCmd=
+-
+-[Unit216]
+-FileName=..\src\compat\uint.h
+-CompileCpp=0
+-Folder=compat/Header Files
+-Compile=1
+-Link=1
+-Priority=1000
+-OverrideBuildCmd=0
+-BuildCmd=
+-
+-[Unit217]
+ FileName=..\src\compat\uname.cpp
+ CompileCpp=0
+ Folder=compat/Source Files
+@@ -2217,7 +2197,7 @@
+ OverrideBuildCmd=0
+ BuildCmd=
+ 
+-[Unit218]
++[Unit216]
+ FileName=..\src\compat\gettimeofday.cpp
+ CompileCpp=0
+ Folder=compat/Source Files
+@@ -2227,7 +2207,7 @@
+ OverrideBuildCmd=0
+ BuildCmd=
+ 
+-[Unit219]
++[Unit217]
+ FileName=..\src\compat\inet_aton.cpp
+ CompileCpp=0
+ Folder=compat/Source Files
+@@ -2237,7 +2217,7 @@
+ OverrideBuildCmd=0
+ BuildCmd=
+ 
+-[Unit220]
++[Unit218]
+ FileName=..\src\compat\inet_ntoa.cpp
+ CompileCpp=0
+ Folder=compat/Source Files
+@@ -2247,7 +2227,7 @@
+ OverrideBuildCmd=0
+ BuildCmd=
+ 
+-[Unit221]
++[Unit219]
+ FileName=..\src\compat\mmap.cpp
+ CompileCpp=0
+ Folder=compat/Source Files
+@@ -2257,7 +2237,7 @@
+ OverrideBuildCmd=0
+ BuildCmd=
+ 
+-[Unit222]
++[Unit220]
+ FileName=..\src\compat\pdir.cpp
+ CompileCpp=0
+ Folder=compat/Source Files
+@@ -2267,7 +2247,7 @@
+ OverrideBuildCmd=0
+ BuildCmd=
+ 
+-[Unit223]
++[Unit221]
+ FileName=..\src\compat\psock.cpp
+ CompileCpp=0
+ Folder=compat/Source Files
+@@ -2277,7 +2257,7 @@
+ OverrideBuildCmd=0
+ BuildCmd=
+ 
+-[Unit224]
++[Unit222]
+ FileName=..\src\compat\strcasecmp.cpp
+ CompileCpp=0
+ Folder=compat/Source Files
+@@ -2287,7 +2267,7 @@
+ OverrideBuildCmd=0
+ BuildCmd=
+ 
+-[Unit225]
++[Unit223]
+ FileName=..\src\compat\strdup.cpp
+ CompileCpp=0
+ Folder=compat/Source Files
+@@ -2297,7 +2277,7 @@
+ OverrideBuildCmd=0
+ BuildCmd=
+ 
+-[Unit226]
++[Unit224]
+ FileName=..\src\compat\strerror.cpp
+ CompileCpp=0
+ Folder=compat/Source Files
+@@ -2307,7 +2287,7 @@
+ OverrideBuildCmd=0
+ BuildCmd=
+ 
+-[Unit227]
++[Unit225]
+ FileName=..\src\compat\strncasecmp.cpp
+ CompileCpp=0
+ Folder=compat/Source Files
+@@ -2317,7 +2297,7 @@
+ OverrideBuildCmd=0
+ BuildCmd=
+ 
+-[Unit228]
++[Unit226]
+ FileName=..\src\compat\strsep.cpp
+ CompileCpp=0
+ Folder=compat/Source Files
+@@ -2327,7 +2307,7 @@
+ OverrideBuildCmd=0
+ BuildCmd=
+ 
+-[Unit229]
++[Unit227]
+ FileName=..\src\compat\strtoul.cpp
+ CompileCpp=0
+ Folder=compat/Source Files
+@@ -2337,7 +2317,7 @@
+ OverrideBuildCmd=0
+ BuildCmd=
+ 
+-[Unit230]
++[Unit228]
+ FileName=..\src\tinycdb\cdb_int.h
+ CompileCpp=0
+ Folder=tinycdb/Header Files
+@@ -2347,7 +2327,7 @@
+ OverrideBuildCmd=0
+ BuildCmd=
+ 
+-[Unit231]
++[Unit229]
+ FileName=..\src\tinycdb\cdb_unpack.cpp
+ CompileCpp=0
+ Folder=tinycdb/Source Files
+@@ -2357,7 +2337,7 @@
+ OverrideBuildCmd=0
+ BuildCmd=
+ 
+-[Unit232]
++[Unit230]
+ FileName=..\src\tinycdb\cdb_find.cpp
+ CompileCpp=0
+ Folder=tinycdb/Source Files
+@@ -2367,7 +2347,7 @@
+ OverrideBuildCmd=0
+ BuildCmd=
+ 
+-[Unit233]
++[Unit231]
+ FileName=..\src\tinycdb\cdb_findnext.cpp
+ CompileCpp=0
+ Folder=tinycdb/Source Files
+@@ -2377,7 +2357,7 @@
+ OverrideBuildCmd=0
+ BuildCmd=
+ 
+-[Unit234]
++[Unit232]
+ FileName=..\src\tinycdb\cdb_hash.cpp
+ CompileCpp=0
+ Folder=tinycdb/Source Files
+@@ -2387,7 +2367,7 @@
+ OverrideBuildCmd=0
+ BuildCmd=
+ 
+-[Unit235]
++[Unit233]
+ FileName=..\src\tinycdb\cdb_init.cpp
+ CompileCpp=0
+ Folder=tinycdb/Source Files
+@@ -2397,7 +2377,7 @@
+ OverrideBuildCmd=0
+ BuildCmd=
+ 
+-[Unit236]
++[Unit234]
+ FileName=..\src\tinycdb\cdb_make.cpp
+ CompileCpp=0
+ Folder=tinycdb/Source Files
+@@ -2407,7 +2387,7 @@
+ OverrideBuildCmd=0
+ BuildCmd=
+ 
+-[Unit237]
++[Unit235]
+ FileName=..\src\tinycdb\cdb_make_add.cpp
+ CompileCpp=0
+ Folder=tinycdb/Source Files
+@@ -2417,7 +2397,7 @@
+ OverrideBuildCmd=0
+ BuildCmd=
+ 
+-[Unit238]
++[Unit236]
+ FileName=..\src\tinycdb\cdb_make_find.cpp
+ CompileCpp=0
+ Folder=tinycdb/Source Files
+@@ -2427,7 +2407,7 @@
+ OverrideBuildCmd=0
+ BuildCmd=
+ 
+-[Unit239]
++[Unit237]
+ FileName=..\src\tinycdb\cdb_make_put.cpp
+ CompileCpp=0
+ Folder=tinycdb/Source Files
+@@ -2437,7 +2417,7 @@
+ OverrideBuildCmd=0
+ BuildCmd=
+ 
+-[Unit240]
++[Unit238]
+ FileName=..\src\tinycdb\cdb_seek.cpp
+ CompileCpp=0
+ Folder=tinycdb/Source Files
+@@ -2447,7 +2427,7 @@
+ OverrideBuildCmd=0
+ BuildCmd=
+ 
+-[Unit241]
++[Unit239]
+ FileName=..\src\tinycdb\cdb_seq.cpp
+ CompileCpp=0
+ Folder=tinycdb/Source Files
+@@ -2457,7 +2437,7 @@
+ OverrideBuildCmd=0
+ BuildCmd=
+ 
+-[Unit242]
++[Unit240]
+ FileName=..\src\win32\service.h
+ CompileCpp=0
+ Folder=win32/Header Files
+@@ -2467,7 +2447,7 @@
+ OverrideBuildCmd=0
+ BuildCmd=
+ 
+-[Unit243]
++[Unit241]
+ FileName=..\src\win32\service.cpp
+ CompileCpp=0
+ Folder=win32/Source Files
+@@ -2477,7 +2457,7 @@
+ OverrideBuildCmd=0
+ BuildCmd=
+ 
+-[Unit244]
++[Unit242]
+ FileName=..\src\bnetd\team.h
+ CompileCpp=0
+ Folder=bnetd/Header Files
+@@ -2487,7 +2467,7 @@
+ OverrideBuildCmd=0
+ BuildCmd=
+ 
+-[Unit245]
++[Unit243]
+ FileName=..\src\bnetd\team.cpp
+ CompileCpp=0
+ Folder=bnetd/Source Files
+@@ -2497,7 +2477,7 @@
+ OverrideBuildCmd=0
+ BuildCmd=
+ 
+-[Unit246]
++[Unit244]
+ FileName=..\src\win32\winmain.h
+ CompileCpp=0
+ Folder=win32/Header Files
+@@ -2507,7 +2487,7 @@
+ OverrideBuildCmd=0
+ BuildCmd=
+ 
+-[Unit247]
++[Unit245]
+ FileName=..\src\win32\winmain.cpp
+ CompileCpp=0
+ Folder=win32/Source Files
+@@ -2517,7 +2497,7 @@
+ OverrideBuildCmd=0
+ BuildCmd=
+ 
+-[Unit248]
++[Unit246]
+ FileName=..\src\win32\resource.rc
+ CompileCpp=0
+ Folder=win32/Resource Files
+@@ -2527,7 +2507,7 @@
+ OverrideBuildCmd=0
+ BuildCmd=
+ 
+-[Unit249]
++[Unit247]
+ FileName=..\src\win32\resource.h
+ CompileCpp=0
+ Folder=win32/Resource Files
+@@ -2537,7 +2517,7 @@
+ OverrideBuildCmd=0
+ BuildCmd=
+ 
+-[Unit250]
++[Unit248]
+ FileName=..\src\common\rcm.h
+ CompileCpp=0
+ Folder=common/Header Files
+@@ -2547,7 +2527,7 @@
+ OverrideBuildCmd=0
+ BuildCmd=
+ 
+-[Unit251]
++[Unit249]
+ FileName=..\src\common\rcm.cpp
+ CompileCpp=0
+ Folder=common/Source Files
+@@ -2557,7 +2537,7 @@
+ OverrideBuildCmd=0
+ BuildCmd=
+ 
+-[Unit252]
++[Unit250]
+ FileName=..\src\bnetd\attr.h
+ CompileCpp=0
+ Folder=bnetd/Header Files
+@@ -2567,7 +2547,7 @@
+ OverrideBuildCmd=0
+ BuildCmd=
+ 
+-[Unit253]
++[Unit251]
+ FileName=..\src\bnetd\attrlayer.h
+ CompileCpp=0
+ Folder=bnetd/Header Files
+@@ -2577,7 +2557,7 @@
+ OverrideBuildCmd=0
+ BuildCmd=
+ 
+-[Unit254]
++[Unit252]
+ FileName=..\src\bnetd\attrgroup.h
+ CompileCpp=0
+ Folder=bnetd/Header Files
+@@ -2587,7 +2567,7 @@
+ OverrideBuildCmd=0
+ BuildCmd=
+ 
+-[Unit255]
++[Unit253]
+ FileName=..\src\bnetd\attrlayer.cpp
+ CompileCpp=0
+ Folder=bnetd/Source Files
+@@ -2597,7 +2577,7 @@
+ OverrideBuildCmd=0
+ BuildCmd=
+ 
+-[Unit256]
++[Unit254]
+ FileName=..\src\bnetd\attrgroup.cpp
+ CompileCpp=0
+ Folder=bnetd/Source Files
+@@ -2607,7 +2587,7 @@
+ OverrideBuildCmd=0
+ BuildCmd=
+ 
+-[Unit257]
++[Unit255]
+ FileName=..\src\bnetd\cmdline.h
+ CompileCpp=0
+ Folder=bnetd/Header Files
+@@ -2617,7 +2597,7 @@
+ OverrideBuildCmd=0
+ BuildCmd=
+ 
+-[Unit258]
++[Unit256]
+ FileName=..\src\bnetd\cmdline.cpp
+ CompileCpp=0
+ Folder=bnetd/Source Files
+@@ -2627,7 +2607,7 @@
+ OverrideBuildCmd=0
+ BuildCmd=
+ 
+-[Unit259]
++[Unit257]
+ FileName=..\src\common\conf.h
+ CompileCpp=0
+ Folder=common/Header Files
+@@ -2637,7 +2617,7 @@
+ OverrideBuildCmd=0
+ BuildCmd=
+ 
+-[Unit260]
++[Unit258]
+ FileName=..\src\common\conf.cpp
+ CompileCpp=0
+ Folder=common/Source Files
+@@ -2647,7 +2627,7 @@
+ OverrideBuildCmd=0
+ BuildCmd=
+ 
+-[Unit261]
++[Unit259]
+ FileName=..\src\common\systemerror.h
+ CompileCpp=1
+ Folder=common/Header Files
+@@ -2657,7 +2637,7 @@
+ OverrideBuildCmd=0
+ BuildCmd=
+ 
+-[Unit262]
++[Unit260]
+ FileName=..\src\common\systemerror.cpp
+ CompileCpp=1
+ Folder=common/Source Files
+@@ -2667,10 +2647,30 @@
+ OverrideBuildCmd=0
+ BuildCmd=
+ 
++[Unit261]
++FileName=..\src\common\xstr.h
++CompileCpp=1
++Folder=common/Header Files
++Compile=1
++Link=1
++Priority=1000
++OverrideBuildCmd=0
++BuildCmd=
++
++[Unit262]
++FileName=..\src\common\xstr.cpp
++CompileCpp=1
++Folder=common/Source Files
++Compile=1
++Link=1
++Priority=1000
++OverrideBuildCmd=0
++BuildCmd=
++
+ [Unit263]
+-FileName=..\src\win32\gui_printf.cpp
++FileName=..\src\bnetd\handle_wol.h
+ CompileCpp=1
+-Folder=win32/Source Files
++Folder=bnetd/Header Files
+ Compile=1
+ Link=1
+ Priority=1000
+@@ -2678,9 +2678,9 @@
+ BuildCmd=
+ 
+ [Unit264]
+-FileName=..\src\win32\gui_printf.h
++FileName=..\src\bnetd\handle_wol.cpp
+ CompileCpp=1
+-Folder=win32/Header Files
++Folder=bnetd/Source Files
+ Compile=1
+ Link=1
+ Priority=1000
+@@ -2688,9 +2688,9 @@
+ BuildCmd=
+ 
+ [Unit265]
+-FileName=..\src\common\xstr.h
++FileName=..\src\bnetd\sql_common.cpp
+ CompileCpp=1
+-Folder=common/Header Files
++Folder=bnetd/Source Files
+ Compile=1
+ Link=1
+ Priority=1000
+@@ -2698,9 +2698,9 @@
+ BuildCmd=
+ 
+ [Unit266]
+-FileName=..\src\common\xstr.cpp
++FileName=..\src\bnetd\sql_common.h
+ CompileCpp=1
+-Folder=common/Source Files
++Folder=bnetd/Header Files
+ Compile=1
+ Link=1
+ Priority=1000
+@@ -2708,7 +2708,7 @@
+ BuildCmd=
+ 
+ [Unit267]
+-FileName=..\src\bnetd\handle_wol.h
++FileName=..\src\bnetd\storage_sql2.h
+ CompileCpp=1
+ Folder=bnetd/Header Files
+ Compile=1
+@@ -2718,7 +2718,7 @@
+ BuildCmd=
+ 
+ [Unit268]
+-FileName=..\src\bnetd\handle_wol.cpp
++FileName=..\src\bnetd\storage_sql2.cpp
+ CompileCpp=1
+ Folder=bnetd/Source Files
+ Compile=1
+@@ -2728,9 +2728,9 @@
+ BuildCmd=
+ 
+ [Unit269]
+-FileName=..\src\bnetd\sql_common.cpp
++FileName=..\src\bnetd\handle_irc_common.h
+ CompileCpp=1
+-Folder=bnetd/Source Files
++Folder=bnetd/Header Files
+ Compile=1
+ Link=1
+ Priority=1000
+@@ -2738,9 +2738,9 @@
+ BuildCmd=
+ 
+ [Unit270]
+-FileName=..\src\bnetd\sql_common.h
++FileName=..\src\bnetd\handle_irc_common.cpp
+ CompileCpp=1
+-Folder=bnetd/Header Files
++Folder=bnetd/Source Files
+ Compile=1
+ Link=1
+ Priority=1000
+@@ -2748,9 +2748,9 @@
+ BuildCmd=
+ 
+ [Unit271]
+-FileName=..\src\bnetd\storage_sql2.h
++FileName=..\src\common\wolhash.h
+ CompileCpp=1
+-Folder=bnetd/Header Files
++Folder=common/Header Files
+ Compile=1
+ Link=1
+ Priority=1000
+@@ -2758,9 +2758,9 @@
+ BuildCmd=
+ 
+ [Unit272]
+-FileName=..\src\bnetd\storage_sql2.cpp
++FileName=..\src\common\wolhash.cpp
+ CompileCpp=1
+-Folder=bnetd/Source Files
++Folder=common/Source Files
+ Compile=1
+ Link=1
+ Priority=1000
+@@ -2768,7 +2768,7 @@
+ BuildCmd=
+ 
+ [Unit273]
+-FileName=..\src\bnetd\handle_irc_common.h
++FileName=..\src\bnetd\handle_apireg.h
+ CompileCpp=1
+ Folder=bnetd/Header Files
+ Compile=1
+@@ -2778,7 +2778,7 @@
+ BuildCmd=
+ 
+ [Unit274]
+-FileName=..\src\bnetd\handle_irc_common.cpp
++FileName=..\src\bnetd\handle_apireg.cpp
+ CompileCpp=1
+ Folder=bnetd/Source Files
+ Compile=1
+@@ -2788,9 +2788,9 @@
+ BuildCmd=
+ 
+ [Unit275]
+-FileName=..\src\common\wolhash.h
++FileName=..\src\bnetd\handle_wserv.cpp
+ CompileCpp=1
+-Folder=common/Header Files
++Folder=bnetd/Source Files
+ Compile=1
+ Link=1
+ Priority=1000
+@@ -2798,9 +2798,9 @@
+ BuildCmd=
+ 
+ [Unit276]
+-FileName=..\src\common\wolhash.cpp
++FileName=..\src\bnetd\handle_wserv.h
+ CompileCpp=1
+-Folder=common/Source Files
++Folder=bnetd/Header Files
+ Compile=1
+ Link=1
+ Priority=1000
+
+Modified: trunk/pvpgn/conf/bnetd.conf.in
+===================================================================
+--- trunk/pvpgn/conf/bnetd.conf.in	2008-04-16 16:30:35 UTC (rev 445)
++++ trunk/pvpgn/conf/bnetd.conf.in	2008-04-17 13:41:10 UTC (rev 446)
+@@ -525,12 +525,16 @@
+ 
+ # This specifies the addresses where WOL connections should be accepted. See
+ # the description of servaddrs for formatting information. Leave this field
+-# blank if you do not want to accept WOL connections. If the WSERV port is not
+-# specifed then 4005 and WOL port is not specifed then 4000 will be used. 
+-# Note: DO NOT SET THE PORT TO ANYTHING OTHER THEN 4005 and 4000, WOL WILL FAIL IF YOU DO!
++# blank if you do not want to accept WOL connections. If the wolv1 port is
++# not specifed then 4005 will be used. Also if wolv2 port is not specifed
++# then 4000 will be used. 
++# WOLv2 address includes servserv, game/chatting and ladder services.
++#
++# Note: DO NOT SET THE PORT TO ANYTHING OTHER THEN 4000 for WOLv1 or 4005 for
++# WOLv2, WOL WILL FAIL IF YOU DO!
+ 
+-#woladdrs = &quot;:4000&quot;
+-#wservaddrs = &quot;:4005&quot;
++#wolv1addrs = &quot;:4000&quot;
++#wolv2addrs = &quot;:4005&quot;
+ #wgameresaddrs = &quot;:4807&quot;
+ #apiregaddrs = &quot;:5400&quot;
+ 
+@@ -540,6 +544,15 @@
+ wollongitude = &quot;36.1083&quot;
+ wollatitude = &quot;-115.0582&quot;
+ 
++# These as default means that WOL autoupdate will use official WOL FTP server.
++# As &quot;wol_update_serverhost&quot; can be used also an IP address. FTP server is not
++# component of PvPGN so for that purpose can be used any FTP server.
++# Note that username and password is specifiable only in WOLv2 protocol. WOLv1
++# will always use the default values. 
++wol_autoupdate_serverhost = &quot;westwood-patch.ea.com&quot;
++wol_autoupdate_username = &quot;update&quot;
++wol_autoupdate_password = &quot;world96&quot;
++
+ #                                                                            #
+ ##############################################################################
+ 
+
+Modified: trunk/pvpgn/conf/bnetd.conf.win32
+===================================================================
+--- trunk/pvpgn/conf/bnetd.conf.win32	2008-04-16 16:30:35 UTC (rev 445)
++++ trunk/pvpgn/conf/bnetd.conf.win32	2008-04-17 13:41:10 UTC (rev 446)
+@@ -502,12 +502,16 @@
+ 
+ # This specifies the addresses where WOL connections should be accepted. See
+ # the description of servaddrs for formatting information. Leave this field
+-# blank if you do not want to accept WOL connections. If the WSERV port is not
+-# specifed then 4005 and WOL port is not specifed then 4000 will be used. 
+-# Note: DO NOT SET THE PORT TO ANYTHING OTHER THEN 4005 and 4000, WOL WILL FAIL IF YOU DO!
++# blank if you do not want to accept WOL connections. If the wolv1 port is
++# not specifed then 4005 will be used. Also if wolv2 port is not specifed
++# then 4000 will be used. 
++# WOLv2 address includes servserv, game/chatting and ladder services.
++#
++# Note: DO NOT SET THE PORT TO ANYTHING OTHER THEN 4000 for WOLv1 or 4005 for
++# WOLv2, WOL WILL FAIL IF YOU DO!
+ 
+-#woladdrs = &quot;:4000&quot;
+-#wservaddrs = &quot;:4005&quot;
++#wolv1addrs = &quot;:4000&quot;
++#wolv2addrs = &quot;:4005&quot;
+ #wgameresaddrs = &quot;:4807&quot;
+ #apiregaddrs = &quot;:5400&quot;
+ 
+@@ -517,6 +521,15 @@
+ wollongitude = &quot;36.1083&quot;
+ wollatitude = &quot;-115.0582&quot;
+ 
++# These as default means that WOL autoupdate will use official WOL FTP server.
++# As &quot;wol_update_serverhost&quot; can be used also an IP address. FTP server is not
++# component of PvPGN so for that purpose can be used any FTP server.
++# Note that username and password is specifiable only in WOLv2 protocol. WOLv1
++# will always use the default values. 
++wol_autoupdate_serverhost = &quot;westwood-patch.ea.com&quot;
++wol_autoupdate_username = &quot;update&quot;
++wol_autoupdate_password = &quot;world96&quot;
++
+ #                                                                            #
+ ##############################################################################
+ 
+
+Modified: trunk/pvpgn/src/bnetd/handle_irc.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/handle_irc.cpp	2008-04-16 16:30:35 UTC (rev 445)
++++ trunk/pvpgn/src/bnetd/handle_irc.cpp	2008-04-17 13:41:10 UTC (rev 446)
+@@ -68,7 +68,6 @@
+ static int _handle_notice_command(t_connection * conn, int numparams, char ** params, char * text);
+ static int _handle_quit_command(t_connection * conn, int numparams, char ** params, char * text);
+ 
+-
+ static int _handle_who_command(t_connection * conn, int numparams, char ** params, char * text);
+ static int _handle_list_command(t_connection * conn, int numparams, char ** params, char * text);
+ static int _handle_userhost_command(t_connection * conn, int numparams, char ** params, char * text);
+
+Modified: trunk/pvpgn/src/bnetd/handle_irc_common.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/handle_irc_common.cpp	2008-04-16 16:30:35 UTC (rev 445)
++++ trunk/pvpgn/src/bnetd/handle_irc_common.cpp	2008-04-17 13:41:10 UTC (rev 446)
+@@ -99,15 +99,16 @@
+     else {
+         if (std::strcmp(command, &quot;verchk&quot;) == 0) {
+             DEBUG0(&quot;Got WSERV packet&quot;);
+-            if (std::strcmp(prefs_get_wserv_addrs(),&quot;&quot;) != 0)
++            if (std::strcmp(prefs_get_wolv2_addrs(),&quot;&quot;) != 0)
+                 conn_set_class(conn,conn_class_wserv);
+             else
+                 conn_set_state(conn,conn_state_destroy);
+             return 0;
+         }
+-        else if (std::strcmp(command, &quot;CVERS&quot;) == 0) {
++        else if ((std::strcmp(command, &quot;CVERS&quot;) == 0) || (std::strcmp(command, &quot;cvers&quot;) == 0)) {
+             DEBUG0(&quot;Got WOL packet&quot;);
+-            if (std::strcmp(prefs_get_wol_addrs(),&quot;&quot;) != 0)
++            /* FIXME: We can check it not by address but check if client is supported by tag_check_in_list() */
++            if ((std::strcmp(prefs_get_wolv1_addrs(),&quot;&quot;) != 0) || (std::strcmp(prefs_get_wolv2_addrs(),&quot;&quot;) != 0))
+                 conn_set_class(conn,conn_class_wol);
+             else
+                 conn_set_state(conn,conn_state_destroy);
+@@ -117,7 +118,7 @@
+                 (std::strcmp(command, &quot;RUNGSEARCH&quot;) == 0) ||
+                 (std::strcmp(command, &quot;HIGHSCORE&quot;) == 0)) {
+             DEBUG0(&quot;Got WOL Ladder packet&quot;);
+-            if (std::strcmp(prefs_get_wol_addrs(),&quot;&quot;) != 0)
++            if (std::strcmp(prefs_get_wolv2_addrs(),&quot;&quot;) != 0)
+                 conn_set_class(conn,conn_class_wladder); /* is handled in handle_wol.* now */
+             else
+                 conn_set_state(conn,conn_state_destroy);
+
+Modified: trunk/pvpgn/src/bnetd/handle_wserv.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/handle_wserv.cpp	2008-04-16 16:30:35 UTC (rev 445)
++++ trunk/pvpgn/src/bnetd/handle_wserv.cpp	2008-04-17 13:41:10 UTC (rev 446)
+@@ -1,7 +1,7 @@
+ /*
+  * Copyright (C) 2001  Marco Ziech (<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">mmz at gmx.net</A>)
+  * Copyright (C) 2005  Bryan Biedenkapp (<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">gatekeep at gmail.com</A>)
+- * Copyright (C) 2006,2007  Pelish (<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">pelish at gmail.com</A>)
++ * Copyright (C) 2006,2007,2008  Pelish (<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">pelish at gmail.com</A>)
+  *
+  * This program is free software; you can redistribute it and/or
+  * modify it under the terms of the GNU General Public License
+@@ -91,6 +91,9 @@
+     char temp[MAX_IRC_MESSAGE_LEN];
+     t_clienttag clienttag;
+     char *filestring;
++    char const *ftphostname;
++    char const *ftpusername;
++    char const *ftppassword;
+ 
+    /**
+     *  Heres the imput expected:
+@@ -111,7 +114,10 @@
+ 
+         if (filestring = autoupdate_check(ARCHTAG_WINX86_UINT, clienttag, TAG_UNKNOWN_UINT, params[1], params[0])) {
+             //:westwood-patch.ea.com update world96 lore3/1.003 65539_65536_6400.rtp 65539 6400 REQ
+-            snprintf(temp, sizeof(temp), &quot;:westwood-patch.ea.com update world96 %s 131075 %s REQ&quot;, filestring, params[0]);
++            ftphostname = prefs_get_wol_autoupdate_serverhost();
++            ftpusername = prefs_get_wol_autoupdate_username();
++            ftppassword = prefs_get_wol_autoupdate_password();
++            snprintf(temp, sizeof(temp), &quot;:%s %s %s %s 131075 %s REQ&quot;, ftphostname, ftpusername, ftppassword, filestring, params[0]);
+             irc_send(conn,RPL_UPDATE_FTP,temp);
+         }
+         else
+@@ -156,13 +162,13 @@
+     if (!tag_check_in_list(conn_get_clienttag(conn), prefs_get_allowed_clients())) {
+         //  This is for anyone game but not for Emperor
+         if (conn_get_clienttag(conn) != CLIENTTAG_EMPERORBD_UINT) {
+-            snprintf(temp, sizeof(temp), &quot;:%s %d '0:%s' %s %s %s&quot;, wolip, BNETD_WSERV_PORT, wolname, woltimezone, wollong, wollat);
++            snprintf(temp, sizeof(temp), &quot;:%s %d '0:%s' %s %s %s&quot;, wolip, BNETD_WOLV2_PORT, wolname, woltimezone, wollong, wollat);
+             irc_send(conn,RPL_WOLSERV,temp);
+         }
+ 
+         //  Only for Emperor: Battle for Dune
+         if (conn_get_clienttag(conn) == CLIENTTAG_EMPERORBD_UINT) {
+-            snprintf(temp, sizeof(temp), &quot;:%s %d '0:Emperor %s' %s %s %s&quot;, wolip, BNETD_WSERV_PORT, wolname, woltimezone, wollong, wollat);
++            snprintf(temp, sizeof(temp), &quot;:%s %d '0:Emperor %s' %s %s %s&quot;, wolip, BNETD_WOLV2_PORT, wolname, woltimezone, wollong, wollat);
+             irc_send(conn,RPL_WOLSERV,temp);
+         }
+ 
+@@ -178,17 +184,18 @@
+         }
+ 
+         //  There are servers for anyone game
+-        snprintf(temp, sizeof(temp), &quot;:%s %d 'Live chat server' %s %s %s&quot;, wolip, BNETD_WOL_PORT, woltimezone, wollong, wollat);
++        // FIXME: Check if is WOLv1 supported
++        snprintf(temp, sizeof(temp), &quot;:%s %d 'Live chat server' %s %s %s&quot;, wolip, BNETD_WOLV1_PORT, woltimezone, wollong, wollat);
+         irc_send(conn,RPL_WOLSERV,temp);
+     }
+ 
+     // If game is not allowed than we still send this servers 
+     snprintf(temp, sizeof(temp), &quot;:%s %d 'Gameres server' %s %s %s&quot;, wolip, BNETD_WGAMERES_PORT, woltimezone, wollong, wollat);
+     irc_send(conn,RPL_GAMERESSERV,temp);
+-    snprintf(temp, sizeof(temp), &quot;:%s %d 'Ladder server' %s %s %s&quot;, wolip, BNETD_WOL_PORT, woltimezone, wollong, wollat);
++    snprintf(temp, sizeof(temp), &quot;:%s %d 'Ladder server' %s %s %s&quot;, wolip, BNETD_WOLV2_PORT, woltimezone, wollong, wollat);
+     irc_send(conn,RPL_LADDERSERV,temp);
+     // There is Word Domination Tour server for Firestorm (maybe for future coding)
+-    //snprintf(temp, sizeof(temp), &quot;:%s %d 'WDT server' %s %s %s&quot;, wolip, BNETD_WOL_PORT, woltimezone, wollong, wollat); //I dont know for what is this server...?
++    //snprintf(temp, sizeof(temp), &quot;:%s %d 'WDT server' %s %s %s&quot;, wolip, BNETD_WOLV2_PORT, woltimezone, wollong, wollat); //I dont know for what is this server...?
+     //irc_send(conn,RPL_WDTSERV,temp);
+ 
+     return 0;
+
+Modified: trunk/pvpgn/src/bnetd/prefs.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/prefs.cpp	2008-04-16 16:30:35 UTC (rev 445)
++++ trunk/pvpgn/src/bnetd/prefs.cpp	2008-04-17 13:41:10 UTC (rev 446)
+@@ -162,12 +162,15 @@
+     char const * irc_network_name;
+ 
+     char const * apiregaddrs;
+-    char const * woladdrs;
+-    char const * wservaddrs;
++    char const * wolv1addrs;
++    char const * wolv2addrs;
+     char const * wgameresaddrs;
+     char const * woltimezone;
+     char const * wollongitude;
+     char const * wollatitude;
++    char const * wol_autoupdate_serverhost;
++    char const * wol_autoupdate_username;
++    char const * wol_autoupdate_password;
+ } prefs_runtime_config;
+ 
+ static int conf_set_filedir(const char *valstr);
+@@ -654,13 +657,13 @@
+ static int conf_set_wgameres_addrs(const char *valstr);
+ static const char *conf_get_wgameres_addrs(void);
+ 
+-static int conf_setdef_wserv_addrs(void);
+-static int conf_set_wserv_addrs(const char *valstr);
+-static const char *conf_get_wserv_addrs(void);
++static int conf_setdef_wolv1_addrs(void);
++static int conf_set_wolv1_addrs(const char *valstr);
++static const char *conf_get_wolv1_addrs(void);
+ 
+-static int conf_setdef_wol_addrs(void);
+-static int conf_set_wol_addrs(const char *valstr);
+-static const char *conf_get_wol_addrs(void);
++static int conf_setdef_wolv2_addrs(void);
++static int conf_set_wolv2_addrs(const char *valstr);
++static const char *conf_get_wolv2_addrs(void);
+ 
+ static int conf_set_wol_timezone(const char *valstr);
+ static const char *conf_get_wol_timezone(void);
+@@ -674,6 +677,18 @@
+ static const char *conf_get_wol_latitude(void);
+ static int conf_setdef_wol_latitude(void);
+ 
++static int conf_set_wol_autoupdate_serverhost(const char *valstr);
++static const char *conf_get_wol_autoupdate_serverhost(void);
++static int conf_setdef_wol_autoupdate_serverhost(void);
++
++static int conf_set_wol_autoupdate_username(const char *valstr);
++static const char *conf_get_wol_autoupdate_username(void);
++static int conf_setdef_wol_autoupdate_username(void);
++
++static int conf_set_wol_autoupdate_password(const char *valstr);
++static const char *conf_get_wol_autoupdate_password(void);
++static int conf_setdef_wol_autoupdate_password(void);
++
+ /*    directive                 set method                     get method         */
+ static t_conf_entry conf_table[] =
+   {
+@@ -799,11 +814,14 @@
+ 
+     { &quot;apiregaddrs&quot;,		conf_set_apireg_addrs,	       conf_get_apireg_addrs, conf_setdef_apireg_addrs},
+     { &quot;wgameresaddrs&quot;,		conf_set_wgameres_addrs,	       conf_get_wgameres_addrs, conf_setdef_wgameres_addrs},
+-    { &quot;wservaddrs&quot;,		conf_set_wserv_addrs,	       conf_get_wserv_addrs, conf_setdef_wserv_addrs},
+-    { &quot;woladdrs&quot;,		conf_set_wol_addrs,	       conf_get_wol_addrs, conf_setdef_wol_addrs},
++    { &quot;wolv1addrs&quot;,		conf_set_wolv1_addrs,	       conf_get_wolv1_addrs, conf_setdef_wolv1_addrs},
++    { &quot;wolv2addrs&quot;,		conf_set_wolv2_addrs,	       conf_get_wolv2_addrs, conf_setdef_wolv2_addrs},
+     { &quot;woltimezone&quot;,		conf_set_wol_timezone,         conf_get_wol_timezone, conf_setdef_wol_timezone},
+     { &quot;wollongitude&quot;,		conf_set_wol_longitude,             conf_get_wol_longitude, conf_setdef_wol_longitude},
+     { &quot;wollatitude&quot;,		conf_set_wol_latitude,              conf_get_wol_latitude, conf_setdef_wol_latitude},
++    { &quot;wol_autoupdate_serverhost&quot;, conf_set_wol_autoupdate_serverhost,    conf_get_wol_autoupdate_serverhost, conf_setdef_wol_autoupdate_serverhost},
++    { &quot;wol_autoupdate_username&quot;,   conf_set_wol_autoupdate_username,      conf_get_wol_autoupdate_username,   conf_setdef_wol_autoupdate_username},
++    { &quot;wol_autoupdate_password&quot;,   conf_set_wol_autoupdate_password,      conf_get_wol_autoupdate_password,   conf_setdef_wol_autoupdate_password},
+ 
+     { NULL,			NULL,				NULL,				NONE},
+   };
+@@ -3415,7 +3433,7 @@
+ 
+ static int conf_setdef_wgameres_addrs(void)
+ {
+-    return conf_set_str(&amp;prefs_runtime_config.wgameresaddrs,NULL,BNETD_WOL_ADDRS);
++    return conf_set_str(&amp;prefs_runtime_config.wgameresaddrs,NULL,BNETD_WGAMERES_ADDRS);
+ }
+ 
+ static const char* conf_get_wgameres_addrs(void)
+@@ -3423,44 +3441,44 @@
+     return prefs_runtime_config.wgameresaddrs;
+ }
+ 
+-extern char const * prefs_get_wserv_addrs(void)
++extern char const * prefs_get_wolv1_addrs(void)
+ {
+-    return prefs_runtime_config.wservaddrs;
++    return prefs_runtime_config.wolv1addrs;
+ }
+ 
+-static int conf_set_wserv_addrs(const char *valstr)
++static int conf_set_wolv1_addrs(const char *valstr)
+ {
+-    return conf_set_str(&amp;prefs_runtime_config.wservaddrs,valstr,NULL);
++    return conf_set_str(&amp;prefs_runtime_config.wolv1addrs,valstr,NULL);
+ }
+ 
+-static int conf_setdef_wserv_addrs(void)
++static int conf_setdef_wolv1_addrs(void)
+ {
+-    return conf_set_str(&amp;prefs_runtime_config.wservaddrs,NULL,BNETD_WOL_ADDRS);
++    return conf_set_str(&amp;prefs_runtime_config.wolv1addrs,NULL,BNETD_WOLV1_ADDRS);
+ }
+ 
+-static const char* conf_get_wserv_addrs(void)
++static const char* conf_get_wolv1_addrs(void)
+ {
+-    return prefs_runtime_config.wservaddrs;
++    return prefs_runtime_config.wolv1addrs;
+ }
+ 
+-extern char const * prefs_get_wol_addrs(void)
++extern char const * prefs_get_wolv2_addrs(void)
+ {
+-    return prefs_runtime_config.woladdrs;
++    return prefs_runtime_config.wolv2addrs;
+ }
+ 
+-static int conf_set_wol_addrs(const char *valstr)
++static int conf_set_wolv2_addrs(const char *valstr)
+ {
+-    return conf_set_str(&amp;prefs_runtime_config.woladdrs,valstr,NULL);
++    return conf_set_str(&amp;prefs_runtime_config.wolv2addrs,valstr,NULL);
+ }
+ 
+-static int conf_setdef_wol_addrs(void)
++static int conf_setdef_wolv2_addrs(void)
+ {
+-    return conf_set_str(&amp;prefs_runtime_config.woladdrs,NULL,BNETD_WOL_ADDRS);
++    return conf_set_str(&amp;prefs_runtime_config.wolv2addrs,NULL,BNETD_WOLV2_ADDRS);
+ }
+ 
+-static const char* conf_get_wol_addrs(void)
++static const char* conf_get_wolv2_addrs(void)
+ {
+-    return prefs_runtime_config.woladdrs;
++    return prefs_runtime_config.wolv2addrs;
+ }
+ 
+ static int  conf_set_wol_timezone(const char *valstr)
+@@ -3523,6 +3541,66 @@
+     return conf_set_str(&amp;prefs_runtime_config.wollatitude,NULL,0);
+ }
+ 
++static int conf_set_wol_autoupdate_serverhost(const char *valstr)
++{
++    return conf_set_str(&amp;prefs_runtime_config.wol_autoupdate_serverhost,valstr,NULL);
+ }
+ 
++extern char const * prefs_get_wol_autoupdate_serverhost(void)
++{
++     return prefs_runtime_config.wol_autoupdate_serverhost;
+ }
++
++static char const * conf_get_wol_autoupdate_serverhost(void)
++{
++     return prefs_runtime_config.wol_autoupdate_serverhost;
++}
++
++static int conf_setdef_wol_autoupdate_serverhost(void)
++{
++    return conf_set_str(&amp;prefs_runtime_config.wol_autoupdate_serverhost,NULL,0);
++}
++
++static int conf_set_wol_autoupdate_username(const char *valstr)
++{
++    return conf_set_str(&amp;prefs_runtime_config.wol_autoupdate_username,valstr,NULL);
++}
++
++extern char const * prefs_get_wol_autoupdate_username(void)
++{
++     return prefs_runtime_config.wol_autoupdate_username;
++}
++
++static char const * conf_get_wol_autoupdate_username(void)
++{
++     return prefs_runtime_config.wol_autoupdate_username;
++}
++
++static int conf_setdef_wol_autoupdate_username(void)
++{
++    return conf_set_str(&amp;prefs_runtime_config.wol_autoupdate_username,NULL,0);
++}
++
++static int conf_set_wol_autoupdate_password(const char *valstr)
++{
++    return conf_set_str(&amp;prefs_runtime_config.wol_autoupdate_password,valstr,NULL);
++}
++
++extern char const * prefs_get_wol_autoupdate_password(void)
++{
++     return prefs_runtime_config.wol_autoupdate_password;
++}
++
++static char const * conf_get_wol_autoupdate_password(void)
++{
++     return prefs_runtime_config.wol_autoupdate_password;
++}
++
++static int conf_setdef_wol_autoupdate_password(void)
++{
++    return conf_set_str(&amp;prefs_runtime_config.wol_autoupdate_password,NULL,0);
++}
++
++}
++
++}
+
+Modified: trunk/pvpgn/src/bnetd/prefs.h
+===================================================================
+--- trunk/pvpgn/src/bnetd/prefs.h	2008-04-16 16:30:35 UTC (rev 445)
++++ trunk/pvpgn/src/bnetd/prefs.h	2008-04-17 13:41:10 UTC (rev 446)
+@@ -185,12 +185,14 @@
+ */
+ extern char const * prefs_get_apireg_addrs(void);
+ extern char const * prefs_get_wgameres_addrs(void);
+-extern char const * prefs_get_wserv_addrs(void);
+-extern char const * prefs_get_wol_addrs(void);
++extern char const * prefs_get_wolv1_addrs(void);
++extern char const * prefs_get_wolv2_addrs(void);
+ extern char const * prefs_get_wol_timezone(void);
+ extern char const * prefs_get_wol_longitude(void);
+ extern char const * prefs_get_wol_latitude(void);
+-
++extern char const * prefs_get_wol_autoupdate_serverhost(void);
++extern char const * prefs_get_wol_autoupdate_username(void);
++extern char const * prefs_get_wol_autoupdate_password(void);
+ }
+ 
+ }
+
+Modified: trunk/pvpgn/src/bnetd/server.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/server.cpp	2008-04-16 16:30:35 UTC (rev 445)
++++ trunk/pvpgn/src/bnetd/server.cpp	2008-04-17 13:41:10 UTC (rev 446)
+@@ -200,10 +200,10 @@
+ 	return &quot;w3route&quot;;
+     case laddr_type_irc:
+ 	return &quot;irc&quot;;
+-    case laddr_type_wol:
+-	return &quot;wol&quot;;
+-    case laddr_type_wserv:
+-	return &quot;wserv&quot;;
++    case laddr_type_wolv1:
++	return &quot;wolv1&quot;;
++    case laddr_type_wolv2:
++	return &quot;wolv2&quot;;
+     case laddr_type_apireg:
+ 	return &quot;apireg&quot;;
+     case laddr_type_wgameres:
+@@ -343,8 +343,8 @@
+ 	switch (laddr_info-&gt;type)
+ 	{
+ 	case laddr_type_irc:
+-	case laddr_type_wol:
+-	case laddr_type_wserv:
++	case laddr_type_wolv1:
++	case laddr_type_wolv2:
+ 	    conn_set_class(c,conn_class_ircinit);
+ 	    conn_set_state(c,conn_state_connected);
+ 	    break;
+@@ -645,8 +645,8 @@
+ 		    break;
+ 		case conn_class_ircinit:
+ 		case conn_class_irc:
++		case conn_class_wol:
+ 		case conn_class_wserv:
+-		case conn_class_wol:
+ 		case conn_class_wladder:
+ 		case conn_class_wgameres: /* NOTICE: Will be handled in another file */
+ 		    ret = handle_irc_common_packet(c,packet);
+@@ -1460,18 +1460,18 @@
+ 	return -1;
+     }
+ 
+-    /* Append list of addresses to listen for WOL IRC connections */
+-    if (_setup_add_addrs(&amp;laddrs, prefs_get_wol_addrs(),INADDR_ANY,BNETD_WOL_PORT, laddr_type_wol))
++    /* Append list of addresses to listen for WOLv1 connections */
++    if (_setup_add_addrs(&amp;laddrs, prefs_get_wolv1_addrs(),INADDR_ANY,BNETD_WOLV1_PORT, laddr_type_wolv1))
+     {
+-	eventlog(eventlog_level_error,__FUNCTION__,&quot;could not create %s server address list from \&quot;%s\&quot;&quot;,laddr_type_get_str(laddr_type_wol),prefs_get_wol_addrs());
++	eventlog(eventlog_level_error,__FUNCTION__,&quot;could not create %s server address list from \&quot;%s\&quot;&quot;,laddr_type_get_str(laddr_type_wolv1),prefs_get_wolv1_addrs());
+ 	_shutdown_addrs(laddrs);
+ 	return -1;
+     }
+ 
+-    /* Append list of addresses to listen for WSERV IRC connections */
+-    if (_setup_add_addrs(&amp;laddrs, prefs_get_wserv_addrs(),INADDR_ANY,BNETD_WSERV_PORT, laddr_type_wserv))
++    /* Append list of addresses to listen for WOLv2 connections */
++    if (_setup_add_addrs(&amp;laddrs, prefs_get_wolv2_addrs(),INADDR_ANY,BNETD_WOLV2_PORT, laddr_type_wolv2))
+     {
+-	eventlog(eventlog_level_error,__FUNCTION__,&quot;could not create %s server address list from \&quot;%s\&quot;&quot;,laddr_type_get_str(laddr_type_wserv),prefs_get_wserv_addrs());
++	eventlog(eventlog_level_error,__FUNCTION__,&quot;could not create %s server address list from \&quot;%s\&quot;&quot;,laddr_type_get_str(laddr_type_wolv2),prefs_get_wolv2_addrs());
+ 	_shutdown_addrs(laddrs);
+ 	return -1;
+     }
+
+Modified: trunk/pvpgn/src/bnetd/server.h
+===================================================================
+--- trunk/pvpgn/src/bnetd/server.h	2008-04-16 16:30:35 UTC (rev 445)
++++ trunk/pvpgn/src/bnetd/server.h	2008-04-17 13:41:10 UTC (rev 446)
+@@ -34,8 +34,8 @@
+     laddr_type_bnet,	/* classic battle.net service (usually on port 6112) */
+     laddr_type_w3route, /* warcraft 3 playgame routing (def. port 6200) */
+     laddr_type_irc,   	/* Internet Relay Chat service (port is varying; mostly on port 6667 or 7000) */
+-    laddr_type_wol,	    /* Westwood Online (IRC) Chat Services (port is 4000) */
+-    laddr_type_wserv,   /* Westwood servserv (IRC) Services (port is 4005) */
++    laddr_type_wolv1,   /* Westwood Online v1 (IRC) Services (port is 4000) */
++    laddr_type_wolv2,   /* Westwood Online v2 (IRC) Services (port is 4005) */
+     laddr_type_apireg,  /* Westwood API Register Services (port is 5700) */
+     laddr_type_wgameres,/* Westwood gameres Services (port is 4807) */
+     laddr_type_telnet 	/* telnet service (usually on port 23) */
+
+Modified: trunk/pvpgn/src/common/setup_before.h
+===================================================================
+--- trunk/pvpgn/src/common/setup_before.h	2008-04-16 16:30:35 UTC (rev 445)
++++ trunk/pvpgn/src/common/setup_before.h	2008-04-17 13:41:10 UTC (rev 446)
+@@ -176,10 +176,10 @@
+ /* Westwood Online default configuration values */
+ const char * const BNETD_APIREG_ADDRS = &quot;&quot;;
+ const int BNETD_APIREG_PORT = 5400;
+-const char * const BNETD_WOL_ADDRS = &quot;&quot;;
+-const int BNETD_WOL_PORT = 4000;
+-const char * const BNETD_WSERV_ADDRS = &quot;&quot;;
+-const int BNETD_WSERV_PORT = 4005;
++const char * const BNETD_WOLV1_ADDRS = &quot;&quot;;
++const int BNETD_WOLV1_PORT = 4000;
++const char * const BNETD_WOLV2_ADDRS = &quot;&quot;;
++const int BNETD_WOLV2_PORT = 4005;
+ const char * const BNETD_WGAMERES_ADDRS = &quot;&quot;;
+ const int BNETD_WGAMERES_PORT = 4807;
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000664.html">[pvpgn-dev] r445 - trunk/pvpgn/src/common
+</A></li>
+	<LI>Next message: <A HREF="000666.html">[pvpgn-dev] pvpgn version-history.txt,1.278,1.279
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#665">[ date ]</a>
+              <a href="thread.html#665">[ thread ]</a>
+              <a href="subject.html#665">[ subject ]</a>
+              <a href="author.html#665">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

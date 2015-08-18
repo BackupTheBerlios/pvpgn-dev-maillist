@@ -1,0 +1,518 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r319 - in trunk/pvpgn/src: bnetd bntrackd common
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-August/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r319%20-%20in%20trunk/pvpgn/src%3A%20bnetd%20bntrackd%20common&In-Reply-To=%3C200708160107.l7G1708W010073%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000318.html">
+   <LINK REL="Next"  HREF="000327.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r319 - in trunk/pvpgn/src: bnetd bntrackd common</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r319%20-%20in%20trunk/pvpgn/src%3A%20bnetd%20bntrackd%20common&In-Reply-To=%3C200708160107.l7G1708W010073%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r319 - in trunk/pvpgn/src: bnetd bntrackd common">svn at svn.berlios.de
+       </A><BR>
+    <I>Thu Aug 16 03:07:00 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000318.html">[pvpgn-dev] r318 - in trunk/pvpgn: . src/bnetd
+</A></li>
+        <LI>Next message: <A HREF="000327.html">[pvpgn-dev] Feature freeze on CVS... Testers needed...
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#319">[ date ]</a>
+              <a href="thread.html#319">[ thread ]</a>
+              <a href="subject.html#319">[ subject ]</a>
+              <a href="author.html#319">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pandaemonium
+Date: 2007-08-16 03:06:59 +0200 (Thu, 16 Aug 2007)
+New Revision: 319
+
+Modified:
+   trunk/pvpgn/src/bnetd/tracker.cpp
+   trunk/pvpgn/src/bntrackd/bntrackd.cpp
+   trunk/pvpgn/src/common/tracker.h
+Log:
+fix for bug [ #11671 ] bnetd on 64bit sends currupt packets to tracker
+
+Modified: trunk/pvpgn/src/bnetd/tracker.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/tracker.cpp	2007-08-15 22:27:48 UTC (rev 318)
++++ trunk/pvpgn/src/bnetd/tracker.cpp	2007-08-16 01:06:59 UTC (rev 319)
+@@ -35,33 +35,8 @@
+ #include &quot;common/list.h&quot;
+ #include &quot;common/addr.h&quot;
+ #include &quot;common/tracker.h&quot;
++#include &quot;common/bn_type.h&quot;
+ 
+-/*
+-#ifdef HAVE_SYS_TYPES_H
+-# include &lt;sys/types.h&gt;
+-#endif
+-#ifdef HAVE_SYS_SOCKET_H
+-# include &lt;sys/socket.h&gt;
+-#endif
+-#ifdef HAVE_SYS_PARAM_H
+-# include &lt;sys/param.h&gt;
+-#endif
+-#ifdef HAVE_NETINET_IN_H
+-# include &lt;netinet/in.h&gt;
+-#endif
+-
+-#include &quot;compat/netinet_in.h&quot;
+-#include &quot;compat/psock.h&quot;
+-#include &quot;compat/socket.h&quot;
+-#include &quot;compat/send.h&quot;
+-#include &quot;compat/uname.h&quot;
+-#include &quot;common/version.h&quot;
+-#include &quot;common/tracker.h&quot;
+-
+-#define TRACKER_INTERNAL_ACCESS
+-#define SERVER_INTERNAL_ACCESS
+-#include &quot;tracker.h&quot;
+-*/
+ #include &quot;prefs.h&quot;
+ #include &quot;connection.h&quot;
+ #include &quot;channel.h&quot;
+@@ -126,53 +101,56 @@
+ 
+     if (addrlist_get_length(track_servers)&gt;0)
+     {
+-	packet.packet_version = htons((unsigned short)TRACK_VERSION);
++        std::memset(&amp;packet,0,sizeof(packet));
++	bn_short_nset(&amp;packet.packet_version,(unsigned short)TRACK_VERSION);
+ 	/* packet.port is set below */
+-	packet.flags = 0;
+-	std::strncpy(packet.server_location,
++	bn_int_nset(&amp;packet.flags, 0);
++	std::strncpy((char *)packet.server_location,
+ 		prefs_get_location(),
+ 		sizeof(packet.server_location));
+-	packet.server_location[sizeof(packet.server_location)-1] = '\0';
+-	std::strncpy(packet.software,
++	bn_byte_set(&amp;packet.server_location[sizeof(packet.server_location)-1],'\0');
++	std::strncpy((char *)packet.software,
+ 		PVPGN_SOFTWARE,
+ 		sizeof(packet.software));
+-	std::strncpy(packet.version,
++	bn_byte_set(&amp;packet.software[sizeof(packet.software)-1],'\0');
++	std::strncpy((char *)packet.version,
+ 		PVPGN_VERSION,
+ 		sizeof(packet.version));
+-	std::strncpy(packet.server_desc,
++	bn_byte_set(&amp;packet.version[sizeof(packet.version)-1],'\0');
++	std::strncpy((char *)packet.server_desc,
+ 		prefs_get_description(),
+ 		sizeof(packet.server_desc));
+-	packet.server_desc[sizeof(packet.server_desc)-1] = '\0';
+-	std::strncpy(packet.server_url,
++	bn_byte_set(&amp;packet.server_desc[sizeof(packet.server_desc)-1],'\0');
++	std::strncpy((char *)packet.server_url,
+ 		prefs_get_url(),
+ 		sizeof(packet.server_url));
+-	packet.server_url[sizeof(packet.server_url)-1] = '\0';
+-	std::strncpy(packet.contact_name,
++	bn_byte_set(&amp;packet.server_url[sizeof(packet.server_url)-1],'\0');
++	std::strncpy((char *)packet.contact_name,
+ 		prefs_get_contact_name(),
+ 		sizeof(packet.contact_name));
+-	packet.contact_name[sizeof(packet.contact_name)-1] = '\0';
+-	std::strncpy(packet.contact_email,
++	bn_byte_set(&amp;packet.contact_name[sizeof(packet.contact_name)-1],'\0');
++	std::strncpy((char *)packet.contact_email,
+ 		prefs_get_contact_email(),
+ 		sizeof(packet.contact_email));
+-	packet.contact_email[sizeof(packet.contact_email)-1] = '\0';
+-	packet.users = htonl(connlist_login_get_length());
+-	packet.channels = htonl(channellist_get_length());
+-	packet.games = htonl(gamelist_get_length());
+-	packet.uptime = htonl(server_get_uptime());
+-	packet.total_logins = htonl(connlist_total_logins());
+-	packet.total_games = htonl(gamelist_total_games());
++	bn_byte_set(&amp;packet.contact_email[sizeof(packet.contact_email)-1],'\0');
++	bn_int_nset(&amp;packet.users,connlist_login_get_length());
++	bn_int_nset(&amp;packet.channels,channellist_get_length());
++	bn_int_nset(&amp;packet.games,gamelist_get_length());
++	bn_int_nset(&amp;packet.uptime,server_get_uptime());
++	bn_int_nset(&amp;packet.total_logins,connlist_total_logins());
++	bn_int_nset(&amp;packet.total_games,gamelist_total_games());
+ 
+ 	if (uname(&amp;utsbuf)&lt;0)
+ 	{
+ 	    eventlog(eventlog_level_warn,__FUNCTION__,&quot;could not get platform info (uname: %s)&quot;,pstrerror(errno));
+-	    std::strncpy(packet.platform,&quot;&quot;,sizeof(packet.platform));
++	    std::strncpy((char *)packet.platform,&quot;&quot;,sizeof(packet.platform));
+ 	}
+ 	else
+ 	{
+-	    std::strncpy(packet.platform,
++	    std::strncpy((char *)packet.platform,
+ 		    utsbuf.sysname,
+ 		    sizeof(packet.platform));
+-	    packet.platform[sizeof(packet.platform)-1] = '\0';
++	    bn_byte_set(&amp;packet.platform[sizeof(packet.platform)-1],'\0');
+ 	}
+ 
+ 	LIST_TRAVERSE_CONST(laddrs,currl)
+@@ -187,7 +165,7 @@
+ 	    if (laddr_info-&gt;type!=laddr_type_bnet)
+ 		continue; /* don't report IRC, telnet, and other non-game ports */
+ 
+-	    packet.port = htons(addr_get_port(addrl));
++	    bn_short_nset(&amp;packet.port,addr_get_port(addrl));
+ 
+ 	    LIST_TRAVERSE_CONST(track_servers,currt)
+ 	    {
+
+Modified: trunk/pvpgn/src/bntrackd/bntrackd.cpp
+===================================================================
+--- trunk/pvpgn/src/bntrackd/bntrackd.cpp	2007-08-15 22:27:48 UTC (rev 318)
++++ trunk/pvpgn/src/bntrackd/bntrackd.cpp	2007-08-16 01:06:59 UTC (rev 319)
+@@ -37,6 +37,7 @@
+ #include &quot;common/xalloc.h&quot;
+ #include &quot;common/util.h&quot;
+ #include &quot;common/version.h&quot;
++#include &quot;common/bn_type.h&quot;
+ #include &quot;common/setup_after.h&quot;
+ 
+ using namespace pvpgn;
+@@ -74,19 +75,21 @@
+ int server_process(int sockfd);
+ void usage(char const * progname);
+ void getprefs(int argc, char * argv[]);
+-void fixup_str(char * str);
++void fixup_str(bn_byte * str, unsigned int size);
+ 
+ 
+ /******************************************************************************
+  * GLOBAL VARIABLES
+  *****************************************************************************/
+ t_prefs prefs;
++t_list *           serverlist_head;
+ }
+ 
+ 
+ extern int main(int argc, char * argv[])
+ {
+     int sockfd;
++    int result;
+ 
+     if (argc&lt;1 || !argv || !argv[0])
+     {
+@@ -218,8 +221,23 @@
+ 	}
+     }
+ 
+-    if (server_process(sockfd)&lt;0)
++    if (!(serverlist_head = list_create()))
++    {
++	eventlog(eventlog_level_error,__FUNCTION__,&quot;could not create server list&quot;);
++	return EXIT_FAILURE;;
++    }
++
++
++    result=server_process(sockfd);
++
++
++    if (serverlist_head != NULL){
++        list_destroy(serverlist_head);
++    }
++
++    if (result&lt;0)
+ 	return EXIT_FAILURE;
++
+     return EXIT_SUCCESS;
+ }
+ 
+@@ -227,7 +245,6 @@
+ 
+ int server_process(int sockfd)
+ {
+-    t_list *           serverlist_head;
+     t_elem *           curr;
+     t_server *         server;
+     struct sockaddr_in cliaddr;
+@@ -238,12 +255,6 @@
+     psock_t_socklen    len;
+     t_trackpacket      packet;
+ 
+-    if (!(serverlist_head = list_create()))
+-    {
+-	eventlog(eventlog_level_error,__FUNCTION__,&quot;could not create server list&quot;);
+-	return -1;
+-    }
+-
+     /* the main loop */
+     last = std::time(NULL) - prefs.update;
+     for (;;)
+@@ -274,41 +285,41 @@
+ 		   if (prefs.XML_mode == 1)
+ 		  {
+ 		    std::fprintf(outfile,&quot;&lt;server&gt;\n\t&lt;address&gt;%s&lt;/address&gt;\n&quot;,inet_ntoa(server-&gt;address));
+-		    std::fprintf(outfile,&quot;\t&lt;port&gt;%hu&lt;/port&gt;\n&quot;,(unsigned short)ntohs(server-&gt;info.port));
++		    std::fprintf(outfile,&quot;\t&lt;port&gt;%hu&lt;/port&gt;\n&quot;,bn_short_nget(server-&gt;info.port));
+ 		    std::fprintf(outfile,&quot;\t&lt;location&gt;%s&lt;/location&gt;\n&quot;,server-&gt;info.server_location);
+ 		    std::fprintf(outfile,&quot;\t&lt;software&gt;%s&lt;/software&gt;\n&quot;,server-&gt;info.software);
+ 		    std::fprintf(outfile,&quot;\t&lt;version&gt;%s&lt;/version&gt;\n&quot;,server-&gt;info.version);
+-		    std::fprintf(outfile,&quot;\t&lt;users&gt;%lu&lt;/users&gt;\n&quot;,(unsigned long)ntohl(server-&gt;info.users));
+-		    std::fprintf(outfile,&quot;\t&lt;channels&gt;%lu&lt;/channels&gt;\n&quot;,(unsigned long)ntohl(server-&gt;info.channels));
+-		    std::fprintf(outfile,&quot;\t&lt;games&gt;%lu&lt;/games&gt;\n&quot;,(unsigned long)ntohl(server-&gt;info.games));
++		    std::fprintf(outfile,&quot;\t&lt;users&gt;%lu&lt;/users&gt;\n&quot;,bn_int_nget(server-&gt;info.users));
++		    std::fprintf(outfile,&quot;\t&lt;channels&gt;%lu&lt;/channels&gt;\n&quot;,bn_int_nget(server-&gt;info.channels));
++		    std::fprintf(outfile,&quot;\t&lt;games&gt;%lu&lt;/games&gt;\n&quot;,bn_int_nget(server-&gt;info.games));
+ 		    std::fprintf(outfile,&quot;\t&lt;description&gt;%s&lt;/description&gt;\n&quot;,server-&gt;info.server_desc);
+ 		    std::fprintf(outfile,&quot;\t&lt;platform&gt;%s&lt;/platform&gt;\n&quot;,server-&gt;info.platform);
+ 		    std::fprintf(outfile,&quot;\t&lt;url&gt;%s&lt;/url&gt;\n&quot;,server-&gt;info.server_url);
+ 		    std::fprintf(outfile,&quot;\t&lt;contact_name&gt;%s&lt;/contact_name&gt;\n&quot;,server-&gt;info.contact_name);
+ 		    std::fprintf(outfile,&quot;\t&lt;contact_email&gt;%s&lt;/contact_email&gt;\n&quot;,server-&gt;info.contact_email);
+-		    std::fprintf(outfile,&quot;\t&lt;uptime&gt;%lu&lt;/uptime&gt;\n&quot;,(unsigned long)ntohl(server-&gt;info.uptime));
+-		    std::fprintf(outfile,&quot;\t&lt;total_games&gt;%lu&lt;/total_games&gt;\n&quot;,(unsigned long)ntohl(server-&gt;info.total_games));
+-		    std::fprintf(outfile,&quot;\t&lt;logins&gt;%lu&lt;/logins&gt;\n&quot;,(unsigned long)ntohl(server-&gt;info.total_logins));
++		    std::fprintf(outfile,&quot;\t&lt;uptime&gt;%lu&lt;/uptime&gt;\n&quot;,bn_int_nget(server-&gt;info.uptime));
++		    std::fprintf(outfile,&quot;\t&lt;total_games&gt;%lu&lt;/total_games&gt;\n&quot;,bn_int_nget(server-&gt;info.total_games));
++		    std::fprintf(outfile,&quot;\t&lt;logins&gt;%lu&lt;/logins&gt;\n&quot;,bn_int_nget(server-&gt;info.total_logins));
+ 		    std::fprintf(outfile,&quot;&lt;/server&gt;\n&quot;);
+ 		  }
+ 		  else
+ 		  {
+ 		    std::fprintf(outfile,&quot;%s\n##\n&quot;,inet_ntoa(server-&gt;address));
+-		    std::fprintf(outfile,&quot;%hu\n##\n&quot;,(unsigned short)ntohs(server-&gt;info.port));
++		    std::fprintf(outfile,&quot;%hu\n##\n&quot;,bn_short_nget(server-&gt;info.port));
+ 		    std::fprintf(outfile,&quot;%s\n##\n&quot;,server-&gt;info.server_location);
+ 		    std::fprintf(outfile,&quot;%s\n##\n&quot;,server-&gt;info.software);
+ 		    std::fprintf(outfile,&quot;%s\n##\n&quot;,server-&gt;info.version);
+-		    std::fprintf(outfile,&quot;%lu\n##\n&quot;,(unsigned long)ntohl(server-&gt;info.users));
+-		    std::fprintf(outfile,&quot;%lu\n##\n&quot;,(unsigned long)ntohl(server-&gt;info.channels));
+-		    std::fprintf(outfile,&quot;%lu\n##\n&quot;,(unsigned long)ntohl(server-&gt;info.games));
++		    std::fprintf(outfile,&quot;%lu\n##\n&quot;,bn_int_nget(server-&gt;info.users));
++		    std::fprintf(outfile,&quot;%lu\n##\n&quot;,bn_int_nget(server-&gt;info.channels));
++		    std::fprintf(outfile,&quot;%lu\n##\n&quot;,bn_int_nget(server-&gt;info.games));
+ 		    std::fprintf(outfile,&quot;%s\n##\n&quot;,server-&gt;info.server_desc);
+ 		    std::fprintf(outfile,&quot;%s\n##\n&quot;,server-&gt;info.platform);
+ 		    std::fprintf(outfile,&quot;%s\n##\n&quot;,server-&gt;info.server_url);
+ 		    std::fprintf(outfile,&quot;%s\n##\n&quot;,server-&gt;info.contact_name);
+ 		    std::fprintf(outfile,&quot;%s\n##\n&quot;,server-&gt;info.contact_email);
+-		    std::fprintf(outfile,&quot;%lu\n##\n&quot;,(unsigned long)ntohl(server-&gt;info.uptime));
+-		    std::fprintf(outfile,&quot;%lu\n##\n&quot;,(unsigned long)ntohl(server-&gt;info.total_games));
+-		    std::fprintf(outfile,&quot;%lu\n##\n&quot;,(unsigned long)ntohl(server-&gt;info.total_logins));
++		    std::fprintf(outfile,&quot;%lu\n##\n&quot;,bn_int_nget(server-&gt;info.uptime));
++		    std::fprintf(outfile,&quot;%lu\n##\n&quot;,bn_int_nget(server-&gt;info.total_games));
++		    std::fprintf(outfile,&quot;%lu\n##\n&quot;,bn_int_nget(server-&gt;info.total_logins));
+ 		    std::fprintf(outfile,&quot;###\n&quot;);
+ 		  }
+ 		}
+@@ -346,32 +357,24 @@
+ 	    if (psock_recvfrom(sockfd,&amp;packet,sizeof(packet),0,(struct sockaddr *)&amp;cliaddr,&amp;len)&gt;=0)
+ 	    {
+ 
+-		if (ntohs(packet.packet_version)&gt;=TRACK_VERSION)
++		if (bn_short_nget(packet.packet_version)&gt;=TRACK_VERSION)
+ 		{
+-		    packet.software[sizeof(packet.software)-1] = '\0';
+-		    if (std::strstr(packet.software,&quot;##&quot;))
+-			fixup_str(packet.software);
+-		    packet.version[sizeof(packet.version)-1] = '\0';
+-		    if (std::strstr(packet.version,&quot;##&quot;))
+-			fixup_str(packet.version);
+-		    packet.platform[sizeof(packet.platform)-1] = '\0';
+-		    if (std::strstr(packet.platform,&quot;##&quot;))
+-			fixup_str(packet.platform);
+-		    packet.server_desc[sizeof(packet.server_desc)-1] = '\0';
+-		    if (std::strstr(packet.server_desc,&quot;##&quot;))
+-			fixup_str(packet.server_desc);
+-		    packet.server_location[sizeof(packet.server_location)-1] = '\0';
+-		    if (std::strstr(packet.server_location,&quot;##&quot;))
+-			fixup_str(packet.server_location);
+-		    packet.server_url[sizeof(packet.server_url)-1] = '\0';
+-		    if (std::strstr(packet.server_url,&quot;##&quot;))
+-			fixup_str(packet.server_url);
+-		    packet.contact_name[sizeof(packet.contact_name)-1] = '\0';
+-		    if (std::strstr(packet.contact_name,&quot;##&quot;))
+-			fixup_str(packet.contact_name);
+-		    packet.contact_email[sizeof(packet.contact_email)-1] = '\0';
+-		    if (std::strstr(packet.contact_email,&quot;##&quot;))
+-			fixup_str(packet.contact_email);
++		    bn_byte_set(&amp;packet.software[sizeof(packet.software)-1],'\0');
++		    fixup_str(packet.software,sizeof(packet.software));
++		    bn_byte_set(&amp;packet.version[sizeof(packet.version)-1],'\0');
++		    fixup_str(packet.version,sizeof(packet.version));
++		    bn_byte_set(&amp;packet.platform[sizeof(packet.platform)-1],'\0');
++		    fixup_str(packet.platform,sizeof(packet.platform));
++		    bn_byte_set(&amp;packet.server_desc[sizeof(packet.server_desc)-1],'\0');
++		    fixup_str(packet.server_desc,sizeof(packet.server_desc));
++		    bn_byte_set(&amp;packet.server_location[sizeof(packet.server_location)-1],'\0');
++		    fixup_str(packet.server_location,sizeof(packet.server_location));
++		    bn_byte_set(&amp;packet.server_url[sizeof(packet.server_url)-1],'\0');
++		    fixup_str(packet.server_url,sizeof(packet.server_url));
++		    bn_byte_set(&amp;packet.contact_name[sizeof(packet.contact_name)-1],'\0');
++		    fixup_str(packet.contact_name,sizeof(packet.contact_name));
++		    bn_byte_set(&amp;packet.contact_email[sizeof(packet.contact_email)-1],'\0');
++		    fixup_str(packet.contact_email,sizeof(packet.contact_email));
+ 
+ 		    /* Find this server's slot */
+ 		    LIST_TRAVERSE(serverlist_head,curr)
+@@ -380,7 +383,7 @@
+ 
+ 			if (!std::memcmp(&amp;server-&gt;address,&amp;cliaddr.sin_addr,sizeof(struct in_addr)))
+ 			{
+-			    if (ntohl(packet.flags)&amp;TF_SHUTDOWN)
++			    if (bn_int_nget(packet.flags)&amp;TF_SHUTDOWN)
+ 			    {
+ 				list_remove_elem(serverlist_head,&amp;curr);
+ 				xfree(server);
+@@ -396,7 +399,7 @@
+ 		    }
+ 
+ 		    /* Not found? Make a new slot */
+-		    if (!(ntohl(packet.flags)&amp;TF_SHUTDOWN) &amp;&amp; !curr)
++		    if (!(bn_int_nget(packet.flags)&amp;TF_SHUTDOWN) &amp;&amp; !curr)
+ 		    {
+ 			server = (t_server*)xmalloc(sizeof(t_server));
+ 			server-&gt;address = cliaddr.sin_addr;
+@@ -423,9 +426,9 @@
+ 			     &quot; total_games=%lu&quot;
+ 			     &quot; total_logins=%lu&quot;,
+ 			     inet_ntoa(cliaddr.sin_addr),
+-			     ntohs(packet.packet_version),
+-			     (unsigned long)ntohl(packet.flags),
+-			     ntohs(packet.port),
++			     bn_short_nget(packet.packet_version),
++			     bn_int_nget(packet.flags),
++			     bn_short_nget(packet.port),
+ 			     packet.software,
+ 			     packet.version,
+ 			     packet.platform,
+@@ -434,9 +437,9 @@
+ 			     packet.server_url,
+ 			     packet.contact_name,
+ 			     packet.contact_email,
+-			     (unsigned long)ntohl(packet.uptime),
+-			     (unsigned long)ntohl(packet.total_games),
+-			     (unsigned long)ntohl(packet.total_logins));
++			     bn_int_nget(packet.uptime),
++			     bn_int_nget(packet.total_games),
++			     bn_int_nget(packet.total_logins));
+ 		}
+ 
+ 	    }
+@@ -729,14 +732,16 @@
+ }
+ 
+ 
+-void fixup_str(char * str)
++void fixup_str(bn_byte * str, unsigned int size)
+ {
+-    char         prev;
++    bn_byte         prev;
+     unsigned int i;
+ 
+-    for (prev='\0',i=0; i&lt;std::strlen(str); prev=str[i],i++)
+-	if (prev=='#' &amp;&amp; str[i]=='#')
+-	    str[i] = '%';
++    bn_byte_set(&amp;prev,'\0');
++
++    for (i=0; i&lt;size, bn_byte_get(str[i])!='\0'; bn_byte_set(&amp;prev,bn_byte_get(str[i])),i++)
++	if (bn_byte_get(prev)=='#' &amp;&amp; bn_byte_get(str[i])=='#')
++	    bn_byte_set(&amp;str[i],'%');
+ }
+ 
+ }
+
+Modified: trunk/pvpgn/src/common/tracker.h
+===================================================================
+--- trunk/pvpgn/src/common/tracker.h	2007-08-15 22:27:48 UTC (rev 318)
++++ trunk/pvpgn/src/common/tracker.h	2007-08-16 01:06:59 UTC (rev 319)
+@@ -18,6 +18,16 @@
+ #ifndef INCLUDED_TRACKER_TYPES
+ #define INCLUDED_TRACKER_TYPES
+ 
++#ifdef TRACKER_INTERNAL_ACCESS
++#ifdef JUST_NEED_TYPES
++#include &quot;common/bn_type.h&quot;
++#else
++#define JUST_NEED_TYPES
++#include &quot;common/bn_type.h&quot;
++#undef JUST_NEED_TYPES
++#endif
++#endif
++
+ namespace pvpgn
+ {
+ 
+@@ -33,23 +43,23 @@
+ #ifdef TRACKER_INTERNAL_ACCESS
+ typedef struct
+ {
+-  unsigned short packet_version;      /* set to TRACK_VERSION, network byte order */
+-  unsigned short port;                /* port server is listening on, network byte order */
+-  unsigned long  flags;               /* see below, network byte order */
+-  char           software[32];        /* example: Bnetd, NUL terminated */
+-  char           version[16];         /* example: 0.4, NUL terminated */
+-  char           platform[32];        /* Windows, Linux, etc., NUL terminated */
+-  char           server_desc[64];     /* description, NUL terminated */
+-  char           server_location[64]; /* geographical location, NUL terminated */
+-  char           server_url[96];      /* web address: <A HREF="http://...,">http://...,</A> NUL terminated */
+-  char           contact_name[64];    /* name of operator, NUL terminated */
+-  char           contact_email[64];   /* e-mail address of operator, NUL terminated */
+-  unsigned long  users;               /* current number of users, network byte order */
+-  unsigned long  channels;            /* current number of channels, network byte order */
+-  unsigned long  games;               /* current number of games, network byte order */
+-  unsigned long  uptime;              /* daemon uptime in seconds, network byte order */
+-  unsigned long  total_games;         /* total number of games served */
+-  unsigned long  total_logins;        /* total number of client logins */
++  bn_short	packet_version;      /* set to TRACK_VERSION, network byte order */
++  bn_short	port;                /* port server is listening on, network byte order */
++  bn_int	flags;               /* see below, network byte order */
++  bn_byte	software[32];        /* example: Bnetd, NUL terminated */
++  bn_byte	version[16];         /* example: 0.4, NUL terminated */
++  bn_byte	platform[32];        /* Windows, Linux, etc., NUL terminated */
++  bn_byte	server_desc[64];     /* description, NUL terminated */
++  bn_byte	server_location[64]; /* geographical location, NUL terminated */
++  bn_byte	server_url[96];      /* web address: <A HREF="http://...,">http://...,</A> NUL terminated */
++  bn_byte	contact_name[64];    /* name of operator, NUL terminated */
++  bn_byte	contact_email[64];   /* e-mail address of operator, NUL terminated */
++  bn_int	users;               /* current number of users, network byte order */
++  bn_int	channels;            /* current number of channels, network byte order */
++  bn_int	games;               /* current number of games, network byte order */
++  bn_int	uptime;              /* daemon uptime in seconds, network byte order */
++  bn_int	total_games;         /* total number of games served */
++  bn_int	total_logins;        /* total number of client logins */
+ 
+   /* new versions will add fields to end of packet */
+ } t_trackpacket;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000318.html">[pvpgn-dev] r318 - in trunk/pvpgn: . src/bnetd
+</A></li>
+	<LI>Next message: <A HREF="000327.html">[pvpgn-dev] Feature freeze on CVS... Testers needed...
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#319">[ date ]</a>
+              <a href="thread.html#319">[ thread ]</a>
+              <a href="subject.html#319">[ subject ]</a>
+              <a href="author.html#319">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

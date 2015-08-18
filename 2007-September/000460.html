@@ -1,0 +1,217 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r388 - trunk/pvpgn/src/win32
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-September/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r388%20-%20trunk/pvpgn/src/win32&In-Reply-To=%3C200709222255.l8MMtXKM022155%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000459.html">
+   <LINK REL="Next"  HREF="000461.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r388 - trunk/pvpgn/src/win32</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r388%20-%20trunk/pvpgn/src/win32&In-Reply-To=%3C200709222255.l8MMtXKM022155%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r388 - trunk/pvpgn/src/win32">svn at svn.berlios.de
+       </A><BR>
+    <I>Sun Sep 23 00:55:33 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000459.html">[pvpgn-dev] [Bug #11959] IRC Ban
+</A></li>
+        <LI>Next message: <A HREF="000461.html">[pvpgn-dev] r389 - in trunk/pvpgn/src: bnetd common d2cs d2dbs win32
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#460">[ date ]</a>
+              <a href="thread.html#460">[ thread ]</a>
+              <a href="subject.html#460">[ subject ]</a>
+              <a href="author.html#460">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pandaemonium
+Date: 2007-09-23 00:55:33 +0200 (Sun, 23 Sep 2007)
+New Revision: 388
+
+Added:
+   trunk/pvpgn/src/win32/console_output.cpp
+   trunk/pvpgn/src/win32/console_output.h
+Modified:
+   trunk/pvpgn/src/win32/CMakeLists.txt
+Log:
+Added method to make GUI versions create console output.
+
+Modified: trunk/pvpgn/src/win32/CMakeLists.txt
+===================================================================
+--- trunk/pvpgn/src/win32/CMakeLists.txt	2007-09-18 09:23:17 UTC (rev 387)
++++ trunk/pvpgn/src/win32/CMakeLists.txt	2007-09-22 22:55:33 UTC (rev 388)
+@@ -3,7 +3,7 @@
+ )
+ 
+ set(WIN32_GUI_SOURCES
+-	gui_printf.h gui_printf.cpp
++	gui_printf.h gui_printf.cpp console_output.h console_output.cpp
+ )
+ 
+ add_library(win32 ${WIN32_SOURCES})
+
+Added: trunk/pvpgn/src/win32/console_output.cpp
+===================================================================
+--- trunk/pvpgn/src/win32/console_output.cpp	2007-09-18 09:23:17 UTC (rev 387)
++++ trunk/pvpgn/src/win32/console_output.cpp	2007-09-22 22:55:33 UTC (rev 388)
+@@ -0,0 +1,85 @@
++/***************************************************************************
++ *   Copyright (C) 2004 by Richard Moore (<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">rich at kde.org</A>                     *
++ *   Copyright (C) 2007 by Olaf Freyer                                     *
++ *                                                                         *
++ *   This program is free software; you can redistribute it and/or modify  *
++ *   it under the terms of the GNU Library General Public License as       *
++ *   published by the Free Software Foundation; either version 2 of the    *
++ *   License, or (at your option) any later version.                       *
++ *                                                                         *
++ *   This program is distributed in the hope that it will be useful,       *
++ *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
++ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
++ *   GNU General Public License for more details.                          *
++ *                                                                         *
++ *   You should have received a copy of the GNU Library General Public     *
++ *   License along with this program; if not, write to the                 *
++ *   Free Software Foundation, Inc.,                                       *
++ *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.         *
++ ***************************************************************************/
++
++#include &quot;common/setup_before.h&quot;
++#include &quot;console_output.h&quot;
++#ifdef WIN32
++# include &lt;windows.h&gt;
++# include &lt;fcntl.h&gt;
++# include &lt;io.h&gt;
++# include &lt;iostream&gt;
++# include &lt;fstream&gt;
++#endif
++#include &quot;common/setup_after.h&quot;
++
++namespace pvpgn
++{
++
++Console::Console(){
++	initialised = false;
++}
++
++Console::~Console() throw () {
++	if (initialised)
++		FreeConsole();
++}
++
++void Console::RedirectIOToConsole() {
++#ifdef WIN32
++   const WORD MAX_CONSOLE_LINES = 500;
++   const WORD CONSOLE_COLUMNS= 140;
++   int hConHandle;
++   long lStdHandle;
++   std::FILE *fp;
++   CONSOLE_SCREEN_BUFFER_INFO coninfo;
++
++   if (initialised)
++	   return;
++
++   AllocConsole(); 
++   GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &amp;coninfo);
++   coninfo.dwSize.X = CONSOLE_COLUMNS;
++   coninfo.dwSize.Y = MAX_CONSOLE_LINES;
++   SetConsoleScreenBufferSize(GetStdHandle(STD_OUTPUT_HANDLE), coninfo.dwSize);
++   
++   lStdHandle = (long)GetStdHandle(STD_INPUT_HANDLE);
++   hConHandle = _open_osfhandle(lStdHandle, _O_TEXT);
++   fp = _fdopen(hConHandle, &quot;r&quot;);
++   *stdin = *fp;
++   setvbuf( stdin, NULL, _IONBF, 0 );;
++
++   lStdHandle = (long)GetStdHandle(STD_OUTPUT_HANDLE);
++   hConHandle = _open_osfhandle(lStdHandle, _O_TEXT);
++   fp = _fdopen(hConHandle, &quot;w&quot;);
++   *stdout = *fp;
++   setvbuf( stdout, NULL, _IONBF, 0 );
++
++   lStdHandle = (long)GetStdHandle(STD_ERROR_HANDLE);
++   hConHandle = _open_osfhandle(lStdHandle, _O_TEXT);
++   fp = _fdopen(hConHandle, &quot;w&quot;);
++   *stderr = *fp;
++   setvbuf( stderr, NULL, _IONBF, 0 );
++
++   std::ios::sync_with_stdio();
++   initialised = true;
++#endif
++}
++
++}
+
+Added: trunk/pvpgn/src/win32/console_output.h
+===================================================================
+--- trunk/pvpgn/src/win32/console_output.h	2007-09-18 09:23:17 UTC (rev 387)
++++ trunk/pvpgn/src/win32/console_output.h	2007-09-22 22:55:33 UTC (rev 388)
+@@ -0,0 +1,32 @@
++/***************************************************************************
++ *   Copyright (C) 2007 by Olaf Freyer                                     *
++ *                                                                         *
++ *   This program is free software; you can redistribute it and/or modify  *
++ *   it under the terms of the GNU Library General Public License as       *
++ *   published by the Free Software Foundation; either version 2 of the    *
++ *   License, or (at your option) any later version.                       *
++ *                                                                         *
++ *   This program is distributed in the hope that it will be useful,       *
++ *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
++ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         *
++ *   GNU General Public License for more details.                          *
++ *                                                                         *
++ *   You should have received a copy of the GNU Library General Public     *
++ *   License along with this program; if not, write to the                 *
++ *   Free Software Foundation, Inc.,                                       *
++ *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.         *
++ ***************************************************************************/
++
++namespace pvpgn
++{
++
++class Console {
++public:
++	Console();
++	~Console() throw ();
++	void RedirectIOToConsole();
++private:
++	bool initialised;
++};
++
++}
+\ No newline at end of file
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000459.html">[pvpgn-dev] [Bug #11959] IRC Ban
+</A></li>
+	<LI>Next message: <A HREF="000461.html">[pvpgn-dev] r389 - in trunk/pvpgn/src: bnetd common d2cs d2dbs win32
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#460">[ date ]</a>
+              <a href="thread.html#460">[ thread ]</a>
+              <a href="subject.html#460">[ subject ]</a>
+              <a href="author.html#460">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

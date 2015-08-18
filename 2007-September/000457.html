@@ -1,0 +1,95 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] Zlib Problems
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-September/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20Zlib%20Problems&In-Reply-To=%3C46ED806A.7010404%40gmx.net%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000456.html">
+   <LINK REL="Next"  HREF="000458.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] Zlib Problems</H1>
+    <B>Aaron</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20Zlib%20Problems&In-Reply-To=%3C46ED806A.7010404%40gmx.net%3E"
+       TITLE="[pvpgn-dev] Zlib Problems">aaron667 at gmx.net
+       </A><BR>
+    <I>Sun Sep 16 21:13:46 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000456.html">[pvpgn-dev] Zlib Problems
+</A></li>
+        <LI>Next message: <A HREF="000458.html">[pvpgn-dev] r387 - trunk/pvpgn/src/bnetd
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#457">[ date ]</a>
+              <a href="thread.html#457">[ thread ]</a>
+              <a href="subject.html#457">[ subject ]</a>
+              <a href="author.html#457">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Dizzy schrieb:
+&gt;<i> On 9/16/07, Tanner King &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">xxhavokxx at gmail.com</A>&gt; wrote:
+</I>&gt;&gt;<i> I have been testing the new cmake build system. I have attempted to
+</I>&gt;&gt;<i> build on Mingw with Mingw Makefiles , and msys, I also have attempted
+</I>&gt;&gt;<i> to build on visual studio 2005 and encounter this error on all of
+</I>&gt;&gt;<i> them. I have built zlib in msys , and have also used mingw dlltool and
+</I>&gt;&gt;<i> visual studios lib to create import library's for zlib.
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> This is the error:
+</I>&gt;&gt;<i>
+</I>&gt;&gt;<i> CMakeFiles/bnetd.dir/anongame_infos.obj:anongame_infos.cpp:(.text+0x2db):
+</I>&gt;&gt;<i> undefined reference to `<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">deflateInit_ at 16</A>'
+</I>&gt;&gt;<i> CMakeFiles/bnetd.dir/anongame_infos.obj:anongame_infos.cpp:(.text+0x337):
+</I>&gt;&gt;<i> undefined reference to `<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">deflate at 8</A>'
+</I>&gt;&gt;<i> CMakeFiles/bnetd.dir/anongame_infos.obj:anongame_infos.cpp:(.text+0x40c):
+</I>&gt;&gt;<i> undefined reference to `<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">deflateEnd at 4</A>'
+</I>&gt;&gt;<i> collect2: ld returned 1 exit status
+</I>&gt;&gt;<i> make[2]: *** [src/bnetd/bnetd.exe] Error 1
+</I>&gt;&gt;<i> make[1]: *** [src/bnetd/CMakeFiles/bnetd.dir/all] Error 2
+</I>&gt;&gt;<i> make: *** [all] Error 2
+</I>&gt;<i> 
+</I>&gt;<i> You should not get the error in all those cases (assuming that the
+</I>&gt;<i> proper library is linked in). Basically a library on windows has to be
+</I>&gt;<i> made in some way for vs.net and another for mingw otherwise you get
+</I>&gt;<i> such errors. The ones offered from gnuwin32 zlib for example do not
+</I>&gt;<i> work with ming (but they do work with vs.net as someone is using them
+</I>&gt;<i> as such on this list).
+</I>&gt;<i> 
+</I>&gt;<i> Someone on this list which builds pvpgn on windows often should help
+</I>&gt;<i> you more (aaron?), I am more of a Unix guy.
+</I>&gt;<i> 
+</I>
+I've been using the zlib lib as provided by 
+<A HREF="http://www.winimage.com/zLibDll/">http://www.winimage.com/zLibDll/</A> without any problems on Visual Studio.
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000456.html">[pvpgn-dev] Zlib Problems
+</A></li>
+	<LI>Next message: <A HREF="000458.html">[pvpgn-dev] r387 - trunk/pvpgn/src/bnetd
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#457">[ date ]</a>
+              <a href="thread.html#457">[ thread ]</a>
+              <a href="subject.html#457">[ subject ]</a>
+              <a href="author.html#457">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

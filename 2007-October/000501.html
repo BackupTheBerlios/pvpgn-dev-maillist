@@ -1,0 +1,93 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] pvpgn/src/bnetd handle_bnet.c,1.249,1.250
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-October/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20pvpgn/src/bnetd%20handle_bnet.c%2C1.249%2C1.250&In-Reply-To=%3C20071009104341.BCEF910923F%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000499.html">
+   <LINK REL="Next"  HREF="000500.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] pvpgn/src/bnetd handle_bnet.c,1.249,1.250</H1>
+    <B>pelish</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20pvpgn/src/bnetd%20handle_bnet.c%2C1.249%2C1.250&In-Reply-To=%3C20071009104341.BCEF910923F%40mail.berlios.de%3E"
+       TITLE="[pvpgn-dev] pvpgn/src/bnetd handle_bnet.c,1.249,1.250">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Tue Oct  9 12:43:41 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000499.html">[pvpgn-dev] [Bug #12134] SC Bug!
+</A></li>
+        <LI>Next message: <A HREF="000500.html">[pvpgn-dev] pvpgn version-history.txt,1.272,1.273
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#501">[ date ]</a>
+              <a href="thread.html#501">[ thread ]</a>
+              <a href="subject.html#501">[ subject ]</a>
+              <a href="author.html#501">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/pvpgn/pvpgn/src/bnetd
+In directory sheep:/tmp/cvs-serv30582/src/bnetd
+
+Modified Files:
+	handle_bnet.c 
+Log Message:
+fix for bug [ #12134 ] SC Bug! which was in SERVER_FRIENDSLISTREPLY that was not sends if friendcount==0
+
+Index: handle_bnet.c
+===================================================================
+RCS file: /cvsroot/pvpgn/pvpgn/src/bnetd/handle_bnet.c,v
+retrieving revision 1.249
+retrieving revision 1.250
+diff -u -d -r1.249 -r1.250
+--- handle_bnet.c	20 Aug 2007 19:14:54 -0000	1.249
++++ handle_bnet.c	9 Oct 2007 10:42:53 -0000	1.250
+@@ -1923,14 +1923,11 @@
+ 	t_channel *channel;
+ 	char stat;
+ 
+-	if (n == 0)
+-	    return 0;
+ 	if (!(rpacket = packet_create(packet_class_bnet)))
+ 	    return -1;
+ 
+ 	packet_set_size(rpacket, sizeof(t_server_friendslistreply));
+ 	packet_set_type(rpacket, SERVER_FRIENDSLISTREPLY);
+-
+ 
+ 	if ((flist = account_get_friends(account)) == NULL)
+ 	    return -1;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000499.html">[pvpgn-dev] [Bug #12134] SC Bug!
+</A></li>
+	<LI>Next message: <A HREF="000500.html">[pvpgn-dev] pvpgn version-history.txt,1.272,1.273
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#501">[ date ]</a>
+              <a href="thread.html#501">[ thread ]</a>
+              <a href="subject.html#501">[ subject ]</a>
+              <a href="author.html#501">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

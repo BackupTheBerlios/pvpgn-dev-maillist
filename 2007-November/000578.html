@@ -1,0 +1,510 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r418 - in trunk/pvpgn: conf src/bnetd
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-November/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r418%20-%20in%20trunk/pvpgn%3A%20conf%20src/bnetd&In-Reply-To=%3C200711232245.lANMjmpw004211%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000577.html">
+   <LINK REL="Next"  HREF="000579.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r418 - in trunk/pvpgn: conf src/bnetd</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r418%20-%20in%20trunk/pvpgn%3A%20conf%20src/bnetd&In-Reply-To=%3C200711232245.lANMjmpw004211%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r418 - in trunk/pvpgn: conf src/bnetd">svn at svn.berlios.de
+       </A><BR>
+    <I>Fri Nov 23 23:45:48 CET 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000577.html">[pvpgn-dev] r417 - trunk/pvpgn/src/bnetd
+</A></li>
+        <LI>Next message: <A HREF="000579.html">[pvpgn-dev] [Bug #12533] ra2 cannot start game
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#578">[ date ]</a>
+              <a href="thread.html#578">[ thread ]</a>
+              <a href="subject.html#578">[ subject ]</a>
+              <a href="author.html#578">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pelish
+Date: 2007-11-23 23:45:41 +0100 (Fri, 23 Nov 2007)
+New Revision: 418
+
+Modified:
+   trunk/pvpgn/conf/channel.conf.in
+   trunk/pvpgn/src/bnetd/handle_irc.cpp
+   trunk/pvpgn/src/bnetd/handle_wol.cpp
+   trunk/pvpgn/src/bnetd/irc.cpp
+   trunk/pvpgn/src/bnetd/irc.h
+Log:
+changed irc_convert_channel to use shortname of channel for all WOL connections where conn_get_clienttag==channel_get_clienttag(), reformated channel.conf.in to new situation. WOL channels are now human readable
+
+Modified: trunk/pvpgn/conf/channel.conf.in
+===================================================================
+--- trunk/pvpgn/conf/channel.conf.in	2007-11-23 22:43:40 UTC (rev 417)
++++ trunk/pvpgn/conf/channel.conf.in	2007-11-23 22:45:41 UTC (rev 418)
+@@ -15,83 +15,70 @@
+ # -1 for max sets no limit to the number of users allowed in the channel     #
+ #                                                                            #
+ # ---special name--- 		-----short name----- 	cltag bots- -ops- -log- ctry- realm max -mod-#
+-&quot;The Void&quot;           		&quot;The Void&quot;           	NULL  true  false false  NULL NULL -1   true
+-NONE                	 	&quot;Starcraft&quot;          	STAR  true  false false  NULL NULL -1   false
+-NONE                 		&quot;Brood War&quot;          	SEXP  true  false false  NULL NULL -1   false
+-NONE                 		&quot;Starcraft Shareware&quot; 	SSHR  true  false false  NULL NULL -1   false
+-NONE                 		&quot;Diablo Retail&quot;      	DRTL  true  false false  NULL NULL -1   false
+-NONE                 		&quot;War2BNE&quot;            	W2BN  true  false false  NULL NULL -1   false
+-NONE                 		&quot;Diablo II&quot;          	D2DV  true  false false  NULL NULL -1   false
+-NONE				&quot;Diablo II&quot;		D2XP  true  false false  NULL NULL -1   false
+-&quot;Warcraft 3 Frozen Throne&quot; 	&quot;W3&quot;			W3XP  true  false false  NULL NULL -1   false
+-&quot;Warcraft 3&quot;         		&quot;W3&quot;			WAR3  true  false false  NULL NULL -1   false
+-&quot;Human Castle&quot;       		&quot;W3&quot;			W3XP  true  false false  NULL NULL -1   false
+-&quot;Orc Stronghold&quot;     		&quot;W3&quot;			W3XP  true  false false  NULL NULL -1   false
+-&quot;Undead Necropolis&quot; 		&quot;W3&quot;			W3XP  true  false false  NULL NULL -1   false
+-&quot;Night Elf Tree of Life&quot;  	&quot;W3&quot;			W3XP  true  false false  NULL NULL -1   false
+-&quot;Dragon Roost&quot;       		&quot;W3&quot;			W3XP  true  false false  NULL NULL -1   false
+-&quot;Human Castle&quot;       		&quot;W3&quot;			WAR3  true  false false  NULL NULL -1   false
+-&quot;Orc Stronghold&quot;     		&quot;W3&quot;			WAR3  true  false false  NULL NULL -1   false
+-&quot;Undead Necropolis&quot; 		&quot;W3&quot;			WAR3  true  false false  NULL NULL -1   false
+-&quot;Night Elf Tree of Life&quot;	&quot;W3&quot;			WAR3  true  false false  NULL NULL -1   false
+-&quot;Dragon Roost&quot;       		&quot;W3&quot;			WAR3  true  false false  NULL NULL -1   false
+-&quot;Chat&quot;               		&quot;Chat&quot;			CHAT  true  false false  NULL NULL -1   false
+-&quot;Backstage&quot;			&quot;Backstage&quot;		NULL  true  false false  NULL NULL  0   false
+-&quot;Moderated Support&quot;		&quot;Support&quot;		NULL  true  false false  NULL NULL -1    true
+-#                                                                            #
+-##############################################################################
++&quot;The Void&quot;                  &quot;The Void&quot;              NULL  true  false false  NULL NULL -1   true
++NONE                        &quot;Starcraft&quot;             STAR  true  false false  NULL NULL -1   false
++NONE                        &quot;Brood War&quot;             SEXP  true  false false  NULL NULL -1   false
++NONE                        &quot;Starcraft Shareware&quot;   SSHR  true  false false  NULL NULL -1   false
++NONE                        &quot;Diablo Retail&quot;         DRTL  true  false false  NULL NULL -1   false
++NONE                        &quot;War2BNE&quot;               W2BN  true  false false  NULL NULL -1   false
++NONE                        &quot;Diablo II&quot;             D2DV  true  false false  NULL NULL -1   false
++NONE                        &quot;Diablo II&quot;	            D2XP  true  false false  NULL NULL -1   false
++&quot;Warcraft 3 Frozen Throne&quot;  &quot;W3&quot;                    W3XP  true  false false  NULL NULL -1   false
++&quot;Warcraft 3&quot;                &quot;W3&quot;                    WAR3  true  false false  NULL NULL -1   false
++&quot;Human Castle&quot;              &quot;W3&quot;                    W3XP  true  false false  NULL NULL -1   false
++&quot;Orc Stronghold&quot;            &quot;W3&quot;                    W3XP  true  false false  NULL NULL -1   false
++&quot;Undead Necropolis&quot;         &quot;W3&quot;                    W3XP  true  false false  NULL NULL -1   false
++&quot;Night Elf Tree of Life&quot;    &quot;W3&quot;                    W3XP  true  false false  NULL NULL -1   false
++&quot;Dragon Roost&quot;              &quot;W3&quot;                    W3XP  true  false false  NULL NULL -1   false
++&quot;Human Castle&quot;              &quot;W3&quot;                    WAR3  true  false false  NULL NULL -1   false
++&quot;Orc Stronghold&quot;            &quot;W3&quot;                    WAR3  true  false false  NULL NULL -1   false
++&quot;Undead Necropolis&quot;         &quot;W3&quot;                    WAR3  true  false false  NULL NULL -1   false
++&quot;Night Elf Tree of Life&quot;    &quot;W3&quot;                    WAR3  true  false false  NULL NULL -1   false
++&quot;Dragon Roost&quot;              &quot;W3&quot;                    WAR3  true  false false  NULL NULL -1   false
++&quot;Chat&quot;                      &quot;Chat&quot;                  CHAT  true  false false  NULL NULL -1   false
++&quot;Backstage&quot;                 &quot;Backstage&quot;             NULL  true  false false  NULL NULL  0   false
++&quot;Moderated Support&quot;         &quot;Support&quot;               NULL  true  false false  NULL NULL -1   true
+ 
+ ##############################################################################
+ # Westwood Online Channels                                                   #
+ #----------------------------------------------------------------------------#
+-# Note: The Westwood channels should be formatted like this! Do not set the last number above 5.
+-# The proper game type numbers are as follows:
+-#   - 12 = C&amp;C Renegade channels
+-#	- 14 = Dune 2000 channels
+-#	- 16 = Nox channels
+-#	- 18 = Tiberian Sun channels
+-#	- 21 = Red Alert 1 channels
+-#	- 33 = Red Alert 2 channels
+-#	- 37 = Nox Quest channels
+-#	- 41 = Yuri's Revenge channels
+-#
++# Note: The Westwood channels must be formatted like &quot;Lob xx x&quot;.             #
++# Where xx=Game type number and x=channel number. First channel number is 0. #
++# For exemple &quot;Lob 18 0&quot; is the first channel for &quot;Tiberian Sun&quot;.            #
++# The proper game type numbers are as follows:                               #
++#   - 12 = C&amp;C Renegade channels                                             #
++#	- 14 = Dune 2000 channels                                                #
++#	- 16 = Nox channels                                                      #
++#	- 18 = Tiberian Sun channels                                             #
++#	- 21 = Red Alert 1 channels                                              #
++#	- 33 = Red Alert 2 channels                                              #
++#	- 37 = Nox Quest channels                                                #
++#	- 41 = Yuri's Revenge channels                                           #
++#                                                                            #
++# DO NOT USE game type nubers 38,39 and 40. This numbers are used for        #
++# Quick match services and are hardcoded in PvPGN                            #
++#                                                                            #
++# In WOLv1 (Westwood Chat client) and Emperor: Battle for Dune are not used  #
++# &quot;Lob xx x&quot; formated channels.                                              #
++#                                                                            #
++# ---special name--- 		-----short name----- 	cltag bots- -ops- -log- ctry- realm max -mod-#
++&quot;Command n Conqr&quot;           &quot;Command n Conqr&quot;       WCHT  true  false false  NULL NULL -1   false
++&quot;Monopoly&quot;                  &quot;Monopoly&quot;              WCHT  true  false false  NULL NULL -1   false
++&quot;Red Alert&quot;                 &quot;Red Alert&quot;             WCHT  true  false false  NULL NULL -1   false
++&quot;Renegade-1&quot;                &quot;Lob 12 0&quot;              RNGD  true  false false  NULL NULL -1   false
++&quot;Dune 2000-1&quot;               &quot;Lob 14 0&quot;              DN2K  true  false false  NULL NULL -1   false
++&quot;Nox-1&quot;                     &quot;Lob 16 0&quot;              NOXX  true  false false  NULL NULL -1   false
++&quot;Nox-2&quot;                     &quot;Lob 16 1&quot;              NOXX  true  false false  NULL NULL -1   false
++&quot;Tiberian Sun-1&quot;            &quot;Lob 18 0&quot;              TSUN  true  false false  NULL NULL -1   false
++&quot;Tiberian Sun-2&quot;            &quot;Lob 18 1&quot;              TSUN  true  false false  NULL NULL -1   false
++&quot;Tiberian Sun-3&quot;            &quot;Lob 18 2&quot;              TSUN  true  false false  NULL NULL -1   false
++&quot;Red Alert-1&quot;               &quot;Lob 21 0&quot;              RALT  true  false false  NULL NULL -1   false
++&quot;Red Alert 2-1&quot;             &quot;Lob 33 0&quot;              RAL2  true  false false  NULL NULL -1   false
++&quot;Red Alert 2-2&quot;             &quot;Lob 33 1&quot;              RAL2  true  false false  NULL NULL -1   false
++&quot;Nox Quest-1&quot;               &quot;Lob 37 0&quot;              NOXQ  true  false false  NULL NULL -1   false
++&quot;Yuri's Revenge-1&quot;          &quot;Lob 41 0&quot;              YURI  true  false false  NULL NULL -1   false
++&quot;Yuri's Revenge-2&quot;          &quot;Lob 41 1&quot;              YURI  true  false false  NULL NULL -1   false
++&quot;Emperor-1&quot;                 &quot;Emperor-1&quot;             EMPR  true  false false  NULL NULL -1   false
+ 
+-##### Westwood Chat Channels ###################################################################################
+-&quot;Command n Conqr&quot;             &quot;Command n Conqr&quot;         WCHT    false false false  NULL   NULL    -1   false
+-&quot;Monopoly&quot;                    &quot;Monopoly&quot;                WCHT    false false false  NULL   NULL    -1   false
+-&quot;Red Alert&quot;                   &quot;Red Alert&quot;               WCHT    false false false  NULL   NULL    -1   false
+-
+-##### C&amp;C Renegade Support #####################################################################################
+-&quot;Lob 12 0&quot;                    &quot;GDI Barracks&quot;            RNGD    false false false  NULL   NULL    -1   false
+-
+-##### Dune 2000 Support ########################################################################################
+-&quot;Lob 14 0&quot;                    &quot;Alman&quot;                   DN2K    false false false  NULL   NULL    -1   false
+-
+-##### Nox Support ##############################################################################################
+-&quot;Lob 16 0&quot;                    &quot;Brin&quot;                    NOXX    false false false  NULL   NULL    -1   false
+-&quot;Lob 16 1&quot;                    &quot;Ix&quot;                      NOXX    false false false  NULL   NULL    -1   false
+-
+-##### Tiberian Sun Support #####################################################################################
+-&quot;Lob 18 0&quot;                    &quot;GDI Barracks&quot;            TSUN    false false false  NULL   NULL    -1   false
+-&quot;Lob 18 1&quot;                    &quot;NOD Barracks&quot;            TSUN    false false false  NULL   NULL    -1   false
+-&quot;Lob 18 2&quot;                    &quot;GDI Comm. Center&quot;        TSUN    false false false  NULL   NULL    -1   false
+-
+-##### Red Alert 1 Support ######################################################################################
+-&quot;Lob 21 0&quot;                    &quot;Combat Alley&quot;            RALT    false false false  NULL   NULL    -1   false
+-
+-##### Red Alert 2 Support ######################################################################################
+-&quot;Lob 33 0&quot;                    &quot;USA Command&quot;             RAL2    false false false  NULL   NULL    -1   false
+-&quot;Lob 33 1&quot;                    &quot;Korean Bunker&quot;           RAL2    false false false  NULL   NULL    -1   false
+-
+-##### Nox Quest Support ########################################################################################
+-&quot;Lob 37 0&quot;                    &quot;Brin&quot;                    NOXQ    false false false  NULL   NULL    -1   false
+-
+-##### Yuri's Revenge Support ###################################################################################
+-&quot;Lob 41 0&quot;                    &quot;Unknown&quot;                 YURI    false false false  NULL   NULL    -1   false
+-&quot;Lob 41 1&quot;                    &quot;Unknown&quot;                 YURI    false false false  NULL   NULL    -1   false
+-
+-##### Emperor: Battle for Dune #################################################################################
+-&quot;Emperor-1&quot;                   &quot;Emperor-1&quot;               EMPR    false false false  NULL   NULL    -1   false
+-
+ #                                                                            #
+ ##############################################################################
+
+Modified: trunk/pvpgn/src/bnetd/handle_irc.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/handle_irc.cpp	2007-11-23 22:43:40 UTC (rev 417)
++++ trunk/pvpgn/src/bnetd/handle_irc.cpp	2007-11-23 22:45:41 UTC (rev 418)
+@@ -513,7 +513,7 @@
+ 	        char const * tempname;
+ 			char * topic = channel_get_topic(channel_get_name(channel));
+ 
+-	        tempname = irc_convert_channel(channel);
++	        tempname = irc_convert_channel(channel,conn);
+ 
+ 			/* FIXME: AARON: only list channels like in /channels command */
+ 			if (topic) {
+@@ -552,7 +552,7 @@
+ 			continue; /* channel doesn't exist */
+ 
+ 		topic = channel_get_topic(channel_get_name(channel));
+-	       	tempname = irc_convert_channel(channel);
++	       	tempname = irc_convert_channel(channel,conn);
+ 
+ 			if (topic) {
+ 	       		if (std::strlen(tempname)+1+20+1+1+std::strlen(topic)&lt;MAX_IRC_MESSAGE_LEN)
+@@ -648,7 +648,7 @@
+ 	            	else if (flags &amp; MF_VOICE)
+ 		            flg='+';
+ 		        else flg = ' ';
+-			snprintf(temp2, sizeof(temp2), &quot;%s :%c%s&quot;, e[i], flg, irc_convert_channel(chan));
++			snprintf(temp2, sizeof(temp2), &quot;%s :%c%s&quot;, e[i], flg, irc_convert_channel(chan,conn));
+ 			irc_send(conn,RPL_WHOISCHANNELS,temp2);
+ 		    }
+ 
+
+Modified: trunk/pvpgn/src/bnetd/handle_wol.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/handle_wol.cpp	2007-11-23 22:43:40 UTC (rev 417)
++++ trunk/pvpgn/src/bnetd/handle_wol.cpp	2007-11-23 22:45:41 UTC (rev 418)
+@@ -538,7 +538,7 @@
+    	         t_channel const * channel = (const t_channel*)elem_get_data(curr);
+              char const * tempname;
+ 
+-             tempname = irc_convert_channel(channel);
++             tempname = irc_convert_channel(channel,conn);
+ 
+              if (std::strstr(tempname,&quot;_game&quot;) == NULL) {
+                 sprintf(temp,&quot;%s %u &quot;,tempname,channel_get_length(channel));
+@@ -565,18 +565,16 @@
+     		t_channel const * channel = (t_channel const *)elem_get_data(curr);
+        	    char const * tempname;
+ 
+-	        tempname = irc_convert_channel(channel);
++	        tempname = irc_convert_channel(channel,conn);
+ 
+             if ((channel_get_clienttag(channel) != 0) &amp;&amp;
+                 (channel_get_clienttag(channel)==conn_get_clienttag(conn))) {
+-			    if((std::strstr(tempname,&quot;Lob&quot;) != NULL) || (std::strstr(tempname,&quot;Emperor&quot;) != NULL)) {
+                      eventlog(eventlog_level_debug,__FUNCTION__,&quot;[** WOL **] LIST [Channel: \&quot;Lob\&quot;] (%s)&quot;,tempname);
+ 				     if (std::strlen(tempname)+1+20+1+1&lt;MAX_IRC_MESSAGE_LEN)
+ 					     snprintf(temp, sizeof(temp), &quot;%s %u 0 388:&quot;,tempname,channel_get_length(channel));
+  				     else
+    					     eventlog(eventlog_level_warn,__FUNCTION__,&quot;LISTREPLY length exceeded&quot;);
+                      irc_send(conn,RPL_CHANNEL,temp);
+-			    }
+             }
+    		}
+     }
+@@ -606,7 +604,7 @@
+         	    char const * tempname;
+ 				char * topic = channel_get_topic(channel_get_name(channel));
+ 
+-        	    tempname = irc_convert_channel(channel);
++        	    tempname = irc_convert_channel(channel,conn);
+         	    
+ 				if((channel_wol_get_game_type(channel) != 0)) {
+ 					m = channel_get_first(channel);
+@@ -973,7 +971,7 @@
+ 			conn_wol_set_ingame(conn,1);
+ 
+ 			if (old_channel)
+-   	  		   old_channel_name = xstrdup(irc_convert_channel(old_channel));
++   	  		   old_channel_name = xstrdup(irc_convert_channel(old_channel,conn));
+ 
+ 			if ((!(wolname)) || (conn_set_channel(conn,wolname)&lt;0))	{
+ 				irc_send(conn,ERR_NOSUCHCHANNEL,&quot;:JOINGAME failed&quot;);
+@@ -986,7 +984,7 @@
+                     if (conn_get_clienttag(conn) == CLIENTTAG_WCHAT_UINT) {
+                         /* WOLv1 JOINGAME message */
+                         std::sprintf(_temp,&quot;2 %u %u 1 1 %u :%s&quot;, channel_get_length(channel), channel_wol_get_game_type(channel),
+-                                    channel_wol_get_game_tournament(channel), irc_convert_channel(channel));
++                                    channel_wol_get_game_tournament(channel), irc_convert_channel(channel,conn));
+                     }
+                     else {
+                         /* WOLv2 JOINGAME message with BATTLECLAN support */
+@@ -997,7 +995,7 @@
+                             clanid = clan_get_clanid(clan);
+ 
+                         std::sprintf(_temp,&quot;1 %u %u 1 %u %u %u :%s&quot;, channel_get_length(channel), channel_wol_get_game_type(channel),
+-                                     clanid, conn_get_addr(conn), channel_wol_get_game_tournament(channel), irc_convert_channel(channel));
++                                     clanid, conn_get_addr(conn), channel_wol_get_game_tournament(channel), irc_convert_channel(channel,conn));
+                     }
+ 
+                     eventlog(eventlog_level_debug,__FUNCTION__,&quot;[** WOL **] JOINGAME [Game Options] (%s) [Game Owner] (%s)&quot;,_temp,channel_wol_get_game_owner(channel));
+@@ -1056,7 +1054,7 @@
+ 	   	 	t_channel * old_channel = conn_get_channel(conn);
+ 
+ 			if (old_channel)
+-			  old_channel_name = xstrdup(irc_convert_channel(old_channel));
++			  old_channel_name = xstrdup(irc_convert_channel(old_channel,conn));
+ 
+ /* This will be in future: Start GAME (no start channel) */
+ //			if ((!(wolname)) || ((conn_set_game(conn, wolname, &quot;&quot;, &quot;&quot;, game_type_none, 0))&lt;0)) {
+@@ -1189,7 +1187,7 @@
+ 	    t_connection * user;
+ 
+ 	    if((user = connlist_find_connection_by_accountname(params[0]))&amp;&amp;(conn_wol_get_findme(user) == 17)) {
+-     		wolname = irc_convert_channel(conn_get_channel(user));
++     		wolname = irc_convert_channel(conn_get_channel(user),user);
+ 	        snprintf(_temp, sizeof(_temp), &quot;0 :%s&quot;, wolname); /* User found in channel wolname */
+ 	    }
+ 	    else
+@@ -1211,7 +1209,7 @@
+ 	    t_connection * user;
+ 
+ 	    if((user = connlist_find_connection_by_accountname(params[0]))&amp;&amp;(conn_wol_get_findme(user) == 17)) {
+-     		wolname = irc_convert_channel(conn_get_channel(user));
++     		wolname = irc_convert_channel(conn_get_channel(user),user);
+      		snprintf(_temp, sizeof(_temp), &quot;0 :%s,0&quot;, wolname); /* User found in channel wolname */
+ 	    }
+ 	    else
+
+Modified: trunk/pvpgn/src/bnetd/irc.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/irc.cpp	2007-11-23 22:43:40 UTC (rev 417)
++++ trunk/pvpgn/src/bnetd/irc.cpp	2007-11-23 22:45:41 UTC (rev 418)
+@@ -302,7 +302,7 @@
+ /*   ':'  -&gt; '%='     */
+ /*   ','  -&gt; '%-'     */
+ /* In IRC a channel can be specified by '#'+channelname or '!'+channelid */
+-extern char const * irc_convert_channel(t_channel const * channel)
++extern char const * irc_convert_channel(t_channel const * channel, t_connection * c)
+ {
+     char const * bname;
+     static char out[MAX_CHANNELNAME_LEN];
+@@ -315,7 +315,12 @@
+     std::memset(out,0,sizeof(out));
+     out[0] = '#';
+     outpos = 1;
+-    bname = channel_get_name(channel);
++
++    if ((conn_get_wol(c) == 1) &amp;&amp; (channel_get_clienttag(channel)!=0 &amp;&amp; (conn_get_clienttag(c) == channel_get_clienttag(channel))))
++        bname = channel_get_shortname(channel); /* We converting unreadable &quot;lob 18 0&quot; names to human redable ones */
++    else
++        bname = channel_get_name(channel);
++
+     for (i=0; bname[i]!='\0'; i++) {
+ 	if (bname[i]==' ') {
+ 	    out[outpos++] = '_';
+@@ -603,10 +608,13 @@
+ 	char msg[MAX_IRC_MESSAGE_LEN+1];
+ 
+ 	if (e1_2)
+-	    std::sprintf(msg,&quot;%<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">s at hidden</A> %s %s%s%s\r\n&quot;,e1,e2,toname,temp,e4);
++	    std::sprintf(msg,&quot;%<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">s at hidden</A> %s %s%s%s&quot;,e1,e2,toname,temp,e4);
+ 	else
+-	    std::sprintf(msg,&quot;%s %s %s%s%s\r\n&quot;,e1,e2,toname,temp,e4);
+-	eventlog(eventlog_level_debug,__FUNCTION__,&quot;sent \&quot;%s\&quot;&quot;,msg);
++	    std::sprintf(msg,&quot;%s %s %s%s%s&quot;,e1,e2,toname,temp,e4);
++
++	DEBUG2(&quot;[%d] sent \&quot;%s\&quot;&quot;,conn_get_socket(dest),msg);
++	std::strcat(msg,&quot;\r\n&quot;);
++
+ 	packet_set_size(packet,0);
+ 	packet_append_data(packet,msg,std::strlen(msg));
+ 	if (tname)
+@@ -671,10 +679,10 @@
+     	        clanid = clan_get_clanid(clan);
+ 
+             std::sprintf(temp,&quot;:%u,%u&quot;,clanid,conn_get_addr(me));
+-    	    msg = irc_message_preformat(&amp;from,&quot;JOIN&quot;,temp,irc_convert_channel(channel));
++    	    msg = irc_message_preformat(&amp;from,&quot;JOIN&quot;,temp,irc_convert_channel(channel,dst));
+         }
+         else {
+-            msg = irc_message_preformat(&amp;from,&quot;JOIN&quot;,&quot;\r&quot;,irc_convert_channel(channel));
++            msg = irc_message_preformat(&amp;from,&quot;JOIN&quot;,&quot;\r&quot;,irc_convert_channel(channel,dst));
+         }
+     	conn_unget_chatname(me,from.nick);
+     }
+@@ -683,7 +691,7 @@
+     	from.nick = conn_get_chatname(me);
+     	from.user = ctag;
+     	from.host = addr_num_to_ip_str(conn_get_addr(me));
+-    	msg = irc_message_preformat(&amp;from,&quot;PART&quot;,&quot;\r&quot;,irc_convert_channel(conn_get_channel(me)));
++    	msg = irc_message_preformat(&amp;from,&quot;PART&quot;,&quot;\r&quot;,irc_convert_channel(conn_get_channel(me),dst));
+     	conn_unget_chatname(me,from.nick);
+     	break;
+     case message_type_talk:
+@@ -703,7 +711,7 @@
+         from.user = ctag;
+ 
+         if (type==message_type_talk)
+-            dest = irc_convert_channel(conn_get_channel(me)); /* FIXME: support more channels and choose right one! */
++            dest = irc_convert_channel(conn_get_channel(me),dst); /* FIXME: support more channels and choose right one! */
+         else
+             dest = &quot;&quot;; /* will be replaced with username in postformat */
+ 
+@@ -735,7 +743,7 @@
+             from.user = ctag;
+     	    from.host = addr_num_to_ip_str(conn_get_addr(me));
+     	    /* FIXME: also supports whisper emotes? */
+-    	    dest = irc_convert_channel(conn_get_channel(me)); /* FIXME: support more channels and choose right one! */
++    	    dest = irc_convert_channel(conn_get_channel(me),dst); /* FIXME: support more channels and choose right one! */
+ 	    msg = irc_message_preformat(&amp;from,&quot;PRIVMSG&quot;,dest,temp);
+     	    conn_unget_chatname(me,from.nick);
+     	}
+@@ -814,7 +822,7 @@
+                 std::sprintf(temp,&quot;%s :%s&quot;,conn_get_chatname(me),text);
+             else
+                 std::sprintf(temp,&quot;%s :&quot;);
+-            msg = irc_message_preformat(&amp;from,&quot;KICK&quot;,irc_convert_channel(conn_get_channel(me)),temp);
++            msg = irc_message_preformat(&amp;from,&quot;KICK&quot;,irc_convert_channel(conn_get_channel(me),dst),temp);
+             conn_unget_chatname(me,from.nick);
+         }
+         break;
+@@ -865,7 +873,7 @@
+         from.nick = conn_get_chatname(me);
+         from.user = ctag;
+         from.host = addr_num_to_ip_str(conn_get_addr(me));
+-        msg = irc_message_preformat(&amp;from,&quot;GAMEOPT&quot;,irc_convert_channel(conn_get_channel(me)),text);
++        msg = irc_message_preformat(&amp;from,&quot;GAMEOPT&quot;,irc_convert_channel(conn_get_channel(me),dst),text);
+         conn_unget_chatname(me,from.nick);
+         break;
+     case message_wol_gameopt_join:
+@@ -920,7 +928,7 @@
+     }
+ 
+     std::memset(temp,0,sizeof(temp));
+-    ircname = irc_convert_channel(channel);
++    ircname = irc_convert_channel(channel,c);
+     if (!ircname) {
+ 	eventlog(eventlog_level_error,__FUNCTION__,&quot;channel has NULL ircname&quot;);
+ 	return -1;
+@@ -999,7 +1007,7 @@
+     }
+ 
+     if (channel) {
+-        ircname = irc_convert_channel(channel);
++        ircname = irc_convert_channel(channel,c);
+         if (!ircname) {
+ 	    eventlog(eventlog_level_error,__FUNCTION__,&quot;channel has NULL ircname&quot;);
+ 	    return -1;
+@@ -1060,7 +1068,7 @@
+ 	eventlog(eventlog_level_error,__FUNCTION__,&quot;got NULL addr (tempip)&quot;);
+ 	return -1;
+     }
+-    if (!(tempchannel = irc_convert_channel(conn_get_channel(c))))
++    if (!(tempchannel = irc_convert_channel(conn_get_channel(c),c)))
+     {
+ 	eventlog(eventlog_level_error,__FUNCTION__,&quot;got NULL channel (tempchannel)&quot;);
+ 	return -1;
+@@ -1277,11 +1285,11 @@
+     char temp[MAX_IRC_MESSAGE_LEN];
+ 
+     if ((topic = channel_get_topic(channel_get_name(channel)))) {
+-        snprintf(temp, sizeof(temp), &quot;%s :%s&quot;, irc_convert_channel(channel), topic);
++        snprintf(temp, sizeof(temp), &quot;%s :%s&quot;, irc_convert_channel(channel,c), topic);
+         irc_send(c, RPL_TOPIC, temp);
+     }
+     else {
+-        snprintf(temp, sizeof(temp), &quot;%s :&quot;, irc_convert_channel(channel));
++        snprintf(temp, sizeof(temp), &quot;%s :&quot;, irc_convert_channel(channel,c));
+         irc_send(c, RPL_TOPIC, temp);
+         //irc_send(c, RPL_NOTOPIC, &quot;:No topic is set&quot;);
+     }
+
+Modified: trunk/pvpgn/src/bnetd/irc.h
+===================================================================
+--- trunk/pvpgn/src/bnetd/irc.h	2007-11-23 22:43:40 UTC (rev 417)
++++ trunk/pvpgn/src/bnetd/irc.h	2007-11-23 22:45:41 UTC (rev 418)
+@@ -39,7 +39,7 @@
+ extern int irc_send_ping(t_connection * conn);
+ extern int irc_send_pong(t_connection * conn, char const * params);
+ extern int irc_authenticate(t_connection * conn, char const * passhash);
+-extern char const * irc_convert_channel(t_channel const * channel);
++extern char const * irc_convert_channel(t_channel const * channel, t_connection * c);
+ extern char const * irc_convert_ircname(char const * pircname);
+ extern char ** irc_get_listelems(char * list);
+ extern int irc_unget_listelems(char ** elems);
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000577.html">[pvpgn-dev] r417 - trunk/pvpgn/src/bnetd
+</A></li>
+	<LI>Next message: <A HREF="000579.html">[pvpgn-dev] [Bug #12533] ra2 cannot start game
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#578">[ date ]</a>
+              <a href="thread.html#578">[ thread ]</a>
+              <a href="subject.html#578">[ subject ]</a>
+              <a href="author.html#578">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

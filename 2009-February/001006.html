@@ -1,0 +1,403 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r548 - in trunk/pvpgn: . conf src/bnetd
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2009-February/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r548%20-%20in%20trunk/pvpgn%3A%20.%20conf%20src/bnetd&In-Reply-To=%3C200902242306.n1ON65mp023681%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001005.html">
+   <LINK REL="Next"  HREF="001007.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r548 - in trunk/pvpgn: . conf src/bnetd</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r548%20-%20in%20trunk/pvpgn%3A%20.%20conf%20src/bnetd&In-Reply-To=%3C200902242306.n1ON65mp023681%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r548 - in trunk/pvpgn: . conf src/bnetd">svn at svn.berlios.de
+       </A><BR>
+    <I>Wed Feb 25 00:06:05 CET 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001005.html">[pvpgn-dev] [Bug #15306] compile error for handle_wol_gameres.cpp
+</A></li>
+        <LI>Next message: <A HREF="001007.html">[pvpgn-dev] r549 - in trunk/pvpgn/src: bnetd client common
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1006">[ date ]</a>
+              <a href="thread.html#1006">[ thread ]</a>
+              <a href="subject.html#1006">[ subject ]</a>
+              <a href="author.html#1006">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pelish
+Date: 2009-02-25 00:06:00 +0100 (Wed, 25 Feb 2009)
+New Revision: 548
+
+Added:
+   trunk/pvpgn/conf/bnmotd-csCZ.txt.in
+   trunk/pvpgn/conf/bnmotd-deDE.txt.in
+   trunk/pvpgn/conf/bnmotd-enUS.txt.in
+   trunk/pvpgn/conf/bnmotd-esES.txt.in
+   trunk/pvpgn/conf/bnmotd-frFR.txt.in
+   trunk/pvpgn/conf/bnmotd-nlNL.txt.in
+   trunk/pvpgn/conf/bnmotd-plPL.txt.in
+   trunk/pvpgn/conf/bnmotd-ptBR.txt.in
+   trunk/pvpgn/conf/bnmotd-ruRU.txt.in
+   trunk/pvpgn/conf/bnmotd-zhCN.txt.in
+   trunk/pvpgn/conf/bnmotd-zhTW.txt.in
+Removed:
+   trunk/pvpgn/conf/bnmotd.txt.in
+Modified:
+   trunk/pvpgn/conf/CMakeLists.txt
+   trunk/pvpgn/src/bnetd/connection.cpp
+   trunk/pvpgn/version-history.txt
+Log:
+added support for multilingual motd's, added MOTD file translations into many languages.
+
+Modified: trunk/pvpgn/conf/CMakeLists.txt
+===================================================================
+--- trunk/pvpgn/conf/CMakeLists.txt	2009-02-23 21:57:29 UTC (rev 547)
++++ trunk/pvpgn/conf/CMakeLists.txt	2009-02-24 23:06:00 UTC (rev 548)
+@@ -1,7 +1,10 @@
+ # generate the configs with proper line endings
+ set(OUTPUT_CONFS ad.conf anongame_infos.conf address_translation.conf 
+   autoupdate.conf bnalias.conf bnban.conf bnetd_default_user.plain 
+-  bnhelp.conf bnissue.txt bnmaps.conf bnmotd.txt bnxpcalc.conf 
++  bnhelp.conf bnissue.txt bnmaps.conf bnxpcalc.conf bnmotd-enUS.txt 
++  bnmotd-csCZ.txt bnmotd-deDE.txt bnmotd-esES.txt bnmotd-frFR.txt 
++  bnmotd-nlNL.txt bnmotd-plPL.txt bnmotd-ruRU.txt bnmotd-zhCN.txt 
++  bnmotd-zhTW.txt bnmotd-ptBR.txt 
+   bnxplevel.conf channel.conf command_groups.conf news.txt realm.conf 
+   sql_DB_layout2.conf sql_DB_layout.conf supportfile.conf topics.conf 
+   tournament.conf versioncheck.conf)
+@@ -17,7 +20,9 @@
+ if(WITH_BNETD)
+   set(BNETD_CONFS bnetd.conf ad.conf anongame_infos.conf address_translation.conf 
+   autoupdate.conf bnalias.conf bnban.conf 
+-  bnetd_default_user.plain bnhelp.conf bnissue.txt bnmaps.conf bnmotd.txt 
++  bnetd_default_user.plain bnhelp.conf bnissue.txt bnmaps.conf bnmotd-enUS.txt 
++  bnmotd-csCZ.txt bnmotd-deDE.txt bnmotd-esES.txt bnmotd-frFR.txt bnmotd-nlNL.txt
++  bnmotd-plPL.txt bnmotd-ruRU.txt bnmotd-zhCN.txt bnmotd-zhTW.txt bnmotd-ptBR.txt  
+   bnxpcalc.conf bnxplevel.conf channel.conf command_groups.conf news.txt 
+   realm.conf sql_DB_layout.conf sql_DB_layout2.conf supportfile.conf topics.conf 
+   tournament.conf versioncheck.conf)
+
+Added: trunk/pvpgn/conf/bnmotd-csCZ.txt.in
+===================================================================
+--- trunk/pvpgn/conf/bnmotd-csCZ.txt.in	2009-02-23 21:57:29 UTC (rev 547)
++++ trunk/pvpgn/conf/bnmotd-csCZ.txt.in	2009-02-24 23:06:00 UTC (rev 548)
+@@ -0,0 +1,11 @@
++%IAhoj %l, v&#237;tejte na %s!
++%IServer b&#236;&#158;&#237; na %h verze %v.
++%ITento server hostuje %H
++%I
++%INa tomto serveru je %a u&#158;ivatelsk&#253;ch &#250;&#232;t&#249;.
++%IAktu&#225;ln&#236; je zde %U u&#158;ivatel&#249; ve %G hr&#225;ch typu %N,
++%Ia %u u&#158;ivatel&#249; ve %g hr&#225;ch a %c kan&#225;lech.
++%IM&#225;te probl&#233;my s p&#248;&#237;kazy? Pro v&#237;ce informac&#237;
++%Izadejte /help
++%I
++%I%m
+
+Added: trunk/pvpgn/conf/bnmotd-deDE.txt.in
+===================================================================
+--- trunk/pvpgn/conf/bnmotd-deDE.txt.in	2009-02-23 21:57:29 UTC (rev 547)
++++ trunk/pvpgn/conf/bnmotd-deDE.txt.in	2009-02-24 23:06:00 UTC (rev 548)
+@@ -0,0 +1,11 @@
++%IHallo %l, willkommen zu %s!
++%ILaufende Version %v auf %h.
++%IDer Server ist von %H gehostet
++%I
++%IEs sind %a Benutzerprofile auf dem server.
++%IAktuell sind %U Spieler in %G Spielen von %N,
++%Iund %u Spieler spielen %g Spiele und chatten in %c Channels.
++%IEin Problem mit den Kommandos?  Schreibe   /help   und
++%Ilerne mehr &#252;ber die Kommandos.
++%I
++%I%m
+
+Added: trunk/pvpgn/conf/bnmotd-enUS.txt.in
+===================================================================
+--- trunk/pvpgn/conf/bnmotd-enUS.txt.in	2009-02-23 21:57:29 UTC (rev 547)
++++ trunk/pvpgn/conf/bnmotd-enUS.txt.in	2009-02-24 23:06:00 UTC (rev 548)
+@@ -0,0 +1,11 @@
++%IHello %l, welcome to %s!
++%IRunning version %v on %h.
++%IThis server is hosted by %H
++%I
++%IThere are %a user accounts on this server.
++%IThere are currently %U users in %G games of %N,
++%Iand %u users playing %g games and chatting in %c channels.
++%IHaving trouble with a command?  Type   /help   to
++%Ilearn more about it.
++%I
++%I%m
+
+Added: trunk/pvpgn/conf/bnmotd-esES.txt.in
+===================================================================
+--- trunk/pvpgn/conf/bnmotd-esES.txt.in	2009-02-23 21:57:29 UTC (rev 547)
++++ trunk/pvpgn/conf/bnmotd-esES.txt.in	2009-02-24 23:06:00 UTC (rev 548)
+@@ -0,0 +1,11 @@
++%IHola %l, bienvenido a %s!
++%IEn %h se usa la versi&#243;n %v
++%IEste servidor es alojado por %H
++%I
++%IEn este servidor hay %a cuentas registradas.
++%IActualmente hay %U usuarios en %G partidas de %N,
++%Iy %u usuarios jugando %g partidas y conversando en %c salas.
++%ITiene problemas con algun comando?  Teclee  &quot;/help&quot; para
++%Iaprender m&#225;s sobre los comandos.
++%I
++%I%m
+
+Added: trunk/pvpgn/conf/bnmotd-frFR.txt.in
+===================================================================
+--- trunk/pvpgn/conf/bnmotd-frFR.txt.in	2009-02-23 21:57:29 UTC (rev 547)
++++ trunk/pvpgn/conf/bnmotd-frFR.txt.in	2009-02-24 23:06:00 UTC (rev 548)
+@@ -0,0 +1,11 @@
++%IBonjour %l, bienvenue sur %s!
++%IUtilisant la version %v sur %h.
++%ICe serveur est h&#233;berg&#233; par %H
++%I
++%IIl y a` %a comptes utilisateur sur ce serveur.
++%IIl y a` en ce moment %U ultilisateurs dans %G parties de %N,
++%Iainsi que %u utilisateurs jouant dans %g parties et discutant dans %c canaux.
++%IUn proble`me avec une commande?  Tappez   /help   pour
++%Ien savoir plus.
++%I
++%I%m
+
+Added: trunk/pvpgn/conf/bnmotd-nlNL.txt.in
+===================================================================
+--- trunk/pvpgn/conf/bnmotd-nlNL.txt.in	2009-02-23 21:57:29 UTC (rev 547)
++++ trunk/pvpgn/conf/bnmotd-nlNL.txt.in	2009-02-24 23:06:00 UTC (rev 548)
+@@ -0,0 +1,11 @@
++%IHallo %l, welom bij %s!
++%IWe draaien versie %v op %h.
++%IDeze server wordt gehost bij %H
++%I
++%IEr zijn %a gebruikers accounts op deze server.
++%IEr zijn momenteel %U gebruikers in %G games van %N,
++%Ien %u gebruikers spelen %g spellen en chatten in %c channels.
++%IProblemen met een commando?  Type   /help   om
++%Ier meer te weten over te komen.
++%I
++%I%m
+
+Added: trunk/pvpgn/conf/bnmotd-plPL.txt.in
+===================================================================
+--- trunk/pvpgn/conf/bnmotd-plPL.txt.in	2009-02-23 21:57:29 UTC (rev 547)
++++ trunk/pvpgn/conf/bnmotd-plPL.txt.in	2009-02-24 23:06:00 UTC (rev 548)
+@@ -0,0 +1,11 @@
++%ICze&#156;&#230; %l, witaj w %s!
++%IWersja serwera %v uruchomiona na %h.
++%ISerwer obs&#179;uguje %H
++%I
++%IDo tej pory zarejestrowali&#156;my %a kont.
++%IAktualnie jest %U u&#191;ytkownik&#243;w zalogowanych, w %G grach, z po&#156;r&#243;d %N,
++%I%u u&#191;ytkownik&#243;w gra w %g gier, i rozmawia na %c kana&#179;ach.
++%IJe&#156;li masz jakie&#156; problemy z poleceniami, to napiszsz /help aby
++%Idowiedzie&#230; si&#234; wiecej.
++%I
++%I%m
+
+Added: trunk/pvpgn/conf/bnmotd-ptBR.txt.in
+===================================================================
+--- trunk/pvpgn/conf/bnmotd-ptBR.txt.in	2009-02-23 21:57:29 UTC (rev 547)
++++ trunk/pvpgn/conf/bnmotd-ptBR.txt.in	2009-02-24 23:06:00 UTC (rev 548)
+@@ -0,0 +1,11 @@
++%IOl&#225; %l, Bem vindo a %s!
++%IRodando a versa~o %v em %h.
++%IEste servidor &#233; hosteado por %H
++%I
++%IExistem %a contas criadas nesse servidor.
++%IAtuamente existe %U usuarios %G jogos de %N,
++%IE %u usu&#225;rios jogando %g jogos e conversando em %c canais.
++%ITendo algum problema com comando?  Digite   /help   ra
++%Aprender mais sobre.
++%I
++%I%m
+
+Added: trunk/pvpgn/conf/bnmotd-ruRU.txt.in
+===================================================================
+--- trunk/pvpgn/conf/bnmotd-ruRU.txt.in	2009-02-23 21:57:29 UTC (rev 547)
++++ trunk/pvpgn/conf/bnmotd-ruRU.txt.in	2009-02-24 23:06:00 UTC (rev 548)
+@@ -0,0 +1,11 @@
++%I?????? %l, ????? ?????????? ?? %s!
++%I?????? ??????? %v ?? %h.
++%I?????? ?????????? ?? %H
++%I
++%I?? ??????? %a ??????? ?????????.
++%I?????? %U ??????? ? %G ????? %N,
++%I? %u ??????? ? %g ????? ? %c ???????.
++%I?? ??????? ??????? ????? ??????? ??????? /help,
++%I??? ?????? ???? ??????.
++%I
++%I%m
+
+Added: trunk/pvpgn/conf/bnmotd-zhCN.txt.in
+===================================================================
+--- trunk/pvpgn/conf/bnmotd-zhCN.txt.in	2009-02-23 21:57:29 UTC (rev 547)
++++ trunk/pvpgn/conf/bnmotd-zhCN.txt.in	2009-02-24 23:06:00 UTC (rev 548)
+@@ -0,0 +1,11 @@
++%I??%l,  ???? %s!
++%I???? %v ? %h.
++%I???????? %H
++%I
++%I??????%a???.
++%I??????%U??%G????%N,
++%I?%u??%g???????%c ??.
++%I??????? ?? /help
++%I???.
++%I
++%I%m
+
+Added: trunk/pvpgn/conf/bnmotd-zhTW.txt.in
+===================================================================
+--- trunk/pvpgn/conf/bnmotd-zhTW.txt.in	2009-02-23 21:57:29 UTC (rev 547)
++++ trunk/pvpgn/conf/bnmotd-zhTW.txt.in	2009-02-24 23:06:00 UTC (rev 548)
+@@ -0,0 +1,10 @@
++%I??! %l, ???? %s!
++%I????? %H ??? %h. 
++%I????????? %v.
++%I
++%I?????? %a ??????.
++%I?? %U ????? %N ? %G ???,
++%I??? %u ??????? %g ?????? %c ?????.
++%I???????  ???  /help  ?????...
++%I
++%I%m
+
+Deleted: trunk/pvpgn/conf/bnmotd.txt.in
+===================================================================
+--- trunk/pvpgn/conf/bnmotd.txt.in	2009-02-23 21:57:29 UTC (rev 547)
++++ trunk/pvpgn/conf/bnmotd.txt.in	2009-02-24 23:06:00 UTC (rev 548)
+@@ -1,11 +0,0 @@
+-%IHello %l, welcome to %s!
+-%IRunning version %v on %h.
+-%IThis server is hosted by %H
+-%I
+-%IThere are %a user accounts on this server.
+-%IThere are currently %U users in %G games of %N,
+-%Iand %u users playing %g games and chatting in %c channels.
+-%IHaving trouble with a command?  Type   /help   to
+-%Ilearn more about it.
+-%I
+-%I%m
+
+Modified: trunk/pvpgn/src/bnetd/connection.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/connection.cpp	2009-02-23 21:57:29 UTC (rev 547)
++++ trunk/pvpgn/src/bnetd/connection.cpp	2009-02-24 23:06:00 UTC (rev 548)
+@@ -121,16 +121,57 @@
+ 	c-&gt;protocol.cflags|= conn_flags_welcomed;
+ 	return;
+     }
+-    if ((filename = prefs_get_motdfile()))
+-    {
+-	if ((fp = std::fopen(filename,&quot;r&quot;)))
+-	{
+-	    message_send_file(c,fp);
+-	    if (std::fclose(fp)&lt;0)
+-	      { eventlog(eventlog_level_error,__FUNCTION__,&quot;could not close MOTD file \&quot;%s\&quot; after reading (std::fopen: %s)&quot;,filename,std::strerror(errno)); }
+-	}
+-	else
+-	  { eventlog(eventlog_level_error,__FUNCTION__,&quot;could not open MOTD file \&quot;%s\&quot; for reading (std::fopen: %s)&quot;,filename,std::strerror(errno)); }
++    if (filename = prefs_get_motdfile()) {
++        char lang_str[5];
++        char * lang_filename;
++        char * tempmotdfile;
++        char * def_langtag;
++        char * extention;
++ 
++        tag_uint_to_str(lang_str,conn_get_gamelang(c));
++
++        tempmotdfile = xstrdup(filename);
++        def_langtag = std::strrchr(tempmotdfile,'-');
++        if (!def_langtag) {
++            extention = std::strrchr(tempmotdfile,'.');
++            lang_filename = (char*)xmalloc(std::strlen(tempmotdfile)+6);
++        }
++        else {
++            *def_langtag = '\0';
++            def_langtag++;
++            extention = std::strrchr(def_langtag,'.');
++            lang_filename = (char*)xmalloc(std::strlen(tempmotdfile));
++        }
++        *extention = '\0';
++        extention++;        
++
++        if (lang_str)
++            std::sprintf(lang_filename, &quot;%s-%s.%s&quot;, tempmotdfile, lang_str, extention);
++        else
++            std::sprintf(lang_filename, &quot;%s&quot;, filename);
++
++        if (fp = std::fopen(lang_filename,&quot;r&quot;)) {
++            message_send_file(c,fp);
++            if (std::fclose(fp)&lt;0) {
++                eventlog(eventlog_level_error,__FUNCTION__,&quot;could not close MOTD file \&quot;%s\&quot; after reading (std::fopen: %s)&quot;,lang_filename,std::strerror(errno));
++            }
++        }
++        else {
++            INFO1(&quot;motd file %s not found, sending default motd file&quot;,lang_filename);
++            if (fp = std::fopen(filename,&quot;r&quot;))  {
++                message_send_file(c,fp);
++                if (std::fclose(fp)&lt;0) {
++                    eventlog(eventlog_level_error,__FUNCTION__,&quot;could not close MOTD file \&quot;%s\&quot; after reading (std::fopen: %s)&quot;,filename,std::strerror(errno));
++                }
++            }
++            else {
++                eventlog(eventlog_level_error,__FUNCTION__,&quot;could not open MOTD file \&quot;%s\&quot; for reading (std::fopen: %s)&quot;,filename,std::strerror(errno));
++            }
++        }
++        if (tempmotdfile)
++            xfree((void *)tempmotdfile);
++        if (lang_filename)           
++            xfree((void *)lang_filename);
+     }
+     c-&gt;protocol.cflags|= conn_flags_welcomed;
+ }
+
+Modified: trunk/pvpgn/version-history.txt
+===================================================================
+--- trunk/pvpgn/version-history.txt	2009-02-23 21:57:29 UTC (rev 547)
++++ trunk/pvpgn/version-history.txt	2009-02-24 23:06:00 UTC (rev 548)
+@@ -31,6 +31,7 @@
+   -- added /clan create/invite/disband subcommands
+   -- added clan_min_invites to bnetd.conf for miminum accepted
+      invitations need in clan-creating process (default is 2)
++  -- added support for multilingual motd
+ 
+  ChangeLog for 1.8.5 (since 1.8.4)
+ =========================================
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001005.html">[pvpgn-dev] [Bug #15306] compile error for handle_wol_gameres.cpp
+</A></li>
+	<LI>Next message: <A HREF="001007.html">[pvpgn-dev] r549 - in trunk/pvpgn/src: bnetd client common
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1006">[ date ]</a>
+              <a href="thread.html#1006">[ thread ]</a>
+              <a href="subject.html#1006">[ subject ]</a>
+              <a href="author.html#1006">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

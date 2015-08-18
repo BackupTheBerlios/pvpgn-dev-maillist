@@ -1,0 +1,228 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r424 - trunk/pvpgn/src/bnetd
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2008-January/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r424%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C477FC50D.7070201%40gmx.net%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000624.html">
+   <LINK REL="Next"  HREF="000627.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r424 - trunk/pvpgn/src/bnetd</H1>
+    <B>Aaron</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r424%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C477FC50D.7070201%40gmx.net%3E"
+       TITLE="[pvpgn-dev] r424 - trunk/pvpgn/src/bnetd">aaron667 at gmx.net
+       </A><BR>
+    <I>Sat Jan  5 18:57:33 CET 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000624.html">[pvpgn-dev] r424 - trunk/pvpgn/src/bnetd
+</A></li>
+        <LI>Next message: <A HREF="000627.html">[pvpgn-dev] PvPGN, CMake and unit testing
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#625">[ date ]</a>
+              <a href="thread.html#625">[ thread ]</a>
+              <a href="subject.html#625">[ subject ]</a>
+              <a href="author.html#625">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>@Paul Do:
+you found out how to subscribe, so you should be capable to find a way 
+to unsubscribe, too.
+Hint: take a closer look at the URL at the end of each eMail from this list.
+
+Have a nice day
+   aaron
+
+
+Paul Do schrieb:
+&gt;<i> STOP
+</I>&gt;<i> can u stop emailing me on the list pls pls pls
+</I>&gt;<i> I dun know how to cancel it
+</I>&gt;<i> im getting mass message from you guys
+</I>&gt;<i> thankyou
+</I>&gt;<i> 
+</I>&gt;<i>  &gt; Date: Thu, 6 Dec 2007 17:37:42 +0100
+</I>&gt;<i>  &gt; To: <A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">pvpgn-dev at lists.berlios.de</A>
+</I>&gt;<i>  &gt; From: <A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">svn at svn.berlios.de</A>
+</I>&gt;<i>  &gt; Subject: [pvpgn-dev] r424 - trunk/pvpgn/src/bnetd
+</I>&gt;<i>  &gt;
+</I>&gt;<i>  &gt; Author: pelish
+</I>&gt;<i>  &gt; Date: 2007-12-06 17:37:40 +0100 (Thu, 06 Dec 2007)
+</I>&gt;<i>  &gt; New Revision: 424
+</I>&gt;<i>  &gt;
+</I>&gt;<i>  &gt; Modified:
+</I>&gt;<i>  &gt; trunk/pvpgn/src/bnetd/channel.cpp
+</I>&gt;<i>  &gt; trunk/pvpgn/src/bnetd/handle_apireg.cpp
+</I>&gt;<i>  &gt; trunk/pvpgn/src/bnetd/irc.cpp
+</I>&gt;<i>  &gt; Log:
+</I>&gt;<i>  &gt; fix for bug on apireg protocol handling, fixed IRC/WOL bug when admin 
+</I>&gt;<i> has been not showed as admin to self when connect to channel
+</I>&gt;<i>  &gt;
+</I>&gt;<i>  &gt; Modified: trunk/pvpgn/src/bnetd/channel.cpp
+</I>&gt;<i>  &gt; ===================================================================
+</I>&gt;<i>  &gt; --- trunk/pvpgn/src/bnetd/channel.cpp 2007-12-02 17:15:25 UTC (rev 423)
+</I>&gt;<i>  &gt; +++ trunk/pvpgn/src/bnetd/channel.cpp 2007-12-06 16:37:40 UTC (rev 424)
+</I>&gt;<i>  &gt; @@ -480,6 +480,7 @@
+</I>&gt;<i>  &gt; }
+</I>&gt;<i>  &gt;
+</I>&gt;<i>  &gt; if (conn_is_irc_variant(connection) &amp;&amp; 
+</I>&gt;<i> (!conn_wol_get_ingame(connection))) {
+</I>&gt;<i>  &gt; + channel_set_userflags(connection);
+</I>&gt;<i>  &gt; message_send_text(connection,message_type_topic,connection,NULL);
+</I>&gt;<i>  &gt; message_send_text(connection,message_type_namreply,connection,NULL);
+</I>&gt;<i>  &gt; }
+</I>&gt;<i>  &gt;
+</I>&gt;<i>  &gt; Modified: trunk/pvpgn/src/bnetd/handle_apireg.cpp
+</I>&gt;<i>  &gt; ===================================================================
+</I>&gt;<i>  &gt; --- trunk/pvpgn/src/bnetd/handle_apireg.cpp 2007-12-02 17:15:25 UTC 
+</I>&gt;<i> (rev 423)
+</I>&gt;<i>  &gt; +++ trunk/pvpgn/src/bnetd/handle_apireg.cpp 2007-12-06 16:37:40 UTC 
+</I>&gt;<i> (rev 424)
+</I>&gt;<i>  &gt; @@ -797,6 +797,7 @@
+</I>&gt;<i>  &gt; char const * newnick = apiregmember_get_newnick(apiregmember);
+</I>&gt;<i>  &gt; char const * newpass = apiregmember_get_newpass(apiregmember);
+</I>&gt;<i>  &gt; char const * email = apiregmember_get_email(apiregmember);
+</I>&gt;<i>  &gt; + char const * request = apiregmember_get_request(apiregmember);
+</I>&gt;<i>  &gt; // char const * newpass2 = apiregmember_get_newpass2(apiregmember);
+</I>&gt;<i>  &gt; char hresult[12];
+</I>&gt;<i>  &gt; char message[MAX_IRC_MESSAGE_LEN];
+</I>&gt;<i>  &gt; @@ -827,7 +828,7 @@
+</I>&gt;<i>  &gt;
+</I>&gt;<i>  &gt; 
+</I>&gt;<i> DEBUG3(&quot;APIREG:/%s/%s/%s/&quot;,apiregmember_get_request(apiregmember),apiregmember_get_newnick(apiregmember),apiregmember_get_newpass(apiregmember));
+</I>&gt;<i>  &gt;
+</I>&gt;<i>  &gt; - if (std::strcmp(apiregmember_get_request(apiregmember), 
+</I>&gt;<i> REQUEST_AGEVERIFY) == 0) {
+</I>&gt;<i>  &gt; + if ((request) &amp;&amp; 
+</I>&gt;<i> (std::strcmp(apiregmember_get_request(apiregmember), REQUEST_AGEVERIFY) 
+</I>&gt;<i> == 0)) {
+</I>&gt;<i>  &gt; 
+</I>&gt;<i> snprintf(data,sizeof(data),&quot;HRESULT=%s\nMessage=%s\nNewNick=((NewNick))\nNewPass=((NewPass))\n&quot;,hresult,message);
+</I>&gt;<i>  &gt; /* FIXME: Count real age here! */
+</I>&gt;<i>  &gt; snprintf(age,sizeof(age),&quot;28&quot;); /* FIXME: Here must be counted age */
+</I>&gt;<i>  &gt; @@ -836,15 +837,25 @@
+</I>&gt;<i>  &gt; apireg_send(apiregmember_get_conn(apiregmember),data);
+</I>&gt;<i>  &gt; return 0;
+</I>&gt;<i>  &gt; }
+</I>&gt;<i>  &gt; - else if (std::strcmp(apiregmember_get_request(apiregmember), 
+</I>&gt;<i> REQUEST_GETNICK) == 0) {
+</I>&gt;<i>  &gt; + else if ((request) &amp;&amp; 
+</I>&gt;<i> (std::strcmp(apiregmember_get_request(apiregmember), REQUEST_GETNICK) == 
+</I>&gt;<i> 0)) {
+</I>&gt;<i>  &gt; if(!prefs_get_allow_new_accounts()){
+</I>&gt;<i>  &gt; snprintf(message,sizeof(message),&quot;Account creation is not allowed&quot;);
+</I>&gt;<i>  &gt; snprintf(hresult,sizeof(hresult),&quot;-2147221248&quot;);
+</I>&gt;<i>  &gt; }
+</I>&gt;<i>  &gt; else {
+</I>&gt;<i>  &gt; - /* Chceck */
+</I>&gt;<i>  &gt; - account = accountlist_find_account(newnick);
+</I>&gt;<i>  &gt; - if (!account) { /* done, we can create new account */
+</I>&gt;<i>  &gt; + if (!newnick) {
+</I>&gt;<i>  &gt; + snprintf(message,sizeof(message),&quot;Nick must be specifed!&quot;);
+</I>&gt;<i>  &gt; + snprintf(hresult,sizeof(hresult),&quot;-2147221248&quot;);
+</I>&gt;<i>  &gt; + }
+</I>&gt;<i>  &gt; + else if (!newpass) {
+</I>&gt;<i>  &gt; + snprintf(message,sizeof(message),&quot;Pussword must be specifed!&quot;);
+</I>&gt;<i>  &gt; + snprintf(hresult,sizeof(hresult),&quot;-2147221248&quot;);
+</I>&gt;<i>  &gt; + }
+</I>&gt;<i>  &gt; + else if (account = accountlist_find_account(newnick)) {
+</I>&gt;<i>  &gt; + snprintf(message,sizeof(message),&quot;That login is already in use! 
+</I>&gt;<i> Please try another NICK name.&quot;);
+</I>&gt;<i>  &gt; + snprintf(hresult,sizeof(hresult),&quot;-2147221248&quot;);
+</I>&gt;<i>  &gt; + }
+</I>&gt;<i>  &gt; + else { /* done, we can create new account */
+</I>&gt;<i>  &gt; t_account * tempacct;
+</I>&gt;<i>  &gt; t_hash bnet_pass_hash;
+</I>&gt;<i>  &gt; t_wolhash wol_pass_hash;
+</I>&gt;<i>  &gt; @@ -863,16 +874,12 @@
+</I>&gt;<i>  &gt; else {
+</I>&gt;<i>  &gt; eventlog(eventlog_level_debug,__FUNCTION__,&quot;WOLHASH: %s&quot;,wol_pass_hash);
+</I>&gt;<i>  &gt; account_set_wol_apgar(tempacct,wol_pass_hash);
+</I>&gt;<i>  &gt; - account_set_email(tempacct,apiregmember_get_email(apiregmember));
+</I>&gt;<i>  &gt; + if (apiregmember_get_email(apiregmember))
+</I>&gt;<i>  &gt; + account_set_email(tempacct,apiregmember_get_email(apiregmember));
+</I>&gt;<i>  &gt; snprintf(message,sizeof(message),&quot;Welcome in the amazing world of 
+</I>&gt;<i> PvPGN! Your login can be used for all PvPGN Supported games!&quot;);
+</I>&gt;<i>  &gt; snprintf(hresult,sizeof(hresult),&quot;0&quot;);
+</I>&gt;<i>  &gt; }
+</I>&gt;<i>  &gt; }
+</I>&gt;<i>  &gt; - else {
+</I>&gt;<i>  &gt; - /* Account with that login is already in use! */
+</I>&gt;<i>  &gt; - snprintf(message,sizeof(message),&quot;That login is already in use! 
+</I>&gt;<i> Please try another NICK name.&quot;);
+</I>&gt;<i>  &gt; - snprintf(hresult,sizeof(hresult),&quot;-2147221248&quot;);
+</I>&gt;<i>  &gt; - }
+</I>&gt;<i>  &gt; }
+</I>&gt;<i>  &gt; 
+</I>&gt;<i> snprintf(data,sizeof(data),&quot;HRESULT=%s\nMessage=%s\nNewNick=%s\nNewPass=%s\nAge=%s\nConsent=0\nEND\r&quot;,hresult,message,newnick,newpass,age,consent);
+</I>&gt;<i>  &gt; apireg_send(apiregmember_get_conn(apiregmember),data);
+</I>&gt;<i>  &gt;
+</I>&gt;<i>  &gt; Modified: trunk/pvpgn/src/bnetd/irc.cpp
+</I>&gt;<i>  &gt; ===================================================================
+</I>&gt;<i>  &gt; --- trunk/pvpgn/src/bnetd/irc.cpp 2007-12-02 17:15:25 UTC (rev 423)
+</I>&gt;<i>  &gt; +++ trunk/pvpgn/src/bnetd/irc.cpp 2007-12-06 16:37:40 UTC (rev 424)
+</I>&gt;<i>  &gt; @@ -1297,12 +1297,6 @@
+</I>&gt;<i>  &gt; snprintf(temp, sizeof(temp), &quot;%s :JOIN failed&quot;,e[0]);
+</I>&gt;<i>  &gt; irc_send(conn,ERR_NOSUCHCHANNEL,temp); /* Anything is still bad */
+</I>&gt;<i>  &gt; }
+</I>&gt;<i>  &gt; - else {
+</I>&gt;<i>  &gt; - channel = conn_get_channel(conn);
+</I>&gt;<i>  &gt; -
+</I>&gt;<i>  &gt; - if (channel!=old_channel)
+</I>&gt;<i>  &gt; - channel_set_userflags(conn);
+</I>&gt;<i>  &gt; - }
+</I>&gt;<i>  &gt; }
+</I>&gt;<i>  &gt; if (e)
+</I>&gt;<i>  &gt; irc_unget_listelems(e);
+</I>&gt;<i>  &gt;
+</I>&gt;<i>  &gt; _______________________________________________
+</I>&gt;<i>  &gt; pvpgn-dev mailing list
+</I>&gt;<i>  &gt; <A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">pvpgn-dev at lists.berlios.de</A>
+</I>&gt;<i>  &gt; <A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">https://lists.berlios.de/mailman/listinfo/pvpgn-dev</A>
+</I>&gt;<i> 
+</I>&gt;<i> ------------------------------------------------------------------------
+</I>&gt;<i> Join Lavalife for free. What are you waiting for? 
+</I>&gt;<i> &lt;<A HREF="http://a.ninemsn.com.au/b.aspx?URL=http%3A%2F%2Flavalife9%2Eninemsn%2Ecom%2Eau%2Fclickthru%2Fclickthru%2Eact%3Fid%3Dninemsn%26context%3Dan99%26locale%3Den%5FAU%26a%3D30288&amp;_t=764581033&amp;_r=email_taglines_Join_free_OCT07&amp;_m=EXT">http://a.ninemsn.com.au/b.aspx?URL=http%3A%2F%2Flavalife9%2Eninemsn%2Ecom%2Eau%2Fclickthru%2Fclickthru%2Eact%3Fid%3Dninemsn%26context%3Dan99%26locale%3Den%5FAU%26a%3D30288&amp;_t=764581033&amp;_r=email_taglines_Join_free_OCT07&amp;_m=EXT</A>&gt;
+</I>&gt;<i> 
+</I>&gt;<i> 
+</I>&gt;<i> ------------------------------------------------------------------------
+</I>&gt;<i> 
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> pvpgn-dev mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">pvpgn-dev at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">https://lists.berlios.de/mailman/listinfo/pvpgn-dev</A>
+</I>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000624.html">[pvpgn-dev] r424 - trunk/pvpgn/src/bnetd
+</A></li>
+	<LI>Next message: <A HREF="000627.html">[pvpgn-dev] PvPGN, CMake and unit testing
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#625">[ date ]</a>
+              <a href="thread.html#625">[ thread ]</a>
+              <a href="subject.html#625">[ subject ]</a>
+              <a href="author.html#625">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

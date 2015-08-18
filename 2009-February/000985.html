@@ -1,0 +1,157 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r537 - in trunk/pvpgn/src: bnetd common
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2009-February/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r537%20-%20in%20trunk/pvpgn/src%3A%20bnetd%20common&In-Reply-To=%3C200902112237.n1BMbD5S008335%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000984.html">
+   <LINK REL="Next"  HREF="000986.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r537 - in trunk/pvpgn/src: bnetd common</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r537%20-%20in%20trunk/pvpgn/src%3A%20bnetd%20common&In-Reply-To=%3C200902112237.n1BMbD5S008335%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r537 - in trunk/pvpgn/src: bnetd common">svn at svn.berlios.de
+       </A><BR>
+    <I>Wed Feb 11 23:37:13 CET 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000984.html">[pvpgn-dev] r536 - in branches/clan_refactorings: . conf
+</A></li>
+        <LI>Next message: <A HREF="000986.html">[pvpgn-dev] r538 - in trunk/pvpgn/src: bnetd common
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#985">[ date ]</a>
+              <a href="thread.html#985">[ thread ]</a>
+              <a href="subject.html#985">[ subject ]</a>
+              <a href="author.html#985">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pandaemonium
+Date: 2009-02-11 23:37:12 +0100 (Wed, 11 Feb 2009)
+New Revision: 537
+
+Modified:
+   trunk/pvpgn/src/bnetd/handle_bnet.cpp
+   trunk/pvpgn/src/common/bnet_protocol.h
+Log:
+assure that only chieftains can disband a clan
+
+Modified: trunk/pvpgn/src/bnetd/handle_bnet.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/handle_bnet.cpp	2009-02-11 20:23:28 UTC (rev 536)
++++ trunk/pvpgn/src/bnetd/handle_bnet.cpp	2009-02-11 22:37:12 UTC (rev 537)
+@@ -4566,20 +4566,28 @@
+ 
+     if ((rpacket = packet_create(packet_class_bnet))) {
+ 	t_clan *clan;
+-	t_account *myacc;
+-	myacc = conn_get_account(c);
+-	clan = account_get_clan(myacc);
++		t_clanmember *member;
++		t_account *account;
++
+ 	packet_set_size(rpacket, sizeof(t_server_clan_disbandreply));
+ 	packet_set_type(rpacket, SERVER_CLAN_DISBANDREPLY);
+ 	bn_int_set(&amp;rpacket-&gt;u.server_clan_disbandreply.count, bn_int_get(packet-&gt;u.client_clan_disbandreq.count));
+-	if ((clanlist_remove_clan(clan) == 0) &amp;&amp; (clan_remove(clan_get_clantag(clan)) == 0)) {
+-	    bn_byte_set(&amp;rpacket-&gt;u.server_clan_disbandreply.result, SERVER_CLAN_DISBANDREPLY_RESULT_OK);
++
++		if (!((account = conn_get_account(c)) &amp;&amp; (clan = account_get_clan(account)) &amp;&amp; (member = account_get_clanmember(account)) &amp;&amp; (clanmember_get_status(member) &gt;= CLAN_CHIEFTAIN))) {
++			eventlog(eventlog_level_warn, __FUNCTION__, &quot;[%d] got suspicious CLAN_DISBANDREQ packet (request without required privileges)&quot;, conn_get_socket(c));
++			bn_byte_set(&amp;rpacket-&gt;u.server_clan_disbandreply.result, CLAN_RESPONSE_NOT_AUTHORIZED);
++			conn_push_outqueue(c, rpacket);
++			packet_del_ref(rpacket);
++		}
++		else if ((clanlist_remove_clan(clan) == 0) &amp;&amp; (clan_remove(clan_get_clantag(clan)) == 0)) {
++			bn_byte_set(&amp;rpacket-&gt;u.server_clan_disbandreply.result, CLAN_RESPONSE_SUCCESS);
+ 	    clan_close_status_window_on_disband(clan);
+ 	    clan_send_packet_to_online_members(clan, rpacket);
+ 	    packet_del_ref(rpacket);
+ 	    clan_destroy(clan);
+-	} else {
+-	    bn_byte_set(&amp;rpacket-&gt;u.server_clan_disbandreply.result, SERVER_CLAN_DISBANDREPLY_RESULT_EXCEPTION);
++		}
++		else {
++			bn_byte_set(&amp;rpacket-&gt;u.server_clan_disbandreply.result, CLAN_RESPONSE_FAIL);
+ 	    conn_push_outqueue(c, rpacket);
+ 	    packet_del_ref(rpacket);
+ 	}
+@@ -4727,7 +4735,7 @@
+ 	    packet_set_size(rpacket, sizeof(t_server_clan_createinvitereply));
+ 	    packet_set_type(rpacket, SERVER_CLAN_CREATEINVITEREPLY);
+ 	    bn_int_set(&amp;rpacket-&gt;u.server_clan_createinvitereply.count, bn_int_get(packet-&gt;u.client_clan_createinvitereply.count));
+-	    bn_byte_set(&amp;rpacket-&gt;u.server_clan_createinvitereply.status, 0);
++	    bn_byte_set(&amp;rpacket-&gt;u.server_clan_createinvitereply.status, CLAN_RESPONSE_SUCCESS);
+ 	    packet_append_string(rpacket, &quot;&quot;);
+ 	    conn_push_outqueue(conn, rpacket);
+ 	    packet_del_ref(rpacket);
+@@ -4914,6 +4922,7 @@
+ 	    		(member = account_get_clanmember(account)) &amp;&amp;
+ 	    		(clanmember_get_status(member) &gt;= CLAN_SHAMAN) &amp;&amp;
+ 	    		(clantag = clan_get_clantag(clan)))) {
++	    	eventlog(eventlog_level_warn, __FUNCTION__, &quot;[%d] got suspicious CLAN_INVITEREQ packet (request without required privileges)&quot;, conn_get_socket(c));
+ 	    	response_code = CLAN_RESPONSE_NOT_AUTHORIZED;
+ 	    } else {
+ 
+@@ -4932,10 +4941,11 @@
+ 
+ 	    	// valid invitereq
+ 	    	} else {
+-                if (prefs_get_clan_newer_time() &gt; 0)
++                if (prefs_get_clan_newer_time() &gt; 0) {
+                     clan_add_member(clan, conn_account, CLAN_NEW);
+-                else
++                } else {
+                     clan_add_member(clan, conn_account, CLAN_PEON);
++                }
+ 	    		packet_set_size(rpacket, sizeof(t_server_clan_invitereq));
+    				packet_set_type(rpacket, SERVER_CLAN_INVITEREQ);
+    				bn_int_set(&amp;rpacket-&gt;u.server_clan_invitereq.count, bn_int_get(packet-&gt;u.client_clan_invitereq.count));
+
+Modified: trunk/pvpgn/src/common/bnet_protocol.h
+===================================================================
+--- trunk/pvpgn/src/common/bnet_protocol.h	2009-02-11 20:23:28 UTC (rev 536)
++++ trunk/pvpgn/src/common/bnet_protocol.h	2009-02-11 22:37:12 UTC (rev 537)
+@@ -3936,7 +3936,7 @@
+  */
+ 
+ #define CLAN_RESPONSE_SUCCESS 		0x00
+-#define CLAN_RESPONSE_IN_USE  		0x01
++#define CLAN_RESPONSE_FAIL			0x01
+ #define CLAN_RESPONSE_TOO_SOON 		0x02
+ #define CLAN_RESPONSE_TOO_SMALL 	0x03
+ #define CLAN_RESPONSE_DECLINED 		0x04
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000984.html">[pvpgn-dev] r536 - in branches/clan_refactorings: . conf
+</A></li>
+	<LI>Next message: <A HREF="000986.html">[pvpgn-dev] r538 - in trunk/pvpgn/src: bnetd common
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#985">[ date ]</a>
+              <a href="thread.html#985">[ thread ]</a>
+              <a href="subject.html#985">[ subject ]</a>
+              <a href="author.html#985">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

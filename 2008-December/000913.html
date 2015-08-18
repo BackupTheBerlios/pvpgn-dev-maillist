@@ -1,0 +1,150 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] cd-key check idea
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2008-December/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20cd-key%20check%20idea&In-Reply-To=%3C1229376257.15189.9.camel%40moshewe-laptop%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000912.html">
+   <LINK REL="Next"  HREF="000914.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] cd-key check idea</H1>
+    <B>Moshe Weinstock</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20cd-key%20check%20idea&In-Reply-To=%3C1229376257.15189.9.camel%40moshewe-laptop%3E"
+       TITLE="[pvpgn-dev] cd-key check idea">moshewe at cs.bgu.ac.il
+       </A><BR>
+    <I>Mon Dec 15 22:24:16 CET 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000912.html">[pvpgn-dev] cd-key check idea
+</A></li>
+        <LI>Next message: <A HREF="000914.html">[pvpgn-dev] [Patch #2572] Fixed Same Game Name Get Merged
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#913">[ date ]</a>
+              <a href="thread.html#913">[ thread ]</a>
+              <a href="subject.html#913">[ subject ]</a>
+              <a href="author.html#913">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>
+Don't wiggle it!
+
+The offer to implement CD checking is a strong legal defense. Since
+reverse engineering in most places is legal, then the keys are the only
+legal fault we have.
+
+On Mon, 2008-12-15 at 23:15 +0200, Pieter De Wit wrote:
+&gt;<i> Hi D1zzy,
+</I>&gt;<i> 
+</I>&gt;<i> I forgot about the encryption, but I think the ball is with Blizzard
+</I>&gt;<i> now. PvPGN (bnetd) did offer to implement something, and Blizzard
+</I>&gt;<i> rejected it.
+</I>&gt;<i> 
+</I>&gt;<i> I dont think you will ever convince them otherwise, PvPGN is a thron
+</I>&gt;<i> in the side of Blizzard and will always be one. I don't think it's a
+</I>&gt;<i> good idea to wiggle the thorn, unless they ask :)
+</I>&gt;<i> 
+</I>&gt;<i> What would the result be of someone emailing/contacting them with a
+</I>&gt;<i> request to add cd-key checking in ? I think such a &quot;contact&quot; would
+</I>&gt;<i> have to be carefully worded. They might also have other ideas of how
+</I>&gt;<i> to do this
+</I>&gt;<i> 
+</I>&gt;<i> Cheers
+</I>&gt;<i> 
+</I>&gt;<i> On Mon, 15 Dec 2008 13:07:02 -0800, dizzy &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">dizone at gmail.com</A>&gt; wrote:
+</I>&gt;<i> &gt; On Monday 15 December 2008 12:35:14 Pieter De Wit wrote:
+</I>&gt;<i> &gt;&gt; Hi d1zzy,
+</I>&gt;<i> &gt;&gt;
+</I>&gt;<i> &gt;&gt; What do you expect to get out of this &quot;after all is said and done&quot; ?
+</I>&gt;<i> &gt; 
+</I>&gt;<i> &gt; Some kind of assurance that they won't sue us after SC2 gets released and
+</I>&gt;<i> &gt; some 
+</I>&gt;<i> &gt; random guy on the net adds sc2 support to pvpgn (as it happened with
+</I>&gt;<i> &gt; bnetd).
+</I>&gt;<i> &gt; 
+</I>&gt;<i> &gt;&gt; The idea of a secure &quot;tunnel&quot; for these cd-key checks makes sense no
+</I>&gt;<i> &gt;&gt; matter how you look at it. The fact that Blizzard didn't go for this
+</I>&gt;<i> &gt;&gt; option was their own choice.
+</I>&gt;<i> &gt;&gt;
+</I>&gt;<i> &gt;&gt; With PvPGN attempting to intersect/proxy these requests I think it will
+</I>&gt;<i> &gt;&gt; restart Blizzard's hunt to close PvPGN down. I think, if PvPGN is to do
+</I>&gt;<i> &gt;&gt; cd-keys, it should be via the secure tunnel, and every admin is giving
+</I>&gt;<i> &gt;&gt; a server login.
+</I>&gt;<i> &gt; 
+</I>&gt;<i> &gt; A client proxy would not send the cdkeys to pvpgn. But even if it would
+</I>&gt;<i> &gt; send 
+</I>&gt;<i> &gt; them (like right now the clients send the packets directly to pvpgn), the
+</I>&gt;<i> 
+</I>&gt;<i> &gt; protocol makes it impossible for the admin to retrieve them, they are 
+</I>&gt;<i> &gt; encrypted (which kinda makes it hard to proxy but probably not
+</I>&gt;<i> &gt; impossible).
+</I>&gt;<i> &gt; 
+</I>&gt;<i> &gt;&gt; If anything is tracked to that server admin, they will know where to
+</I>&gt;<i> &gt;&gt; look (stolen keys etc.)
+</I>&gt;<i> &gt; 
+</I>&gt;<i> &gt; Nobody can steal client keys with pvpgn because they are sent encrypted
+</I>&gt;<i> by
+</I>&gt;<i> &gt; the 
+</I>&gt;<i> &gt; client in a way pvpgn can't do nothing about. This is a myth (which
+</I>&gt;<i> &gt; started 
+</I>&gt;<i> &gt; because some time ag oblizzard did NOT encrypt the cdkey, not sure if
+</I>&gt;<i> it's
+</I>&gt;<i> &gt; 
+</I>&gt;<i> &gt; still valid with older than W3 clients, I assume not but for W3 I know
+</I>&gt;<i> for
+</I>&gt;<i> &gt; 
+</I>&gt;<i> &gt; sure it's encrypted and can me read only by Blizzard with their private
+</I>&gt;<i> &gt; key 
+</I>&gt;<i> &gt; on their servers).
+</I>&gt;<i> &gt; 
+</I>&gt;<i> &gt;&gt;
+</I>&gt;<i> &gt;&gt; Either way, what would happen if the key failed a check ? What good
+</I>&gt;<i> &gt;&gt; is it to PvPGN to check the key (not talking legally now :) )
+</I>&gt;<i> &gt; 
+</I>&gt;<i> &gt; Hopefully that would make it clear to Blizzard and the courts that pvpgn
+</I>&gt;<i> &gt; does 
+</I>&gt;<i> &gt; not exists to offer an alternative for those that do not have cdkeys but 
+</I>&gt;<i> &gt; actually to offer an alternative for bnet (for example to run a closed 
+</I>&gt;<i> &gt; community LAN party pvpgn server where you cannot use Blizzard's
+</I>&gt;<i> servers).
+</I>&gt;<i> &gt; 
+</I>&gt;<i> &gt;
+</I>&gt;<i> 
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> pvpgn-dev mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">pvpgn-dev at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">https://lists.berlios.de/mailman/listinfo/pvpgn-dev</A>
+</I>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000912.html">[pvpgn-dev] cd-key check idea
+</A></li>
+	<LI>Next message: <A HREF="000914.html">[pvpgn-dev] [Patch #2572] Fixed Same Game Name Get Merged
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#913">[ date ]</a>
+              <a href="thread.html#913">[ thread ]</a>
+              <a href="subject.html#913">[ subject ]</a>
+              <a href="author.html#913">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

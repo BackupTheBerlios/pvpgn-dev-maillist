@@ -1,0 +1,486 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] Color , country and maps,	the players repaired - Code 	tested!!!
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2009-October/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20Color%20%2C%20country%20and%20maps%2C%0A%09the%20players%20repaired%20-%20Code%20%09tested%21%21%21&In-Reply-To=%3Ceb9d4d380910120944o2a53a65fnde9ab70e47769ce5%40mail.gmail.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001155.html">
+   <LINK REL="Next"  HREF="001157.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] Color , country and maps,	the players repaired - Code 	tested!!!</H1>
+    <B>Pelish</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20Color%20%2C%20country%20and%20maps%2C%0A%09the%20players%20repaired%20-%20Code%20%09tested%21%21%21&In-Reply-To=%3Ceb9d4d380910120944o2a53a65fnde9ab70e47769ce5%40mail.gmail.com%3E"
+       TITLE="[pvpgn-dev] Color , country and maps,	the players repaired - Code 	tested!!!">pelish at gmail.com
+       </A><BR>
+    <I>Mon Oct 12 18:44:51 CEST 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001155.html">[pvpgn-dev] Color , country and maps,	the players repaired - Code tested!!!
+</A></li>
+        <LI>Next message: <A HREF="001157.html">[pvpgn-dev] Color , country and maps,	the players repaired - Code 	tested!!!
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1156">[ date ]</a>
+              <a href="thread.html#1156">[ thread ]</a>
+              <a href="subject.html#1156">[ subject ]</a>
+              <a href="author.html#1156">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>My idea is that we should just check, if player do not have defined COLOUR /
+COUNTRY than set it randomly AND also if two players have same colour
+preferred than change colour for ONE of them and not for both. Second thing
+is that you are using GOTO which we are not using in PvPGN. I would like to
+see that functions in some unified function. Maybe something like
+_get_random_num(int min, int max, int without); where min=first number, max
+- maximal number, without = number of opponent (so number which it can not
+be because of conflict). Also PLEASE it is possible for you to make PATCH or
+DIFF file with yours changes as I have mentioned in my last email?
+
+Thank you
+Pelish
+
+2009/10/12 ^A|An M0r3n0^ &lt;<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">alanstr at gmail.com</A>&gt;
+
+&gt;<i> COLOR PLAYER  = RANDOM
+</I>&gt;<i> MAPS                  =    RANDOM
+</I>&gt;<i> SUPER WEAPON = RANDOM
+</I>&gt;<i> COUNTRY  PLAYER   = PREFERED y RANDOM
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> static
+</I>&gt;<i> int anongame_wol_trystart(t_anongame_wol_player const * player1)
+</I>&gt;<i>
+</I>&gt;<i> {
+</I>&gt;<i>
+</I>&gt;<i>  char
+</I>&gt;<i> *YURI_MAPS[] = {&quot;dryheat.map&quot;, &quot;xmp33u4.map&quot;, &quot;xmp11t2.map&quot;,
+</I>&gt;<i> &quot;hidvally.map&quot;,
+</I>&gt;<i>
+</I>&gt;<i> &quot;xmp13s4.map&quot;, &quot;xmp23t4.map&quot;, &quot;xmp06t2.map&quot;,&quot;xdeadman.map&quot;};
+</I>&gt;<i>
+</I>&gt;<i> char
+</I>&gt;<i> *RAL2_MAPS[] = {&quot;eb3.map&quot;, &quot;mp08t2.map&quot;, &quot;mp02t2.map&quot;, &quot;mp29u2.map&quot;,
+</I>&gt;<i>
+</I>&gt;<i> &quot;mp12s4.map&quot;, &quot;mp25t6.map&quot;, &quot;mp09t3.map&quot;,&quot;mp32s8.map&quot;};
+</I>&gt;<i>
+</I>&gt;<i> t_elem * curr;
+</I>&gt;<i>
+</I>&gt;<i> char temp[MAX_IRC_MESSAGE_LEN];
+</I>&gt;<i>
+</I>&gt;<i> char _temp[MAX_IRC_MESSAGE_LEN];
+</I>&gt;<i>
+</I>&gt;<i> int random;
+</I>&gt;<i>
+</I>&gt;<i> int csd0;
+</I>&gt;<i>
+</I>&gt;<i> int SW;
+</I>&gt;<i>
+</I>&gt;<i> int COL01;
+</I>&gt;<i>
+</I>&gt;<i> int COL02;
+</I>&gt;<i>
+</I>&gt;<i> int COUNT;
+</I>&gt;<i>
+</I>&gt;<i> t_anongame_wol_player * player2;
+</I>&gt;<i>
+</I>&gt;<i> t_connection * conn_pl1;
+</I>&gt;<i>
+</I>&gt;<i> t_connection * conn_pl2;
+</I>&gt;<i>
+</I>&gt;<i> char const * channelname;
+</I>&gt;<i>
+</I>&gt;<i> t_clienttag ctag;
+</I>&gt;<i>
+</I>&gt;<i> std::memset(temp,0,
+</I>&gt;<i> sizeof(temp));
+</I>&gt;<i>
+</I>&gt;<i> std::memset(_temp,0,
+</I>&gt;<i> sizeof(_temp));
+</I>&gt;<i>
+</I>&gt;<i> /**
+</I>&gt;<i>
+</I>&gt;<i> * Expected start message is
+</I>&gt;<i>
+</I>&gt;<i> *
+</I>&gt;<i>
+</I>&gt;<i> * Red Alert 2:
+</I>&gt;<i>
+</I>&gt;<i> * :Start
+</I>&gt;<i> [rand_num],0,0,[credits],0,1,0,1,1,0,1,x,2,1,[mapsize_kilobytes],[mapname],1:
+</I>&gt;<i>
+</I>&gt;<i> *
+</I>&gt;<i> [nick1_name],[nick1_loc],[nick1_rat],[nick1_addr_hex],[nick1_nat],[nick1_prt_hex],
+</I>&gt;<i>
+</I>&gt;<i> *
+</I>&gt;<i> [nick2_name],[nick2_loc],[nick2_rat],[nick2_addr_hex],[nick2_nat],[nick2_prt_hex]
+</I>&gt;<i>
+</I>&gt;<i> *
+</I>&gt;<i>
+</I>&gt;<i> * Yuris Revenge Quick game:
+</I>&gt;<i>
+</I>&gt;<i> *
+</I>&gt;<i>
+</I>&gt;<i> * Yuris Revenge Quick Coop:
+</I>&gt;<i>
+</I>&gt;<i> *
+</I>&gt;<i>
+</I>&gt;<i> */
+</I>&gt;<i>
+</I>&gt;<i> if (!player1) {
+</I>&gt;<i>
+</I>&gt;<i> ERROR0(
+</I>&gt;<i> &quot;got NULL player&quot;);
+</I>&gt;<i>
+</I>&gt;<i> return -1;
+</I>&gt;<i>
+</I>&gt;<i> }
+</I>&gt;<i>
+</I>&gt;<i> conn_pl1 = anongame_wol_player_get_conn(player1);
+</I>&gt;<i>
+</I>&gt;<i> ctag = conn_get_clienttag(conn_pl1);
+</I>&gt;<i>
+</I>&gt;<i> channelname = channel_get_name(conn_get_channel(conn_pl1));
+</I>&gt;<i>
+</I>&gt;<i> LIST_TRAVERSE(anongame_wol_matchlist(),curr) {
+</I>&gt;<i>
+</I>&gt;<i> player2 = (t_anongame_wol_player *)elem_get_data(curr);
+</I>&gt;<i>
+</I>&gt;<i> conn_pl2 = anongame_wol_player_get_conn(player2);
+</I>&gt;<i>
+</I>&gt;<i> if ((player1 != player2) &amp;&amp; ((conn_get_channel(conn_pl1)) ==
+</I>&gt;<i> (conn_get_channel(conn_pl2)))) {
+</I>&gt;<i>
+</I>&gt;<i> switch (ctag) {
+</I>&gt;<i>
+</I>&gt;<i> case CLIENTTAG_REDALERT2_UINT:
+</I>&gt;<i>
+</I>&gt;<i> random = rand();
+</I>&gt;<i>
+</I>&gt;<i>  if (std::strcmp(channelname , RAL2_CHANNEL_FFA) == 0) {
+</I>&gt;<i>
+</I>&gt;<i> DEBUG0(
+</I>&gt;<i> &quot;Generating FFA game for Red Alert 2&quot;);
+</I>&gt;<i>
+</I>&gt;<i> /* We have madatory of game */
+</I>&gt;<i>
+</I>&gt;<i> GETCOL0:
+</I>&gt;<i>
+</I>&gt;<i> COL01 = rand()%8 + 0 ;
+</I>&gt;<i> //COLOR RANDOM PLAYER 1
+</I>&gt;<i>
+</I>&gt;<i> COL02 = rand()%8 + 0 ;
+</I>&gt;<i> //COLOR RANDOM PLAYER 1
+</I>&gt;<i>
+</I>&gt;<i> if ( COL01==COL02 )
+</I>&gt;<i>
+</I>&gt;<i> goto GETCOL0;
+</I>&gt;<i>
+</I>&gt;<i> if ((COL01 == 8) || (COL02 == 8))
+</I>&gt;<i>
+</I>&gt;<i> goto GETCOL0;
+</I>&gt;<i>
+</I>&gt;<i>  SW = rand()%2 + 0 ;
+</I>&gt;<i> //super weapom
+</I>&gt;<i>
+</I>&gt;<i> if (SW ==2 )
+</I>&gt;<i>
+</I>&gt;<i> SW = 0;
+</I>&gt;<i>
+</I>&gt;<i> csd0 = rand()%8 + 0 ;
+</I>&gt;<i> //MAPS Random
+</I>&gt;<i>
+</I>&gt;<i> if ( csd0 == 8)
+</I>&gt;<i>
+</I>&gt;<i> csd0 = 7;
+</I>&gt;<i>
+</I>&gt;<i> snprintf(_temp,
+</I>&gt;<i> sizeof(_temp), &quot;:Start %u,0,0,10000,0,1,%u,1,1,0,1,x,2,1,165368,%s,1:&quot;,random,SW,RAL2_MAPS[csd0]);
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> std::strcat(temp,_temp);
+</I>&gt;<i>
+</I>&gt;<i> /* GameHost informations */// [COUN]
+</I>&gt;<i>
+</I>&gt;<i> if (anongame_wol_player_get_cou(player1) != -2) //SELECT PLAYER 1 RANDOM
+</I>&gt;<i>
+</I>&gt;<i> COUNT =anongame_wol_player_get_cou(player1);  /
+</I>&gt;<i>
+</I>&gt;<i> else{
+</I>&gt;<i>
+</I>&gt;<i> m3:COUNT =rand()%9 + 0 ;
+</I>&gt;<i> //PLAYER 1 RANDOM
+</I>&gt;<i>
+</I>&gt;<i> if (COUNT == 9)
+</I>&gt;<i>
+</I>&gt;<i> goto m3;}
+</I>&gt;<i>
+</I>&gt;<i>  snprintf(_temp,
+</I>&gt;<i> sizeof(_temp),&quot;%s,%u,%u,%x,1,%x,&quot;,conn_get_chatname(conn_pl1),COUNT,COL01,anongame_wol_player_get_address(player1),anongame_wol_player_get_port(player1));
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> std::strcat(temp,_temp);
+</I>&gt;<i>
+</I>&gt;<i> /* GameJoinie informations */// [COUN]
+</I>&gt;<i>
+</I>&gt;<i> if (anongame_wol_player_get_cou(player2) != -2) //SELECT PLAYER 2 RANDOM
+</I>&gt;<i>
+</I>&gt;<i> COUNT =anongame_wol_player_get_cou(player2);
+</I>&gt;<i>
+</I>&gt;<i> else{
+</I>&gt;<i>
+</I>&gt;<i> m2:COUNT =rand()%9 + 0 ;
+</I>&gt;<i> //PLAYER 2 RANDOM
+</I>&gt;<i>
+</I>&gt;<i> if (COUNT == 9)
+</I>&gt;<i>
+</I>&gt;<i> goto m2;}
+</I>&gt;<i>
+</I>&gt;<i> snprintf(_temp,
+</I>&gt;<i> sizeof(_temp),&quot;%s,%u,%u,%x,1,%x&quot;,conn_get_chatname(conn_pl2),COUNT,COL02,anongame_wol_player_get_address(player2),anongame_wol_player_get_port(player2));
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> std::strcat(temp,_temp);
+</I>&gt;<i>
+</I>&gt;<i> _send_msg(conn_pl1,
+</I>&gt;<i> &quot;PRIVMSG&quot;,temp);
+</I>&gt;<i>
+</I>&gt;<i> _send_msg(conn_pl2,
+</I>&gt;<i> &quot;PRIVMSG&quot;,temp);
+</I>&gt;<i>
+</I>&gt;<i> }
+</I>&gt;<i>
+</I>&gt;<i> else
+</I>&gt;<i>
+</I>&gt;<i> ERROR1(
+</I>&gt;<i> &quot;undefined channel type for %s channel&quot;, channelname);
+</I>&gt;<i>
+</I>&gt;<i> return 0;
+</I>&gt;<i>
+</I>&gt;<i> case CLIENTTAG_YURISREV_UINT:
+</I>&gt;<i>
+</I>&gt;<i> random = rand();
+</I>&gt;<i>
+</I>&gt;<i> if (std::strcmp(channelname , YURI_CHANNEL_FFA) == 0) {
+</I>&gt;<i>
+</I>&gt;<i> DEBUG0(
+</I>&gt;<i> &quot;Generating FFA game for Yuri's Revenge&quot;);
+</I>&gt;<i>
+</I>&gt;<i> /* We have madatory of game */
+</I>&gt;<i>
+</I>&gt;<i> SW = rand()%2 + 0 ;
+</I>&gt;<i> //super weapom
+</I>&gt;<i>
+</I>&gt;<i> csd0 = rand()%8 + 0 ;
+</I>&gt;<i> // MAPS random
+</I>&gt;<i>
+</I>&gt;<i> if (SW ==2 )
+</I>&gt;<i>
+</I>&gt;<i> SW = 0;
+</I>&gt;<i>
+</I>&gt;<i>  snprintf(_temp,
+</I>&gt;<i> sizeof(_temp), &quot;:Start %u,0,0,10000,0,1,%u,1,1,0,1,0,x,2,1,165368,%s,1:&quot;,random,SW,YURI_MAPS[csd0]);
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> std::strcat(temp,_temp);
+</I>&gt;<i>
+</I>&gt;<i> GETCOL:
+</I>&gt;<i>
+</I>&gt;<i> COL01 = rand()%8 + 0 ;
+</I>&gt;<i> //COLOR RANDOM PLAYER 1
+</I>&gt;<i>
+</I>&gt;<i> COL02 = rand()%8 + 0 ;
+</I>&gt;<i> //COLOR RANDOM PLAYER 1
+</I>&gt;<i>
+</I>&gt;<i> if ( COL01==COL02 )
+</I>&gt;<i>
+</I>&gt;<i> goto GETCOL;
+</I>&gt;<i>
+</I>&gt;<i> if ((COL01 == 8) || (COL02 == 8))
+</I>&gt;<i>
+</I>&gt;<i> goto GETCOL;
+</I>&gt;<i>
+</I>&gt;<i> /* GameHost informations */ // [COU]
+</I>&gt;<i>
+</I>&gt;<i> if (anongame_wol_player_get_cou(player1) != -2) //SELECT PLAYER 1 RANDOM
+</I>&gt;<i>
+</I>&gt;<i> COUNT =anongame_wol_player_get_cou(player1);
+</I>&gt;<i>
+</I>&gt;<i> else{
+</I>&gt;<i>
+</I>&gt;<i> n1: COUNT =rand()%10 + 0 ;
+</I>&gt;<i> // PLAYER 1 RANDOM
+</I>&gt;<i>
+</I>&gt;<i> if (COUNT == 10)
+</I>&gt;<i>
+</I>&gt;<i> goto n1; }
+</I>&gt;<i>
+</I>&gt;<i>  snprintf(_temp,
+</I>&gt;<i> sizeof(_temp),&quot;%s,%u,%u,-2,-2,&quot;,conn_get_chatname(conn_pl1),COUNT,COL01);
+</I>&gt;<i>
+</I>&gt;<i> std::strcat(temp,_temp);
+</I>&gt;<i>
+</I>&gt;<i> snprintf(_temp,
+</I>&gt;<i> sizeof(_temp),&quot;%x,1,%x,&quot;,anongame_wol_player_get_address(player1),anongame_wol_player_get_port(player1));
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> std::strcat(temp,_temp);
+</I>&gt;<i>
+</I>&gt;<i> /* GameJoinie informations */ // [COU]
+</I>&gt;<i>
+</I>&gt;<i> if (anongame_wol_player_get_cou(player2) != -2) //SELECT PLAYER 2 RANDOM
+</I>&gt;<i>
+</I>&gt;<i> COUNT =anongame_wol_player_get_cou(player2);
+</I>&gt;<i>
+</I>&gt;<i> else{
+</I>&gt;<i>
+</I>&gt;<i> n2:COUNT =rand()%10 + 0 ;
+</I>&gt;<i> // PLAYER 2 RANDOM
+</I>&gt;<i>
+</I>&gt;<i> if (COUNT == 10)
+</I>&gt;<i>
+</I>&gt;<i> goto n2;}
+</I>&gt;<i>
+</I>&gt;<i> snprintf(_temp,
+</I>&gt;<i> sizeof(_temp),&quot;%s,%u,%u,-2,-2,&quot;,conn_get_chatname(anongame_wol_player_get_conn(player2)),COUNT,COL02);
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> std::strcat(temp,_temp);
+</I>&gt;<i>
+</I>&gt;<i> snprintf(_temp,
+</I>&gt;<i> sizeof(_temp),&quot;%x,1,%x&quot;,anongame_wol_player_get_address(player2),anongame_wol_player_get_port(player2));
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> std::strcat(temp,_temp);
+</I>&gt;<i>
+</I>&gt;<i> _send_msg(conn_pl1,
+</I>&gt;<i> &quot;PRIVMSG&quot;,temp);
+</I>&gt;<i>
+</I>&gt;<i> _send_msg(conn_pl2,
+</I>&gt;<i> &quot;PRIVMSG&quot;,temp);
+</I>&gt;<i>
+</I>&gt;<i> }
+</I>&gt;<i>
+</I>&gt;<i> else if (std::strcmp(channelname , YURI_CHANNEL_COOP) == 0) {
+</I>&gt;<i>
+</I>&gt;<i> DEBUG0(
+</I>&gt;<i> &quot;Generating COOP game for Yuri's Revenge&quot;);
+</I>&gt;<i>
+</I>&gt;<i> /* We have madatory of game */
+</I>&gt;<i>
+</I>&gt;<i> snprintf(_temp,
+</I>&gt;<i> sizeof(_temp), &quot;:Start
+</I>&gt;<i> %u,0,0,10000,10,0,1,1,0,1,3,0,x,2,1,163770,C1A01MD.MAP,1:&quot;,random);
+</I>&gt;<i>
+</I>&gt;<i> std::strcat(temp,_temp);
+</I>&gt;<i>
+</I>&gt;<i> /* GameHost informations */
+</I>&gt;<i>
+</I>&gt;<i> snprintf(_temp,
+</I>&gt;<i> sizeof(_temp),&quot;%s,0,4,0,-2,&quot;,conn_get_chatname(conn_pl1));
+</I>&gt;<i>
+</I>&gt;<i> std::strcat(temp,_temp);
+</I>&gt;<i>
+</I>&gt;<i> snprintf(_temp,
+</I>&gt;<i> sizeof(_temp),&quot;%x,1,%x,&quot;,anongame_wol_player_get_address(player1),anongame_wol_player_get_port(player1));
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> std::strcat(temp,_temp);
+</I>&gt;<i>
+</I>&gt;<i> /* GameJoinie informations */
+</I>&gt;<i>
+</I>&gt;<i> snprintf(_temp,
+</I>&gt;<i> sizeof(_temp),&quot;%s,0,5,1,-2,&quot;,conn_get_chatname(anongame_wol_player_get_conn(player2)));
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> std::strcat(temp,_temp);
+</I>&gt;<i>
+</I>&gt;<i> snprintf(_temp,
+</I>&gt;<i> sizeof(_temp),&quot;%x,1,%x&quot;,anongame_wol_player_get_address(player2),anongame_wol_player_get_port(player2));
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> std::strcat(temp,_temp);
+</I>&gt;<i>
+</I>&gt;<i> /* Some computers for coop games */
+</I>&gt;<i>
+</I>&gt;<i> snprintf(_temp,
+</I>&gt;<i> sizeof(_temp),
+</I>&gt;<i> &quot;:@:0,-1,-1,-2,-2,0,-1,-1,-2,-2,1,8,1,-2,-2,1,8,2,-2,-2,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,&quot;);
+</I>&gt;<i>
+</I>&gt;<i>
+</I>&gt;<i> std::strcat(temp,_temp);
+</I>&gt;<i>
+</I>&gt;<i> _send_msg(conn_pl1,
+</I>&gt;<i> &quot;PRIVMSG&quot;,temp);
+</I>&gt;<i>
+</I>&gt;<i> _send_msg(conn_pl2,
+</I>&gt;<i> &quot;PRIVMSG&quot;,temp);
+</I>&gt;<i>
+</I>&gt;<i> }
+</I>&gt;<i>
+</I>&gt;<i> else
+</I>&gt;<i>
+</I>&gt;<i> ERROR1(
+</I>&gt;<i> &quot;undefined channel type for %s channel&quot;, channelname);
+</I>&gt;<i>
+</I>&gt;<i> return 0;
+</I>&gt;<i>
+</I>&gt;<i> default:
+</I>&gt;<i>
+</I>&gt;<i> DEBUG0(
+</I>&gt;<i> &quot;unsupported client for WOL Matchgame&quot;);
+</I>&gt;<i>
+</I>&gt;<i> return 0;
+</I>&gt;<i>
+</I>&gt;<i> }
+</I>&gt;<i>
+</I>&gt;<i> }
+</I>&gt;<i>
+</I>&gt;<i> }
+</I>&gt;<i>
+</I>&gt;<i> return 0;
+</I>&gt;<i>
+</I>&gt;<i> }
+</I>&gt;<i>
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> pvpgn-dev mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">pvpgn-dev at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">https://lists.berlios.de/mailman/listinfo/pvpgn-dev</A>
+</I>&gt;<i>
+</I>&gt;<i>
+</I>-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: &lt;<A HREF="https://lists.berlios.de/pipermail/pvpgn-dev/attachments/20091012/168e7433/attachment.html">https://lists.berlios.de/pipermail/pvpgn-dev/attachments/20091012/168e7433/attachment.html</A>&gt;
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001155.html">[pvpgn-dev] Color , country and maps,	the players repaired - Code tested!!!
+</A></li>
+	<LI>Next message: <A HREF="001157.html">[pvpgn-dev] Color , country and maps,	the players repaired - Code 	tested!!!
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1156">[ date ]</a>
+              <a href="thread.html#1156">[ thread ]</a>
+              <a href="subject.html#1156">[ subject ]</a>
+              <a href="author.html#1156">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

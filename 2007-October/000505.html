@@ -1,0 +1,121 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r403 - in trunk/pvpgn: . src/bnetd
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-October/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r403%20-%20in%20trunk/pvpgn%3A%20.%20src/bnetd&In-Reply-To=%3C470B7E44.5070703%40gmx.net%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000502.html">
+   <LINK REL="Next"  HREF="000511.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r403 - in trunk/pvpgn: . src/bnetd</H1>
+    <B>Aaron</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r403%20-%20in%20trunk/pvpgn%3A%20.%20src/bnetd&In-Reply-To=%3C470B7E44.5070703%40gmx.net%3E"
+       TITLE="[pvpgn-dev] r403 - in trunk/pvpgn: . src/bnetd">aaron667 at gmx.net
+       </A><BR>
+    <I>Tue Oct  9 15:12:36 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000502.html">[pvpgn-dev] r403 - in trunk/pvpgn: . src/bnetd
+</A></li>
+        <LI>Next message: <A HREF="000511.html">[pvpgn-dev] r403 - in trunk/pvpgn: . src/bnetd
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#505">[ date ]</a>
+              <a href="thread.html#505">[ thread ]</a>
+              <a href="subject.html#505">[ subject ]</a>
+              <a href="author.html#505">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>There are two things to check/consider:
+  - does this new behaviour break anything for older SC clients?
+  - does this new behaviour break anything for WAR3 clients?
+
+Regards
+   aaron
+
+<A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">svn at svn.berlios.de</A> schrieb:
+&gt;<i> Author: pelish
+</I>&gt;<i> Date: 2007-10-09 12:53:31 +0200 (Tue, 09 Oct 2007)
+</I>&gt;<i> New Revision: 403
+</I>&gt;<i> 
+</I>&gt;<i> Modified:
+</I>&gt;<i>    trunk/pvpgn/src/bnetd/handle_bnet.cpp
+</I>&gt;<i>    trunk/pvpgn/version-history.txt
+</I>&gt;<i> Log:
+</I>&gt;<i> fix for bug [ #12134 ] SC Bug! was in SERVER_FRIENDSLISTREPLY that was not sended if friendcount==0
+</I>&gt;<i> 
+</I>&gt;<i> Modified: trunk/pvpgn/src/bnetd/handle_bnet.cpp
+</I>&gt;<i> ===================================================================
+</I>&gt;<i> --- trunk/pvpgn/src/bnetd/handle_bnet.cpp	2007-10-05 17:24:55 UTC (rev 402)
+</I>&gt;<i> +++ trunk/pvpgn/src/bnetd/handle_bnet.cpp	2007-10-09 10:53:31 UTC (rev 403)
+</I>&gt;<i> @@ -1884,15 +1884,12 @@
+</I>&gt;<i>  	t_channel *channel;
+</I>&gt;<i>  	char stat;
+</I>&gt;<i>  
+</I>&gt;<i> -	if (n == 0)
+</I>&gt;<i> -	    return 0;
+</I>&gt;<i>  	if (!(rpacket = packet_create(packet_class_bnet)))
+</I>&gt;<i>  	    return -1;
+</I>&gt;<i>  
+</I>&gt;<i>  	packet_set_size(rpacket, sizeof(t_server_friendslistreply));
+</I>&gt;<i>  	packet_set_type(rpacket, SERVER_FRIENDSLISTREPLY);
+</I>&gt;<i>  
+</I>&gt;<i> -
+</I>&gt;<i>  	if ((flist = account_get_friends(account)) == NULL)
+</I>&gt;<i>  	    return -1;
+</I>&gt;<i>  
+</I>&gt;<i> 
+</I>&gt;<i> Modified: trunk/pvpgn/version-history.txt
+</I>&gt;<i> ===================================================================
+</I>&gt;<i> --- trunk/pvpgn/version-history.txt	2007-10-05 17:24:55 UTC (rev 402)
+</I>&gt;<i> +++ trunk/pvpgn/version-history.txt	2007-10-09 10:53:31 UTC (rev 403)
+</I>&gt;<i> @@ -25,6 +25,9 @@
+</I>&gt;<i>  [WOL]
+</I>&gt;<i>    -- fixed possible server crash on raw list command
+</I>&gt;<i>  
+</I>&gt;<i> +[SC/BW]
+</I>&gt;<i> +  -- fixed client crash when was showed Friends without any item
+</I>&gt;<i> +
+</I>&gt;<i>  [VCHECK]
+</I>&gt;<i>    -- added SC/BW IX86 1.15.1 version check entries
+</I>&gt;<i>  
+</I>&gt;<i> 
+</I>&gt;<i> _______________________________________________
+</I>&gt;<i> pvpgn-dev mailing list
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">pvpgn-dev at lists.berlios.de</A>
+</I>&gt;<i> <A HREF="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">https://lists.berlios.de/mailman/listinfo/pvpgn-dev</A>
+</I>&gt;<i> 
+</I>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000502.html">[pvpgn-dev] r403 - in trunk/pvpgn: . src/bnetd
+</A></li>
+	<LI>Next message: <A HREF="000511.html">[pvpgn-dev] r403 - in trunk/pvpgn: . src/bnetd
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#505">[ date ]</a>
+              <a href="thread.html#505">[ thread ]</a>
+              <a href="subject.html#505">[ subject ]</a>
+              <a href="author.html#505">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

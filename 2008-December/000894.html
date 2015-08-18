@@ -1,0 +1,95 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] [Bug #14890] Clan Rank Exploit
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2008-December/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BBug%20%2314890%5D%20Clan%20Rank%20Exploit&In-Reply-To=%3C200812091525.mB9FPKwx022682%40unicorn.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000893.html">
+   <LINK REL="Next"  HREF="000895.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] [Bug #14890] Clan Rank Exploit</H1>
+    <B>admin at berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20%5BBug%20%2314890%5D%20Clan%20Rank%20Exploit&In-Reply-To=%3C200812091525.mB9FPKwx022682%40unicorn.berlios.de%3E"
+       TITLE="[pvpgn-dev] [Bug #14890] Clan Rank Exploit">admin at berlios.de
+       </A><BR>
+    <I>Tue Dec  9 16:25:20 CET 2008</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000893.html">[pvpgn-dev] [Bug #14890] Clan Rank Exploit
+</A></li>
+        <LI>Next message: <A HREF="000895.html">[pvpgn-dev] r520 - in trunk/pvpgn/src: bnetd common
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#894">[ date ]</a>
+              <a href="thread.html#894">[ thread ]</a>
+              <a href="subject.html#894">[ subject ]</a>
+              <a href="author.html#894">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Bug #14890, was updated on 2008-Dec-08 13:00
+Here is a current snapshot of the bug.
+
+Project: Player vs Player Gaming Network
+Category: Warcraft Series
+Status: Open
+Resolution: None
+Bug Group: bnetd
+Priority: 5
+Submitted by: phoenicks
+Assigned to : pelish
+Summary: Clan Rank Exploit
+
+Details: Any user in a clan may promote/demote themselves/any other member of their clan to any other level by sending packets.
+
+The following (illegal) packet may be used to accomplish this:
+
+FF7A190001000000&lt;null terminated-string Username (3-15 chars exluding Null)&gt;&lt;WORD Rank Flag&gt;
+
+Rank Flag 01-&gt;04 (Peon, Grunt, Shaman, Chieftain).
+
+Setting Rank Flag to 00 may remove a user from the clan, though I haven't tested it.
+
+Follow-Ups:
+
+Date: 2008-Dec-09 16:25
+By: pelish
+
+Comment:
+Thank you for reporting. I will fix it.
+-------------------------------------------------------
+
+For detailed info, follow this link:
+<A HREF="http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=14890&amp;group_id=2291">http://developer.berlios.de/bugs/?func=detailbug&amp;bug_id=14890&amp;group_id=2291</A>
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000893.html">[pvpgn-dev] [Bug #14890] Clan Rank Exploit
+</A></li>
+	<LI>Next message: <A HREF="000895.html">[pvpgn-dev] r520 - in trunk/pvpgn/src: bnetd common
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#894">[ date ]</a>
+              <a href="thread.html#894">[ thread ]</a>
+              <a href="subject.html#894">[ subject ]</a>
+              <a href="author.html#894">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

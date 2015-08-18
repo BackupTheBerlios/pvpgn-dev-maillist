@@ -1,0 +1,143 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] pvpgn/conf versioncheck.conf,1.30,1.31
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-October/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20pvpgn/conf%20versioncheck.conf%2C1.30%2C1.31&In-Reply-To=%3C20071012151741.C370EFF7D3%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000522.html">
+   <LINK REL="Next"  HREF="000524.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] pvpgn/conf versioncheck.conf,1.30,1.31</H1>
+    <B>pelish</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20pvpgn/conf%20versioncheck.conf%2C1.30%2C1.31&In-Reply-To=%3C20071012151741.C370EFF7D3%40mail.berlios.de%3E"
+       TITLE="[pvpgn-dev] pvpgn/conf versioncheck.conf,1.30,1.31">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Fri Oct 12 17:17:41 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000522.html">[pvpgn-dev] [Bug #7993] Clans losing chieftains
+</A></li>
+        <LI>Next message: <A HREF="000524.html">[pvpgn-dev] pvpgn version-history.txt,1.274,1.275
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#523">[ date ]</a>
+              <a href="thread.html#523">[ thread ]</a>
+              <a href="subject.html#523">[ subject ]</a>
+              <a href="author.html#523">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/pvpgn/pvpgn/conf
+In directory sheep:/tmp/cvs-serv27908/conf
+
+Modified Files:
+	versioncheck.conf 
+Log Message:
+added SC/BW XMAC 1.15.1 version check entries
+
+Index: versioncheck.conf
+===================================================================
+RCS file: /cvsroot/pvpgn/pvpgn/conf/versioncheck.conf,v
+retrieving revision 1.30
+retrieving revision 1.31
+diff -u -d -r1.30 -r1.31
+--- versioncheck.conf	28 Aug 2007 13:51:32 -0000	1.30
++++ versioncheck.conf	12 Oct 2007 15:16:57 -0000	1.31
+@@ -243,27 +243,27 @@
+  0x9b01cc98 \
+  D2XP_110
+ 
+-# StarCraft - Broodwar (Expansion) 1.15 - (Broodwar Mode) MacOS X
++# StarCraft - Broodwar (Expansion) 1.15.1 - (Broodwar Mode) MacOS X
+  &quot;A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B&quot; \
+  &quot;XMACver1.mpq&quot; \
+  XMAC \
+  SEXP \
+- &quot;Starcraft (Carbon) 05/08/107 15:40:00 1400487&quot; \
++ &quot;Starcraft (Carbon) 07/16/107 18:00:00 1400709&quot; \
+  0x000000d1 \
+  0x010f0001 \
+- 0xe02b5360 \
+- SEXP_115
++ 0xa380ad83 \
++ SEXP_1151
+ 
+-# StarCraft - Broodwar (Expansion) 1.15 - (Starcraft Mode) MacOS X
++# StarCraft - Broodwar (Expansion) 1.15.1 - (Starcraft Mode) MacOS X
+  &quot;A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B&quot; \
+  &quot;XMACver1.mpq&quot; \
+  XMAC \
+  STAR \
+- &quot;Starcraft (Carbon) 05/08/107 15:40:00 1400487&quot; \
++ &quot;Starcraft (Carbon) 07/16/107 18:00:00 1400709&quot; \
+  0x000000d1 \
+  0x010f0001 \
+- 0xe02b5360 \
+- STAR_115
++ 0xa380ad83 \
++ STAR_1151
+ 
+ ##### Mac OS Classic (PMAC) ##################################################
+ 
+@@ -1910,6 +1910,28 @@
+  STAR_109B
+ 
+ # ================== StarCraft Broodwar entries =====================
++
++# StarCraft - Broodwar (Expansion) 1.15 - (Broodwar Mode) MacOS X
++ &quot;A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B&quot; \
++ &quot;XMACver1.mpq&quot; \
++ XMAC \
++ SEXP \
++ &quot;Starcraft (Carbon) 05/08/107 15:40:00 1400487&quot; \
++ 0x000000d1 \
++ 0x010f0001 \
++ 0xe02b5360 \
++ SEXP_115
++
++# StarCraft - Broodwar (Expansion) 1.15 - (Starcraft Mode) MacOS X
++ &quot;A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B&quot; \
++ &quot;XMACver1.mpq&quot; \
++ XMAC \
++ STAR \
++ &quot;Starcraft (Carbon) 05/08/107 15:40:00 1400487&quot; \
++ 0x000000d1 \
++ 0x010f0001 \
++ 0xe02b5360 \
++ STAR_115
+ 
+ # StarCraft - Broodwar (Expansion) 1.14 - (Broodwar Mode) MacOS X
+ &quot;A=2521522835 B=3428392135 C=218673704 4 A=A^S B=B-C C=C+A A=A-B&quot; \
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000522.html">[pvpgn-dev] [Bug #7993] Clans losing chieftains
+</A></li>
+	<LI>Next message: <A HREF="000524.html">[pvpgn-dev] pvpgn version-history.txt,1.274,1.275
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#523">[ date ]</a>
+              <a href="thread.html#523">[ thread ]</a>
+              <a href="subject.html#523">[ subject ]</a>
+              <a href="author.html#523">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

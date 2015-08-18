@@ -1,0 +1,210 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r569 - in trunk/pvpgn: . conf src/bnetd
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2010-January/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r569%20-%20in%20trunk/pvpgn%3A%20.%20conf%20src/bnetd&In-Reply-To=%3C201001282211.o0SMB8X4007175%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001191.html">
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r569 - in trunk/pvpgn: . conf src/bnetd</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r569%20-%20in%20trunk/pvpgn%3A%20.%20conf%20src/bnetd&In-Reply-To=%3C201001282211.o0SMB8X4007175%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r569 - in trunk/pvpgn: . conf src/bnetd">svn at svn.berlios.de
+       </A><BR>
+    <I>Thu Jan 28 23:11:08 CET 2010</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001191.html">[pvpgn-dev] [Patch #2900] extern t_account *	accountlist_find_account
+</A></li>
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1192">[ date ]</a>
+              <a href="thread.html#1192">[ thread ]</a>
+              <a href="subject.html#1192">[ subject ]</a>
+              <a href="author.html#1192">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pelish
+Date: 2010-01-28 23:10:56 +0100 (Thu, 28 Jan 2010)
+New Revision: 569
+
+Modified:
+   trunk/pvpgn/conf/bnetd.conf.in
+   trunk/pvpgn/conf/sql_DB_layout.conf.in
+   trunk/pvpgn/src/bnetd/game.cpp
+   trunk/pvpgn/src/bnetd/ladder.cpp
+   trunk/pvpgn/version-history.txt
+Log:
+add of TSXP and YURI solo ladders, fixed bad config line (according to multilingual motds), fix for bad WOL points counting when both ladder players has been disconnected
+
+
+
+Modified: trunk/pvpgn/conf/bnetd.conf.in
+===================================================================
+--- trunk/pvpgn/conf/bnetd.conf.in	2010-01-23 22:37:56 UTC (rev 568)
++++ trunk/pvpgn/conf/bnetd.conf.in	2010-01-28 22:10:56 UTC (rev 569)
+@@ -81,7 +81,7 @@
+ filedir     = &quot;${LOCALSTATEDIR}/files&quot;
+ reportdir   = &quot;${LOCALSTATEDIR}/reports&quot;
+ chanlogdir  = &quot;${LOCALSTATEDIR}/chanlogs&quot;
+-motdfile    = &quot;${SYSCONFDIR}/bnmotd.txt&quot;
++motdfile    = &quot;${SYSCONFDIR}/bnmotd-enUS.txt&quot;
+ issuefile   = &quot;${SYSCONFDIR}/bnissue.txt&quot;
+ channelfile = &quot;${SYSCONFDIR}/channel.conf&quot;
+ newsfile    = &quot;${SYSCONFDIR}/news.txt&quot;
+
+Modified: trunk/pvpgn/conf/sql_DB_layout.conf.in
+===================================================================
+--- trunk/pvpgn/conf/sql_DB_layout.conf.in	2010-01-23 22:37:56 UTC (rev 568)
++++ trunk/pvpgn/conf/sql_DB_layout.conf.in	2010-01-28 22:10:56 UTC (rev 569)
+@@ -137,11 +137,21 @@
+ &quot;TSUN_solo_wins int&quot;,&quot;'0'&quot;
+ &quot;TSUN_solo_losses int&quot;,&quot;'0'&quot;
+ &quot;TSUN_solo_disconnects int&quot;,&quot;'0'&quot;
++&quot;TSXP_solo_rank int&quot;,&quot;'0'&quot;
++&quot;TSXP_solo_points int&quot;,&quot;'0'&quot;
++&quot;TSXP_solo_wins int&quot;,&quot;'0'&quot;
++&quot;TSXP_solo_losses int&quot;,&quot;'0'&quot;
++&quot;TSXP_solo_disconnects int&quot;,&quot;'0'&quot;
+ &quot;RAL2_solo_rank int&quot;,&quot;'0'&quot;
+ &quot;RAL2_solo_points int&quot;,&quot;'0'&quot;
+ &quot;RAL2_solo_wins int&quot;,&quot;'0'&quot;
+ &quot;RAL2_solo_losses int&quot;,&quot;'0'&quot;
+ &quot;RAL2_solo_disconnects int&quot;,&quot;'0'&quot;
++&quot;YURI_solo_rank int&quot;,&quot;'0'&quot;
++&quot;YURI_solo_points int&quot;,&quot;'0'&quot;
++&quot;YURI_solo_wins int&quot;,&quot;'0'&quot;
++&quot;YURI_solo_losses int&quot;,&quot;'0'&quot;
++&quot;YURI_solo_disconnects int&quot;,&quot;'0'&quot;
+ [${prefix}clan]
+ &quot;cid int NOT NULL PRIMARY KEY&quot;,&quot;'0'&quot;
+ &quot;short int&quot;,&quot;'0'&quot;
+
+Modified: trunk/pvpgn/src/bnetd/game.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/game.cpp	2010-01-23 22:37:56 UTC (rev 568)
++++ trunk/pvpgn/src/bnetd/game.cpp	2010-01-28 22:10:56 UTC (rev 569)
+@@ -737,11 +737,10 @@
+     // war3 game reporting is done elsewhere, so we can skip this function
+ 	    return 0;
+ 
+-    if ((game-&gt;clienttag == CLIENTTAG_WCHAT_UINT) || (game-&gt;clienttag == CLIENTTAG_TIBSUNXP_UINT)
+-     || (game-&gt;clienttag == CLIENTTAG_REDALERT_UINT) || (game-&gt;clienttag == CLIENTTAG_DUNE2000_UINT)
+-     || (game-&gt;clienttag == CLIENTTAG_NOX_UINT) || (game-&gt;clienttag == CLIENTTAG_NOXQUEST_UINT)
+-     || (game-&gt;clienttag == CLIENTTAG_RENEGADE_UINT) || (game-&gt;clienttag == CLIENTTAG_RENGDFDS_UINT)
+-     || (game-&gt;clienttag == CLIENTTAG_YURISREV_UINT) || (game-&gt;clienttag == CLIENTTAG_EMPERORBD_UINT)
++    if ((game-&gt;clienttag == CLIENTTAG_WCHAT_UINT) || (game-&gt;clienttag == CLIENTTAG_REDALERT_UINT)
++     || (game-&gt;clienttag == CLIENTTAG_DUNE2000_UINT) || (game-&gt;clienttag == CLIENTTAG_NOX_UINT)
++     || (game-&gt;clienttag == CLIENTTAG_NOXQUEST_UINT) || (game-&gt;clienttag == CLIENTTAG_RENEGADE_UINT)
++     || (game-&gt;clienttag == CLIENTTAG_RENGDFDS_UINT) || (game-&gt;clienttag == CLIENTTAG_EMPERORBD_UINT)
+      || (game-&gt;clienttag == CLIENTTAG_LOFLORE3_UINT) || (game-&gt;clienttag == CLIENTTAG_WWOL_UINT))
+      // PELISH: We are not supporting ladders for all WOL clients yet
+ 	    return 0;
+
+Modified: trunk/pvpgn/src/bnetd/ladder.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/ladder.cpp	2010-01-23 22:37:56 UTC (rev 568)
++++ trunk/pvpgn/src/bnetd/ladder.cpp	2010-01-28 22:10:56 UTC (rev 569)
+@@ -243,6 +243,26 @@
+     int pl1_points = account_get_ladder_points(players[0], clienttag, id);
+     int pl2_points = account_get_ladder_points(players[1], clienttag, id);
+ 
++    if (!players) {
++        eventlog(eventlog_level_error,__FUNCTION__,&quot;got NULL players&quot;);
++        return -1;
++    }
++
++    if (!results) {
++        eventlog(eventlog_level_error,__FUNCTION__,&quot;got NULL results&quot;);
++        return -1;
++    }
++
++    if (!clienttag) {
++        eventlog(eventlog_level_error,__FUNCTION__,&quot;got bad clienttag&quot;);
++        return -1;
++    }
++
++    if (((results[0]) &amp;&amp; (results[1])) &amp;&amp; ((results[0] == results[1]) &amp;&amp; (results[0] = game_result_disconnect))) {
++        DEBUG0(&quot;Both players got game_result_disconnect - points counting terminated&quot;);
++        return 0;
++    }
++
+     for (curr=0; curr&lt;2; curr++) {
+ 	    t_account * account = players[curr];
+ 	    int mypoints = account_get_ladder_points(players[curr], clienttag, id);
+@@ -1292,7 +1312,6 @@
+ 
+ Ladders::Ladders()
+ {
+-/* Westwood online clients: */
+   // WAR3 ladders
+   LadderKey WAR3_solo(ladder_id_solo, CLIENTTAG_WARCRAFT3_UINT, ladder_sort_default, ladder_time_default);
+   ladderMap.insert(std::make_pair(WAR3_solo,LadderList(WAR3_solo, referenceTypeAccount)));
+@@ -1399,10 +1418,18 @@
+   LadderKey TSUN_solo(ladder_id_solo, CLIENTTAG_TIBERNSUN_UINT, ladder_sort_default, ladder_time_default);
+   ladderMap.insert(std::make_pair(TSUN_solo,LadderList(TSUN_solo, referenceTypeAccount)));
+ 
++  //TSXP ladders
++  LadderKey TSXP_solo(ladder_id_solo, CLIENTTAG_TIBSUNXP_UINT, ladder_sort_default, ladder_time_default);
++  ladderMap.insert(std::make_pair(TSXP_solo,LadderList(TSXP_solo, referenceTypeAccount)));
++
+   //RAL2 ladders
+   LadderKey RAL2_solo(ladder_id_solo, CLIENTTAG_REDALERT2_UINT, ladder_sort_default, ladder_time_default);
+   ladderMap.insert(std::make_pair(RAL2_solo,LadderList(RAL2_solo, referenceTypeAccount)));
+ 
++  //YURI ladders
++  LadderKey YURI_solo(ladder_id_solo, CLIENTTAG_YURISREV_UINT, ladder_sort_default, ladder_time_default);
++  ladderMap.insert(std::make_pair(YURI_solo,LadderList(YURI_solo, referenceTypeAccount)));
++
+ }
+ 
+ Ladders::~Ladders() throw ()
+
+Modified: trunk/pvpgn/version-history.txt
+===================================================================
+--- trunk/pvpgn/version-history.txt	2010-01-23 22:37:56 UTC (rev 568)
++++ trunk/pvpgn/version-history.txt	2010-01-28 22:10:56 UTC (rev 569)
+@@ -20,7 +20,8 @@
+   -- fixed voice flag not shown for clients in channel
+   -- fixed bug in RedAlert2/Yuri when game owner changes maximum players
+   -- added QuickMatch support for RA2/YURI
+-  -- added Ladders support for Tiberian Sun and Red Alert 2 clients
++  -- added Ladders support for Tiberian Sun, Firestorm, Red Alert 2
++     and Yuri's Revenge clients
+ 
+ [WAR3]
+   -- added support for SRP3 based account creation/login
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001191.html">[pvpgn-dev] [Patch #2900] extern t_account *	accountlist_find_account
+</A></li>
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1192">[ date ]</a>
+              <a href="thread.html#1192">[ thread ]</a>
+              <a href="subject.html#1192">[ subject ]</a>
+              <a href="author.html#1192">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,81 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] Help me with Max user problem
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-May/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20Help%20me%20with%20Max%20user%20problem&In-Reply-To=%3C634377.55916.qm%40web51105.mail.re2.yahoo.com%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000075.html">
+   
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] Help me with Max user problem</H1>
+    <B>All4you</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20Help%20me%20with%20Max%20user%20problem&In-Reply-To=%3C634377.55916.qm%40web51105.mail.re2.yahoo.com%3E"
+       TITLE="[pvpgn-dev] Help me with Max user problem">zhaowei_hn at yahoo.com
+       </A><BR>
+    <I>Fri May 25 15:01:30 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000075.html">[pvpgn-dev] [Bug #11130] login without password - sql_write_attrs	error
+</A></li>
+        
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#76">[ date ]</a>
+              <a href="thread.html#76">[ thread ]</a>
+              <a href="subject.html#76">[ subject ]</a>
+              <a href="author.html#76">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE> - I have problem with my PVPGN server, when over 650 peoples online in my server. The others peoples cannot connect to my PVPGN server. I have set the config variables in bnetd.conf with high value :
+   
+    max_connections = 2000
+    max_concurrent_logins = 2000
+   
+  But when the user about 650 users, the other still cannot connect to my server. The CPU process still using 5%. WHen I check bnet.log for error report, i get this message ..
+   
+  &quot;May 23 16:14:27 [error] sd_accept: [8196] unable to add socket to fdwatch pool (max connections?)
+  May 23 16:14:27 [error] fdwatch_del_fd: out of bounds idx [-1] (max: 2000) &quot;
+   
+   What problem ?? Event i am using max_concurrent_logins with higher value, the error still there, i am using Window Server 2003 and PVPGN 1.8.0 realease.
+   
+   I think this PVPGN version have problem with Windows Operating System, what solutions now ? Can I recompiled new version ? 
+   
+   
+
+ 
+---------------------------------
+8:00? 8:25? 8:40?  Find a flick in no time
+ with theYahoo! Search movie showtime shortcut.
+-------------- next part --------------
+An HTML attachment was scrubbed...
+URL: &lt;<A HREF="https://lists.berlios.de/pipermail/pvpgn-dev/attachments/20070525/87d534a1/attachment.html">https://lists.berlios.de/pipermail/pvpgn-dev/attachments/20070525/87d534a1/attachment.html</A>&gt;
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000075.html">[pvpgn-dev] [Bug #11130] login without password - sql_write_attrs	error
+</A></li>
+	
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#76">[ date ]</a>
+              <a href="thread.html#76">[ thread ]</a>
+              <a href="subject.html#76">[ subject ]</a>
+              <a href="author.html#76">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

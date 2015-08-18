@@ -1,0 +1,160 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] pvpgn/src/bnetd account_wrap.c, 1.82,	1.83 handle_anongame.c, 1.52, 1.53
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-August/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20pvpgn/src/bnetd%20account_wrap.c%2C%201.82%2C%0A%091.83%20handle_anongame.c%2C%201.52%2C%201.53&In-Reply-To=%3C20070815091753.30FFF102CFC%40mail.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000302.html">
+   <LINK REL="Next"  HREF="000304.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] pvpgn/src/bnetd account_wrap.c, 1.82,	1.83 handle_anongame.c, 1.52, 1.53</H1>
+    <B>pandaemonium</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20pvpgn/src/bnetd%20account_wrap.c%2C%201.82%2C%0A%091.83%20handle_anongame.c%2C%201.52%2C%201.53&In-Reply-To=%3C20070815091753.30FFF102CFC%40mail.berlios.de%3E"
+       TITLE="[pvpgn-dev] pvpgn/src/bnetd account_wrap.c, 1.82,	1.83 handle_anongame.c, 1.52, 1.53">nobody at sheep.berlios.de
+       </A><BR>
+    <I>Wed Aug 15 11:17:53 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000302.html">[pvpgn-dev] pvpgn/src/common bnet_protocol.h,1.55,1.56
+</A></li>
+        <LI>Next message: <A HREF="000304.html">[pvpgn-dev] r315 - in trunk/pvpgn: . src/bnetd src/common
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#303">[ date ]</a>
+              <a href="thread.html#303">[ thread ]</a>
+              <a href="subject.html#303">[ subject ]</a>
+              <a href="author.html#303">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Update of /cvsroot/pvpgn/pvpgn/src/bnetd
+In directory sheep:/tmp/cvs-serv18610/src/bnetd
+
+Modified Files:
+	account_wrap.c handle_anongame.c 
+Log Message:
+breakin' the pre-release feature freeze to sneak in a tinybugfix
+
+Index: account_wrap.c
+===================================================================
+RCS file: /cvsroot/pvpgn/pvpgn/src/bnetd/account_wrap.c,v
+retrieving revision 1.82
+retrieving revision 1.83
+diff -u -d -r1.82 -r1.83
+--- account_wrap.c	25 Jun 2005 14:23:15 -0000	1.82
++++ account_wrap.c	15 Aug 2007 09:17:30 -0000	1.83
+@@ -1791,17 +1791,16 @@
+ 	case W3_RACE_HUMANS:
+ 	    return &quot;humans&quot;;
+ 	case W3_RACE_UNDEAD:
++	case W3_ICON_UNDEAD:
+ 	    return &quot;undead&quot;;
+ 	case W3_RACE_NIGHTELVES:
+ 	    return &quot;nightelves&quot;;
+ 	case W3_RACE_RANDOM:
+-	    return &quot;random&quot;;
+-	case W3_ICON_UNDEAD:
+-		return &quot;undead&quot;;
+ 	case W3_ICON_RANDOM:
+-		return &quot;random&quot;;
++	    return &quot;random&quot;;
++	case W3_RACE_DEMONS:
+ 	case W3_ICON_DEMONS:
+-		return &quot;demons&quot;;
++	    return &quot;demons&quot;;
+ 	default:
+ 	    eventlog(eventlog_level_warn,__FUNCTION__,&quot;unknown race: %x&quot;, race);
+ 	    return NULL;
+
+Index: handle_anongame.c
+===================================================================
+RCS file: /cvsroot/pvpgn/pvpgn/src/bnetd/handle_anongame.c,v
+retrieving revision 1.52
+retrieving revision 1.53
+diff -u -d -r1.52 -r1.53
+--- handle_anongame.c	16 Feb 2006 20:09:30 -0000	1.52
++++ handle_anongame.c	15 Aug 2007 09:17:30 -0000	1.53
+@@ -221,16 +221,18 @@
+ 	int ffalevel=account_get_ladder_level(account,ctag,ladder_id_ffa);
+ 	int ffarank=account_get_ladder_rank(account,ctag,ladder_id_ffa);
+ 
+-	int humanwins=account_get_racewins(account,1,ctag);
+-	int humanlosses=account_get_racelosses(account,1,ctag);
+-	int orcwins=account_get_racewins(account,2,ctag);
+-	int orclosses=account_get_racelosses(account,2,ctag);
+-	int undeadwins=account_get_racewins(account,8,ctag);
+-	int undeadlosses=account_get_racelosses(account,8,ctag);
+-	int nightelfwins=account_get_racewins(account,4,ctag);
+-	int nightelflosses=account_get_racelosses(account,4,ctag);
+-	int randomwins=account_get_racewins(account,0,ctag);
+-	int randomlosses=account_get_racelosses(account,0,ctag);
++	int humanwins=account_get_racewins(account,W3_RACE_HUMANS,ctag);
++	int humanlosses=account_get_racelosses(account,W3_RACE_HUMANS,ctag);
++	int orcwins=account_get_racewins(account,W3_RACE_ORCS,ctag);
++	int orclosses=account_get_racelosses(account,W3_RACE_ORCS,ctag);
++	int undeadwins=account_get_racewins(account,W3_RACE_UNDEAD,ctag);
++	int undeadlosses=account_get_racelosses(account,W3_RACE_UNDEAD,ctag);
++	int nightelfwins=account_get_racewins(account,W3_RACE_NIGHTELVES,ctag);
++	int nightelflosses=account_get_racelosses(account,W3_RACE_NIGHTELVES,ctag);
++	int randomwins=account_get_racewins(account,W3_RACE_RANDOM,ctag);
++	int randomlosses=account_get_racelosses(account,W3_RACE_RANDOM,ctag);
++	int tourneywins=account_get_racewins(account,W3_RACE_DEMONS,ctag);
++	int tourneylosses=account_get_racelosses(account,W3_RACE_DEMONS,ctag);
+ 
+ 	unsigned char rescount;
+ 
+@@ -326,8 +328,10 @@
+ 	packet_append_data(rpacket,&amp;temp,2); //elf wins
+ 	bn_int_set((bn_int*)&amp;temp,nightelflosses);
+ 	packet_append_data(rpacket,&amp;temp,2); //elf losses
+-	temp=0;
+-	packet_append_data(rpacket,&amp;temp,4);
++	bn_int_set((bn_int*)&amp;temp,tourneywins);
++	packet_append_data(rpacket,&amp;temp,2); //tourney wins
++	bn_int_set((bn_int*)&amp;temp,tourneylosses);
++	packet_append_data(rpacket,&amp;temp,2); //tourney losses
+ 	//end of normal stats - Start of AT stats
+ 
+ 	/* 1 byte team count place holder, set later */
+@@ -462,7 +466,7 @@
+ 	// FIXED BY DJP 07/16/2003 FOR 110 CHANGE ( TOURNEY &amp; RACE WINS ) + Table_witdh
+ 	short icon_req_race_wins;
+ 	short icon_req_tourney_wins;
+-        int race[]={W3_RACE_RANDOM,W3_RACE_HUMANS,W3_RACE_ORCS,W3_RACE_UNDEAD,W3_RACE_NIGHTELVES,W3_ICON_DEMONS};
++        int race[]={W3_RACE_RANDOM,W3_RACE_HUMANS,W3_RACE_ORCS,W3_RACE_UNDEAD,W3_RACE_NIGHTELVES,W3_RACE_DEMONS};
+         char race_char[6] ={'R','H','O','U','N','D'};
+         char icon_pos[5] ={'2','3','4','5','6',};
+         char table_width = 6;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000302.html">[pvpgn-dev] pvpgn/src/common bnet_protocol.h,1.55,1.56
+</A></li>
+	<LI>Next message: <A HREF="000304.html">[pvpgn-dev] r315 - in trunk/pvpgn: . src/bnetd src/common
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#303">[ date ]</a>
+              <a href="thread.html#303">[ thread ]</a>
+              <a href="subject.html#303">[ subject ]</a>
+              <a href="author.html#303">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,155 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r552 - in trunk/pvpgn: conf src/bnetd src/common
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2009-February/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r552%20-%20in%20trunk/pvpgn%3A%20conf%20src/bnetd%20src/common&In-Reply-To=%3C200902252144.n1PLiTMJ029588%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="001009.html">
+   <LINK REL="Next"  HREF="001011.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r552 - in trunk/pvpgn: conf src/bnetd src/common</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r552%20-%20in%20trunk/pvpgn%3A%20conf%20src/bnetd%20src/common&In-Reply-To=%3C200902252144.n1PLiTMJ029588%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r552 - in trunk/pvpgn: conf src/bnetd src/common">svn at svn.berlios.de
+       </A><BR>
+    <I>Wed Feb 25 22:44:29 CET 2009</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="001009.html">[pvpgn-dev] r551 - trunk/pvpgn/src/bnetd
+</A></li>
+        <LI>Next message: <A HREF="001011.html">[pvpgn-dev] r553 - trunk/pvpgn/conf
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1010">[ date ]</a>
+              <a href="thread.html#1010">[ thread ]</a>
+              <a href="subject.html#1010">[ subject ]</a>
+              <a href="author.html#1010">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pandaemonium
+Date: 2009-02-25 22:44:29 +0100 (Wed, 25 Feb 2009)
+New Revision: 552
+
+Modified:
+   trunk/pvpgn/conf/sql_DB_layout.conf.in
+   trunk/pvpgn/src/bnetd/command.cpp
+   trunk/pvpgn/src/bnetd/sql_common.cpp
+   trunk/pvpgn/src/common/field_sizes.h
+Log:
+fix possible SQL injection via clan motd
+
+Modified: trunk/pvpgn/conf/sql_DB_layout.conf.in
+===================================================================
+--- trunk/pvpgn/conf/sql_DB_layout.conf.in	2009-02-25 21:43:52 UTC (rev 551)
++++ trunk/pvpgn/conf/sql_DB_layout.conf.in	2009-02-25 21:44:29 UTC (rev 552)
+@@ -144,8 +144,8 @@
+ [${prefix}clan]
+ &quot;cid int NOT NULL PRIMARY KEY&quot;,&quot;'0'&quot;
+ &quot;short int&quot;,&quot;'0'&quot;
+-&quot;name varchar(30)&quot;,&quot;NULL&quot;
+-&quot;motd varchar(30)&quot;,&quot;NULL&quot;,
++&quot;name varchar(24)&quot;,&quot;NULL&quot;
++&quot;motd varchar(223)&quot;,&quot;NULL&quot;,
+ &quot;creation_time int&quot;,&quot;'0'&quot;
+ [${prefix}clanmember]
+ &quot;uid int NOT NULL PRIMARY KEY&quot;,&quot;'0'&quot;
+
+Modified: trunk/pvpgn/src/bnetd/command.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/command.cpp	2009-02-25 21:43:52 UTC (rev 551)
++++ trunk/pvpgn/src/bnetd/command.cpp	2009-02-25 21:44:29 UTC (rev 552)
+@@ -717,7 +717,7 @@
+       else if (strstart(text,&quot;create&quot;)==0 || strstart(text,&quot;cre&quot;)==0) {
+           unsigned int i,j;
+           char clantag[CLANSHORT_NAME_MAX+1];
+-          char clanname[CLAN_NAME_MAX+1];
++          char clanname[CLAN_NAME_MAX];
+ 
+           for (i=0; text[i]!=' ' &amp;&amp; text[i]!='\0'; i++); /* skip command */
+           for (; text[i]==' '; i++);
+
+Modified: trunk/pvpgn/src/bnetd/sql_common.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/sql_common.cpp	2009-02-25 21:43:52 UTC (rev 551)
++++ trunk/pvpgn/src/bnetd/sql_common.cpp	2009-02-25 21:44:29 UTC (rev 552)
+@@ -73,7 +73,7 @@
+ 
+ const char* tab_prefix = SQL_DEFAULT_PREFIX;
+ 
+-static char query[512];
++static char query[1024];
+ 
+ extern int sql_init(const char *dbpath)
+ {
+@@ -456,6 +456,7 @@
+ 
+ extern int sql_write_clan(void *data)
+ {
++    char esc_motd[CLAN_MOTD_MAX * 2 + 1];
+     t_sql_res *result;
+     t_sql_row *row;
+     t_elem *curr;
+@@ -481,10 +482,11 @@
+ 	}
+ 	num = std::atol(row[0]);
+ 	sql-&gt;free_result(result);
++	sql-&gt;escape_string(esc_motd, clan-&gt;clan_motd, std::strlen(clan-&gt;clan_motd));
+ 	if (num &lt; 1)
+-	    snprintf(query, sizeof(query), &quot;INSERT INTO %sclan (cid, short, name, motd, creation_time) VALUES('%u', '%d', '%s', '%s', '%u')&quot;, tab_prefix, clan-&gt;clanid, clan-&gt;tag, clan-&gt;clanname, clan-&gt;clan_motd, (unsigned) clan-&gt;creation_time);
++	    snprintf(query, sizeof(query), &quot;INSERT INTO %sclan (cid, short, name, motd, creation_time) VALUES('%u', '%d', '%s', '%s', '%u')&quot;, tab_prefix, clan-&gt;clanid, clan-&gt;tag, clan-&gt;clanname, esc_motd, (unsigned) clan-&gt;creation_time);
+ 	else
+-	    snprintf(query, sizeof(query), &quot;UPDATE %sclan SET short='%d', name='%s', motd='%s', creation_time='%u' WHERE cid='%u'&quot;, tab_prefix, clan-&gt;tag, clan-&gt;clanname, clan-&gt;clan_motd, (unsigned) clan-&gt;creation_time, clan-&gt;clanid);
++	    snprintf(query, sizeof(query), &quot;UPDATE %sclan SET short='%d', name='%s', motd='%s', creation_time='%u' WHERE cid='%u'&quot;, tab_prefix, clan-&gt;tag, clan-&gt;clanname, esc_motd, (unsigned) clan-&gt;creation_time, clan-&gt;clanid);
+ 	if (sql-&gt;query(query) &lt; 0)
+ 	{
+ 	    eventlog(eventlog_level_error, __FUNCTION__, &quot;error trying query: \&quot;%s\&quot;&quot;, query);
+
+Modified: trunk/pvpgn/src/common/field_sizes.h
+===================================================================
+--- trunk/pvpgn/src/common/field_sizes.h	2009-02-25 21:43:52 UTC (rev 551)
++++ trunk/pvpgn/src/common/field_sizes.h	2009-02-25 21:44:29 UTC (rev 552)
+@@ -33,8 +33,8 @@
+                                   /* (longer than USER_NAME_MAX and CHAR_NAME_LEN so that
+                                    *  proper error packets can be returned) */
+ const int CLANSHORT_NAME_MAX = 4;
+-const unsigned CLAN_NAME_MAX = 25; /* including terminating NUL char */
+-const unsigned CLAN_MOTD_MAX = 223; 
++const unsigned CLAN_NAME_MAX = 24; /* including terminating NUL char */
++const unsigned CLAN_MOTD_MAX = 224; /* including terminating NUL char */
+ const int MAX_CHANNELNAME_LEN = 32; /* including terminating NUL char */
+ const unsigned MAX_CHARNAME_LEN = 16;
+ const unsigned MIN_CHARNAME_LEN = 2;
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="001009.html">[pvpgn-dev] r551 - trunk/pvpgn/src/bnetd
+</A></li>
+	<LI>Next message: <A HREF="001011.html">[pvpgn-dev] r553 - trunk/pvpgn/conf
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#1010">[ date ]</a>
+              <a href="thread.html#1010">[ thread ]</a>
+              <a href="subject.html#1010">[ subject ]</a>
+              <a href="author.html#1010">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

@@ -1,0 +1,1727 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r399 - trunk/pvpgn/src/bnetd
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-October/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r399%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200710020914.l929EMrC006188%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000480.html">
+   <LINK REL="Next"  HREF="000482.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r399 - trunk/pvpgn/src/bnetd</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r399%20-%20trunk/pvpgn/src/bnetd&In-Reply-To=%3C200710020914.l929EMrC006188%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r399 - trunk/pvpgn/src/bnetd">svn at svn.berlios.de
+       </A><BR>
+    <I>Tue Oct  2 11:14:22 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000480.html">[pvpgn-dev] r398 - trunk/pvpgn/src/win32
+</A></li>
+        <LI>Next message: <A HREF="000482.html">[pvpgn-dev] pvpgn/src/bnetd command.c,1.166,1.167
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#481">[ date ]</a>
+              <a href="thread.html#481">[ thread ]</a>
+              <a href="subject.html#481">[ subject ]</a>
+              <a href="author.html#481">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: d1zzy
+Date: 2007-10-02 11:14:22 +0200 (Tue, 02 Oct 2007)
+New Revision: 399
+
+Modified:
+   trunk/pvpgn/src/bnetd/command.cpp
+Log:
+Following a private security bug report from megablue I went through all 
+command.cpp sprintf function calls and added limits to the string 
+formatting and also ran the file through a sed filter to replace all 
+&quot;std::sprintf(msgtemp,&quot; with &quot;snprintf(msgtemp, sizeof(msgtemp), &quot; (and 
+the same for msgtemp2). This hopefully will close all buffer overflow 
+bugs lurking in there (besides the ones reported by megablue I also 
+found some potentially exploitable locations).
+
+
+Modified: trunk/pvpgn/src/bnetd/command.cpp
+===================================================================
+--- trunk/pvpgn/src/bnetd/command.cpp	2007-10-02 09:02:42 UTC (rev 398)
++++ trunk/pvpgn/src/bnetd/command.cpp	2007-10-02 09:14:22 UTC (rev 399)
+@@ -118,7 +118,7 @@
+ 
+     if (conn_get_dndstr(dest_c))
+     {
+-        std::sprintf(msgtemp,&quot;%.64s is unavailable (%.128s)&quot;,conn_get_username(dest_c),conn_get_dndstr(dest_c));
++        snprintf(msgtemp, sizeof(msgtemp), &quot;%.64s is unavailable (%.128s)&quot;,conn_get_username(dest_c),conn_get_dndstr(dest_c));
+         message_send_text(user_c,message_type_info,user_c,msgtemp);
+         return;
+     }
+@@ -127,7 +127,7 @@
+ 
+     if (conn_get_awaystr(dest_c))
+     {
+-        std::sprintf(msgtemp,&quot;%.64s is away (%.128s)&quot;,conn_get_username(dest_c),conn_get_awaystr(dest_c));
++        snprintf(msgtemp, sizeof(msgtemp), &quot;%.64s is away (%.128s)&quot;,conn_get_username(dest_c),conn_get_awaystr(dest_c));
+         message_send_text(user_c,message_type_info,user_c,msgtemp);
+     }
+ 
+@@ -196,7 +196,7 @@
+ 
+     if ((game = conn_get_game(dest_c)))
+     {
+-	std::sprintf(msgtemp,&quot;%s %s using %s and %s currently in %s game \&quot;%.64s\&quot;.&quot;,
++	snprintf(msgtemp, sizeof(msgtemp), &quot;%s %s using %s and %s currently in %s game \&quot;%.64s\&quot;.&quot;,
+ 		namepart,
+ 		verb,
+ 		clienttag_get_title(conn_get_clienttag(dest_c)),
+@@ -206,7 +206,7 @@
+     }
+     else if ((channel = conn_get_channel(dest_c)))
+     {
+-        std::sprintf(msgtemp,&quot;%s %s using %s and %s currently in channel \&quot;%.64s\&quot;.&quot;,
++        snprintf(msgtemp, sizeof(msgtemp), &quot;%s %s using %s and %s currently in channel \&quot;%.64s\&quot;.&quot;,
+ 		namepart,
+ 		verb,
+ 		clienttag_get_title(conn_get_clienttag(dest_c)),
+@@ -214,7 +214,7 @@
+ 		channel_get_name(channel));
+     }
+     else
+-	std::sprintf(msgtemp,&quot;%s %s using %s.&quot;,
++	snprintf(msgtemp, sizeof(msgtemp), &quot;%s %s using %s.&quot;,
+ 		namepart,
+ 		verb,
+ 		clienttag_get_title(conn_get_clienttag(dest_c)));
+@@ -222,7 +222,7 @@
+ 
+     if (conn_get_dndstr(dest_c))
+     {
+-        std::sprintf(msgtemp,&quot;%s %s refusing messages (%.128s)&quot;,
++        snprintf(msgtemp, sizeof(msgtemp), &quot;%s %s refusing messages (%.128s)&quot;,
+ 		namepart,
+ 		verb,
+ 		conn_get_dndstr(dest_c));
+@@ -231,7 +231,7 @@
+     else
+         if (conn_get_awaystr(dest_c))
+         {
+-            std::sprintf(msgtemp,&quot;%s away (%.128s)&quot;,
++            snprintf(msgtemp, sizeof(msgtemp), &quot;%s away (%.128s)&quot;,
+ 		    namepart,
+ 		    conn_get_awaystr(dest_c));
+ 	    message_send_text(c,message_type_info,c,msgtemp);
+@@ -661,7 +661,7 @@
+     }
+ 
+     if(!(acc = accountlist_find_account(username))) {
+-	std::sprintf(msgtemp, &quot;There's no account with username %.64s.&quot;, username);
++	snprintf(msgtemp, sizeof(msgtemp), &quot;There's no account with username %.64s.&quot;, username);
+ 	message_send_text(c, message_type_info, c, msgtemp);
+ 	return -1;
+     }
+@@ -669,20 +669,20 @@
+ 
+     if (command == '+') {
+ 	if (account_get_auth_admin(acc,NULL) == 1) {
+-	    std::sprintf(msgtemp,&quot;%s is already a Server Admin&quot;,username);
++	    snprintf(msgtemp, sizeof(msgtemp), &quot;%.64s is already a Server Admin&quot;,username);
+ 	} else {
+ 	    account_set_auth_admin(acc,NULL,1);
+-	    std::sprintf(msgtemp,&quot;%s has been promoted to a Server Admin&quot;,username);
+-	    std::sprintf(msgtemp2,&quot;%s has promoted you to a Server Admin&quot;,conn_get_loggeduser(c));
++	    snprintf(msgtemp, sizeof(msgtemp), &quot;%.64s has been promoted to a Server Admin&quot;,username);
++	    snprintf(msgtemp2, sizeof(msgtemp2), &quot;%.64s has promoted you to a Server Admin&quot;,conn_get_loggeduser(c));
+ 	    changed = 1;
+ 	}
+     } else {
+ 	if (account_get_auth_admin(acc,NULL) != 1)
+-    	    std::sprintf(msgtemp,&quot;%s is no Server Admin, so you can't demote him&quot;,username);
++    	    snprintf(msgtemp, sizeof(msgtemp), &quot;%.64s is no Server Admin, so you can't demote him&quot;,username);
+ 	else {
+ 	    account_set_auth_admin(acc,NULL,0);
+-	    std::sprintf(msgtemp,&quot;%s has been demoted from a Server Admin&quot;,username);
+-	    std::sprintf(msgtemp2,&quot;%s has demoted you from a Server Admin&quot;,conn_get_loggeduser(c));
++	    snprintf(msgtemp, sizeof(msgtemp), &quot;%.64s has been demoted from a Server Admin&quot;,username);
++	    snprintf(msgtemp2, sizeof(msgtemp2), &quot;%.64s has demoted you from a Server Admin&quot;,conn_get_loggeduser(c));
+ 	    changed = 1;
+ 	}
+     }
+@@ -718,7 +718,7 @@
+     }
+ 
+     if(!(acc = accountlist_find_account(username))) {
+-	std::sprintf(msgtemp, &quot;There's no account with username %.64s.&quot;, username);
++	snprintf(msgtemp, sizeof(msgtemp), &quot;There's no account with username %.64s.&quot;, username);
+ 	message_send_text(c, message_type_info, c, msgtemp);
+ 	return -1;
+     }
+@@ -726,20 +726,20 @@
+ 
+     if (command == '+') {
+ 	if (account_get_auth_operator(acc,NULL) == 1)
+-	    std::sprintf(msgtemp,&quot;%s is already a Server Operator&quot;,username);
++	    snprintf(msgtemp, sizeof(msgtemp), &quot;%.64s is already a Server Operator&quot;,username);
+ 	else {
+ 	    account_set_auth_operator(acc,NULL,1);
+-	    std::sprintf(msgtemp,&quot;%s has been promoted to a Server Operator&quot;,username);
+-	    std::sprintf(msgtemp2,&quot;%s has promoted you to a Server Operator&quot;,conn_get_loggeduser(c));
++	    snprintf(msgtemp, sizeof(msgtemp), &quot;%.64s has been promoted to a Server Operator&quot;,username);
++	    snprintf(msgtemp2, sizeof(msgtemp2), &quot;%.64s has promoted you to a Server Operator&quot;,conn_get_loggeduser(c));
+ 	    changed = 1;
+ 	}
+     } else {
+ 	if (account_get_auth_operator(acc,NULL) != 1)
+-    	    std::sprintf(msgtemp,&quot;%s is no Server Operator, so you can't demote him&quot;,username);
++    	    snprintf(msgtemp, sizeof(msgtemp), &quot;%.64s is no Server Operator, so you can't demote him&quot;,username);
+ 	else {
+ 	    account_set_auth_operator(acc,NULL,0);
+-	    std::sprintf(msgtemp,&quot;%s has been demoted from a Server Operator&quot;,username);
+-	    std::sprintf(msgtemp2,&quot;%s has promoted you to a Server Operator&quot;,conn_get_loggeduser(c));
++	    snprintf(msgtemp, sizeof(msgtemp), &quot;%.64s has been demoted from a Server Operator&quot;,username);
++	    snprintf(msgtemp2, sizeof(msgtemp2), &quot;%.64s has promoted you to a Server Operator&quot;,conn_get_loggeduser(c));
+ 	    changed = 1;
+ 	}
+     }
+@@ -776,7 +776,7 @@
+     }
+ 
+     if(!(acc = accountlist_find_account(username))) {
+-	std::sprintf(msgtemp, &quot;There's no account with username %.64s.&quot;, username);
++	snprintf(msgtemp, sizeof(msgtemp), &quot;There's no account with username %.64s.&quot;, username);
+ 	message_send_text(c, message_type_info, c, msgtemp);
+ 	return -1;
+     }
+@@ -784,11 +784,11 @@
+     dst_c = account_get_conn(acc);
+ 
+     if (account_get_auth_admin(acc,channel) == 1)
+-	std::sprintf(msgtemp,&quot;%s is already a Channel Admin&quot;,username);
++	snprintf(msgtemp, sizeof(msgtemp), &quot;%.64s is already a Channel Admin&quot;,username);
+     else {
+ 	account_set_auth_admin(acc,channel,1);
+-	std::sprintf(msgtemp,&quot;%s has been promoted to a Channel Admin&quot;,username);
+-	std::sprintf(msgtemp2,&quot;%s has promoted you to a Channel Admin for channel \&quot;%s\&quot;&quot;,conn_get_loggeduser(c),channel);
++	snprintf(msgtemp, sizeof(msgtemp), &quot;%.64s has been promoted to a Channel Admin&quot;,username);
++	snprintf(msgtemp2, sizeof(msgtemp2), &quot;%.64s has promoted you to a Channel Admin for channel \&quot;%.128s\&quot;&quot;,conn_get_loggeduser(c),channel);
+ 	changed = 1;
+     }
+ 
+@@ -824,7 +824,7 @@
+     }
+ 
+     if(!(acc = accountlist_find_account(username))) {
+-	std::sprintf(msgtemp, &quot;There's no account with username %.64s.&quot;, username);
++	snprintf(msgtemp, sizeof(msgtemp), &quot;There's no account with username %.64s.&quot;, username);
+ 	message_send_text(c, message_type_info, c, msgtemp);
+ 	return -1;
+     }
+@@ -832,11 +832,11 @@
+     dst_c = account_get_conn(acc);
+ 
+     if (account_get_auth_voice(acc,channel) == 1)
+-	std::sprintf(msgtemp,&quot;%s is already on VOP list&quot;,username);
++	snprintf(msgtemp, sizeof(msgtemp), &quot;%.64s is already on VOP list&quot;,username);
+     else {
+ 	account_set_auth_voice(acc,channel,1);
+-	std::sprintf(msgtemp,&quot;%s has been added to the VOP list&quot;,username);
+-	std::sprintf(msgtemp2,&quot;%s has added you to the VOP list of channel \&quot;%s\&quot;&quot;,conn_get_loggeduser(c),channel);
++	snprintf(msgtemp, sizeof(msgtemp), &quot;%.64s has been added to the VOP list&quot;,username);
++	snprintf(msgtemp2, sizeof(msgtemp2), &quot;%.64s has added you to the VOP list of channel \&quot;%.128s\&quot;&quot;,conn_get_loggeduser(c),channel);
+ 	changed = 1;
+     }
+ 
+@@ -872,31 +872,31 @@
+     }
+ 
+     if(!(acc = accountlist_find_account(username))) {
+-	std::sprintf(msgtemp, &quot;There's no account with username %.64s.&quot;, username);
++	snprintf(msgtemp, sizeof(msgtemp), &quot;There's no account with username %.64s.&quot;, username);
+ 	message_send_text(c, message_type_info, c, msgtemp);
+ 	return -1;
+     }
+     dst_c = account_get_conn(acc);
+     if (account_get_auth_voice(acc,channel)==1)
+-	std::sprintf(msgtemp,&quot;%s is already on VOP list, no need to Voice him&quot;, username);
++	snprintf(msgtemp, sizeof(msgtemp), &quot;%.64s is already on VOP list, no need to Voice him&quot;, username);
+     else
+     {
+       if ((!dst_c) || conn_get_channel(c)!=conn_get_channel(dst_c))
+       {
+-	std::sprintf(msgtemp,&quot;%s must be on the same channel to voice him&quot;,username);
++	snprintf(msgtemp, sizeof(msgtemp), &quot;%.64s must be on the same channel to voice him&quot;,username);
+       }
+       else
+       {
+         if (channel_conn_has_tmpVOICE(conn_get_channel(c),dst_c))
+-	    std::sprintf(msgtemp,&quot;%s has already Voice in this channel&quot;,username);
++	    snprintf(msgtemp, sizeof(msgtemp), &quot;%.64s has already Voice in this channel&quot;,username);
+         else {
+ 	  if (account_is_operator_or_admin(acc,channel))
+-	    std::sprintf(msgtemp,&quot;%s allready is operator or admin, no need to voice him&quot;,username);
++	    snprintf(msgtemp, sizeof(msgtemp), &quot;%.64s allready is operator or admin, no need to voice him&quot;,username);
+ 	  else
+ 	  {
+ 	    conn_set_tmpVOICE_channel(dst_c,channel);
+-	    std::sprintf(msgtemp,&quot;%s has been granted Voice in this channel&quot;,username);
+-	    std::sprintf(msgtemp2,&quot;%s has granted you Voice in this channel&quot;,conn_get_loggeduser(c));
++	    snprintf(msgtemp, sizeof(msgtemp), &quot;%.64s has been granted Voice in this channel&quot;,username);
++	    snprintf(msgtemp2, sizeof(msgtemp2), &quot;%.64s has granted you Voice in this channel&quot;,conn_get_loggeduser(c));
+ 	    changed = 1;
+ 	  }
+ 	}
+@@ -936,7 +936,7 @@
+     }
+ 
+     if(!(acc = accountlist_find_account(username))) {
+-	std::sprintf(msgtemp, &quot;There's no account with username %.64s.&quot;, username);
++	snprintf(msgtemp, sizeof(msgtemp), &quot;There's no account with username %.64s.&quot;, username);
+ 	message_send_text(c, message_type_info, c, msgtemp);
+ 	return -1;
+     }
+@@ -947,13 +947,13 @@
+ 	if ((account_get_auth_admin(conn_get_account(c),channel)==1) || (account_get_auth_admin(conn_get_account(c),NULL)==1))
+ 	{
+ 	    account_set_auth_voice(acc,channel,0);
+-	    std::sprintf(msgtemp,&quot;%s has been removed from VOP list.&quot;,username);
+-	    std::sprintf(msgtemp2,&quot;%s has removed you from VOP list of channel \&quot;%s\&quot;&quot;,conn_get_loggeduser(c),channel);
++	    snprintf(msgtemp, sizeof(msgtemp), &quot;%.64s has been removed from VOP list.&quot;,username);
++	    snprintf(msgtemp2, sizeof(msgtemp2), &quot;%.64s has removed you from VOP list of channel \&quot;%.128s\&quot;&quot;,conn_get_loggeduser(c),channel);
+ 	    changed = 1;
+ 	}
+ 	else
+ 	{
+-	    std::sprintf(msgtemp,&quot;You must be at least Channel Admin to remove %s from the VOP list&quot;,username);
++	    snprintf(msgtemp, sizeof(msgtemp), &quot;You must be at least Channel Admin to remove %.64s from the VOP list&quot;,username);
+ 	}
+ 	done = 1;
+     }
+@@ -965,8 +965,8 @@
+     if ((dst_c) &amp;&amp; channel_conn_has_tmpVOICE(conn_get_channel(c),dst_c)==1)
+     {
+       conn_set_tmpVOICE_channel(dst_c,NULL);
+-      std::sprintf(msgtemp,&quot;Voice has been taken from %s in this channel&quot;,username);
+-      std::sprintf(msgtemp2,&quot;%s has taken your Voice in channel \&quot;%s\&quot;&quot;,conn_get_loggeduser(c),channel);
++      snprintf(msgtemp, sizeof(msgtemp), &quot;Voice has been taken from %.64s in this channel&quot;,username);
++      snprintf(msgtemp2, sizeof(msgtemp2), &quot;%.64s has taken your Voice in channel \&quot;%.128s\&quot;&quot;,conn_get_loggeduser(c),channel);
+       changed = 1;
+       done = 1;
+     }
+@@ -976,7 +976,7 @@
+ 
+     if (!done)
+     {
+-     std::sprintf(msgtemp,&quot;%s has no Voice in this channel, so it can't be taken away&quot;,username);
++     snprintf(msgtemp, sizeof(msgtemp), &quot;%.64s has no Voice in this channel, so it can't be taken away&quot;,username);
+      message_send_text(c, message_type_info, c, msgtemp);
+     }
+ 
+@@ -1020,7 +1020,7 @@
+     }
+ 
+     if(!(acc = accountlist_find_account(username))) {
+-	std::sprintf(msgtemp, &quot;There's no account with username %.64s.&quot;, username);
++	snprintf(msgtemp, sizeof(msgtemp), &quot;There's no account with username %.64s.&quot;, username);
+ 	message_send_text(c, message_type_info, c, msgtemp);
+ 	return -1;
+     }
+@@ -1030,26 +1030,26 @@
+     if (OP_lvl==1) // user is full op so he may fully op others
+     {
+       if (account_get_auth_operator(acc,channel) == 1)
+-	  std::sprintf(msgtemp,&quot;%s is allready a Channel Operator&quot;,username);
++	  snprintf(msgtemp, sizeof(msgtemp), &quot;%.64s is allready a Channel Operator&quot;,username);
+       else {
+ 	  account_set_auth_operator(acc,channel,1);
+-	  std::sprintf(msgtemp,&quot;%s has been promoted to a Channel Operator&quot;,username);
+-	  std::sprintf(msgtemp2,&quot;%s has promoted you to a Channel Operator in channel \&quot;%s\&quot;&quot;,conn_get_loggeduser(c),channel);
++	  snprintf(msgtemp, sizeof(msgtemp), &quot;%.64s has been promoted to a Channel Operator&quot;,username);
++	  snprintf(msgtemp2, sizeof(msgtemp2), &quot;%.64s has promoted you to a Channel Operator in channel \&quot;%.128s\&quot;&quot;,conn_get_loggeduser(c),channel);
+ 	  changed = 1;
+       }
+     }
+     else { // user is only tempOP so he may only tempOP others
+          if ((!(dst_c)) || (conn_get_channel(c) != conn_get_channel(dst_c)))
+-          std::sprintf(msgtemp,&quot;%s must be on the same channel to tempOP him&quot;,username);
++          snprintf(msgtemp, sizeof(msgtemp), &quot;%.64s must be on the same channel to tempOP him&quot;,username);
+          else
+          {
+ 	   if (account_is_operator_or_admin(acc,channel))
+-	     std::sprintf(msgtemp,&quot;%s allready is operator or admin, no need to tempOP him&quot;,username);
++	     snprintf(msgtemp, sizeof(msgtemp), &quot;%.64s allready is operator or admin, no need to tempOP him&quot;,username);
+ 	   else
+ 	   {
+              conn_set_tmpOP_channel(dst_c,channel);
+-	     std::sprintf(msgtemp,&quot;%s has been promoted to a tempOP&quot;,username);
+-	     std::sprintf(msgtemp2,&quot;%s has promoted you to a tempOP in this channel&quot;,conn_get_loggeduser(c));
++	     snprintf(msgtemp, sizeof(msgtemp), &quot;%.64s has been promoted to a tempOP&quot;,username);
++	     snprintf(msgtemp2, sizeof(msgtemp2), &quot;%.64s has promoted you to a tempOP in this channel&quot;,conn_get_loggeduser(c));
+ 	     changed = 1;
+ 	   }
+          }
+@@ -1087,7 +1087,7 @@
+     }
+ 
+     if(!(acc = accountlist_find_account(username))) {
+-	std::sprintf(msgtemp, &quot;There's no account with username %.64s.&quot;, username);
++	snprintf(msgtemp, sizeof(msgtemp), &quot;There's no account with username %.64s.&quot;, username);
+ 	message_send_text(c, message_type_info, c, msgtemp);
+ 	return -1;
+     }
+@@ -1095,20 +1095,20 @@
+     dst_c = account_get_conn(acc);
+ 
+     if (channel_conn_is_tmpOP(conn_get_channel(c),dst_c))
+-       std::sprintf(msgtemp,&quot;%s has already tmpOP in this channel&quot;,username);
++       snprintf(msgtemp, sizeof(msgtemp), &quot;%.64s has already tmpOP in this channel&quot;,username);
+     else
+     {
+        if ((!(dst_c)) || (conn_get_channel(c) != conn_get_channel(dst_c)))
+-       std::sprintf(msgtemp,&quot;%s must be on the same channel to tempOP him&quot;,username);
++       snprintf(msgtemp, sizeof(msgtemp), &quot;%.64s must be on the same channel to tempOP him&quot;,username);
+        else
+        {
+ 	 if (account_is_operator_or_admin(acc,channel))
+-	   std::sprintf(msgtemp,&quot;%s allready is operator or admin, no need to tempOP him&quot;,username);
++	   snprintf(msgtemp, sizeof(msgtemp), &quot;%.64s allready is operator or admin, no need to tempOP him&quot;,username);
+ 	 else
+ 	 {
+            conn_set_tmpOP_channel(dst_c,channel);
+-           std::sprintf(msgtemp,&quot;%s has been promoted to tmpOP in this channel&quot;,username);
+-	   std::sprintf(msgtemp2,&quot;%s has promoted you to a tempOP in this channel&quot;,conn_get_loggeduser(c));
++           snprintf(msgtemp, sizeof(msgtemp), &quot;%.64s has been promoted to tmpOP in this channel&quot;,username);
++	   snprintf(msgtemp2, sizeof(msgtemp2), &quot;%.64s has promoted you to a tempOP in this channel&quot;,conn_get_loggeduser(c));
+ 	   changed = 1;
+ 	 }
+        }
+@@ -1156,7 +1156,7 @@
+     }
+ 
+     if(!(acc = accountlist_find_account(username))) {
+-	std::sprintf(msgtemp, &quot;There's no account with username %.64s.&quot;, username);
++	snprintf(msgtemp, sizeof(msgtemp), &quot;There's no account with username %.64s.&quot;, username);
+ 	message_send_text(c, message_type_info, c, msgtemp);
+ 	return -1;
+     }
+@@ -1171,22 +1171,22 @@
+ 	      message_send_text(c,message_type_info,c,&quot;You must be at least a Channel Admin to demote another Channel Admin&quot;);
+ 	    else {
+ 	      account_set_auth_admin(acc,channel,0);
+-	      std::sprintf(msgtemp, &quot;%s has been demoted from a Channel Admin.&quot;, username);
++	      snprintf(msgtemp, sizeof(msgtemp), &quot;%.64s has been demoted from a Channel Admin.&quot;, username);
+ 	      message_send_text(c, message_type_info, c, msgtemp);
+ 	      if (dst_c)
+ 	      {
+-	        std::sprintf(msgtemp2,&quot;%s has demoted you from a Channel Admin of channel \&quot;%s\&quot;&quot;,conn_get_loggeduser(c),channel);
++	        snprintf(msgtemp2, sizeof(msgtemp2), &quot;%.64s has demoted you from a Channel Admin of channel \&quot;%.128s\&quot;&quot;,conn_get_loggeduser(c),channel);
+                 message_send_text(dst_c, message_type_info, c, msgtemp2);
+ 	      }
+ 	    }
+ 	  }
+ 	  if (account_get_auth_operator(acc,channel) == 1) {
+ 	    account_set_auth_operator(acc,channel,0);
+-	    std::sprintf(msgtemp,&quot;%s has been demoted from a Channel Operator&quot;,username);
++	    snprintf(msgtemp, sizeof(msgtemp), &quot;%.64s has been demoted from a Channel Operator&quot;,username);
+ 	    message_send_text(c, message_type_info, c, msgtemp);
+ 	    if (dst_c)
+ 	    {
+-	      std::sprintf(msgtemp2,&quot;%s has demoted you from a Channel Operator of channel \&quot;%s\&quot;&quot;,conn_get_loggeduser(c),channel);
++	      snprintf(msgtemp2, sizeof(msgtemp2), &quot;%.64s has demoted you from a Channel Operator of channel \&quot;%.128s\&quot;&quot;,conn_get_loggeduser(c),channel);
+               message_send_text(dst_c, message_type_info, c, msgtemp2);
+ 	    }
+ 	  }
+@@ -1195,17 +1195,17 @@
+ 	if ((dst_c) &amp;&amp; channel_conn_is_tmpOP(conn_get_channel(c),dst_c))
+ 	{
+ 	    conn_set_tmpOP_channel(dst_c,NULL);
+-	    std::sprintf(msgtemp,&quot;%s has been demoted from a tempOP of this channel&quot;,username);
++	    snprintf(msgtemp, sizeof(msgtemp), &quot;%.64s has been demoted from a tempOP of this channel&quot;,username);
+ 	    message_send_text(c, message_type_info, c, msgtemp);
+ 	    if (dst_c)
+ 	    {
+-	      std::sprintf(msgtemp2,&quot;%s has demoted you from a tmpOP of channel \&quot;%s\&quot;&quot;,conn_get_loggeduser(c),channel);
++	      snprintf(msgtemp2, sizeof(msgtemp2), &quot;%.64s has demoted you from a tmpOP of channel \&quot;%.128s\&quot;&quot;,conn_get_loggeduser(c),channel);
+               message_send_text(dst_c, message_type_info, c, msgtemp2);
+ 	    }
+ 	    done = 1;
+ 	}
+ 	if (!done) {
+-	  std::sprintf(msgtemp,&quot;%s is no Channel Admin or Channel Operator or tempOP, so you can't demote him.&quot;,username);
++	  snprintf(msgtemp, sizeof(msgtemp), &quot;%.64s is no Channel Admin or Channel Operator or tempOP, so you can't demote him.&quot;,username);
+ 	  message_send_text(c, message_type_info, c, msgtemp);
+ 	}
+       }
+@@ -1214,14 +1214,14 @@
+ 	if (dst_c &amp;&amp; channel_conn_is_tmpOP(conn_get_channel(c),dst_c))
+ 	  {
+ 	    conn_set_tmpOP_channel(account_get_conn(acc),NULL);
+-	    std::sprintf(msgtemp,&quot;%s has been demoted from a tempOP of this channel&quot;,username);
++	    snprintf(msgtemp, sizeof(msgtemp), &quot;%.64s has been demoted from a tempOP of this channel&quot;,username);
+ 	    message_send_text(c, message_type_info, c, msgtemp);
+-	    std::sprintf(msgtemp2,&quot;%s has demoted you from a tempOP of channel \&quot;%s\&quot;&quot;,conn_get_loggeduser(c),channel);
++	    snprintf(msgtemp2, sizeof(msgtemp2), &quot;%.64s has demoted you from a tempOP of channel \&quot;%.128s\&quot;&quot;,conn_get_loggeduser(c),channel);
+             if (dst_c) message_send_text(dst_c, message_type_info, c, msgtemp2);
+ 	  }
+ 	else
+ 	  {
+-	    std::sprintf(msgtemp,&quot;%s is no tempOP in this channel, so you can't demote him&quot;,username);
++	    snprintf(msgtemp, sizeof(msgtemp), &quot;%.64s is no tempOP in this channel, so you can't demote him&quot;,username);
+ 	    message_send_text(c, message_type_info, c, msgtemp);
+ 	  }
+       }
+@@ -1269,20 +1269,20 @@
+     		message_send_text(c,message_type_info,c,&quot;You can't add yourself to your friends list.&quot;);
+     		return 0;
+ 	    case -3:
+-    		std::sprintf(msgtemp, &quot;You can only have a maximum of %d friends.&quot;, prefs_get_max_friends());
++    		snprintf(msgtemp, sizeof(msgtemp), &quot;You can only have a maximum of %d friends.&quot;, prefs_get_max_friends());
+     		message_send_text(c,message_type_info,c,msgtemp);
+     		return 0;
+ 	    case -4:
+-		std::sprintf(msgtemp, &quot;%s is already on your friends list!&quot;, text);
++		snprintf(msgtemp, sizeof(msgtemp), &quot;%.64s is already on your friends list!&quot;, text);
+ 		message_send_text(c,message_type_info,c,msgtemp);
+ 		return 0;
+ 	}
+ 
+-	std::sprintf( msgtemp, &quot;Added %s to your friends list.&quot;, text);
++	snprintf(msgtemp, sizeof(msgtemp), &quot;Added %.64s to your friends list.&quot;, text);
+ 	message_send_text(c,message_type_info,c,msgtemp);
+ 	dest_c = connlist_find_connection_by_account(friend_acc);
+ 	if(dest_c!=NULL) {
+-    	    std::sprintf(msgtemp,&quot;%s added you to his/her friends list.&quot;,conn_get_username(c));
++    	    snprintf(msgtemp, sizeof(msgtemp), &quot;%.64s added you to his/her friends list.&quot;,conn_get_username(c));
+     	    message_send_text(dest_c,message_type_info,dest_c,msgtemp);
+ 	}
+ 
+@@ -1392,11 +1392,11 @@
+ 	switch((num = account_remove_friend2(my_acc, text))) {
+ 	    case -1: return -1;
+ 	    case -2:
+-		std::sprintf(msgtemp, &quot;%s was not found on your friends list.&quot;, text);
++		snprintf(msgtemp, sizeof(msgtemp), &quot;%.64s was not found on your friends list.&quot;, text);
+ 		message_send_text(c,message_type_info,c,msgtemp);
+ 		return 0;
+ 	    default:
+-		std::sprintf(msgtemp, &quot;Removed %s from your friends list.&quot;, text);
++		snprintf(msgtemp, sizeof(msgtemp), &quot;Removed %.64s from your friends list.&quot;, text);
+ 		message_send_text(c,message_type_info,c,msgtemp);
+ 
+ 		if ((conn_get_class(c)!=conn_class_bnet) || (!(rpacket = packet_create(packet_class_bnet))))
+@@ -1441,7 +1441,7 @@
+ 	    {
+ 		account_set_friend(my_acc, n, account_get_friend(my_acc, n-1));
+ 		account_set_friend(my_acc, n-1, dest_uid);
+-		std::sprintf(msgtemp, &quot;Premoted %s in your friends list.&quot;, dest_name);
++		snprintf(msgtemp, sizeof(msgtemp), &quot;Premoted %.64s in your friends list.&quot;, dest_name);
+ 		message_send_text(c,message_type_info,c,msgtemp);
+ 
+ 		if ((conn_get_class(c)!=conn_class_bnet) || (!(rpacket = packet_create(packet_class_bnet))))
+@@ -1485,7 +1485,7 @@
+ 	    {
+ 		account_set_friend(my_acc, n, account_get_friend(my_acc, n+1));
+ 		account_set_friend(my_acc, n+1, dest_uid);
+-		std::sprintf(msgtemp, &quot;Premoted %s in your friends list.&quot;, dest_name);
++		snprintf(msgtemp, sizeof(msgtemp), &quot;Premoted %.64s in your friends list.&quot;, dest_name);
+ 		message_send_text(c,message_type_info,c,msgtemp);
+ 
+ 		if ((conn_get_class(c)!=conn_class_bnet) || (!(rpacket = packet_create(packet_class_bnet))))
+@@ -1556,8 +1556,8 @@
+ 		}
+ 
+ 		frienduid=account_get_name(friend_acc);
+-    		if (software[0]) std::sprintf(msgtemp, &quot;%d: %s%.16s%.128s, %.64s&quot;, i+1, friend_get_mutual(fr)?&quot;*&quot;:&quot; &quot;, frienduid, status,software);
+-		else std::sprintf(msgtemp, &quot;%d: %.16s%.128s&quot;, i+1, frienduid, status);
++    		if (software[0]) snprintf(msgtemp, sizeof(msgtemp), &quot;%d: %s%.16s%.128s, %.64s&quot;, i+1, friend_get_mutual(fr)?&quot;*&quot;:&quot; &quot;, frienduid, status,software);
++		else snprintf(msgtemp, sizeof(msgtemp), &quot;%d: %.16s%.128s&quot;, i+1, frienduid, status);
+ 		message_send_text(c,message_type_info,c,msgtemp);
+ 	    }
+ 	}
+@@ -1629,7 +1629,7 @@
+     ctag[j] = '\0';
+ 
+     if (ctag[0]=='\0') {
+-	std::sprintf(msgtemp,&quot;There are currently %d users online, in %d games and %d channels.&quot;,
++	snprintf(msgtemp, sizeof(msgtemp), &quot;There are currently %d users online, in %d games and %d channels.&quot;,
+ 	    connlist_login_get_length(),
+ 	    gamelist_get_length(),
+ 	    channellist_get_length());
+@@ -1650,63 +1650,63 @@
+     {
+ 	case 0:
+ 	case CLIENTTAG_WAR3XP_UINT:
+-	    std::sprintf(msgtemp,&quot;There are currently %u user(s) in %u games of %s&quot;,
++	    snprintf(msgtemp, sizeof(msgtemp), &quot;There are currently %u user(s) in %u games of %.128s&quot;,
+ 		conn_get_user_count_by_clienttag(CLIENTTAG_WAR3XP_UINT),
+ 		game_get_count_by_clienttag(CLIENTTAG_WAR3XP_UINT),
+ 		clienttag_get_title(CLIENTTAG_WAR3XP_UINT));
+ 	    message_send_text(c,message_type_info,c,msgtemp);
+ 	    if (clienttag) break;
+ 	case CLIENTTAG_WARCRAFT3_UINT:
+-	    std::sprintf(msgtemp,&quot;There are currently %u user(s) in %u games of %s&quot;,
++	    snprintf(msgtemp, sizeof(msgtemp), &quot;There are currently %u user(s) in %u games of %.128s&quot;,
+ 		conn_get_user_count_by_clienttag(CLIENTTAG_WARCRAFT3_UINT),
+ 		game_get_count_by_clienttag(CLIENTTAG_WARCRAFT3_UINT),
+ 		clienttag_get_title(CLIENTTAG_WARCRAFT3_UINT));
+ 	    message_send_text(c,message_type_info,c,msgtemp);
+ 	    if (clienttag) break;
+ 	case CLIENTTAG_DIABLO2XP_UINT:
+-	    std::sprintf(msgtemp,&quot;There are currently %u user(s) in %u games of %s&quot;,
++	    snprintf(msgtemp, sizeof(msgtemp), &quot;There are currently %u user(s) in %u games of %.128s&quot;,
+ 		conn_get_user_count_by_clienttag(CLIENTTAG_DIABLO2XP_UINT),
+ 		game_get_count_by_clienttag(CLIENTTAG_DIABLO2XP_UINT),
+ 		clienttag_get_title(CLIENTTAG_DIABLO2XP_UINT));
+ 	    message_send_text(c,message_type_info,c,msgtemp);
+ 	    if (clienttag) break;
+ 	case CLIENTTAG_DIABLO2DV_UINT:
+-	    std::sprintf(msgtemp,&quot;There are currently %u user(s) in %u games of %s&quot;,
++	    snprintf(msgtemp, sizeof(msgtemp), &quot;There are currently %u user(s) in %u games of %.128s&quot;,
+ 		conn_get_user_count_by_clienttag(CLIENTTAG_DIABLO2DV_UINT),
+ 		game_get_count_by_clienttag(CLIENTTAG_DIABLO2DV_UINT),
+ 		clienttag_get_title(CLIENTTAG_DIABLO2DV_UINT));
+ 	    message_send_text(c,message_type_info,c,msgtemp);
+ 	    if (clienttag) break;
+ 	case CLIENTTAG_BROODWARS_UINT:
+-	    std::sprintf(msgtemp,&quot;There are currently %u user(s) in %u games of %s&quot;,
++	    snprintf(msgtemp, sizeof(msgtemp), &quot;There are currently %u user(s) in %u games of %.128s&quot;,
+ 		conn_get_user_count_by_clienttag(CLIENTTAG_BROODWARS_UINT),
+ 		game_get_count_by_clienttag(CLIENTTAG_BROODWARS_UINT),
+ 		clienttag_get_title(CLIENTTAG_BROODWARS_UINT));
+ 	    message_send_text(c,message_type_info,c,msgtemp);
+ 	    if (clienttag) break;
+ 	case CLIENTTAG_STARCRAFT_UINT:
+-	    std::sprintf(msgtemp,&quot;There are currently %u user(s) in %u games of %s&quot;,
++	    snprintf(msgtemp, sizeof(msgtemp), &quot;There are currently %u user(s) in %u games of %.128s&quot;,
+ 		conn_get_user_count_by_clienttag(CLIENTTAG_STARCRAFT_UINT),
+ 		game_get_count_by_clienttag(CLIENTTAG_STARCRAFT_UINT),
+ 		clienttag_get_title(CLIENTTAG_STARCRAFT_UINT));
+ 	    message_send_text(c,message_type_info,c,msgtemp);
+ 	    if (clienttag) break;
+ 	case CLIENTTAG_WARCIIBNE_UINT:
+-	    std::sprintf(msgtemp,&quot;There are currently %u user(s) in %u games of %s&quot;,
++	    snprintf(msgtemp, sizeof(msgtemp), &quot;There are currently %u user(s) in %u games of %.128s&quot;,
+ 		conn_get_user_count_by_clienttag(CLIENTTAG_WARCIIBNE_UINT),
+ 		game_get_count_by_clienttag(CLIENTTAG_WARCIIBNE_UINT),
+ 		clienttag_get_title(CLIENTTAG_WARCIIBNE_UINT));
+ 	    message_send_text(c,message_type_info,c,msgtemp);
+ 	    if (clienttag) break;
+ 	case CLIENTTAG_DIABLORTL_UINT:
+-	    std::sprintf(msgtemp,&quot;There are currently %u user(s) in %u games of %s&quot;,
++	    snprintf(msgtemp, sizeof(msgtemp), &quot;There are currently %u user(s) in %u games of %.128s&quot;,
+ 		conn_get_user_count_by_clienttag(CLIENTTAG_DIABLORTL_UINT),
+ 		game_get_count_by_clienttag(CLIENTTAG_DIABLORTL_UINT),
+ 		clienttag_get_title(CLIENTTAG_DIABLORTL_UINT));
+ 	    message_send_text(c,message_type_info,c,msgtemp);
+ 	    if (clienttag) break;
+ 	default:
+-	    std::sprintf(msgtemp,&quot;There are currently %u user(s) in %u games of %s&quot;,
++	    snprintf(msgtemp, sizeof(msgtemp), &quot;There are currently %u user(s) in %u games of %.128s&quot;,
+ 		conn_get_user_count_by_clienttag(conn_get_clienttag(c)),
+ 		game_get_count_by_clienttag(conn_get_clienttag(c)),
+ 		clienttag_get_title(conn_get_clienttag(c)));
+@@ -1744,7 +1744,7 @@
+       return 0;
+     }
+ 
+-  std::sprintf(msgtemp,&quot;Users in channel %.64s:&quot;,&amp;text[i]);
++  snprintf(msgtemp, sizeof(msgtemp), &quot;Users in channel %.64s:&quot;,&amp;text[i]);
+   i = std::strlen(msgtemp);
+   for (conn=channel_get_first(channel); conn; conn=channel_get_next())
+     {
+@@ -1809,7 +1809,7 @@
+ 	return 0;
+   }
+ 
+-  std::sprintf(msgtemp,&quot;Announcement from %.64s: %.128s&quot;,conn_get_username(c),&amp;text[i]);
++  snprintf(msgtemp, sizeof(msgtemp), &quot;Announcement from %.64s: %.128s&quot;,conn_get_username(c),&amp;text[i]);
+   if (!(message = message_create(message_type_broadcast,c,NULL,msgtemp)))
+     message_send_text(c,message_type_info,c,&quot;Could not broadcast message.&quot;);
+   else
+@@ -1872,7 +1872,7 @@
+ static int _handle_uptime_command(t_connection * c, char const *text)
+ {
+ 
+-  std::sprintf(msgtemp,&quot;Uptime: %s&quot;,seconds_to_timestr(server_get_uptime()));
++  snprintf(msgtemp, sizeof(msgtemp), &quot;Uptime: %s&quot;,seconds_to_timestr(server_get_uptime()));
+   message_send_text(c,message_type_info,c,msgtemp);
+ 
+   return 0;
+@@ -1909,7 +1909,7 @@
+     }
+ 
+     if (std::strlen(clienttag)!=4) {
+-	std::sprintf(msgtemp,&quot;You must supply a user name and a valid program ID. (Program ID \&quot;%.32s\&quot; is invalid.)&quot;,clienttag);
++	snprintf(msgtemp, sizeof(msgtemp), &quot;You must supply a user name and a valid program ID. (Program ID \&quot;%.32s\&quot; is invalid.)&quot;,clienttag);
+ 	message_send_text(c,message_type_error,c,msgtemp);
+ 	message_send_text(c,message_type_error,c,&quot;Example: /stats joe STAR&quot;);
+ 	return 0;
+@@ -1926,32 +1926,32 @@
+ 	    return 0;
+ 	case CLIENTTAG_DIABLORTL_UINT:
+ 	case CLIENTTAG_DIABLOSHR_UINT:
+-	    std::sprintf(msgtemp,&quot;%.64s's record:&quot;,account_get_name(account));
++	    snprintf(msgtemp, sizeof(msgtemp), &quot;%.64s's record:&quot;,account_get_name(account));
+ 	    message_send_text(c,message_type_info,c,msgtemp);
+-	    std::sprintf(msgtemp,&quot;level: %u&quot;,account_get_normal_level(account,clienttag_uint));
++	    snprintf(msgtemp, sizeof(msgtemp), &quot;level: %u&quot;,account_get_normal_level(account,clienttag_uint));
+ 	    message_send_text(c,message_type_info,c,msgtemp);
+-	    std::sprintf(msgtemp,&quot;class: %.16s&quot;,bnclass_get_str(account_get_normal_class(account,clienttag_uint)));
++	    snprintf(msgtemp, sizeof(msgtemp), &quot;class: %.16s&quot;,bnclass_get_str(account_get_normal_class(account,clienttag_uint)));
+ 	    message_send_text(c,message_type_info,c,msgtemp);
+-	    std::sprintf(msgtemp,&quot;stats: %u str  %u mag  %u dex  %u vit  %u gld&quot;,
++	    snprintf(msgtemp, sizeof(msgtemp), &quot;stats: %u str  %u mag  %u dex  %u vit  %u gld&quot;,
+ 		account_get_normal_strength(account,clienttag_uint),
+ 		account_get_normal_magic(account,clienttag_uint),
+ 		account_get_normal_dexterity(account,clienttag_uint),
+ 		account_get_normal_vitality(account,clienttag_uint),
+ 		account_get_normal_gold(account,clienttag_uint));
+ 	    message_send_text(c,message_type_info,c,msgtemp);
+-	    std::sprintf(msgtemp,&quot;Diablo kills: %u&quot;,account_get_normal_diablo_kills(account,clienttag_uint));
++	    snprintf(msgtemp, sizeof(msgtemp), &quot;Diablo kills: %u&quot;,account_get_normal_diablo_kills(account,clienttag_uint));
+ 	    message_send_text(c,message_type_info,c,msgtemp);
+ 	    return 0;
+ 	case CLIENTTAG_WARCIIBNE_UINT:
+-	    std::sprintf(msgtemp,&quot;%.64s's record:&quot;,account_get_name(account));
++	    snprintf(msgtemp, sizeof(msgtemp), &quot;%.64s's record:&quot;,account_get_name(account));
+ 	    message_send_text(c,message_type_info,c,msgtemp);
+-	    std::sprintf(msgtemp,&quot;Normal games: %u-%u-%u&quot;,
++	    snprintf(msgtemp, sizeof(msgtemp), &quot;Normal games: %u-%u-%u&quot;,
+ 		account_get_normal_wins(account,clienttag_uint),
+ 		account_get_normal_losses(account,clienttag_uint),
+ 		account_get_normal_disconnects(account,clienttag_uint));
+ 	    message_send_text(c,message_type_info,c,msgtemp);
+ 	    if (account_get_ladder_rating(account,clienttag_uint,ladder_id_normal)&gt;0)
+-		std::sprintf(msgtemp,&quot;Ladder games: %u-%u-%u (rating %d)&quot;,
++		snprintf(msgtemp, sizeof(msgtemp), &quot;Ladder games: %u-%u-%u (rating %d)&quot;,
+ 		    account_get_ladder_wins(account,clienttag_uint,ladder_id_normal),
+ 		    account_get_ladder_losses(account,clienttag_uint,ladder_id_normal),
+ 		    account_get_ladder_disconnects(account,clienttag_uint,ladder_id_normal),
+@@ -1960,7 +1960,7 @@
+ 		std::strcpy(msgtemp,&quot;Ladder games: 0-0-0&quot;);
+ 	    message_send_text(c,message_type_info,c,msgtemp);
+ 	    if (account_get_ladder_rating(account,clienttag_uint,ladder_id_ironman)&gt;0)
+-		std::sprintf(msgtemp,&quot;IronMan games: %u-%u-%u (rating %d)&quot;,
++		snprintf(msgtemp, sizeof(msgtemp), &quot;IronMan games: %u-%u-%u (rating %d)&quot;,
+ 		    account_get_ladder_wins(account,clienttag_uint,ladder_id_ironman),
+ 		    account_get_ladder_losses(account,clienttag_uint,ladder_id_ironman),
+ 		    account_get_ladder_disconnects(account,clienttag_uint,ladder_id_ironman),
+@@ -1971,39 +1971,39 @@
+ 	    return 0;
+ 	case CLIENTTAG_WARCRAFT3_UINT:
+ 	case CLIENTTAG_WAR3XP_UINT:
+-	    std::sprintf(msgtemp,&quot;%.64s's Ladder Record's:&quot;,account_get_name(account));
++	    snprintf(msgtemp, sizeof(msgtemp), &quot;%.64s's Ladder Record's:&quot;,account_get_name(account));
+ 	    message_send_text(c,message_type_info,c,msgtemp);
+-	    std::sprintf(msgtemp,&quot;Users Solo Level: %u, Experience: %u&quot;,
++	    snprintf(msgtemp, sizeof(msgtemp), &quot;Users Solo Level: %u, Experience: %u&quot;,
+ 		account_get_ladder_level(account,clienttag_uint,ladder_id_solo),
+ 		account_get_ladder_xp(account,clienttag_uint,ladder_id_solo));
+ 	    message_send_text(c,message_type_info,c,msgtemp);
+-	    std::sprintf(msgtemp,&quot;SOLO Ladder Record: %u-%u-0&quot;,
++	    snprintf(msgtemp, sizeof(msgtemp), &quot;SOLO Ladder Record: %u-%u-0&quot;,
+ 		account_get_ladder_wins(account,clienttag_uint,ladder_id_solo),
+ 		account_get_ladder_losses(account,clienttag_uint,ladder_id_solo));
+ 	    message_send_text(c,message_type_info,c,msgtemp);
+-	    std::sprintf(msgtemp,&quot;SOLO Rank: %u&quot;,
++	    snprintf(msgtemp, sizeof(msgtemp), &quot;SOLO Rank: %u&quot;,
+ 		account_get_ladder_rank(account,clienttag_uint,ladder_id_solo));
+ 	    message_send_text(c,message_type_info,c,msgtemp);
+-	    std::sprintf(msgtemp,&quot;Users Team Level: %u, Experience: %u&quot;,
++	    snprintf(msgtemp, sizeof(msgtemp), &quot;Users Team Level: %u, Experience: %u&quot;,
+ 		account_get_ladder_level(account,clienttag_uint,ladder_id_team),
+ 		account_get_ladder_xp(account,clienttag_uint,ladder_id_team));
+ 	    message_send_text(c,message_type_info,c,msgtemp);
+-	    std::sprintf(msgtemp,&quot;TEAM Ladder Record: %u-%u-0&quot;,
++	    snprintf(msgtemp, sizeof(msgtemp), &quot;TEAM Ladder Record: %u-%u-0&quot;,
+ 		account_get_ladder_wins(account,clienttag_uint,ladder_id_team),
+ 		account_get_ladder_losses(account,clienttag_uint,ladder_id_team));
+ 	    message_send_text(c,message_type_info,c,msgtemp);
+-	    std::sprintf(msgtemp,&quot;TEAM Rank: %u&quot;,
++	    snprintf(msgtemp, sizeof(msgtemp), &quot;TEAM Rank: %u&quot;,
+ 		account_get_ladder_rank(account,clienttag_uint,ladder_id_team));
+ 	    message_send_text(c,message_type_info,c,msgtemp);
+-	    std::sprintf(msgtemp,&quot;Users FFA Level: %u, Experience: %u&quot;,
++	    snprintf(msgtemp, sizeof(msgtemp), &quot;Users FFA Level: %u, Experience: %u&quot;,
+ 		account_get_ladder_level(account,clienttag_uint,ladder_id_ffa),
+ 		account_get_ladder_xp(account,clienttag_uint,ladder_id_ffa));
+ 	    message_send_text(c,message_type_info,c,msgtemp);
+-	    std::sprintf(msgtemp,&quot;FFA Ladder Record: %u-%u-0&quot;,
++	    snprintf(msgtemp, sizeof(msgtemp), &quot;FFA Ladder Record: %u-%u-0&quot;,
+ 		account_get_ladder_wins(account,clienttag_uint,ladder_id_ffa),
+ 		account_get_ladder_losses(account,clienttag_uint,ladder_id_ffa));
+ 	    message_send_text(c,message_type_info,c,msgtemp);
+-	    std::sprintf(msgtemp,&quot;FFA Rank: %u&quot;,
++	    snprintf(msgtemp, sizeof(msgtemp), &quot;FFA Rank: %u&quot;,
+ 		account_get_ladder_rank(account,clienttag_uint,ladder_id_ffa));
+ 	    message_send_text(c,message_type_info,c,msgtemp);
+ 	    if (account_get_teams(account)) {
+@@ -2026,30 +2026,30 @@
+ 	            continue;
+ 
+ 		    teamcount++;
+-		    std::sprintf(msgtemp,&quot;Users AT Team No. %u&quot;,teamcount);
++		    snprintf(msgtemp, sizeof(msgtemp), &quot;Users AT Team No. %u&quot;,teamcount);
+ 		    message_send_text(c,message_type_info,c,msgtemp);
+-		    std::sprintf(msgtemp,&quot;Users AT TEAM Level: %u, Experience: %u&quot;,
++		    snprintf(msgtemp, sizeof(msgtemp), &quot;Users AT TEAM Level: %u, Experience: %u&quot;,
+ 			team_get_level(team),team_get_xp(team));
+ 		    message_send_text(c,message_type_info,c,msgtemp);
+-		    std::sprintf(msgtemp,&quot;AT TEAM Ladder Record: %u-%u-0&quot;,
++		    snprintf(msgtemp, sizeof(msgtemp), &quot;AT TEAM Ladder Record: %u-%u-0&quot;,
+ 			team_get_wins(team),team_get_losses(team));
+ 		    message_send_text(c,message_type_info,c,msgtemp);
+-		    std::sprintf(msgtemp,&quot;AT TEAM Rank: %u&quot;,
++		    snprintf(msgtemp, sizeof(msgtemp), &quot;AT TEAM Rank: %u&quot;,
+ 			team_get_rank(team));
+ 		    message_send_text(c,message_type_info,c,msgtemp);
+ 		}
+ 	    }
+ 	    return 0;
+ 	default:
+-	    std::sprintf(msgtemp,&quot;%.64s's record:&quot;,account_get_name(account));
++	    snprintf(msgtemp, sizeof(msgtemp), &quot;%.64s's record:&quot;,account_get_name(account));
+ 	    message_send_text(c,message_type_info,c,msgtemp);
+-	    std::sprintf(msgtemp,&quot;Normal games: %u-%u-%u&quot;,
++	    snprintf(msgtemp, sizeof(msgtemp), &quot;Normal games: %u-%u-%u&quot;,
+ 		account_get_normal_wins(account,clienttag_uint),
+ 		account_get_normal_losses(account,clienttag_uint),
+ 		account_get_normal_disconnects(account,clienttag_uint));
+ 	    message_send_text(c,message_type_info,c,msgtemp);
+ 	    if (account_get_ladder_rating(account,clienttag_uint,ladder_id_normal)&gt;0)
+-		std::sprintf(msgtemp,&quot;Ladder games: %u-%u-%u (rating %d)&quot;,
++		snprintf(msgtemp, sizeof(msgtemp), &quot;Ladder games: %u-%u-%u (rating %d)&quot;,
+ 		    account_get_ladder_wins(account,clienttag_uint,ladder_id_normal),
+ 		    account_get_ladder_losses(account,clienttag_uint,ladder_id_normal),
+ 		    account_get_ladder_disconnects(account,clienttag_uint,ladder_id_normal),
+@@ -2113,7 +2113,7 @@
+ 
+ 	if (!(std::strlen(text) &lt; MAX_CHANNELNAME_LEN))
+ 	{
+-    		std::sprintf(msgtemp,&quot;max channel name length exceeded (max %d symbols)&quot;, MAX_CHANNELNAME_LEN-1);
++    		snprintf(msgtemp, sizeof(msgtemp), &quot;max channel name length exceeded (max %d symbols)&quot;, MAX_CHANNELNAME_LEN-1);
+ 		message_send_text(c,message_type_error,c,msgtemp);
+ 		return 0;
+ 	}
+@@ -2230,7 +2230,7 @@
+     message_send_text(c,message_type_error,c,&quot;Could not squelch user.&quot;);
+   else
+     {
+-      std::sprintf(msgtemp,&quot;%-.20s has been squelched.&quot;,account_get_name(account));
++      snprintf(msgtemp, sizeof(msgtemp), &quot;%-.20s has been squelched.&quot;,account_get_name(account));
+       message_send_text(c,message_type_info,c,msgtemp);
+     }
+ 
+@@ -2352,9 +2352,9 @@
+     }
+ 
+     if (text[i]!='\0')
+-      std::sprintf(msgtemp,&quot;%-.20s has been kicked by %-.20s (%s).&quot;,tname1,tname2,&amp;text[i]);
++      snprintf(msgtemp, sizeof(msgtemp), &quot;%-.20s has been kicked by %-.20s (%.128s).&quot;,tname1,tname2,&amp;text[i]);
+     else
+-      std::sprintf(msgtemp,&quot;%-.20s has been kicked by %-.20s.&quot;,tname1,tname2);
++      snprintf(msgtemp, sizeof(msgtemp), &quot;%-.20s has been kicked by %-.20s.&quot;,tname1,tname2);
+     channel_message_send(channel,message_type_info,c,msgtemp);
+   }
+   conn_kick_channel(kuc,&quot;Bye&quot;);
+@@ -2417,7 +2417,7 @@
+ 
+   if (channel_ban_user(channel,dest)&lt;0)
+     {
+-      std::sprintf(msgtemp,&quot;Unable to ban %-.20s.&quot;,dest);
++      snprintf(msgtemp, sizeof(msgtemp), &quot;Unable to ban %-.20s.&quot;,dest);
+       message_send_text(c,message_type_error,c,msgtemp);
+     }
+   else
+@@ -2426,9 +2426,9 @@
+ 
+       tname = conn_get_loggeduser(c);
+       if (text[i]!='\0')
+-	std::sprintf(msgtemp,&quot;%-.20s has been banned by %-.20s (%s).&quot;,dest,tname?tname:&quot;unknown&quot;,&amp;text[i]);
++	snprintf(msgtemp, sizeof(msgtemp), &quot;%-.20s has been banned by %-.20s (%.128s).&quot;,dest,tname?tname:&quot;unknown&quot;,&amp;text[i]);
+       else
+-	std::sprintf(msgtemp,&quot;%-.20s has been banned by %-.20s.&quot;,dest,tname?tname:&quot;unknown&quot;);
++	snprintf(msgtemp, sizeof(msgtemp), &quot;%-.20s has been banned by %-.20s.&quot;,dest,tname?tname:&quot;unknown&quot;);
+       channel_message_send(channel,message_type_info,c,msgtemp);
+     }
+   if ((buc = connlist_find_connection_by_accountname(dest)) &amp;&amp;
+@@ -2470,7 +2470,7 @@
+     message_send_text(c,message_type_error,c,&quot;That user is not banned.&quot;);
+   else
+     {
+-      std::sprintf(msgtemp,&quot;%s is no longer banned from this channel.&quot;,&amp;text[i]);
++      snprintf(msgtemp, sizeof(msgtemp), &quot;%.64s is no longer banned from this channel.&quot;,&amp;text[i]);
+       message_send_text(c,message_type_info,c,msgtemp);
+     }
+ 
+@@ -2523,7 +2523,7 @@
+     return 0;
+   }
+ 
+-  std::sprintf(msgtemp,&quot;Announcement from %.32s@%.32s: %.128s&quot;,conn_get_username(c),realm_get_name(realm),&amp;text[i]);
++  snprintf(msgtemp, sizeof(msgtemp), &quot;Announcement from %.32s@%.32s: %.128s&quot;,conn_get_username(c),realm_get_name(realm),&amp;text[i]);
+   if (!(message = message_create(message_type_broadcast,c,NULL,msgtemp)))
+     {
+       message_send_text(c,message_type_info,c,&quot;Could not broadcast message.&quot;);
+@@ -2567,7 +2567,7 @@
+     message_send_text(c,message_type_error,c,&quot;Add to watch list failed.&quot;);
+   else
+     {
+-      std::sprintf(msgtemp,&quot;User %.64s added to your watch list.&quot;,&amp;text[i]);
++      snprintf(msgtemp, sizeof(msgtemp), &quot;User %.64s added to your watch list.&quot;,&amp;text[i]);
+       message_send_text(c,message_type_info,c,msgtemp);
+     }
+ 
+@@ -2597,7 +2597,7 @@
+      message_send_text(c,message_type_error,c,&quot;Removal from watch list failed.&quot;);
+    else
+      {
+-       std::sprintf(msgtemp,&quot;User %.64s removed from your watch list.&quot;,&amp;text[i]);
++       snprintf(msgtemp, sizeof(msgtemp), &quot;User %.64s removed from your watch list.&quot;,&amp;text[i]);
+        message_send_text(c,message_type_info,c,msgtemp);
+      }
+ 
+@@ -2625,7 +2625,7 @@
+     else
+ 	if(clienttag) {
+ 	    char msgtemp[MAX_MESSAGE_LEN];
+-	    std::sprintf(msgtemp, &quot;All %s users added to your watch list.&quot;, tag_uint_to_str(clienttag_str,clienttag));
++	    snprintf(msgtemp, sizeof(msgtemp), &quot;All %.128s users added to your watch list.&quot;, tag_uint_to_str(clienttag_str,clienttag));
+ 	    message_send_text(c,message_type_info,c,msgtemp);
+ 	}
+ 	else
+@@ -2654,7 +2654,7 @@
+     else
+ 	if(clienttag) {
+ 	    char msgtemp[MAX_MESSAGE_LEN];
+-	    std::sprintf(msgtemp, &quot;All %s users removed from your watch list.&quot;, tag_uint_to_str(clienttag_str,clienttag));
++	    snprintf(msgtemp, sizeof(msgtemp), &quot;All %.128s users removed from your watch list.&quot;, tag_uint_to_str(clienttag_str,clienttag));
+ 	    message_send_text(c,message_type_info,c,msgtemp);
+ 	}
+ 	else
+@@ -2740,7 +2740,7 @@
+ 	(!cbdata-&gt;tag || game_get_clienttag(game)==cbdata-&gt;tag) &amp;&amp;
+         (cbdata-&gt;diff==game_difficulty_none || game_get_difficulty(game)==cbdata-&gt;diff))
+     {
+-	std::sprintf(msgtemp,&quot; %-16.16s %1.1s %-8.8s %-21.21s %5u &quot;,
++	snprintf(msgtemp, sizeof(msgtemp), &quot; %-16.16s %1.1s %-8.8s %-21.21s %5u &quot;,
+ 	    game_get_name(game),
+ 	    game_get_flag(game) != game_flag_private ? &quot;n&quot;:&quot;y&quot;,
+ 	    game_status_get_str(game_get_status(game)),
+@@ -2810,13 +2810,13 @@
+       }
+ 
+       if(cbdata.diff==game_difficulty_none)
+-        std::sprintf(msgtemp,&quot;Current games of type %s&quot;,tag_uint_to_str(clienttag_str,cbdata.tag));
++        snprintf(msgtemp, sizeof(msgtemp), &quot;Current games of type %.64s&quot;,tag_uint_to_str(clienttag_str,cbdata.tag));
+       else
+-        std::sprintf(msgtemp,&quot;Current games of type %s %s&quot;,tag_uint_to_str(clienttag_str,cbdata.tag),&amp;text[i]);
++        snprintf(msgtemp, sizeof(msgtemp), &quot;Current games of type %.64s %.128s&quot;,tag_uint_to_str(clienttag_str,cbdata.tag),&amp;text[i]);
+       message_send_text(c,message_type_info,c,msgtemp);
+     }
+ 
+-  std::sprintf(msgtemp,&quot; ------name------ p -status- --------type--------- count &quot;);
++  snprintf(msgtemp, sizeof(msgtemp), &quot; ------name------ p -status- --------type--------- count &quot;);
+   if (!cbdata.tag)
+     std::strcat(msgtemp,&quot;ctag &quot;);
+   if ((!prefs_get_hide_addr()) || (account_get_command_groups(conn_get_account(c)) &amp; command_get_group(&quot;/admin-addr&quot;))) /* default to false */
+@@ -2855,11 +2855,11 @@
+   else
+     {
+       tag = &amp;text[i];
+-      std::sprintf(msgtemp,&quot;Current channels of type %s&quot;,tag);
++      snprintf(msgtemp, sizeof(msgtemp), &quot;Current channels of type %.64s&quot;,tag);
+       message_send_text(c,message_type_info,c,msgtemp);
+     }
+ 
+-  std::sprintf(msgtemp,&quot; -----------name----------- users ----admin/operator----&quot;);
++  snprintf(msgtemp, sizeof(msgtemp), &quot; -----------name----------- users ----admin/operator----&quot;);
+   message_send_text(c,message_type_info,c,msgtemp);
+   LIST_TRAVERSE_CONST(channellist(),curr)
+     {
+@@ -2873,7 +2873,7 @@
+ 	)
+ 	{
+ 
+-	  std::sprintf(msgtemp,&quot; %-26.26s %5u - &quot;,
++	  snprintf(msgtemp, sizeof(msgtemp), &quot; %-26.26s %5u - &quot;,
+ 		  channel_get_name(channel),
+ 		  channel_get_length(channel));
+ 
+@@ -2940,10 +2940,10 @@
+ 
+     bnet_hash(&amp;passhash,std::strlen(pass),pass);
+ 
+-    std::sprintf(msgtemp,&quot;Trying to add account \&quot;%s\&quot; with password \&quot;%s\&quot;&quot;,username,pass);
++    snprintf(msgtemp, sizeof(msgtemp), &quot;Trying to add account \&quot;%.64s\&quot; with password \&quot;%.128s\&quot;&quot;,username,pass);
+     message_send_text(c,message_type_info,c,msgtemp);
+ 
+-    std::sprintf(msgtemp,&quot;Hash is: %s&quot;,hash_get_str(passhash));
++    snprintf(msgtemp, sizeof(msgtemp), &quot;Hash is: %.128s&quot;,hash_get_str(passhash));
+     message_send_text(c,message_type_info,c,msgtemp);
+ 
+     temp = accountlist_create_account(username,hash_get_str(passhash));
+@@ -2953,7 +2953,7 @@
+ 	return 0;
+     }
+ 
+-    std::sprintf(msgtemp,&quot;Account &quot;UID_FORMAT&quot; created.&quot;,account_get_uid(temp));
++    snprintf(msgtemp, sizeof(msgtemp), &quot;Account &quot;UID_FORMAT&quot; created.&quot;,account_get_uid(temp));
+     message_send_text(c,message_type_info,c,msgtemp);
+     eventlog(eventlog_level_debug,__FUNCTION__,&quot;[%d] account \&quot;%s\&quot; created&quot;,conn_get_socket(c),username);
+ 
+@@ -3020,7 +3020,7 @@
+ 
+   if (std::strlen(pass) &gt; MAX_USERPASS_LEN)
+   {
+-    std::sprintf(msgtemp,&quot;Maximum password length allowed is %d&quot;,MAX_USERPASS_LEN);
++    snprintf(msgtemp, sizeof(msgtemp), &quot;Maximum password length allowed is %d&quot;,MAX_USERPASS_LEN);
+     message_send_text(c,message_type_error,c,msgtemp);
+     return 0;
+   }
+@@ -3030,7 +3030,7 @@
+ 
+   bnet_hash(&amp;passhash,std::strlen(pass),pass);
+ 
+-  std::sprintf(msgtemp,&quot;Trying to change password for account \&quot;%s\&quot; to \&quot;%s\&quot;&quot;,username,pass);
++  snprintf(msgtemp, sizeof(msgtemp), &quot;Trying to change password for account \&quot;%.64s\&quot; to \&quot;%.128s\&quot;&quot;,username,pass);
+   message_send_text(c,message_type_info,c,msgtemp);
+ 
+   if (account_set_pass(temp,hash_get_str(passhash))&lt;0)
+@@ -3041,15 +3041,15 @@
+ 
+   if (account_get_auth_admin(account,NULL) == 1 ||
+       account_get_auth_operator(account,NULL) == 1) {
+-    std::sprintf(msgtemp,
++    snprintf(msgtemp, sizeof(msgtemp), 
+       &quot;Password for account &quot;UID_FORMAT&quot; updated.&quot;,account_get_uid(temp));
+     message_send_text(c,message_type_info,c,msgtemp);
+ 
+-    std::sprintf(msgtemp,&quot;Hash is: %s&quot;,hash_get_str(passhash));
++    snprintf(msgtemp, sizeof(msgtemp), &quot;Hash is: %.128s&quot;,hash_get_str(passhash));
+     message_send_text(c,message_type_info,c,msgtemp);
+   } else {
+-    std::sprintf(msgtemp,
+-      &quot;Password for account %s updated.&quot;,username);
++    snprintf(msgtemp, sizeof(msgtemp), 
++      &quot;Password for account %.64s updated.&quot;,username);
+     message_send_text(c,message_type_info,c,msgtemp);
+   }
+ 
+@@ -3079,16 +3079,16 @@
+ 
+   if (text[i]=='\0')
+     {
+-      std::sprintf(msgtemp,&quot; -class -tag -----name------ -lat(ms)- ----channel---- --game--&quot;);
++      snprintf(msgtemp, sizeof(msgtemp), &quot; -class -tag -----name------ -lat(ms)- ----channel---- --game--&quot;);
+       message_send_text(c,message_type_info,c,msgtemp);
+     }
+   else
+     if (std::strcmp(&amp;text[i],&quot;all&quot;)==0) /* print extended info */
+       {
+ 	if (prefs_get_hide_addr() &amp;&amp; !(account_get_command_groups(conn_get_account(c)) &amp; command_get_group(&quot;/admin-addr&quot;)))
+-	  std::sprintf(msgtemp,&quot; -#- -class ----state--- -tag -----name------ -session-- -flag- -lat(ms)- ----channel---- --game--&quot;);
++	  snprintf(msgtemp, sizeof(msgtemp), &quot; -#- -class ----state--- -tag -----name------ -session-- -flag- -lat(ms)- ----channel---- --game--&quot;);
+ 	else
+-	  std::sprintf(msgtemp,&quot; -#- -class ----state--- -tag -----name------ -session-- -flag- -lat(ms)- ----channel---- --game-- ---------addr--------&quot;);
++	  snprintf(msgtemp, sizeof(msgtemp), &quot; -#- -class ----state--- -tag -----name------ -session-- -flag- -lat(ms)- ----channel---- --game-- ---------addr--------&quot;);
+ 	message_send_text(c,message_type_info,c,msgtemp);
+       }
+     else
+@@ -3113,7 +3113,7 @@
+       else game_name = &quot;none&quot;;
+ 
+       if (text[i]=='\0')
+-	std::sprintf(msgtemp,&quot; %-6.6s %4.4s %-15.15s %9u %-16.16s %-8.8s&quot;,
++	snprintf(msgtemp, sizeof(msgtemp), &quot; %-6.6s %4.4s %-15.15s %9u %-16.16s %-8.8s&quot;,
+ 		conn_class_get_str(conn_get_class(conn)),
+ 		tag_uint_to_str(clienttag_str,conn_get_fake_clienttag(conn)),
+ 		name,
+@@ -3122,7 +3122,7 @@
+ 		game_name);
+       else
+ 	if (prefs_get_hide_addr() &amp;&amp; !(account_get_command_groups(conn_get_account(c)) &amp; command_get_group(&quot;/admin-addr&quot;))) /* default to false */
+-	  std::sprintf(msgtemp,&quot; %3d %-6.6s %-12.12s %4.4s %-15.15s 0x%08x 0x%04x %9u %-16.16s %-8.8s&quot;,
++	  snprintf(msgtemp, sizeof(msgtemp), &quot; %3d %-6.6s %-12.12s %4.4s %-15.15s 0x%08x 0x%04x %9u %-16.16s %-8.8s&quot;,
+ 		  conn_get_socket(conn),
+ 		  conn_class_get_str(conn_get_class(conn)),
+ 		  conn_state_get_str(conn_get_state(conn)),
+@@ -3134,7 +3134,7 @@
+ 		  channel_name,
+ 		  game_name);
+ 	else
+-	  std::sprintf(msgtemp,&quot; %3u %-6.6s %-12.12s %4.4s %-15.15s 0x%08x 0x%04x %9u %-16.16s %-8.8s %s&quot;,
++	  snprintf(msgtemp, sizeof(msgtemp), &quot; %3u %-6.6s %-12.12s %4.4s %-15.15s 0x%08x 0x%04x %9u %-16.16s %-8.8s %.16s&quot;,
+ 		  conn_get_socket(conn),
+ 		  conn_class_get_str(conn_get_class(conn)),
+ 		  conn_state_get_str(conn_get_state(conn)),
+@@ -3181,7 +3181,7 @@
+       message_send_text(c,message_type_error,c,&quot;Invalid user.&quot;);
+       return 0;
+     }
+-  std::sprintf(msgtemp,&quot;Login: %-16.16s &quot;UID_FORMAT&quot; Sex: %.14s&quot;,
++  snprintf(msgtemp, sizeof(msgtemp), &quot;Login: %-16.16s &quot;UID_FORMAT&quot; Sex: %.14s&quot;,
+ 	  account_get_name(account),
+ 	  account_get_uid(account),
+ 	  account_get_sex(account));
+@@ -3194,7 +3194,7 @@
+ 
+     if ((clan = clanmember_get_clan(clanmemb)))
+     {
+-	std::sprintf(msgtemp,&quot;Clan : %-64.64s&quot;,clan_get_name(clan));
++	snprintf(msgtemp, sizeof(msgtemp), &quot;Clan : %-64.64s&quot;,clan_get_name(clan));
+ 	if ((status = clanmember_get_status(clanmemb)))
+ 	{
+ 	    switch (status)
+@@ -3219,14 +3219,14 @@
+     }
+   }
+ 
+-  std::sprintf(msgtemp,&quot;Location: %-23.23s Age: %.14s&quot;,
++  snprintf(msgtemp, sizeof(msgtemp), &quot;Location: %-23.23s Age: %.14s&quot;,
+ 	  account_get_loc(account),
+ 	  account_get_age(account));
+   message_send_text(c,message_type_info,c,msgtemp);
+ 
+   if((conn = connlist_find_connection_by_accountname(dest)))
+   {
+-	  std::sprintf(msgtemp,&quot;Client: %s    Ver: %s   Country: %s&quot;,
++	  snprintf(msgtemp, sizeof(msgtemp), &quot;Client: %.64s    Ver: %.32s   Country: %.128s&quot;,
+ 		  clienttag_get_title(conn_get_clienttag(conn)),
+ 		  conn_get_clientver(conn),
+ 		  conn_get_country(conn));
+@@ -3263,7 +3263,7 @@
+       /* the player who requested /finger has admin privileges
+          give him more info about the one he querys;
+          is_admin, is_operator, is_locked, email */
+-         snprintf(msgtemp, sizeof(msgtemp), &quot;email:%s , is_operator: %d , is_admin: %d , is_acc_locked: %d&quot;,
++         snprintf(msgtemp, sizeof(msgtemp), &quot;email:%.128s , is_operator: %d , is_admin: %d , is_acc_locked: %d&quot;,
+          account_get_email(account),
+          account_get_auth_operator(account,NULL),
+          account_get_auth_admin(account,NULL),
+@@ -3274,7 +3274,7 @@
+ 
+   if (conn)
+     {
+-      std::sprintf(msgtemp,&quot;Idle %s&quot;,seconds_to_timestr(conn_get_idletime(conn)));
++      snprintf(msgtemp, sizeof(msgtemp), &quot;Idle %.128s&quot;,seconds_to_timestr(conn_get_idletime(conn)));
+       message_send_text(c,message_type_info,c,msgtemp);
+     }
+ 
+@@ -3307,7 +3307,7 @@
+   if (!(opr = channel_get_operator(channel)))
+     std::strcpy(msgtemp,&quot;There is no operator.&quot;);
+   else
+-      std::sprintf(msgtemp,&quot;%.64s is the operator.&quot;,conn_get_username(opr));
++      snprintf(msgtemp, sizeof(msgtemp), &quot;%.64s is the operator.&quot;,conn_get_username(opr));
+   message_send_text(c,message_type_info,c,msgtemp);
+   return 0;
+ }
+@@ -3470,7 +3470,7 @@
+ 	return 0;
+       }
+ 
+-  std::sprintf(msgtemp,&quot;Name: %-20.20s    ID: &quot;GAMEID_FORMAT&quot; (%s)&quot;,game_get_name(game),game_get_id(game),game_get_flag(game) != game_flag_private ? &quot;public&quot;:&quot;private&quot;);
++  snprintf(msgtemp, sizeof(msgtemp), &quot;Name: %-20.20s    ID: &quot;GAMEID_FORMAT&quot; (%.20s)&quot;,game_get_name(game),game_get_id(game),game_get_flag(game) != game_flag_private ? &quot;public&quot;:&quot;private&quot;);
+   message_send_text(c,message_type_info,c,msgtemp);
+ 
+   {
+@@ -3489,7 +3489,7 @@
+       else
+ 	namestr = tname;
+ 
+-    std::sprintf(msgtemp,&quot;Owner: %-20.20s&quot;,namestr);
++    snprintf(msgtemp, sizeof(msgtemp), &quot;Owner: %-20.20s&quot;,namestr);
+ 
+   }
+   message_send_text(c,message_type_info,c,msgtemp);
+@@ -3506,16 +3506,16 @@
+       trans_net(conn_get_addr(c),&amp;taddr,&amp;tport);
+ 
+       if (taddr==addr &amp;&amp; tport==port)
+-	std::sprintf(msgtemp,&quot;Address: %s&quot;,
++	snprintf(msgtemp, sizeof(msgtemp), &quot;Address: %.64s&quot;,
+ 		addr_num_to_addr_str(addr,port));
+       else
+-	std::sprintf(msgtemp,&quot;Address: %s (trans %s)&quot;,
++	snprintf(msgtemp, sizeof(msgtemp), &quot;Address: %.64s (trans %.64s)&quot;,
+ 		addr_num_to_addr_str(addr,port),
+ 		addr_num_to_addr_str(taddr,tport));
+       message_send_text(c,message_type_info,c,msgtemp);
+     }
+ 
+-  std::sprintf(msgtemp,&quot;Client: %4s (version %s, startver %u)&quot;,tag_uint_to_str(clienttag_str,game_get_clienttag(game)),vernum_to_verstr(game_get_version(game)),game_get_startver(game));
++  snprintf(msgtemp, sizeof(msgtemp), &quot;Client: %4s (version %.64s, startver %u)&quot;,tag_uint_to_str(clienttag_str,game_get_clienttag(game)),vernum_to_verstr(game_get_version(game)),game_get_startver(game));
+   message_send_text(c,message_type_info,c,msgtemp);
+ 
+   {
+@@ -3542,19 +3542,19 @@
+     message_send_text(c,message_type_info,c,msgtemp);
+   }
+ 
+-  std::sprintf(msgtemp,&quot;Status: %s&quot;,game_status_get_str(game_get_status(game)));
++  snprintf(msgtemp, sizeof(msgtemp), &quot;Status: %.128s&quot;,game_status_get_str(game_get_status(game)));
+   message_send_text(c,message_type_info,c,msgtemp);
+ 
+-  std::sprintf(msgtemp,&quot;Type: %-20.20s&quot;,game_type_get_str(game_get_type(game)));
++  snprintf(msgtemp, sizeof(msgtemp), &quot;Type: %-20.20s&quot;,game_type_get_str(game_get_type(game)));
+   message_send_text(c,message_type_info,c,msgtemp);
+ 
+-  std::sprintf(msgtemp,&quot;Speed: %s&quot;,game_speed_get_str(game_get_speed(game)));
++  snprintf(msgtemp, sizeof(msgtemp), &quot;Speed: %.128s&quot;,game_speed_get_str(game_get_speed(game)));
+   message_send_text(c,message_type_info,c,msgtemp);
+ 
+-  std::sprintf(msgtemp,&quot;Difficulty: %s&quot;,game_difficulty_get_str(game_get_difficulty(game)));
++  snprintf(msgtemp, sizeof(msgtemp), &quot;Difficulty: %.128s&quot;,game_difficulty_get_str(game_get_difficulty(game)));
+   message_send_text(c,message_type_info,c,msgtemp);
+ 
+-  std::sprintf(msgtemp,&quot;Option: %s&quot;,game_option_get_str(game_get_option(game)));
++  snprintf(msgtemp, sizeof(msgtemp), &quot;Option: %.128s&quot;,game_option_get_str(game_get_option(game)));
+   message_send_text(c,message_type_info,c,msgtemp);
+ 
+   {
+@@ -3562,18 +3562,18 @@
+ 
+     if (!(mapname = game_get_mapname(game)))
+       mapname = &quot;unknown&quot;;
+-    std::sprintf(msgtemp,&quot;Map: %-20.20s&quot;,mapname);
++    snprintf(msgtemp, sizeof(msgtemp), &quot;Map: %-20.20s&quot;,mapname);
+     message_send_text(c,message_type_info,c,msgtemp);
+   }
+ 
+-  std::sprintf(msgtemp,&quot;Map Size: %ux%u&quot;,game_get_mapsize_x(game),game_get_mapsize_y(game));
++  snprintf(msgtemp, sizeof(msgtemp), &quot;Map Size: %ux%u&quot;,game_get_mapsize_x(game),game_get_mapsize_y(game));
+   message_send_text(c,message_type_info,c,msgtemp);
+-  std::sprintf(msgtemp,&quot;Map Tileset: %s&quot;,game_tileset_get_str(game_get_tileset(game)));
++  snprintf(msgtemp, sizeof(msgtemp), &quot;Map Tileset: %.128s&quot;,game_tileset_get_str(game_get_tileset(game)));
+   message_send_text(c,message_type_info,c,msgtemp);
+-  std::sprintf(msgtemp,&quot;Map Type: %s&quot;,game_maptype_get_str(game_get_maptype(game)));
++  snprintf(msgtemp, sizeof(msgtemp), &quot;Map Type: %.128s&quot;,game_maptype_get_str(game_get_maptype(game)));
+   message_send_text(c,message_type_info,c,msgtemp);
+ 
+-  std::sprintf(msgtemp,&quot;Players: %u current, %u total, %u max&quot;,game_get_ref(game),game_get_count(game),game_get_maxplayers(game));
++  snprintf(msgtemp, sizeof(msgtemp), &quot;Players: %u current, %u total, %u max&quot;,game_get_ref(game),game_get_count(game),game_get_maxplayers(game));
+   message_send_text(c,message_type_info,c,msgtemp);
+ 
+   {
+@@ -3581,7 +3581,7 @@
+ 
+     if (!(description = game_get_description(game)))
+       description = &quot;&quot;;
+-    std::sprintf(msgtemp,&quot;Description: %-20.20s&quot;,description);
++    snprintf(msgtemp, sizeof(msgtemp), &quot;Description: %-20.20s&quot;,description);
+   }
+ 
+   return 0;
+@@ -3688,7 +3688,7 @@
+       referencedObject = ladderList-&gt;getReferencedObject(rank);
+       if ((referencedObject) &amp;&amp; (account = referencedObject-&gt;getAccount()))
+ 	{
+-	  std::sprintf(msgtemp,&quot;Starcraft active  %5u: %-20.20s %u/%u/%u rating %u&quot;,
++	  snprintf(msgtemp, sizeof(msgtemp), &quot;Starcraft active  %5u: %-20.20s %u/%u/%u rating %u&quot;,
+ 		  rank,
+ 		  account_get_name(account),
+ 		  account_get_ladder_active_wins(account,CLIENTTAG_STARCRAFT_UINT,ladder_id_normal),
+@@ -3697,14 +3697,14 @@
+ 		  account_get_ladder_active_rating(account,CLIENTTAG_STARCRAFT_UINT,ladder_id_normal));
+ 	}
+       else
+-	std::sprintf(msgtemp,&quot;Starcraft active  %5u: &lt;none&gt;&quot;,rank);
++	snprintf(msgtemp, sizeof(msgtemp), &quot;Starcraft active  %5u: &lt;none&gt;&quot;,rank);
+       message_send_text(c,message_type_info,c,msgtemp);
+ 
+       ladderList = ladders.getLadderList(LadderKey(ladder_id_normal, clienttag, ladder_sort_highestrated, ladder_time_current));
+       referencedObject = ladderList-&gt;getReferencedObject(rank);
+       if ((referencedObject) &amp;&amp; (account = referencedObject-&gt;getAccount()))
+ 	{
+-	  std::sprintf(msgtemp,&quot;Starcraft current %5u: %-20.20s %u/%u/%u rating %u&quot;,
++	  snprintf(msgtemp, sizeof(msgtemp), &quot;Starcraft current %5u: %-20.20s %u/%u/%u rating %u&quot;,
+ 		  rank,
+ 		  account_get_name(account),
+ 		  account_get_ladder_wins(account,CLIENTTAG_STARCRAFT_UINT,ladder_id_normal),
+@@ -3713,7 +3713,7 @@
+ 		  account_get_ladder_rating(account,CLIENTTAG_STARCRAFT_UINT,ladder_id_normal));
+ 	}
+       else
+-	std::sprintf(msgtemp,&quot;Starcraft current %5u: &lt;none&gt;&quot;,rank);
++	snprintf(msgtemp, sizeof(msgtemp), &quot;Starcraft current %5u: &lt;none&gt;&quot;,rank);
+       message_send_text(c,message_type_info,c,msgtemp);
+     }
+   else if (clienttag==CLIENTTAG_BROODWARS_UINT)
+@@ -3722,7 +3722,7 @@
+       referencedObject = ladderList-&gt;getReferencedObject(rank);
+       if ((referencedObject) &amp;&amp; (account = referencedObject-&gt;getAccount()))
+ 	{
+-	  std::sprintf(msgtemp,&quot;Brood War active  %5u: %-20.20s %u/%u/%u rating %u&quot;,
++	  snprintf(msgtemp, sizeof(msgtemp), &quot;Brood War active  %5u: %-20.20s %u/%u/%u rating %u&quot;,
+ 		  rank,
+ 		  account_get_name(account),
+ 		  account_get_ladder_active_wins(account,CLIENTTAG_BROODWARS_UINT,ladder_id_normal),
+@@ -3731,14 +3731,14 @@
+ 		  account_get_ladder_active_rating(account,CLIENTTAG_BROODWARS_UINT,ladder_id_normal));
+ 	}
+       else
+-	std::sprintf(msgtemp,&quot;Brood War active  %5u: &lt;none&gt;&quot;,rank);
++	snprintf(msgtemp, sizeof(msgtemp), &quot;Brood War active  %5u: &lt;none&gt;&quot;,rank);
+       message_send_text(c,message_type_info,c,msgtemp);
+ 
+       ladderList = ladders.getLadderList(LadderKey(ladder_id_normal, clienttag, ladder_sort_highestrated, ladder_time_current));
+       referencedObject = ladderList-&gt;getReferencedObject(rank);
+       if ((referencedObject) &amp;&amp; (account = referencedObject-&gt;getAccount()))
+ 	{
+-	  std::sprintf(msgtemp,&quot;Brood War current %5u: %-20.20s %u/%u/%u rating %u&quot;,
++	  snprintf(msgtemp, sizeof(msgtemp), &quot;Brood War current %5u: %-20.20s %u/%u/%u rating %u&quot;,
+ 		  rank,
+ 		  account_get_name(account),
+ 		  account_get_ladder_wins(account,CLIENTTAG_BROODWARS_UINT,ladder_id_normal),
+@@ -3747,7 +3747,7 @@
+ 		  account_get_ladder_rating(account,CLIENTTAG_BROODWARS_UINT,ladder_id_normal));
+ 	}
+       else
+-	std::sprintf(msgtemp,&quot;Brood War current %5u: &lt;none&gt;&quot;,rank);
++	snprintf(msgtemp, sizeof(msgtemp), &quot;Brood War current %5u: &lt;none&gt;&quot;,rank);
+       message_send_text(c,message_type_info,c,msgtemp);
+     }
+   else if (clienttag==CLIENTTAG_WARCIIBNE_UINT)
+@@ -3756,7 +3756,7 @@
+       referencedObject = ladderList-&gt;getReferencedObject(rank);
+       if ((referencedObject) &amp;&amp; (account = referencedObject-&gt;getAccount()))
+ 	{
+-	  std::sprintf(msgtemp,&quot;Warcraft II standard active  %5u: %-20.20s %u/%u/%u rating %u&quot;,
++	  snprintf(msgtemp, sizeof(msgtemp), &quot;Warcraft II standard active  %5u: %-20.20s %u/%u/%u rating %u&quot;,
+ 		  rank,
+ 		  account_get_name(account),
+ 		  account_get_ladder_active_wins(account,CLIENTTAG_WARCIIBNE_UINT,ladder_id_normal),
+@@ -3765,14 +3765,14 @@
+ 		  account_get_ladder_active_rating(account,CLIENTTAG_WARCIIBNE_UINT,ladder_id_normal));
+ 	}
+       else
+-	std::sprintf(msgtemp,&quot;Warcraft II standard active  %5u: &lt;none&gt;&quot;,rank);
++	snprintf(msgtemp, sizeof(msgtemp), &quot;Warcraft II standard active  %5u: &lt;none&gt;&quot;,rank);
+       message_send_text(c,message_type_info,c,msgtemp);
+ 
+       ladderList = ladders.getLadderList(LadderKey(ladder_id_ironman, clienttag, ladder_sort_highestrated, ladder_time_active));
+       referencedObject = ladderList-&gt;getReferencedObject(rank);
+       if ((referencedObject) &amp;&amp; (account = referencedObject-&gt;getAccount()))
+ 	{
+-	  std::sprintf(msgtemp,&quot;Warcraft II IronMan active   %5u: %-20.20s %u/%u/%u rating %u&quot;,
++	  snprintf(msgtemp, sizeof(msgtemp), &quot;Warcraft II IronMan active   %5u: %-20.20s %u/%u/%u rating %u&quot;,
+ 		  rank,
+ 		  account_get_name(account),
+ 		  account_get_ladder_active_wins(account,CLIENTTAG_WARCIIBNE_UINT,ladder_id_ironman),
+@@ -3781,14 +3781,14 @@
+ 		  account_get_ladder_active_rating(account,CLIENTTAG_WARCIIBNE_UINT,ladder_id_ironman));
+ 	}
+       else
+-	std::sprintf(msgtemp,&quot;Warcraft II IronMan active   %5u: &lt;none&gt;&quot;,rank);
++	snprintf(msgtemp, sizeof(msgtemp), &quot;Warcraft II IronMan active   %5u: &lt;none&gt;&quot;,rank);
+       message_send_text(c,message_type_info,c,msgtemp);
+ 
+       ladderList = ladders.getLadderList(LadderKey(ladder_id_normal, clienttag, ladder_sort_highestrated, ladder_time_current));
+       referencedObject = ladderList-&gt;getReferencedObject(rank);
+       if ((referencedObject) &amp;&amp; (account = referencedObject-&gt;getAccount()))
+ 	{
+-	  std::sprintf(msgtemp,&quot;Warcraft II standard current %5u: %-20.20s %u/%u/%u rating %u&quot;,
++	  snprintf(msgtemp, sizeof(msgtemp), &quot;Warcraft II standard current %5u: %-20.20s %u/%u/%u rating %u&quot;,
+ 		  rank,
+ 		  account_get_name(account),
+ 		  account_get_ladder_wins(account,CLIENTTAG_WARCIIBNE_UINT,ladder_id_normal),
+@@ -3797,14 +3797,14 @@
+ 		  account_get_ladder_rating(account,CLIENTTAG_WARCIIBNE_UINT,ladder_id_normal));
+ 	}
+       else
+-	std::sprintf(msgtemp,&quot;Warcraft II standard current %5u: &lt;none&gt;&quot;,rank);
++	snprintf(msgtemp, sizeof(msgtemp), &quot;Warcraft II standard current %5u: &lt;none&gt;&quot;,rank);
+       message_send_text(c,message_type_info,c,msgtemp);
+ 
+       ladderList = ladders.getLadderList(LadderKey(ladder_id_ironman, clienttag, ladder_sort_highestrated, ladder_time_current));
+       referencedObject = ladderList-&gt;getReferencedObject(rank);
+       if ((referencedObject) &amp;&amp; (account = referencedObject-&gt;getAccount()))
+ 	{
+-	  std::sprintf(msgtemp,&quot;Warcraft II IronMan current  %5u: %-20.20s %u/%u/%u rating %u&quot;,
++	  snprintf(msgtemp, sizeof(msgtemp), &quot;Warcraft II IronMan current  %5u: %-20.20s %u/%u/%u rating %u&quot;,
+ 		  rank,
+ 		  account_get_name(account),
+ 		  account_get_ladder_wins(account,CLIENTTAG_WARCIIBNE_UINT,ladder_id_ironman),
+@@ -3813,7 +3813,7 @@
+ 		  account_get_ladder_rating(account,CLIENTTAG_WARCIIBNE_UINT,ladder_id_ironman));
+ 	}
+       else
+-	std::sprintf(msgtemp,&quot;Warcraft II IronMan current  %5u: &lt;none&gt;&quot;,rank);
++	snprintf(msgtemp, sizeof(msgtemp), &quot;Warcraft II IronMan current  %5u: &lt;none&gt;&quot;,rank);
+       message_send_text(c,message_type_info,c,msgtemp);
+     }
+   // --&gt; aaron
+@@ -3823,42 +3823,42 @@
+       referencedObject = ladderList-&gt;getReferencedObject(rank);
+       if ((referencedObject) &amp;&amp; (account = referencedObject-&gt;getAccount()))
+ 	{
+-	  std::sprintf(msgtemp,&quot;WarCraft3 Solo   %5u: %-20.20s %u/%u/0&quot;,
++	  snprintf(msgtemp, sizeof(msgtemp), &quot;WarCraft3 Solo   %5u: %-20.20s %u/%u/0&quot;,
+ 		  rank,
+ 		  account_get_name(account),
+ 		  account_get_ladder_wins(account,clienttag,ladder_id_solo),
+ 		  account_get_ladder_losses(account,clienttag,ladder_id_solo));
+ 	}
+       else
+-	std::sprintf(msgtemp,&quot;WarCraft3 Solo   %5u: &lt;none&gt;&quot;,rank);
++	snprintf(msgtemp, sizeof(msgtemp), &quot;WarCraft3 Solo   %5u: &lt;none&gt;&quot;,rank);
+       message_send_text(c,message_type_info,c,msgtemp);
+ 
+       ladderList = ladders.getLadderList(LadderKey(ladder_id_team, clienttag, ladder_sort_default, ladder_time_default));
+       referencedObject = ladderList-&gt;getReferencedObject(rank);
+       if ((referencedObject) &amp;&amp; (account = referencedObject-&gt;getAccount()))
+ 	{
+-	  std::sprintf(msgtemp,&quot;WarCraft3 Team   %5u: %-20.20s %u/%u/0&quot;,
++	  snprintf(msgtemp, sizeof(msgtemp), &quot;WarCraft3 Team   %5u: %-20.20s %u/%u/0&quot;,
+ 		  rank,
+ 		  account_get_name(account),
+ 		  account_get_ladder_wins(account,clienttag,ladder_id_team),
+ 		  account_get_ladder_losses(account,clienttag,ladder_id_team));
+ 	}
+       else
+-	std::sprintf(msgtemp,&quot;WarCraft3 Team   %5u: &lt;none&gt;&quot;,rank);
++	snprintf(msgtemp, sizeof(msgtemp), &quot;WarCraft3 Team   %5u: &lt;none&gt;&quot;,rank);
+       message_send_text(c,message_type_info,c,msgtemp);
+ 
+       ladderList = ladders.getLadderList(LadderKey(ladder_id_ffa, clienttag, ladder_sort_default, ladder_time_default));
+       referencedObject = ladderList-&gt;getReferencedObject(rank);
+       if ((referencedObject) &amp;&amp; (account = referencedObject-&gt;getAccount()))
+ 	{
+-	  std::sprintf(msgtemp,&quot;WarCraft3 FFA   %5u: %-20.20s %u/%u/0&quot;,
++	  snprintf(msgtemp, sizeof(msgtemp), &quot;WarCraft3 FFA   %5u: %-20.20s %u/%u/0&quot;,
+ 		  rank,
+ 		  account_get_name(account),
+ 		  account_get_ladder_wins(account,clienttag,ladder_id_ffa),
+ 		  account_get_ladder_losses(account,clienttag,ladder_id_ffa));
+ 	}
+       else
+-	std::sprintf(msgtemp,&quot;WarCraft3 FFA   %5u: &lt;none&gt;&quot;,rank);
++	snprintf(msgtemp, sizeof(msgtemp), &quot;WarCraft3 FFA   %5u: &lt;none&gt;&quot;,rank);
+       message_send_text(c,message_type_info,c,msgtemp);
+ 
+       ladderList = ladders.getLadderList(LadderKey(ladder_id_ateam, clienttag, ladder_sort_default, ladder_time_default));
+@@ -3870,7 +3870,7 @@
+ 		    xstr_cat_str(membernames, account_get_name(team_get_member(team,i)));
+ 		    if ((i)) xstr_cat_char(membernames,',');
+ 	    }
+-	    std::sprintf(msgtemp,&quot;WarCraft3 AT Team   %5u: %-80.80s %u/%u/0&quot;,
++	    snprintf(msgtemp, sizeof(msgtemp), &quot;WarCraft3 AT Team   %5u: %-80.80s %u/%u/0&quot;,
+ 		    rank,
+ 		    xstr_get_str(membernames),
+ 		    team_get_wins(team),
+@@ -3878,7 +3878,7 @@
+ 	    xstr_free(membernames);
+ 	}
+       else
+-	std::sprintf(msgtemp,&quot;WarCraft3 AT Team  %5u: &lt;none&gt;&quot;,rank);
++	snprintf(msgtemp, sizeof(msgtemp), &quot;WarCraft3 AT Team  %5u: &lt;none&gt;&quot;,rank);
+       message_send_text(c,message_type_info,c,msgtemp);
+     }
+   //&lt;---
+@@ -3931,7 +3931,7 @@
+     }
+   else
+     {
+-      std::sprintf(msgtemp,&quot;Timer set for %s&quot;,seconds_to_timestr(delta));
++      snprintf(msgtemp, sizeof(msgtemp), &quot;Timer set for %.128s&quot;,seconds_to_timestr(delta));
+       message_send_text(c,message_type_info,c,msgtemp);
+     }
+ 
+@@ -3941,7 +3941,6 @@
+ static int _handle_serverban_command(t_connection *c, char const *text)
+ {
+   char dest[MAX_USERNAME_LEN];
+-  char messagetemp[MAX_MESSAGE_LEN];
+   t_connection * dest_c;
+   unsigned int i,j;
+ 
+@@ -3963,14 +3962,14 @@
+ 	  message_send_text(c,message_type_error,c,&quot;That user is not logged on.&quot;);
+ 	  return 0;
+ 	}
+-      std::sprintf(messagetemp,&quot;Banning User %s who is using IP %s&quot;,conn_get_username(dest_c),addr_num_to_ip_str(conn_get_game_addr(dest_c)));
+-      message_send_text(c,message_type_info,c,messagetemp);
++      snprintf(msgtemp, sizeof(msgtemp), &quot;Banning User %.64s who is using IP %.64s&quot;,conn_get_username(dest_c),addr_num_to_ip_str(conn_get_game_addr(dest_c)));
++      message_send_text(c,message_type_info,c,msgtemp);
+       message_send_text(c,message_type_info,c,&quot;Users Account is also LOCKED! Only a Admin can Unlock it!&quot;);
+-      std::sprintf(msgtemp,&quot;/ipban a %s&quot;,addr_num_to_ip_str(conn_get_game_addr(dest_c)));
++      snprintf(msgtemp, sizeof(msgtemp), &quot;/ipban a %.64s&quot;,addr_num_to_ip_str(conn_get_game_addr(dest_c)));
+       handle_ipban_command(c,msgtemp);
+       account_set_auth_lock(conn_get_account(dest_c),1);
+       //now kill the connection
+-      std::sprintf(msgtemp,&quot;You have been banned by Admin: %s&quot;,conn_get_username(c));
++      snprintf(msgtemp, sizeof(msgtemp), &quot;You have been banned by Admin: %.64s&quot;,conn_get_username(c));
+       message_send_text(dest_c,message_type_error,dest_c,msgtemp);
+       message_send_text(dest_c,message_type_error,dest_c,&quot;Your account is also LOCKED! Only a admin can UNLOCK it!&quot;);
+       conn_set_state(dest_c, conn_state_destroy);
+@@ -4011,10 +4010,10 @@
+       return 0;
+     }
+ 
+-  std::sprintf(msgtemp,&quot;Server TCP: %s (bind %s)&quot;,addr_num_to_addr_str(conn_get_real_local_addr(conn),conn_get_real_local_port(conn)),addr_num_to_addr_str(conn_get_local_addr(conn),conn_get_local_port(conn)));
++  snprintf(msgtemp, sizeof(msgtemp), &quot;Server TCP: %.64s (bind %.64s)&quot;,addr_num_to_addr_str(conn_get_real_local_addr(conn),conn_get_real_local_port(conn)),addr_num_to_addr_str(conn_get_local_addr(conn),conn_get_local_port(conn)));
+   message_send_text(c,message_type_info,c,msgtemp);
+ 
+-  std::sprintf(msgtemp,&quot;Client TCP: %s&quot;,addr_num_to_addr_str(conn_get_addr(conn),conn_get_port(conn)));
++  snprintf(msgtemp, sizeof(msgtemp), &quot;Client TCP: %.64s&quot;,addr_num_to_addr_str(conn_get_addr(conn),conn_get_port(conn)));
+   message_send_text(c,message_type_info,c,msgtemp);
+ 
+   taddr=addr = conn_get_game_addr(conn);
+@@ -4022,10 +4021,10 @@
+   trans_net(conn_get_addr(c),&amp;taddr,&amp;tport);
+ 
+   if (taddr==addr &amp;&amp; tport==port)
+-    std::sprintf(msgtemp,&quot;Client UDP: %s&quot;,
++    snprintf(msgtemp, sizeof(msgtemp), &quot;Client UDP: %.64s&quot;,
+ 	    addr_num_to_addr_str(addr,port));
+   else
+-    std::sprintf(msgtemp,&quot;Client UDP: %s (trans %s)&quot;,
++    snprintf(msgtemp, sizeof(msgtemp), &quot;Client UDP: %.64s (trans %.64s)&quot;,
+ 	    addr_num_to_addr_str(addr,port),
+ 	    addr_num_to_addr_str(taddr,tport));
+   message_send_text(c,message_type_info,c,msgtemp);
+@@ -4037,10 +4036,10 @@
+       trans_net(conn_get_addr(c),&amp;taddr,&amp;tport);
+ 
+       if (taddr==addr &amp;&amp; tport==port)
+-	std::sprintf(msgtemp,&quot;Game UDP:  %s&quot;,
++	snprintf(msgtemp, sizeof(msgtemp), &quot;Game UDP:  %.64s&quot;,
+ 		addr_num_to_addr_str(addr,port));
+       else
+-	std::sprintf(msgtemp,&quot;Game UDP:  %s (trans %s)&quot;,
++	snprintf(msgtemp, sizeof(msgtemp), &quot;Game UDP:  %.64s (trans %.64s)&quot;,
+ 		addr_num_to_addr_str(addr,port),
+ 		addr_num_to_addr_str(taddr,tport));
+     }
+@@ -4053,11 +4052,11 @@
+ 
+ static int _handle_quota_command(t_connection * c, char const * text)
+ {
+-  std::sprintf(msgtemp,&quot;Your quota allows you to write %u lines per %u seconds.&quot;,prefs_get_quota_lines(),prefs_get_quota_time());
++  snprintf(msgtemp, sizeof(msgtemp), &quot;Your quota allows you to write %u lines per %u seconds.&quot;,prefs_get_quota_lines(),prefs_get_quota_time());
+   message_send_text(c,message_type_info,c,msgtemp);
+-  std::sprintf(msgtemp,&quot;Long lines will be considered to wrap every %u characters.&quot;,prefs_get_quota_wrapline());
++  snprintf(msgtemp, sizeof(msgtemp), &quot;Long lines will be considered to wrap every %u characters.&quot;,prefs_get_quota_wrapline());
+   message_send_text(c,message_type_info,c,msgtemp);
+-  std::sprintf(msgtemp,&quot;You are not allowed to send lines with more than %u characters.&quot;,prefs_get_quota_maxline());
++  snprintf(msgtemp, sizeof(msgtemp), &quot;You are not allowed to send lines with more than %u characters.&quot;,prefs_get_quota_maxline());
+   message_send_text(c,message_type_info,c,msgtemp);
+ 
+   return 0;
+@@ -4137,7 +4136,7 @@
+   newflag = std::strtoul(dest,NULL,0);
+   conn_set_flags(c,newflag);
+ 
+-  std::sprintf(msgtemp,&quot;Flags set to 0x%08x.&quot;,newflag);
++  snprintf(msgtemp, sizeof(msgtemp), &quot;Flags set to 0x%08x.&quot;,newflag);
+   message_send_text(c,message_type_info,c,msgtemp);
+   return 0;
+ }
+@@ -4175,10 +4174,10 @@
+ 	channel_rejoin(c);
+ 	conn_set_flags(c,oldflags);
+ 	channel_update_userflags(c);
+-        std::sprintf(msgtemp,&quot;Client tag set to %s.&quot;,dest);
++        snprintf(msgtemp, sizeof(msgtemp), &quot;Client tag set to %.128s.&quot;,dest);
+     }
+     else
+-    std::sprintf(msgtemp,&quot;Invalid clienttag %s specified&quot;,dest);
++    snprintf(msgtemp, sizeof(msgtemp), &quot;Invalid clienttag %.128s specified&quot;,dest);
+     message_send_text(c,message_type_info,c,msgtemp);
+     return 0;
+ }
+@@ -4232,7 +4231,7 @@
+     {
+       if (account_get_strattr(account,key))
+ 	{
+-	  std::sprintf(msgtemp, &quot;current value of %.64s is \&quot;%.128s\&quot;&quot;,key,account_get_strattr(account,key));
++	  snprintf(msgtemp, sizeof(msgtemp), &quot;current value of %.64s is \&quot;%.128s\&quot;&quot;,key,account_get_strattr(account,key));
+ 	  message_send_text(c,message_type_error,c,msgtemp);
+ 	}
+       else
+@@ -4347,18 +4346,18 @@
+ 	    {
+ 	      if ((user = game_get_player_conn(game, i)))
+ 		{
+-		  std::sprintf(msgtemp,&quot;%s latency: %9u&quot;,conn_get_username(user),conn_get_latency(user));
++		  snprintf(msgtemp, sizeof(msgtemp), &quot;%.64s latency: %9u&quot;,conn_get_username(user),conn_get_latency(user));
+ 		  message_send_text(c,message_type_info,c,msgtemp);
+ 		}
+ 	    }
+ 	  return 0;
+ 	}
+-      std::sprintf(msgtemp,&quot;Your latency %9u&quot;,conn_get_latency(c));
++      snprintf(msgtemp, sizeof(msgtemp), &quot;Your latency %9u&quot;,conn_get_latency(c));
+     }
+   else if ((user = connlist_find_connection_by_accountname(&amp;text[i])))
+-    std::sprintf(msgtemp,&quot;%s latency %9u&quot;,&amp;text[i],conn_get_latency(user));
++    snprintf(msgtemp, sizeof(msgtemp), &quot;%.64s latency %9u&quot;,&amp;text[i],conn_get_latency(user));
+   else
+-    std::sprintf(msgtemp,&quot;Invalid user&quot;);
++    snprintf(msgtemp, sizeof(msgtemp), &quot;Invalid user&quot;);
+ 
+   message_send_text(c,message_type_info,c,msgtemp);
+   return 0;
+@@ -4441,7 +4440,7 @@
+ 	if (usergroups &amp; 32) tempgroups[5] = '6'; else tempgroups[5] = ' ';
+ 	if (usergroups &amp; 64) tempgroups[6] = '7'; else tempgroups[6] = ' ';
+ 	if (usergroups &amp; 128) tempgroups[7] = '8'; else tempgroups[7] = ' ';
+-	std::sprintf(msgtemp, &quot;%s's command group(s): %s&quot;, username, tempgroups);
++	snprintf(msgtemp, sizeof(msgtemp), &quot;%.64s's command group(s): %.64s&quot;, username, tempgroups);
+ 	message_send_text(c,message_type_info,c,msgtemp);
+ 	return 0;
+     }
+@@ -4461,7 +4460,7 @@
+ 	else if (arg3[i] == '7') groups |= 64;
+ 	else if (arg3[i] == '8') groups |= 128;
+ 	else {
+-	    std::sprintf(msgtemp, &quot;got bad group: %c&quot;, arg3[i]);
++	    snprintf(msgtemp, sizeof(msgtemp), &quot;got bad group: %c&quot;, arg3[i]);
+ 	    message_send_text(c,message_type_info,c,msgtemp);
+ 	    return 0;
+ 	}
+@@ -4469,19 +4468,19 @@
+ 
+     if (!std::strcmp(command,&quot;add&quot;) || !std::strcmp(command,&quot;a&quot;)) {
+ 	account_set_command_groups(account, usergroups | groups);
+-	std::sprintf(msgtemp, &quot;groups %s has been added to user: %s&quot;, arg3, username);
++	snprintf(msgtemp, sizeof(msgtemp), &quot;groups %.64s has been added to user: %.64s&quot;, arg3, username);
+ 	message_send_text(c,message_type_info,c,msgtemp);
+ 	return 0;
+     }
+ 
+     if (!std::strcmp(command,&quot;del&quot;) || !std::strcmp(command,&quot;d&quot;)) {
+ 	account_set_command_groups(account, usergroups &amp; (255 - groups));
+-	std::sprintf(msgtemp, &quot;groups %s has been deleted from user: %s&quot;, arg3, username);
++	snprintf(msgtemp, sizeof(msgtemp), &quot;groups %.64s has been deleted from user: %.64s&quot;, arg3, username);
+ 	message_send_text(c,message_type_info,c,msgtemp);
+ 	return 0;
+     }
+ 
+-    std::sprintf(msgtemp, &quot;got unknown command: %s&quot;, command);
++    snprintf(msgtemp, sizeof(msgtemp), &quot;got unknown command: %.128s&quot;, command);
+     message_send_text(c,message_type_info,c,msgtemp);
+     return 0;
+ }
+@@ -4515,11 +4514,11 @@
+   {
+     if (channel_get_topic(channel_get_name(conn_get_channel(c))))
+     {
+-      std::sprintf(msgtemp,&quot;%s topic: %s&quot;,channel_get_name(conn_get_channel(c)),channel_get_topic(channel_get_name(conn_get_channel(c))));
++      snprintf(msgtemp, sizeof(msgtemp), &quot;%.64s topic: %.128s&quot;,channel_get_name(conn_get_channel(c)),channel_get_topic(channel_get_name(conn_get_channel(c))));
+     }
+     else
+     {
+-      std::sprintf(msgtemp,&quot;%s topic: no topic&quot;,channel_get_name(conn_get_channel(c)));
++      snprintf(msgtemp, sizeof(msgtemp), &quot;%.64s topic: no topic&quot;,channel_get_name(conn_get_channel(c)));
+     }
+     message_send_text(c,message_type_info,c,msgtemp);
+ 
+@@ -4530,11 +4529,11 @@
+   {
+     if (channel_get_topic(channel_name))
+     {
+-      std::sprintf(msgtemp,&quot;%s topic: %s&quot;,channel_name, channel_get_topic(channel_name));
++      snprintf(msgtemp, sizeof(msgtemp), &quot;%.64s topic: %.128s&quot;,channel_name, channel_get_topic(channel_name));
+     }
+     else
+     {
+-      std::sprintf(msgtemp,&quot;%s topic: no topic&quot;,channel_name);
++      snprintf(msgtemp, sizeof(msgtemp), &quot;%.64s topic: no topic&quot;,channel_name);
+     }
+     message_send_text(c,message_type_info,c,msgtemp);
+     return 0;
+@@ -4542,14 +4541,14 @@
+ 
+   if (!(channel = channellist_find_channel_by_name(channel_name,conn_get_country(c),realm_get_name(conn_get_realm(c)))))
+   {
+-    std::sprintf(msgtemp,&quot;no such channel, can't set topic&quot;);
++    snprintf(msgtemp, sizeof(msgtemp), &quot;no such channel, can't set topic&quot;);
+     message_send_text(c,message_type_error,c,msgtemp);
+     return -1;
+   }
+ 
+   if (std::strlen(topic) &gt;= MAX_TOPIC_LEN)
+   {
+-    std::sprintf(msgtemp,&quot;max topic length exceeded (max %d symbols)&quot;, MAX_TOPIC_LEN);
++    snprintf(msgtemp, sizeof(msgtemp), &quot;max topic length exceeded (max %d symbols)&quot;, MAX_TOPIC_LEN);
+     message_send_text(c,message_type_error,c,msgtemp);
+     return -1;
+   }
+@@ -4557,7 +4556,7 @@
+   channel_name = channel_get_name(channel);
+ 
+   if (!(account_is_operator_or_admin(conn_get_account(c),channel_name))) {
+-	std::sprintf(msgtemp,&quot;You must be at least a Channel Operator of %s to set the topic&quot;,channel_name);
++	snprintf(msgtemp, sizeof(msgtemp), &quot;You must be at least a Channel Operator of %.64s to set the topic&quot;,channel_name);
+ 	message_send_text(c,message_type_error,c,msgtemp);
+ 	return -1;
+   }
+@@ -4567,7 +4566,7 @@
+ 
+   channel_set_topic(channel_name, topic, do_save);
+ 
+-  std::sprintf(msgtemp,&quot;%s topic: %s&quot;,channel_name, topic);
++  snprintf(msgtemp, sizeof(msgtemp), &quot;%.64s topic: %.128s&quot;,channel_name, topic);
+   message_send_text(c,message_type_info,c,msgtemp);
+ 
+   return 0;
+@@ -4614,7 +4613,7 @@
+     account_set_normal_vitality(account,ctag,0),
+     account_set_normal_gold(account,ctag,0);
+ 
+-    std::sprintf(msgtemp,&quot;Resetted %s's %s Stats&quot;,account_get_name(account),clienttag_get_title(ctag));
++    snprintf(msgtemp, sizeof(msgtemp), &quot;Resetted %.64s's %.64s Stats&quot;,account_get_name(account),clienttag_get_title(ctag));
+     message_send_text(c,message_type_info,c,msgtemp);
+ }
+ 
+@@ -4700,7 +4699,7 @@
+ 		ladderList-&gt;delEntry(uid);
+     }
+ 
+-    std::sprintf(msgtemp,&quot;Resetted %s's %s Stats&quot;,account_get_name(account),clienttag_get_title(ctag));
++    snprintf(msgtemp, sizeof(msgtemp), &quot;Resetted %.64s's %.64s Stats&quot;,account_get_name(account),clienttag_get_title(ctag));
+     message_send_text(c,message_type_info,c,msgtemp);
+ }
+ 
+@@ -4738,7 +4737,7 @@
+     // this would now need a way to delete the team for all members now
+     //account_set_atteamcount(account,ctag,0);
+ 
+-    std::sprintf(msgtemp,&quot;Resetted %s's %s Stats&quot;,account_get_name(account),clienttag_get_title(ctag));
++    snprintf(msgtemp, sizeof(msgtemp), &quot;Resetted %.64s's %.64s Stats&quot;,account_get_name(account),clienttag_get_title(ctag));
+     message_send_text(c,message_type_info,c,msgtemp);
+ }
+ 
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000480.html">[pvpgn-dev] r398 - trunk/pvpgn/src/win32
+</A></li>
+	<LI>Next message: <A HREF="000482.html">[pvpgn-dev] pvpgn/src/bnetd command.c,1.166,1.167
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#481">[ date ]</a>
+              <a href="thread.html#481">[ thread ]</a>
+              <a href="subject.html#481">[ subject ]</a>
+              <a href="author.html#481">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>

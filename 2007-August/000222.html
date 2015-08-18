@@ -1,0 +1,122 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+ <HEAD>
+   <TITLE> [pvpgn-dev] r286 - trunk/pvpgn/src/common
+   </TITLE>
+   <LINK REL="Index" HREF="http://lists.berlios.de/pipermail/pvpgn-dev/2007-August/index.html" >
+   <LINK REL="made" HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r286%20-%20trunk/pvpgn/src/common&In-Reply-To=%3C200708032013.l73KD9cx005147%40sheep.berlios.de%3E">
+   <META NAME="robots" CONTENT="index,nofollow">
+   <style type="text/css">
+       pre {
+           white-space: pre-wrap;       /* css-2.1, curent FF, Opera, Safari */
+           }
+   </style>
+   <META http-equiv="Content-Type" content="text/html; charset=us-ascii">
+   <LINK REL="Previous"  HREF="000356.html">
+   <LINK REL="Next"  HREF="000224.html">
+ </HEAD>
+ <BODY BGCOLOR="#ffffff">
+   <H1>[pvpgn-dev] r286 - trunk/pvpgn/src/common</H1>
+    <B>svn at svn.berlios.de</B> 
+    <A HREF="mailto:pvpgn-dev%40lists.berlios.de?Subject=Re%3A%20%5Bpvpgn-dev%5D%20r286%20-%20trunk/pvpgn/src/common&In-Reply-To=%3C200708032013.l73KD9cx005147%40sheep.berlios.de%3E"
+       TITLE="[pvpgn-dev] r286 - trunk/pvpgn/src/common">svn at svn.berlios.de
+       </A><BR>
+    <I>Fri Aug  3 22:13:09 CEST 2007</I>
+    <P><UL>
+        <LI>Previous message: <A HREF="000356.html">[pvpgn-dev] Help me ...PVPGN does not reconnect mysql when	disconnect
+</A></li>
+        <LI>Next message: <A HREF="000224.html">[pvpgn-dev] r287 - trunk/pvpgn/src/bnetd
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#222">[ date ]</a>
+              <a href="thread.html#222">[ thread ]</a>
+              <a href="subject.html#222">[ subject ]</a>
+              <a href="author.html#222">[ author ]</a>
+         </LI>
+       </UL>
+    <HR>  
+<!--beginarticle-->
+<PRE>Author: pandaemonium
+Date: 2007-08-03 22:13:09 +0200 (Fri, 03 Aug 2007)
+New Revision: 286
+
+Modified:
+   trunk/pvpgn/src/common/bnet_protocol.h
+Log:
+unintentionally commited some other changes on last commit - need those, too to get things to compiel again
+
+Modified: trunk/pvpgn/src/common/bnet_protocol.h
+===================================================================
+--- trunk/pvpgn/src/common/bnet_protocol.h	2007-08-03 20:10:03 UTC (rev 285)
++++ trunk/pvpgn/src/common/bnet_protocol.h	2007-08-03 20:13:09 UTC (rev 286)
+@@ -1630,7 +1630,7 @@
+ typedef struct
+ {
+     t_bnet_header h;
+-    bn_byte        unknown[32];
++    bn_byte        client_public_key[32];
+     /* player name */
+ } PACKED_ATTR() t_client_loginreq_w3;
+ /******************************************************/
+@@ -1652,7 +1652,8 @@
+     t_bnet_header h;
+     bn_int       message;
+     /* seems to be response to client-challenge */
+-    bn_int       unknown[16];
++    bn_byte       salt[32];
++    bn_byte       server_public_key[32];
+ } PACKED_ATTR() t_server_loginreply_w3;
+ #define SERVER_LOGINREPLY_W3_MESSAGE_SUCCESS 0x00000000
+ #define SERVER_LOGINREPLY_W3_MESSAGE_ALREADY 0x00000001 /* Account already logged on */
+@@ -1689,7 +1690,7 @@
+ typedef struct
+ {
+     t_bnet_header h;
+-    bn_int	client_password_proof[5];
++    bn_byte	client_password_proof[20];
+ } PACKED_ATTR() t_client_logonproofreq;
+ 
+ #define SERVER_LOGONPROOFREPLY 0x54ff
+@@ -1697,7 +1698,7 @@
+ {
+    t_bnet_header h;
+    bn_int	response;
+-   bn_int	server_password_proof[5];
++   bn_byte	server_password_proof[20];
+ } PACKED_ATTR() t_server_logonproofreply;
+ #define SERVER_LOGONPROOFREPLY_RESPONSE_OK 0x00000000
+ #define SERVER_LOGONPROOFREPLY_RESPONSE_BADPASS 0x00000002
+@@ -1719,7 +1720,8 @@
+ typedef struct
+ {
+ 	t_bnet_header h;
+-	bn_byte       unknown[64];
++	bn_byte       salt[32];
++	bn_byte       password_verifier[32];
+ 	/* player name */
+ } PACKED_ATTR() t_client_createaccount_w3;
+ /******************************************************/
+
+
+</PRE>
+
+<!--endarticle-->
+    <HR>
+    <P><UL>
+        <!--threads-->
+	<LI>Previous message: <A HREF="000356.html">[pvpgn-dev] Help me ...PVPGN does not reconnect mysql when	disconnect
+</A></li>
+	<LI>Next message: <A HREF="000224.html">[pvpgn-dev] r287 - trunk/pvpgn/src/bnetd
+</A></li>
+         <LI> <B>Messages sorted by:</B> 
+              <a href="date.html#222">[ date ]</a>
+              <a href="thread.html#222">[ thread ]</a>
+              <a href="subject.html#222">[ subject ]</a>
+              <a href="author.html#222">[ author ]</a>
+         </LI>
+       </UL>
+
+<hr>
+<a href="https://lists.berlios.de/mailman/listinfo/pvpgn-dev">More information about the pvpgn-dev
+mailing list</a><br>
+</body></html>
